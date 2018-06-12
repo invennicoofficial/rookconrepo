@@ -1,0 +1,26 @@
+<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
+	<ul>
+		<?php if(isset($_GET['settings'])) { ?>
+			<li class="sidebar-higher-level <?= $_GET['settings'] == 'macros' ? 'active' : '' ?>"><a href="?settings=macros">Add Macros</a></li>
+		<?php } else {
+			if(in_array('upload',$tab_list)) { ?>
+				<li class="sidebar-higher-level <?= $_GET['tab'] == 'upload' ? 'active' : '' ?>"><a href="?tab=upload">Upload CSV</a></li>
+			<?php }
+			if(in_array('macros',$tab_list)) { ?>
+				<li class="sidebar-higher-level <?= $_GET['tab'] == 'macros' ? 'active' : '' ?>"><a class="<?= $_GET['tab'] == 'macros' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#macro_list">Macros<span class="arrow"></span></a></li>
+				<ul class="collapse <?= $_GET['tab'] == 'macros' ? 'in' : '' ?>" id="macro_list">
+					<?php if(count($macro_list) == 0) {
+						echo '<li>No Macros Found</li>';
+					} else {
+						foreach($macro_list as $macro_label => $macro) {
+							echo '<li class="sidebar-lower-level"><a class="'.($macro == $_GET['macro'] ? 'active' : '').'" href="?tab=macros&macro='.$macro.'">'.$macro_label.'</a></li>';
+						}
+					} ?>
+				</ul>
+			<?php }
+			if(in_array('assign',$tab_list)) { ?>
+				<li class="sidebar-higher-level <?= $_GET['tab'] == 'assign' ? 'active' : '' ?>"><a href="?tab=assign">Assign <?= TICKET_TILE ?></a></li>
+			<?php }
+		} ?>
+	</ul>
+</div>
