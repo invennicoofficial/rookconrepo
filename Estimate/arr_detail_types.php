@@ -1,0 +1,10 @@
+<?php $detail_types = [ 'Details Detail' => ['Detail','detail_detail'],'Details Issue' => ['Issue','detail_issue'],'Details Problem' => ['Problem','detail_problem'],
+	'Details GAP' => ['GAP','detail_gap'],'Details Technical Uncertainty' => ['Technical Uncertainty','detail_technical_uncertainty'],'Details Base Knowledge' => ['Base Knowledge','detail_base_knowledge'],
+	'Details Do' => ['Do','detail_do'],'Details Already Known' => ['Already Known','detail_already_known'],'Details Sources' => ['Sources','detail_sources'],
+	'Details Current Designs' => ['Current Designs','detail_current_designs'],'Details Known Techniques' => ['Known Techniques','detail_known_techniques'],'Details Review Needed' => ['Review Needed','detail_review_needed'],
+	'Details Looking to Achieve' => ['Looking to Achieve','detail_looking_to_achieve'],'Details Plan' => ['Plan','detail_plan'],'Details Next Steps' => ['Next Steps','detail_next_steps'],
+	'Details Learnt' => ['Learnt','detail_learnt'],'Details Discovered' => ['Discovered','detail_discovered'],'Details Tech Advancements' => ['Tech Advancements','detail_tech_advancements'],
+	'Details Work' => ['Work','detail_work'],'Details Adjustments Needed' => ['Adjustments Needed','detail_work'],'Details Future Designs' => ['Future Designs','detail_future_designs'],
+	'Details Targets' => ['Targets','detail_targets'],'Details Audience' => ['Audience','detail_audience'],'Details Strategy' => ['Strategy','detail_strategy'],
+	'Details Desired Outcome' => ['Desired Outcome','detail_desired_outcome'],'Details Actual Outcome' => ['Actual Outcome','detail_actual_outcome'],'Details Check' => ['Check','detail_check'],
+	'Details Objective' => ['Objective','detail_objective'],'Details Notes' => ['Notes for Quote','detail_quote_note'] ]; ?>

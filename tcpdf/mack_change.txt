@@ -1,0 +1,6 @@
+include/tcpdf_static.php
+Comment line 2435 - 2440
+
+=============================
+
+Remove "examples" folder

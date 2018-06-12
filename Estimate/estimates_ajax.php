@@ -1,0 +1,358 @@
+<?php include('../include.php');
+error_reporting(0);
+checkAuthorised();
+ob_clean();
+
+if($_GET['action'] == 'save_template_field') {
+	$table = filter_var($_POST['table_name'],FILTER_SANITIZE_STRING);
+	$line_id = filter_var($_POST['line_id'],FILTER_SANITIZE_STRING);
+	$heading_id = filter_var($_POST['heading_id'],FILTER_SANITIZE_STRING);
+	$template_id = filter_var($_POST['template_id'],FILTER_SANITIZE_STRING);
+	$field_name = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	
+	$sql = "";
+	if($table == 'estimate_templates') {
+		if(!is_numeric($template_id)) {
+			mysqli_query($dbc, "INSERT INTO `estimate_templates` () VALUES ()");
+			$template_id = mysqli_insert_id($dbc);
+			echo $template_id;
+		}
+		$sql = "UPDATE `$table` SET `$field_name`='$value' WHERE `id`='$template_id'";
+	} else if($table == 'estimate_template_headings') {
+		if(!is_numeric($heading_id)) {
+			mysqli_query($dbc, "INSERT INTO `estimate_template_headings` () VALUES ()");
+			$heading_id = mysqli_insert_id($dbc);
+			echo $heading_id;
+		}
+		$sql = "UPDATE `$table` SET `$field_name`='$value', `template_id`='$template_id' WHERE `id`='$heading_id'";
+	} else if($table == 'estimate_template_lines') {
+		if(!is_numeric($line_id)) {
+			mysqli_query($dbc, "INSERT INTO `estimate_template_lines` () VALUES ()");
+			$line_id = mysqli_insert_id($dbc);
+			echo $line_id;
+		}
+		$sql = "UPDATE `$table` SET `$field_name`='$value', `heading_id`='$heading_id' WHERE `id`='$line_id'";
+	}
+	mysqli_query($dbc, $sql);
+} else if($_GET['action'] == 'set_sort_order') {
+	$table = filter_var($_POST['table_name'],FILTER_SANITIZE_STRING);
+	$i = 0;
+	foreach($_POST['sort_ids'] as $id) {
+		mysqli_query($dbc, "UPDATE `$table` SET `sort_order`='$i' WHERE `id`='$id'");
+		$i++;
+	}
+} else if($_GET['action'] == 'estimate_uploads') {
+	$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
+	$estimate = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	foreach($_FILES['files']['name'] as $file => $basename) {
+		if($table == 'estimate_document') {
+			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+			$i = 0;
+			while(file_exists('download/'.$filename)) {
+				$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+			}
+			move_uploaded_file($_FILES['files']['tmp_name'][$file],'download/'.$filename);
+			mysqli_query($dbc, "INSERT INTO `estimate_document` (`estimateid`,`upload`,`created_by`) VALUES ('$estimate','$filename','".$_SESSION['contactid']."')");
+		}
+	}
+} else if($_GET['action'] == 'table_locks') {
+	$user_id = filter_var($_POST['session_id'],FILTER_SANITIZE_STRING);
+	$table_row = filter_var($_POST['estimateid'],FILTER_SANITIZE_STRING);
+	
+	//Check if anybody is using the currently requested section
+	$locked = [];
+	$messages = [];
+	foreach($_POST['section'] as $section_name) {
+		$section_name = filter_var($section_name,FILTER_SANITIZE_STRING);
+		$current_locks = mysqli_fetch_array(mysqli_query($dbc, "SELECT `user_id` FROM `table_locks` WHERE TIMEDIFF(CURRENT_TIMESTAMP,`locked_at`) < '00:10:00' AND `table_name`='estimates' AND `tab_name`='$section_name' AND `table_row_id`='$table_row' AND `user_id` != '$user_id'"));
+		if($current_locks['user_id'] > 0) {
+			$locked[] = $section_name;
+			$messages[] = get_contact($dbc, $current_locks['user_id'])." has a lock on the $section_name tab.\n";
+		} else {
+			//Create a row for the user if it doesn't exist
+			mysqli_query($dbc, "INSERT INTO `table_locks` (`user_id`, `tab_name`) SELECT '$user_id', '$section_name' FROM (SELECT COUNT(*) rows FROM `table_locks` WHERE `user_id`='$user_id' AND `tab_name`='$section_name') num WHERE num.rows=0");
+			//Mark the section as locked by the current user
+			mysqli_query($dbc, "UPDATE `table_locks` SET `locked_at`=CURRENT_TIMESTAMP, `table_name`='estimates', `tab_name`='$section_name', `table_row_id`='$table_row' WHERE `user_id`='$user_id' AND `tab_name`='$section_name'");
+		}
+	}
+	echo implode(',',$locked).'#*#'.implode('',$messages);
+} else if($_GET['action'] == 'list_estimate_scope') {
+	$src = filter_var($_POST['src'],FILTER_SANITIZE_STRING);
+	$query = mysqli_query($dbc, "SELECT `id`,`heading`,`description`,`src_table`,`src_id`,`qty`,`cost`,`price`,`retail`,`multiple` FROM `estimate_scope` WHERE `estimateid`='$src' AND `deleted`=0 ORDER BY `sort_order`");
+	echo "SELECT `id`,`heading`,`description`,`src_table`,`src_id`,`qty`,`cost`,`price`,`retail`,`multiple` FROM `estimate_scope` WHERE `estimateid`='$src' AND `deleted`=0 ORDER BY `sort_order`";
+	if(mysqli_num_rows($query) > 0) {
+		echo "<table class='table table_bordered'>
+		<tr class='hidden-sm hidden-xs'>
+			<th>Include</th>
+			<th>Heading</th>
+			<th>Description</th>
+			<th>Quantity</th>
+			<th>Cost</th>
+			<th>Price</th>
+		</tr>";
+		while($line = mysqli_fetch_assoc($query)) {
+			$description = $line['description'];
+			if($description == '' && $line['src_table'] == 'equipment') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label FROM `equipment` WHERE `equipmentid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'inventory') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`product_name`,''),' ',IFNULL(`name`,''),' ',IFNULL(`part_no`,'')) label FROM `inventory` WHERE `inventoryid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'labour') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`labour_type`,''),' ',IFNULL(`category`,''),' ',IFNULL(`heading`,''),' ',IFNULL(`name`,'')) label FROM `labour` WHERE `labourid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'material') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`sub_category`,''),' ',IFNULL(`name`,'')) label FROM `material` WHERE `materialid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'positions') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` label FROM `positions` WHERE `position_id`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'products') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `products` WHERE `productid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'services') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `services` WHERE `serviceid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'vpl') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='".$line['src_id']."'"))['label'];
+			}
+			echo "<tr>
+				<td data-title='Include'><label class='form-checkbox-any'><input type='checkbox' checked name='include' value='".$line['id']."'> Include</label></td>
+				<td data-title='Heading'>".$line['heading']."</td>
+				<td data-title='Description'>".$description."</td>
+				<td data-title='Quantity'>".$line['qty']."</td>
+				<td data-title='Cost'>".number_format($line['cost'],2)."</td>
+				<td data-title='Price'>".number_format($line['price'],2)."</td>
+			</tr>";
+		}
+		echo "</table>";
+	} else {
+		echo "<h3>No Details Found</h3>";
+	}
+} else if($_GET['action'] == 'list_template_scope') {
+	$template = filter_var($_POST['template'],FILTER_SANITIZE_STRING);
+	$query = mysqli_query($dbc, "SELECT items.`id`,headings.`heading_name`,items.`description`,items.`src_table`,items.`src_id`,items.`qty` FROM `estimate_template_headings` headings LEFT JOIN `estimate_template_lines` items ON items.`heading_id`=headings.`id` WHERE headings.`deleted`=0 AND items.`deleted`=0 AND headings.`template_id`='$template' ORDER BY items.`sort_order`");
+	if(mysqli_num_rows($query) > 0) {
+		echo "<table class='table table_bordered'>
+		<tr class='hidden-sm hidden-xs'>
+			<th>Include</th>
+			<th>Heading</th>
+			<th>Description</th>
+			<th>Quantity</th>
+			<th>Cost</th>
+			<th>Price</th>
+		</tr>";
+		while($line = mysqli_fetch_assoc($query)) {
+			$description = $line['description'];
+			if($description == '' && $line['src_table'] == 'equipment') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label FROM `equipment` WHERE `equipmentid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'inventory') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`product_name`,''),' ',IFNULL(`name`,''),' ',IFNULL(`part_no`,'')) label FROM `inventory` WHERE `inventoryid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'labour') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`labour_type`,''),' ',IFNULL(`category`,''),' ',IFNULL(`heading`,''),' ',IFNULL(`name`,'')) label FROM `labour` WHERE `labourid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'material') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`sub_category`,''),' ',IFNULL(`name`,'')) label FROM `material` WHERE `materialid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'positions') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` label FROM `positions` WHERE `position_id`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'products') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `products` WHERE `productid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'services') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `services` WHERE `serviceid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_table'] == 'vpl') {
+				$description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='".$line['src_id']."'"))['label'];
+			} else if($description == '' && $line['src_id'] > 0) {
+				$description = get_contact($dbc, $line['src_id']);
+			}
+			echo "<tr>
+				<td data-title='Include'><label class='form-checkbox-any'><input type='checkbox' checked name='include' value='".$line['id']."'> Include</label></td>
+				<td data-title='Heading'>".$line['heading_name']."</td>
+				<td data-title='Description'>".$description."</td>
+				<td data-title='Quantity'>".$line['qty']."</td>
+				<td data-title='Cost'>".number_format($line['cost'],2)."</td>
+				<td data-title='Price'>".number_format($line['price'],2)."</td>
+			</tr>";
+		}
+		echo "</table>";
+	} else {
+		echo "<h3>No Details Found</h3>";
+	}
+} else if($_GET['action'] == 'copy_estimate') {
+	$src = filter_var($_POST['src'],FILTER_SANITIZE_STRING);
+	$target = filter_var($_POST['target'],FILTER_SANITIZE_STRING);
+	$include = filter_var($_POST['include'],FILTER_SANITIZE_STRING);
+	$sort = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`sort_order`) FROM `estimate_scope` WHERE `estimateid`='$target'"))[0] + 1;
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`heading`,`description`,`src_table`,`src_id`,`rate_card`,`uom`,`qty`,`cost`,`profit`,`margin`,`price`,`retail`,`multiple`,`sort_order`)
+		SELECT '$target',`heading`,`description`,`src_table`,`src_id`,`rate_card`,`uom`,`qty`,`cost`,`profit`,`margin`,`price`,`retail`,`multiple`,`sort_order` + $sort FROM `estimate_scope` WHERE `estimateid`='$src' AND `deleted`=0 AND `id` IN ($include)");
+} else if($_GET['action'] == 'apply_template') {
+	$template = filter_var($_POST['template'],FILTER_SANITIZE_STRING);
+	$target = filter_var($_POST['target'],FILTER_SANITIZE_STRING);
+	$sort = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`sort_order`) FROM `estimate_scope` WHERE `estimateid`='$target'"))[0] + 1;
+	$include = filter_var($_POST['include'],FILTER_SANITIZE_STRING);
+	$inv_cost_field = get_config($dbc,'inventory_cost');
+	foreach($_POST['rate'] as $rate) {
+		$rate = filter_var($rate,FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`templateid`,`templateline`,`heading`,`description`,`src_table`,`src_id`,`qty`,`rate_card`,`sort_order`)
+			SELECT '$target','$template',items.`id`,headings.`heading_name`,items.`description`,items.`src_table`,items.`src_id`,items.`qty`,'$rate' rate_card,(headings.`sort_order` * 100 + items.`sort_order` + $sort) sort_order
+				FROM `estimate_template_headings` headings LEFT JOIN `estimate_template_lines` items ON items.`heading_id`=headings.`id` WHERE headings.`deleted`=0 AND items.`deleted`=0 AND headings.`template_id`='$template' AND `items`.`id` IN ($include)");
+		$entries = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimate_scope`.`estimateid`='$target' AND `estimate_scope`.`templateid`='$template' AND `estimate_scope`.`deleted`=0");
+		while($entry = mysqli_fetch_array($entries)) {
+			$line = [];
+			if($entry['src_table'] == 'inventory') {
+				$line = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `inventory` WHERE `inventoryid`='{$entry['item_id']}'"));
+			} else if($entry['src_table'] == 'vpl') {
+				$line = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `vendor_price_list` WHERE `inventoryid`='{$entry['item_id']}'"));
+			}
+			$rate = explode(':',$rate);
+			$rate_name = '';
+			if($rate[0] == 'SCOPE') {
+				$specific = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `rate_card_estimate_scope_lines` WHERE `line_id`='{$entry['templateline']}' AND `rate_id` IN ('{$rate[1]}',0) ORDER BY `rate_id` DESC"));
+			} else if($rate[0] == 'COMPANY') {
+				$rate_name = mysqli_fetch_array(mysqli_query($dbc, "SELECT `rate_card_name` FROM `company_rate_card` WHERE `companyrcid`='{$rate[1]}'"))[0];
+			}
+			$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='{$entry['src_table']}' AND `tile_name`!='miscellaneous' AND `item_id`='{$entry['src_id']}' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `rate_card_name` != '$rate_name'");
+			if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'clients') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='clients' AND `description`='".get_contact($dbc, $entry['src_id'])."' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'equipment') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='equipment' AND `description` IN (SELECT `unit_number` FROM `equipment` WHERE `equipmentid`='{$entry['src_id']}') AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')
+					UNION SELECT * FROM `equipment_rate_table` WHERE `deleted`=0 AND `equipment_id`='{$entry['src_id']}' AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')
+					UNION SELECT * FROM `category_rate_table` WHERE `deleted`=0 AND `category` IN (SELECT `category` FROM `equipment` WHERE `equipmentid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'inventory') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='inventory' AND `description` IN (SELECT `product_name` FROM `inventory` WHERE `inventoryid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+				if(mysqli_num_rows($general) == 0) {
+					$general = mysqli_query($dbc, "SELECT '' `uom`, 1 `qty`, `$inv_cost_field` `cost`, '' `profit`, '' `margin`, '' `cust_price`, '' `retail_rate` FROM `inventory` WHERE `inventoryid`='{$entry['src_id']}'");
+				}
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'labour') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='labour' AND `description` IN (SELECT `heading` FROM `labour` WHERE `labourid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'material') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='material' AND `description` IN (SELECT `name` FROM `material` WHERE `materialid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'position') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='position' AND `description` IN (SELECT `name` FROM `positions` WHERE `position_id`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')
+					UNION SELECT * FROM `position_rate_table` WHERE `position_id`='{$entry['src_id']}' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'products') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='products' AND `description` IN (SELECT CONCAT(`category`,' ',`heading`) FROM `products` WHERE `productid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'services') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='services' AND `description` IN (SELECT CONCAT(`category`,' ',`heading`) FROM `services` WHERE `serviceid`='{$entry['src_id']}') AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')
+					UNION SELECT * FROM `service_rate_card` WHERE `serviceid`='{$entry['src_id']}' AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			} else if(mysqli_num_rows($general) == 0 && $entry['src_table'] == 'staff') {
+				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='staff' AND `description`='".get_contact($dbc, $entry['src_id'])."' AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')");
+			}
+			$general = mysqli_fetch_array($general);
+			$uom = ($specific['uom'] != '' ? $specific['uom'] : $general['uom']);
+			$qty = ($entry['qty'] > 0 ? $entry['qty'] : ($specific['qty'] > 0 ? $specific['qty'] : $general['qty']));
+			$cost = ($line['cost'] > 0 ? $line['cost'] : ($specific['cost'] > 0 ? $specific['cost'] : $general['cost'])) * ((100 + get_config($dbc, 'inventory_markup')) / 100);
+			$profit = ($specific['profit'] > 0 ? $specific['profit'] : $general['profit']);
+			$margin = ($specific['margin'] > 0 ? $specific['margin'] : $general['margin']);
+			$price = ($specific['cust_price'] > 0 ? $specific['cust_price'] : $general['cust_price']);
+			$retail = ($line['final_retail_price'] > 0 ? $line['final_retail_price'] : ($specific['retail_rate'] > 0 ? $specific['retail_rate'] : $general['retail_rate']));
+			mysqli_query($dbc, "UPDATE `estimate_scope` SET `uom`='$uom',`qty`='$qty',`cost`='$cost',`profit`='$profit',`margin`='$margin',`price`='$price',`retail`='$retail' WHERE `id`='{$entry['id']}'");
+		}
+	}
+} else if($_GET['action'] == 'estimate_add_heading') {
+	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	$ratecard = filter_var(hex2bin($_POST['ratecard']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`rate_card`,`sort_order`) SELECT '$estimateid','$ratecard',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='$ratecard'");
+} else if($_GET['action'] == 'estimate_fields') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
+	$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	if(is_array($_POST['value'])) {
+		$value = filter_var(implode(',',$_POST['value']),FILTER_SANITIZE_STRING);
+	} else {
+		$value = filter_var(htmlentities($_POST['value']),FILTER_SANITIZE_STRING);
+	}
+	$estimate = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	if(!($id > 0)) {
+		mysqli_query($dbc, "INSERT INTO `$table` (`estimateid`) VALUES ('$estimate')");
+		$id = mysqli_insert_id($dbc);
+		echo $id;
+		if($table == 'estimate') {
+			mysqli_query($dbc, "UPDATE `estimate` SET `created_by`='".$_SESSION['contactid']."', `created_date`=DATE(NOW()) WHERE `estimateid`='$id'");
+			insert_day_overview($dbc, $_SESSION['contactid'], 'Estimate', date('Y-m-d'), '', 'Added Estimate #'.$id, $id);
+		}
+	}
+	if($table == 'estimate_actions') {
+		if($field == 'completed') {
+			$value = htmlentities("Follow Up #$id Completed by ".get_contact($dbc, $_SESSION['contactid'])." on ".date('Y-m-d')."<br />".$value);
+			mysqli_query($dbc, "INSERT INTO `estimate_notes` (`estimateid`, `heading`, `notes`, `created_by`) VALUES ('$estimate', 'Follow Up Completed', '$value', '{$_SESSION['contactid']}')");
+			$value = 1;
+			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a'));
+		} else if($field == '') {
+			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a'));
+		} else {
+			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set follow up $field to '$value' for action $id on ".date('Y-m-d h:i a'));
+		}
+	} else if($table == 'estimate_notes') {
+		mysqli_query($dbc, "UPDATE `estimate_notes` SET `heading`=IF(IFNULL(`heading`,'')='','Note',`heading`), `created_by`='".$_SESSION['contactid']."' WHERE `id`='$id'");
+		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added note '$value' on ".date('Y-m-d h:i a'));
+	} else {
+		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a'));
+	}
+	if($table == 'estimate' && $field == 'status' && $value == 'archived') {
+		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1 WHERE `estimateid`='$id'");
+	} else if($table == 'estimate' && $field == 'status') {
+		mysqli_query($dbc, "UPDATE `estimate` SET `status_date`=DATE(NOW())");
+	}
+	mysqli_query($dbc, "UPDATE `$table` SET `$field`='$value' WHERE `$id_field`='$id'");
+	mysqli_query($dbc, "UPDATE `estimate` SET `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'$history') WHERE `estimateid`='$estimate'");
+
+	//Insert into day overview if last edit was wiithin 15 minutes
+	$day_overview_last = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timestamp` FROM `day_overview` WHERE `type` = 'Estimate' AND `tableid` = '$estimate' AND `contactid` = '".$_SESSION['contactid']."' ORDER BY `timestamp` DESC"));
+	$timestamp_now = date('Y-m-d h:i:s');
+	$timediff = strtotime($timestamp_now) - strtotime($day_overview_last['timestamp']);
+	if($timediff > 900 && !empty($estimate)) {
+		$estimate_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `estimate_name` FROM `estimate` WHERE `estimateid` = '$estimate'"))['estimate_name'];
+		insert_day_overview($dbc, $_SESSION['contactid'], 'Estimate', date('Y-m-d'), '', 'Edited Estimate #'.$estimate.(!empty($estimate_name) ? ': '.$estimate_name : ''), $estimate);
+	}
+
+} else if($_GET['action'] == 'setting_types') {
+	$project_tabs = filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'project_tabs' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='project_tabs') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$project_tabs' WHERE `name`='project_tabs'");
+} else if($_GET['action'] == 'settings_general') {
+	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
+	$value = filter_var(htmlentities($_POST['value']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
+} else if($_GET['action'] == 'setting_dashboard') {
+	$length = filter_var($_POST['length'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_dashboard_length' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_dashboard_length') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$length' WHERE `name`='estimate_dashboard_length'");
+	set_config($dbc, 'estimate_summary_view', $_POST['summary']);
+} else if($_GET['action'] == 'setting_status') {
+	$status = filter_var(implode('#*#',array_filter($_POST['status'])),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_status' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_status') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$status' WHERE `name`='estimate_status'");
+	$summary = filter_var(implode('#*#',array_filter($_POST['summary'])),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_summarize' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_summarize') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$summary' WHERE `name`='estimate_summarize'");
+	$projects = filter_var($_POST['projects'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_project_status' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_project_status') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$projects' WHERE `name`='estimate_project_status'");
+} else if($_GET['action'] == 'setting_groups') {
+	$groups = [];
+	foreach($_POST['groups'] as $group) {
+		$groups[] = implode(',',$group);
+	}
+	$group_list = filter_var(implode('#*#',$groups),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_config_estimate` (`estimate_groups`) SELECT '' FROM (SELECT COUNT(*) rows FROM `field_config_estimate`) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_estimate` SET `estimate_groups`='$group_list'");
+} else if($_GET['action'] == 'setting_fields') {
+	$field_list = filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_config_estimate` (`config_fields`) SELECT '' FROM (SELECT COUNT(*) rows FROM `field_config_estimate`) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_estimate` SET `config_fields`='$field_list'");
+	$scope = filter_var(implode('#*#',$_POST['scope']),FILTER_SANITIZE_STRING);
+	if($scope != '') {
+		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_field_order' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_field_order') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$scope' WHERE `name`='estimate_field_order'");
+	}
+} else if($_GET['action'] == 'setting_reporting') {
+	$stats = filter_var(implode('#*#',array_filter($_POST['stats'])),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_report_stats' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_report_stats') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$stats' WHERE `name`='estimate_report_stats'");
+	$alerts = filter_var(implode('#*#',array_filter($_POST['alerts'])),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_report_alerts' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_report_alerts') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$alerts' WHERE `name`='estimate_report_alerts'");
+} else if($_GET['action'] == 'deleteStyle') {
+	$id = filter_var($_GET['styleid'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1 WHERE `pdfsettingid`='$id'");
+} else if($_GET['action'] == 'clearEstimates') {
+	set_user_settings($dbc, 'estimate_closed', date('Y-m-d'));
+} else if($_GET['action'] == 'addContentPage') {
+	$dbc->query('INSERT INTO `estimate_content_page` () VALUES ()');
+	echo $dbc->insert_id;
+}

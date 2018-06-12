@@ -1,0 +1,1 @@
+<?php include('../Contacts/contacts_inbox.php'); ?>
