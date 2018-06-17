@@ -52,11 +52,25 @@ do {
 						<div class="clearfix"></div>
 					</div>
 				<?php } ?>
+				<?php if(strpos($value_config,',Material Manual,') !== FALSE && $field_sort_field == 'Material Manual') { ?>
+					<div class="form-group">
+						<label class="control-label col-sm-4">Material:</label>
+						<div class="col-sm-7">
+							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
+						</div>
+						<div class="col-sm-1">
+							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" value="0">
+							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				<?php } ?>
 				<?php if(strpos($value_config,',Material Quantity,') !== FALSE && $field_sort_field == 'Material Quantity') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Quantity:</label>
 						<div class="col-sm-8">
-							<input type="number" min=0 step="0.01" name="qty" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['qty'] ?>" onchange="materialRate(this);">
+							<input type="number" min=0 step="any" name="qty" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['qty'] ?>" onchange="materialRate(this);">
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -65,7 +79,7 @@ do {
 					<div class="form-group">
 						<label class="control-label col-sm-4">Volume:</label>
 						<div class="col-sm-8">
-							<input type="number" min=0 step="0.01" name="volume" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['volume'] ?>" onchange="materialRate(this);">
+							<input type="number" min=0 step="any" name="volume" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['volume'] ?>" onchange="materialRate(this);">
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -74,7 +88,7 @@ do {
 					<div class="form-group">
 						<label class="control-label col-sm-4">Unit Price:</label>
 						<div class="col-sm-8">
-							<input type="number" min=0 step="0.01" name="rate" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['rate'] ?>" onchange="materialRate(this);">
+							<input type="number" min=0 step="any" name="rate" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['rate'] ?>" onchange="materialRate(this);">
 						</div>
 						<div class="clearfix"></div>
 					</div>
@@ -88,6 +102,7 @@ do {
 				<?php } ?>
 			<?php } ?>
 		</div>
+		<hr>
 	<?php } else if($material['materialid'] > 0) { ?>
 		<div class="multi-block">
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
@@ -110,11 +125,18 @@ do {
 					</div>
 					<?php $pdf_contents[] = ['Type', $material['description'] != '' ? $material['description'] : $material['name']]; ?>
 				<?php } ?>
+				<?php if(strpos($value_config,',Material Manual,') !== FALSE && $field_sort_field == 'Material Manual') { ?>
+					<div class="form-group">
+						<label class="control-label col-sm-4">Material:</label>
+						<div class="col-sm-8"><?= $material['description'] != '' ? $material['description'] : $material['name'] ?></div>
+					</div>
+					<?php $pdf_contents[] = ['Type', $material['description'] != '' ? $material['description'] : $material['name']]; ?>
+				<?php } ?>
 				<?php if(strpos($value_config,',Material Quantity,') !== FALSE && $field_sort_field == 'Material Quantity') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Quantity:</label>
 						<div class="col-sm-8">
-							<?= $material['qty'] ?>
+							<?= round($material['qty'],4) ?>
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -124,7 +146,7 @@ do {
 					<div class="form-group">
 						<label class="control-label col-sm-4">Volume:</label>
 						<div class="col-sm-8">
-							<?= $material['volume'] ?>
+							<?= round($material['volume'],4) ?>
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -134,7 +156,7 @@ do {
 					<div class="form-group">
 						<label class="control-label col-sm-4">Unit Price:</label>
 						<div class="col-sm-8">
-							<?= $material['rate'] ?>
+							<?= number_format($material['rate'],2) ?>
 						</div>
 						<div class="clearfix"></div>
 					</div>

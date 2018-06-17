@@ -73,7 +73,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_checkin.php') {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -82,7 +82,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_checkin.php') {
 	if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
 		$query_daily = " AND `date_stamp`='".date('Y-m-d')."' ";
 	}
-	
+
 	$sort_field = 'Check In';
 	$field_list = $accordion_list[$sort_field];
 	$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($get_ticket['ticket_type']) ? 'tickets' : 'tickets_'.$get_ticket['ticket_type'])."' AND `accordion` = '".$sort_field."'"))['fields'];

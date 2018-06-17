@@ -159,17 +159,17 @@ else if($_GET['action'] == 'contacts_dashboards') {
     /* Common */
     $folder_name = filter_var($_POST['tile_name'],FILTER_SANITIZE_STRING);
     $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid`, `name`, `site_name` FROM `contacts` WHERE `contactid`='$contactid'"));
-    $id_filed = '';
+    $id_field = '';
     if ( !empty($row['name']) ) {
-        $id_filed = 'businessid';
+        $id_field = 'businessid';
     } elseif ( !empty($row['site_name']) ) {
-        $id_filed = 'siteid';
+        $id_field = 'siteid';
     }
     
     /* Assign selected contact to Business or Site */
     if (isset($_POST['contact_id'])) {
         $contact_id = filter_var($_POST['contact_id'],FILTER_SANITIZE_STRING);
-        mysqli_query($dbc, "UPDATE `$table_name` SET `$id_filed`='$contactid' WHERE `contactid`='$contact_id'");
+        mysqli_query($dbc, "UPDATE `$table_name` SET `$id_field`='$contactid' WHERE `contactid`='$contact_id'");
     }
     
     /* Add new contact */

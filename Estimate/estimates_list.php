@@ -52,7 +52,7 @@ function saveField() {
 }
 </script>
 <?php if($_GET['startdate'] != '' || $_GET['enddate'] != '' || $_GET['staffid'] > 0) {
-	echo "<h3>Estimates".($_GET['staffid'] > 0 ? ' for '.get_contact($dbc, $_GET['staffid']) : '').($_GET['startdate'] != '' ? ' from '.$_GET['startdate'] : '').($_GET['enddate'] != '' ? ' until '.$_GET['enddate'] : '')."</h3>";
+	echo "<h3>".ESTIMATE_TILE."".($_GET['staffid'] > 0 ? ' for '.get_contact($dbc, $_GET['staffid']) : '').($_GET['startdate'] != '' ? ' from '.$_GET['startdate'] : '').($_GET['enddate'] != '' ? ' until '.$_GET['enddate'] : '')."</h3>";
 } ?>
 <div class="form-horizontal" id="display_screen">
 </div>

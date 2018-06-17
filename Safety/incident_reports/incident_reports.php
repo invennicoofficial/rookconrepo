@@ -71,6 +71,7 @@ if(!empty($form)) {
 if(!empty($_GET['formid'])) {
     $incidentreportid = $_GET['formid'];
     $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM incident_report WHERE incidentreportid='$incidentreportid'"));
+    $safety_contactid = $get_contact['safety_contactid'];
 
     $type = $get_contact['type'];
     $contactid = $get_contact['contactid'];
@@ -209,21 +210,24 @@ $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
         <div id="collapse_sa<?php echo $sa_inc;?>" class="panel-collapse collapse">
             <div class="panel-body">
 
-                <?php
-                if($assign_staff_done == 0) {
-                    $output_name = 'sign_'.$assign_staff_id; ?>
-                <?php include ('../phpsign/sign_multiple.php'); ?>
+            <?php
+            if($assign_staff_done == 0) { ?>
 
-                <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
-                   <div class="form-group">
-                    <label for="business_street" class="col-sm-4 control-label">Name:</label>
-                    <div class="col-sm-8">
-                        <input name="assign_staff_<?php echo $assign_staff_id;?>" type="text" class="form-control" />
-                    </div>
-                  </div>
-                <?php } ?>
+            <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
+               <div class="form-group">
+                <label for="business_street" class="col-sm-4 control-label">Name:</label>
+                <div class="col-sm-8">
+                    <input name="assign_staff_<?php echo $assign_staff_id;?>" type="text" class="form-control" />
+                </div>
+              </div>
+            <?php } ?>
 
-                <?php } ?>
+            <?php $output_name = 'sign_'.$assign_staff_id;
+            include('../phpsign/sign_multiple.php'); ?>
+
+            <?php } else {
+                echo '<img src="incident_reports/download/safety_'.$assign_staff_id.'.png">';
+            } ?>
 
             </div>
         </div>

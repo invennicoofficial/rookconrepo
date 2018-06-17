@@ -5300,3 +5300,4 @@ ul li h4 { color:#000; }
 .dashboard-item label { color:#000 !important; }
 .ui-datepicker .ui-state-disabled { background-color:#fff; }
 .main-screen-white, .overview-block, .connectedSortable { border-color:#e83324 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }

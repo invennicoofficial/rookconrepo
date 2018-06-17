@@ -326,7 +326,7 @@ $value_config = ','.$get_field_config['config_fields'].',';
 
         <div id="collapse_project_types" class="panel-collapse collapse">
             <div class="panel-body">
-				Add Project/Estimate Types separated by a comma in the order you want them on the dashboard:<br />
+				Add Project/<?= ESTIMATE_TILE ?> Types separated by a comma in the order you want them on the dashboard:<br />
 				<small>Note that removing a type will remove it from the dashboard, and you will not be able to access those projects.</small><br />
 				<br />
 				<input name="project_tabs" type="text" value="<?php echo implode(',',$project_tabs); ?>" class="form-control"/><br />
@@ -341,7 +341,7 @@ $value_config = ','.$get_field_config['config_fields'].',';
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_EstimateDetails" >
-                    Estimate Details<span class="glyphicon glyphicon-plus"></span>
+                    <?= ESTIMATE_TILE ?> Details<span class="glyphicon glyphicon-plus"></span>
                 </a>
             </h4>
         </div>

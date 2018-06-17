@@ -13,7 +13,7 @@ $(document).ready(function() {
 		$('.order_list_products').removeClass('active_tab');
         $(this).addClass('active_tab');
     });
-	
+
 	if($('.order_list_products').length == 1 && '<?php echo $load_tab; ?>' != 'Master') {
 		$('.order_list_products').click();
 	}
@@ -63,7 +63,7 @@ $(document).ready(function() {
 
         return false;
     });
-	
+
 	//Product Misc
 	var add_new_p_misc = 1;
 	$('#deleteproductsmisc_0').hide();
@@ -182,7 +182,7 @@ function countProduct(txb) {
         document.getElementById('pestimatetotal_'+split_id[1]).value = parseFloat($('#pestimateprice_'+split_id[1]).val() * estqty);
     }
 
-    
+
     var sum_fee = 0;
     $('[name="pestimatetotal[]"]').each(function () {
         sum_fee += Number($(this).val());
@@ -284,7 +284,7 @@ function fillmargincrcvalue(est) {
             jQuery('#'+profitmarginid).val(deltaper.toFixed(2));
         }
     }
-    
+
     changeTotal();
 }
 
@@ -331,18 +331,18 @@ function changeTotal() {
 	jQuery('[name="pprofitmisc_display[]"]').each(function () {
         sum_profit += +$(this).val() || 0;
     });
-	
+
     jQuery('[name="pestimatetotal[]"]').each(function () {
         sum_total += +$(this).val() || 0;
     });
-	
+
 	jQuery('[name="ptotalmisc[]"]').each(function () {
         sum_total += +$(this).val() || 0;
     });
 	jQuery('[name="ptotalmisc_display[]"]').each(function () {
         sum_total += +$(this).val() || 0;
     });
-    
+
     for(var loop = 0; loop < 500; loop++) {
         if(typeof $('[name="crc_products_profit_'+loop+'"]').val() !='undefined')
         {
@@ -352,7 +352,7 @@ function changeTotal() {
             break;
         }
     }
-    
+
     for(var loop = 0; loop < 500; loop++) {
         if(typeof $('[name="crc_products_total_'+loop+'"]').val() !='undefined')
         {
@@ -406,7 +406,7 @@ function countMiscProduct(txb)
 
 		document.getElementById('ptotalmisc_'+split_id[1]).value = parseFloat($('#pestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
 	if(split_id[0] == 'pqtymisc') {
 		var estqty = txb.value;
 		if(estqty == null || estqty == '') {
@@ -416,7 +416,7 @@ function countMiscProduct(txb)
 
 		document.getElementById('ptotalmisc_'+split_id[1]).value = parseFloat($('#pestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
     var sum_fee = 0;
     sum_fee += +document.getElementById('ptotalmisc_'+split_id[1]).value || 0;
 
@@ -453,7 +453,7 @@ function changeProfitPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[0] == 'peprofitmargin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -464,7 +464,7 @@ function changeProfitPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeTotal();
 }
 
@@ -489,7 +489,7 @@ function changeProfitRCPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[2] == 'margin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -500,7 +500,7 @@ function changeProfitRCPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeTotal();
 }
 
@@ -526,7 +526,7 @@ function changeProfitMiscPrice(profit)
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
 
         }
-        
+
         if(split_id[0] == 'pmarginmisc')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -537,7 +537,7 @@ function changeProfitMiscPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeTotal();
 }
 </script>
@@ -854,7 +854,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 							<input name="pestimateqty[]" id="<?php echo 'pestimateqty_'.$id_loop; ?>" onchange="countProduct(this); qtychangevalue(this)" value="<?php echo $qty; ?>" type="text" class="form-control" />
 						</div>
 							<?php break;
-						case 'Cost': 
+						case 'Cost':
 							if (strpos($field_config_product, ','."Cost".',') !== FALSE) { ?>
 								<div class="col-sm-1" data-columns="<?= $columns ?>" data-width="1">
 									<label class="col-sm-4 show-on-mob"><?= $data[1] ?></label>
@@ -1026,7 +1026,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 							<input name="pestimateqty[]" id='pestimateqty_0' onchange="countProduct(this); qtychangevalue(this);" type="text" class="form-control" />
 						</div>
 							<?php break;
-						case 'Cost': 
+						case 'Cost':
 							if (strpos($field_config_product, ','."Cost".',') !== FALSE) { ?>
 								<div class="col-sm-1" data-columns="<?= $columns ?>" data-width="1">
 									<label class="col-sm-4 show-on-mob"><?= $data[1] ?></label>
@@ -1060,7 +1060,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 							<?php break;
 					}
 				endforeach; ?>
-				
+
                 <div class="col-sm-1" data-columns="<?= $columns ?>" data-width="1">
                     <a href="#" onclick="deleteEstimate(this,'products_','pheading_'); return false;" id="deleteproducts_0" class="btn brand-btn">Delete</a>
                 </div>
@@ -1294,15 +1294,15 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="add_here_new_p_misc"></div>
-			
+
 			<div class="form-group triple-gapped clearfix">
 				<div class="col-sm-offset-4 col-sm-8">
 					<button id="add_row_p_misc" class="btn brand-btn pull-left">Add Row</button>
 				</div>
 			</div>
-            
+
             <br>
             <?php
             $query_misc_rc = mysqli_query($dbc,"SELECT * FROM estimate_misc WHERE accordion='Product' AND estimateid=" . $_GET['estimateid']);
@@ -1337,7 +1337,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 				</div>
                 <?php
             }
-            
+
             $misc_rc = 0;
             while($misc_row_rc = mysqli_fetch_array($query_misc_rc)) { ?>
                 <div class="clearfix"></div>
@@ -1420,7 +1420,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
             ?>
 		</div>
     </div>
-	
+
 </div>
 
 <input type="hidden" name="total_rc_products" value="<?php echo $rc; ?>" />
@@ -1456,7 +1456,7 @@ $field_config_product = ','.$get_field_config_product['products_dashboard'].',';
 -->
 
 <div class="form-group">
-    <label for="company_name" class="col-sm-4 control-label">Product Estimate:</label>
+    <label for="company_name" class="col-sm-4 control-label">Product <?= ESTIMATE_TILE ?>:</label>
     <div class="col-sm-8">
       <input name="product_total" value="<?php echo $final_total_products + $final_total_misc_product;?>" type="text" class="form-control">
     </div>

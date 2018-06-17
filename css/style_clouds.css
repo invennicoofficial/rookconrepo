@@ -5127,3 +5127,4 @@ a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brig
     
 .filter_div a { color:#0066b3 !important; text-decoration:none !important; }
     ..filter_div a:hover { color:#ed1c24 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #ed1c24 !important; }

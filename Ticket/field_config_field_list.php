@@ -193,6 +193,12 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Customer History Customer Ticket Project Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Ticket Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Ticket Project Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Ticket Project Type" name="tickets[]"> Customer - Last 5 by <?= PROJECT_NOUN ?> Type and <?= TICKET_NOUN ?> Type</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Customer History Field Display Notes') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Field Display Notes", $all_config) ? 'checked disabled' : (in_array("Customer History Field Display Notes", $value_config) ? "checked" : '') ?> value="Customer History Field Display Notes" name="tickets[]"> Display Notes</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer History Field Service Template') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Field Service Template", $all_config) ? 'checked disabled' : (in_array("Customer History Field Service Template", $value_config) ? "checked" : '') ?> value="Customer History Field Service Template" name="tickets[]"> Display Service Template</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 					</div>
@@ -718,6 +724,14 @@ if(!$action_mode && !$overview_mode) {
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Emergency", $all_config) ? 'checked disabled' : (in_array("Emergency", $value_config) ? "checked" : '') ?> value="Emergency" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will display the emergency information for the <?= SITES_CAT ?> within the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Site Emergency Plan</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Location Filter By Client') { ?>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Location Filter By Client", $all_config) ? 'checked disabled' : (in_array("Location Filter By Client", $value_config) ? "checked" : '') ?> value="Location Filter By Client" name="tickets[]">
+								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will filter out the Sites so only ones connected to the Contact/Client are displayed."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Filter By Client</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Location Notes Anyone Can Add') { ?>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Location Notes Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Location Notes Anyone Can Add", $value_config) ? "checked" : '') ?> value="Location Notes Anyone Can Add" name="tickets[]">
+								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow anyone to add notes even if they don't have edit access, but cannot remove notes."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Anyone Can Add Notes</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 					</div>
@@ -840,6 +854,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Billing') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Billing", $all_config) ? 'checked disabled' : (in_array("Staff Billing", $value_config) ? "checked" : '') ?> value="Staff Billing" name="tickets[]"> Summary</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Anyone Can Add') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
 							<?php } ?>
 						<?php } ?>
 						</div>
@@ -1710,6 +1727,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Material Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Type", $all_config) ? 'checked disabled' : (in_array("Material Type", $value_config) ? "checked" : '') ?> value="Material Type" name="tickets[]"> Material Type</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Material Manual') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Manual", $all_config) ? 'checked disabled' : (in_array("Material Manual", $value_config) ? "checked" : '') ?> value="Material Manual" name="tickets[]"> Manual Material</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Material Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Quantity", $all_config) ? 'checked disabled' : (in_array("Material Quantity", $value_config) ? "checked" : '') ?> value="Material Quantity" name="tickets[]"> Quantity</label>
 							<?php } ?>
@@ -2440,7 +2460,7 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup", $value_config) ? "checked" : '')) ?> value="Delivery Pickup" name="tickets[]"> Multi-Stop Location</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Address') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup" name="tickets[]"> Multi-Stop Address</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Address" name="tickets[]"> Multi-Stop Address</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Coordinates') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Coordinates", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Coordinates", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Coordinates" name="tickets[]"> Multi-Stop Lat/Lng Coordinates</label>
@@ -2511,6 +2531,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Status", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Status", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Status" name="tickets[]"> Multi-Stop Status</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Calendar History') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Calendar History", $all_config) ? 'checked disabled' : (in_array("Delivery Calendar History", $value_config) ? "checked" : '')) ?> value="Delivery Calendar History" name="tickets[]"> Multi-Stop Calendar History</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Populate Google Link') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Populate Google Link", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Populate Google Link", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Populate Google Link" name="tickets[]"> Auto Populate Google Maps Link</label>
 							<?php } ?>
@@ -2520,6 +2543,12 @@ if(!$action_mode && !$overview_mode) {
 						<?php } ?>
 						</div>
 						<?php if(!$action_mode && !$overview_mode) { ?>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will set the default scheduled time for the Warehouse stops."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Warehouse Scheduled Time</label>
+								<div class="col-sm-8">
+									<input type="text" name="ticket_warehouse_start_time" class="form-control datetimepicker" value="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>">
+								</div>
+							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will set the minimum time for the Scheduled Time field to this value."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delivery Scheduled Time Minimum Time</label>
 								<div class="col-sm-8">
@@ -2796,6 +2825,14 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Project Docs') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Project Docs", $all_config) ? 'checked disabled' : (in_array("Project Docs", $value_config) ? "checked" : '') ?> value="Project Docs" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to view files uploaded to the <?= PROJECT_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= PROJECT_NOUN ?> Documents</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Contact Docs') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Contact Docs", $all_config) ? 'checked disabled' : (in_array("Contact Docs", $value_config) ? "checked" : '') ?> value="Contact Docs" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to view files uploaded to the <?= CONTACTS_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= CONTACTS_NOUN ?> Documents</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Documents Docs') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Documents Docs", $all_config) ? 'checked disabled' : (in_array("Documents Docs", $value_config) ? "checked" : '') ?> value="Documents Docs" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to upload files or attach pictures to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Uploaded Documents</label>
@@ -2995,6 +3032,9 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Customer Stop Status') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Stop Status", $all_config) ? 'checked disabled' : (in_array("Customer Stop Status", $value_config) ? "checked" : '') ?> value="Customer Stop Status" name="tickets[]"> Stop Status</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Customer Property Damage') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Property Damage", $all_config) ? 'checked disabled' : (in_array("Customer Property Damage", $value_config) ? "checked" : '') ?> value="Customer Property Damage" name="tickets[]"> Property Damage Notes</label>
 							<?php } ?>
@@ -3024,6 +3064,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Sign Off Complete Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Sign Off Complete Status", $all_config) ? 'checked disabled' : (in_array("Customer Sign Off Complete Status", $value_config) ? "checked" : '') ?> value="Customer Sign Off Complete Status" name="tickets[]"> Completing Sets Stop Status as Complete</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Complete Exits Ticket') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Complete Exits Ticket", $all_config) ? 'checked disabled' : (in_array("Customer Complete Exits Ticket", $value_config) ? "checked" : '') ?> value="Customer Complete Exits Ticket" name="tickets[]"> Completing Exits Out Of <?= TICKET_NOUN ?></label>
 							<?php } ?>
 						<?php } ?>
 						</div>

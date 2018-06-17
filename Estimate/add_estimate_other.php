@@ -30,7 +30,7 @@ function countOtherDetail() {
     <div class="col-sm-12">
         <div class="form-group clearfix">
             <label class="col-sm-4 text-center">Detail</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
         </div>
 
         <div class="additional_other_detail clearfix">

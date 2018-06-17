@@ -99,7 +99,7 @@ function selectProductHeading(sel) {
 		}
 	});
 }
-	
+
 function changeEstimatePrice(sel){
 	var typeId = sel.id;
 	var arr = typeId.split('_');
@@ -109,10 +109,10 @@ function changeEstimatePrice(sel){
 	if(quantity=='' && quantity==0){ quantity=1; }
 	var total=quantity*estimatePrice;
 	$("#ptotal_"+arr[1]).val(total);
-	
+
 	var profit=total-(cost*quantity);
 	$("#pprofit_"+arr[1]).val(profit);
-	
+
 	var margin=((profit*100)/total).toFixed(2);
 	$("#pmargin_"+arr[1]).val(margin);
 }
@@ -153,7 +153,7 @@ $field_config_product = ','.$get_field_config_product['products'].',';
             <?php } ?>
 			<label class="col-sm-1 text-center">Cost</label>
             <label class="col-sm-1 text-center">Rate Card Price</label>
-			<label class="col-sm-1 text-center">Estimate Price</label>
+			<label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
 			<label class="col-sm-1 text-center">UOM</label>
 			<label class="col-sm-1 text-center">Quantity</label>
 			<label class="col-sm-1 text-center">Total</label>
@@ -273,7 +273,7 @@ $field_config_product = ','.$get_field_config_product['products'].',';
 				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
                     <input name="pfinalprice[]" value="<?php echo $ratecardprice;?>" id="<?php echo 'pfinalprice_'.$id_loop; ?>" type="text" class="form-control" />
                 </div>
-				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Estimate Price:</label>
+				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label"><?= ESTIMATE_TILE ?> Price:</label>
                     <input name="pestimateprice[]" value="<?php echo $ratecardestimateprice;?>" id="<?php echo 'pestimateprice_'.$id_loop; ?>" type="text" class="form-control" onblur='changeEstimatePrice(this)' />
                 </div>
 				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">UOM:</label>
@@ -382,7 +382,7 @@ $field_config_product = ','.$get_field_config_product['products'].',';
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
                     <input name="pfinalprice[]" id="pfinalprice_0" type="text" class="form-control" />
                 </div>
-				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Estimate Price:</label>
+				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label"><?= ESTIMATE_TILE ?> Price:</label>
                     <input name="pestimateprice[]" id="pestimateprice_0" type="text" class="form-control" onblur='changeEstimatePrice(this)' />
                 </div>
 				<div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">UOM:</label>

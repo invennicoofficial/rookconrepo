@@ -46,9 +46,32 @@ foreach($project_tabs as $item) {
 
                         <form name="form_sites" method="post" action="" class="form-inline" role="form">
                             <div id="no-more-tables">
+								<?php $search_from = date('Y-m-01');
+								$search_to = date('Y-m-d');
+								if(isset($_POST['search_from'])) {
+									$search_from = filter_var($_POST['search_from'],FILTER_SANITIZE_STRING);
+								}
+								if(isset($_POST['search_to'])) {
+									$search_to = filter_var($_POST['search_to'],FILTER_SANITIZE_STRING);
+								} ?>
                                 <div class="preview-block">
                                     <div class="preview-block-header"><h4><?= empty($current_type) ? 'All '.INC_REP_TILE : $current_type ?></h4></div>
+									<br />
+									<div class="col-sm-5"><label class="col-sm-4">From Date:</label>
+										<div class="col-sm-8">
+											<input type="text" class="form-control datepicker" name="search_from" value="<?= $search_from ?>">
+										</div>
+									</div>
+									<div class="col-sm-5"><label class="col-sm-4">To Date:</label>
+										<div class="col-sm-8">
+											<input type="text" class="form-control datepicker" name="search_to" value="<?= $search_to ?>">
+										</div>
+									</div>
+									<div class="col-sm-2">
+										<button type="submit" class="btn brand-btn" value="search" name="search">Search</button>
+									</div>
                                 </div>
+								<div class="clearfix"></div>
                             <?php
                             /* Pagination Counting */
                             $rowsPerPage = 25;
@@ -61,10 +84,10 @@ foreach($project_tabs as $item) {
                             $offset = ($pageNum - 1) * $rowsPerPage;
 
                             if(!empty($_POST['search_incident_reports'])) {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query";
                             } else {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 $view_sql $type_query LIMIT $offset, $rowsPerPage";
-                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query LIMIT $offset, $rowsPerPage";
+                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query";
                             }
 
                             $result = mysqli_query($dbc, $query_check_credentials);

@@ -214,7 +214,7 @@ switch($archive) {
 					<li><a href="archived_data.php?archive_type=time_tracking">Time Tracking</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'estimate') == 1): ?>
-					<li><a href="archived_data.php?archive_type=estimate">Estimates</a></li>
+					<li><a href="archived_data.php?archive_type=estimate"><?= ESTIMATE_TILE ?></a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'quote') == 1): ?>
 					<li><a href="archived_data.php?archive_type=quote">Quote</a></li>
@@ -1880,7 +1880,7 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
 								<th>Business</th>
-								<th>Estimate Name</th>";
+								<th>".ESTIMATE_TILE." Name</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }

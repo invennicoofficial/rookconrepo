@@ -149,7 +149,19 @@ if($point_of_sell['invoice_date'] !== '') {
 	$thduedate = '<td>Due Date</td>';
 } else { $tdduedate = ''; $thduedate = ''; }
 $html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br><br><br><br>
-<table><tr><td style="width:20%">To:</td><td style="width:30%">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td><td style="width:20%">Ship to:</td><td style="width:30%">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr></table><br><br>';
+<table>
+    <tr>
+        <td style="width:20%">To:</td>
+        <td style="width:30%">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].' '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td>
+        <td style="width:20%">Ship to:</td><td style="width:30%">';
+            if ( !empty($point_of_sell['delivery']) && !empty($point_of_sell['delivery_address']) ) {
+                $html .= $point_of_sell['delivery_address'];
+            } else {
+                $html .= decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].' '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']);
+            }
+        $html .= '</td>
+    </tr>
+</table><br><br>';
 
 if ( !empty($customer['referred_by']) ) {
     $html .= '<table><tr><td style="width:20%">Reference:</td><td style="width:80%">'.$customer['referred_by'].'</td></tr></table><br><br>';

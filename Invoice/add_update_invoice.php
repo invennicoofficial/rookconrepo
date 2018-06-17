@@ -315,7 +315,7 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 	}
-
+    
 	$inv_ids = [];
 	$inv_types = [];
 	$inv_names = [];
@@ -551,6 +551,17 @@ if($invoice_mode != 'Adjustment') {
 			'paid' => $payment_types[$j] ];
 	}
 
+	if($assembly > 0) {
+		$invoice_patient[] = [ 'sub_total' => $assembly,
+			'gst_amt' => $assembly * $_POST['tax_rate'] / 100,
+			'gratuity' => 0,
+			'price' => $assembly + $assembly * $_POST['tax_rate'] / 100,
+			'service_cat' => '',
+			'service_name' => '',
+			'product_name' => 'Assembly',
+			'paid' => $payment_types[$j] ];
+	}
+
 	$serviceid = implode(',', $services).',';
 	$fee = implode(',', $service_fees).',';
 	$fee_total = array_sum($service_fees);
@@ -581,7 +592,7 @@ if($invoice_mode != 'Adjustment') {
 	}
 
 	$total_price = $_POST['total_price'];
-	//$credit_balance = $_POST['credit_balance'];
+	$credit_balance = $_POST['credit_balance'];
 	$final_price = $_POST['final_price'];
     
     $discount_amt = 0;
@@ -634,7 +645,7 @@ if($invoice_mode != 'Adjustment') {
 		$package_ins = implode(',',$package_insurer).',';
 		$misc_ins = implode(',',$misc_insurer).',';
 		//$gst_amt = $final_price + $promo_total - $gratuity - $credit_balance - $delivery - $total_price;
-        $gst_amt = $final_price + $promo_total + $discount - $gratuity - $credit_balance - $delivery - $assembly - $total_price;
+        $gst_amt = $final_price + $promo_total + $discount - $gratuity - $delivery - $assembly - $total_price;
 		$query_insert_invoice = "INSERT INTO `invoice` (`invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `credit_balance`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `assembly`, `created_by`, `discount`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `survey`, `request_recommend`, `follow_up_email`, `promotionid`, `giftcardid`, `comment`)
 			VALUES ('$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_price', '$gst_amt', '$gratuity', '$credit_balance', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$assembly', '$created_by', '$discount', '$final_price', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '".$_POST['survey']."', '".$_POST['request_recommendation']."', '".$_POST['follow_up_assessment_email']."', '$promotionid', '$giftcardid', '$comment')";
         $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);

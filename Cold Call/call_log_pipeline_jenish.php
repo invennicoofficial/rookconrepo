@@ -30,7 +30,7 @@ echo '<br /><br /><div class="mobile-100-container">';
         if($_GET['type'] == 'tobe') {
             $active_to_be = 'active_tab';
         }
-        
+
 		if (strpos($value_config, ','."To Be Scheduled".',') !== FALSE) {
             echo "<a href='".addOrUpdateUrlParam('type','tobe')."'><button type='button' class='btn brand-btn mobile-block  mobile-100 ".$active_to_be."'>To Be Scheduled</button></a>&nbsp;&nbsp;";
         }
@@ -132,7 +132,7 @@ echo '<br /><br /><div class="mobile-100-container">';
                   <option <?php if ($search_action == "Initial Meeting") { echo " selected"; } ?> value="Initial Meeting">Initial Meeting</option>
                   <option <?php if ($search_action == "Meeting") { echo " selected"; } ?> value="Meeting">Meeting</option>
                   <option <?php if ($search_action == "Presentation") { echo " selected"; } ?> value="Presentation">Presentation</option>
-                  <option <?php if ($search_action == "Estimate") { echo " selected"; } ?> value="Estimate">Estimate</option>
+                  <option <?php if ($search_action == "Estimate") { echo " selected"; } ?> value="Estimate"><?= ESTIMATE_TILE ?></option>
                   <option <?php if ($search_action == "Quote Sent") { echo " selected"; } ?> value="Quote Sent">Quote Sent</option>
                   <option <?php if ($search_action == "Closing Meeting") { echo " selected"; } ?> value="Closing Meeting">Closing Meeting</option>
                   <option <?php if ($search_action == "Waiting") { echo " selected"; } ?> value="Waiting">Waiting</option>
@@ -185,12 +185,12 @@ echo '<br /><br /><div class="mobile-100-container">';
 				<div class="col-lg-2 col-md-3 col-sm-4 col-xs-4"></div>
 				<div class="col-lg-8 col-md-7 col-sm-8 col-xs-8">
                 <!--<button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>-->
-				
+
                 <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
 				</div>
             <br><br>
 
-            
+
             <?php
             /* Pagination Counting */
             $rowsPerPage = 25;
@@ -201,7 +201,7 @@ echo '<br /><br /><div class="mobile-100-container">';
             }
 
             $offset = ($pageNum - 1) * $rowsPerPage;
-            
+
             $add_query = '';
             if($search_client != '') {
                 $add_query = " AND businessid='$search_client'";
@@ -303,7 +303,7 @@ echo '<br /><br /><div class="mobile-100-container">';
                       <option <?php if ($row['next_action'] == "Initial Meeting") { echo " selected"; } ?> value="Initial Meeting">Initial Meeting</option>
                       <option <?php if ($row['next_action'] == "Meeting") { echo " selected"; } ?> value="Meeting">Meeting</option>
                       <option <?php if ($row['next_action'] == "Presentation") { echo " selected"; } ?> value="Presentation">Presentation</option>
-                      <option <?php if ($row['next_action'] == "Estimate") { echo " selected"; } ?> value="Estimate">Estimate</option>
+                      <option <?php if ($row['next_action'] == "Estimate") { echo " selected"; } ?> value="Estimate"><?= ESTIMATE_TILE ?></option>
                       <option <?php if ($row['next_action'] == "Quote Sent") { echo " selected"; } ?> value="Quote Sent">Quote Sent</option>
                       <option <?php if ($row['next_action'] == "Closing Meeting") { echo " selected"; } ?> value="Closing Meeting">Closing Meeting</option>
                       <option <?php if ($row['next_action'] == "Waiting") { echo " selected"; } ?> value="Waiting">Waiting</option>
@@ -369,7 +369,7 @@ echo '<br /><br /><div class="mobile-100-container">';
                 <?php
                 }
 
-                /* Requested to have this removed... 
+                /* Requested to have this removed...
 				echo '<td data-title="Function">';
                 if(vuaed_visible_function($dbc, 'sales') == 1) {
                 echo '<a href=\'add_sales.php?salesid='.$row['salesid'].'\'>Edit</a>';
@@ -390,7 +390,7 @@ echo '<br /><br /><div class="mobile-100-container">';
 
             ?>
 
-        
+
 
         </form>
 

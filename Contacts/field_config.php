@@ -11,17 +11,19 @@ $(document).ready(function() {
 	}).resize();
 });
 function loadPanel() {
-	$('.panel-body').html('Loading...');
-	body = $(this).closest('.panel').find('.panel-body');
-	$.ajax({
-		url: '../Contacts/'+$(body).data('file'),
-		data: { folder: '<?= FOLDER_NAME ?>', type: contact_type },
-		method: 'POST',
-		response: 'html',
-		success: function(response) {
-			$(body).html(response);
-		}
-	});
+	if(!$(this).hasClass('no_load')) {
+		$('.panel-body').html('Loading...');
+		body = $(this).closest('.panel').find('.panel-body');
+		$.ajax({
+			url: '../Contacts/'+$(body).data('file'),
+			data: { folder: '<?= FOLDER_NAME ?>', type: contact_type },
+			method: 'POST',
+			response: 'html',
+			success: function(response) {
+				$(body).html(response);
+			}
+		});
+	}
 }
 </script>
 <div id='settings_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
@@ -189,11 +191,33 @@ function loadPanel() {
         <a href="?settings=additions"><li class="<?= $_GET['settings'] == 'additions' ? 'active blue' : '' ?>">Profile Additions</li></a>
         <a href="?settings=import"><li class="<?= $_GET['settings'] == 'import' ? 'active blue' : '' ?>">Import Contacts</li></a>
         <a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Security Settings</li></a>
+        <?php if(tile_visible($dbc, 'vpl') && FOLDER_NAME == 'vendors') { ?>
+	        <a href="?settings=vpl_tabs"><li class="<?= $_GET['settings'] == 'vpl_tabs' ? 'active blue' : '' ?>">Vendor Price List - Tabs</li></a>
+	        <a href="?settings=vpl_fields"><li class="<?= $_GET['settings'] == 'vpl_fields' ? 'active blue' : '' ?>">Vendor Price List - Fields</li></a>
+	        <a href="?settings=vpl_dashboard"><li class="<?= $_GET['settings'] == 'vpl_dashboard' ? 'active blue' : '' ?>">Vendor Price List - Dashboard</li></a>
+	        <a href="?settings=vpl_impexp"><li class="<?= $_GET['settings'] == 'vpl_impexp' ? 'active blue' : '' ?>">Vendor Price List - Import/Export</li></a>
+	        <a href="?settings=vpl_orderforms"><li class="<?= $_GET['settings'] == 'vpl_orderforms' ? 'active blue' : '' ?>">Vendor Price List - Order Forms</li></a>
+        <?php } ?>
     </ul>
 </div>
 <div class='has-main-screen scale-to-fill hide-titles-mob'>
 	<div class='main-screen standard-dashboard-body'>
 		<?php switch($_GET['settings']) {
+		case 'vpl_tabs':
+			include('field_config_vpl_tabs.php');
+			break;
+		case 'vpl_fields':
+			include('field_config_vpl_fields.php');
+			break;
+		case 'vpl_dashboard':
+			include('field_config_vpl_dashboard.php');
+			break;
+		case 'vpl_impexp':
+			include('field_config_vpl_impexp.php');
+			break;
+		case 'vpl_orderforms':
+			include('field_config_vpl_orderforms.php');
+			break;
 		case 'tile':
 			include('field_config_tile.php');
 			break;

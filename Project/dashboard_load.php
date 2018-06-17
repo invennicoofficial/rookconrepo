@@ -50,7 +50,7 @@ foreach($_POST['projectids'] as $projectid) {
 				<img class="inline-img pull-right" src="../img/full_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? '' : 'display: none' ?>" onclick="markFavourite(this);">
 				<img class="inline-img pull-right" src="../img/blank_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? 'display: none' : '' ?>" onclick="markFavourite(this);">
 				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
-					<button class="btn brand-btn pull-right" onclick="markReviewed($(this).closest('.dashboard-item')); return false;">Review Now</button>
+					<button class="inline-img pull-right image-btn double-gap-right" onclick="markReviewed($(this).closest('.dashboard-item')); return false;"><img src="../img/icons/ROOK-review-icon.png" alt="Review Now" title="Review Now" width="30" /></button>
 				<?php } ?>
 				<div  class="clearfix"></div>
 			</h4>
@@ -100,10 +100,11 @@ foreach($_POST['projectids'] as $projectid) {
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Paid:</label>
-						<div class="<?php if($security['edit'] > 0) { ?>toggle-switch<?php } ?> form-group col-sm-8"><?php if($security['edit'] > 0) { ?><input type="hidden" name="paid" value="<?= $invoices['paid'] ?>" data-table="invoice" data-identifier="projectid" data-id="<?= $project['projectid'] ?>"><?php } ?>
+						<div class="<?php if($security['edit'] > 0) { ?>toggle-switch<?php } ?> form-group col-sm-1"><?php if($security['edit'] > 0) { ?><input type="hidden" name="paid" value="<?= $invoices['paid'] ?>" data-table="invoice" data-identifier="projectid" data-id="<?= $project['projectid'] ?>"><?php } ?>
 							<img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" style="height: 2em; <?= $invoices['paid'] == 'No' ? '' : 'display: none;' ?>">
 							<img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" style="height: 2em; <?= $invoices['paid'] == 'Yes' ? '' : 'display: none;' ?>">
 						</div>
+						<a href="edit_project_billing_pay_schedule.php?projectid=<?= $projectid ?>&tab=payment_schedule" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img" src="../img/icons/eyeball.png"></a>
 					</div>
 				</div>
 			<?php } ?>

@@ -261,6 +261,7 @@ function saveFieldMethod(field) {console.log('saving');
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
 				$('[name=created_date]').trigger('change');
+				window.history.replaceState('','Software',window.location.href.replace('edit=0','edit='+response));
 				var id = response;
 				$('a').not('.new-btn').each(function() {
 					if(this.href.search('edit=0') >= 0) {
@@ -275,6 +276,7 @@ function saveFieldMethod(field) {console.log('saving');
 				$('[data-table='+table+']').data('id',response);
 			}
 			doneSaving();
+			getProjectLabel($('[name=projectid]').val());
 		}
 	});
 }
@@ -334,4 +336,9 @@ function deliverable_email() {
 }
 function savePathName(type, name, i, projectid) {
 	$.post('projects_ajax.php?action=set_path_names', {type:type,name:name,key:i,project:projectid});
+}
+function getProjectLabel(id) {
+	$.post('projects_ajax.php?action=project_label', { projectid: id }, function(response) {
+		$('.project_name').text(response);
+	});
 }

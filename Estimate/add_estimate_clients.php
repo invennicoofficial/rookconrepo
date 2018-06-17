@@ -121,7 +121,7 @@ $field_config_clients = ','.$get_field_config_clients['clients'].',';
             <label class="col-sm-1 text-center">MSRP</label>
             <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
         </div>
 
         <?php

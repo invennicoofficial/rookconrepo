@@ -79,6 +79,7 @@ if(!empty($_GET['formid'])) {
     $vehicle_accident = $get_field_level['vehicle_accident'];
     $no_loss = $get_field_level['no_loss'];
     $comments = $get_field_level['comments'];
+    
 }
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND form='$form'"));
     $form_config = ','.$get_field_config['fields'].',';
@@ -330,8 +331,6 @@ if(!empty($_GET['formid'])) {
 
             <?php
             if($assign_staff_done == 0) { ?>
-            <?php include ('../phpsign/sign3.php');
-            ?>
 
             <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
                <div class="form-group">
@@ -342,19 +341,12 @@ if(!empty($_GET['formid'])) {
               </div>
             <?php } ?>
 
-            <div class="sigPad" id="linear2" style="width:404px;">
-            <ul class="sigNav">
-            <li class="drawIt"><a href="#draw-it" >Draw It</a></li>
-            <li class="clearButton"><a href="#clear">Clear</a></li>
-            </ul>
-            <div class="sig sigWrapper" style="height:auto;">
-            <div class="typed"></div>
-            <canvas class="pad" width="400" height="150" style="border:2px solid black;"></canvas>
-            <input type="hidden" name="sign_<?php echo $assign_staff_id;?>" class="output">
-            </div>
-            </div>
+            <?php $output_name = 'sign_'.$assign_staff_id;
+            include('../phpsign/sign_multiple.php'); ?>
 
-            <?php } ?>
+            <?php } else {
+                echo '<img src="monthly_health_and_safety_summary/download/safety_'.$assign_staff_id.'.png">';
+            } ?>
 
         </div>
     </div>

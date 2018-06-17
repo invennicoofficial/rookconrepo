@@ -1,3 +1,18 @@
+
+
+      <?php if(!empty($_GET['formid'])) {
+        $is_user_form = get_safety($dbc, $_GET['safetyid'], 'user_form_id');
+        if($is_user_form > 0) {
+          $form_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_form_pdf` WHERE `pdf_id` = '".$_GET['formid']."'"));
+        } else {
+          $safety_db = array_search($form,$safety_table_list);
+          $form_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `$safety_db` WHERE `".($form == 'Motor Vehicle Accident Form' ? 'incidentreportid' : 'fieldlevelriskid')."` = '".$_GET['formid']."'"));
+        }
+      } else {
+        $form_details = '';
+        $form_details['safety_siteid'] = $_GET['siteid'];
+      } ?>
+
           <script type="text/javascript">
           $(document).on('change', 'select[name="heading_number"]', function() { selectSection(this); });
           $(document).on('change', 'select[name="sub_heading_number"]', function() { selectSubSection(this); });
@@ -205,4 +220,64 @@
             </div>
           </div>
         <?php } ?>
+      <?php } ?>
+
+      <?php if(strpos($value_config, ','."Project".',') !== FALSE && $action == 'view') { ?>
+          <div class="form-group">
+            <label for="company_name" class="col-sm-4 control-label"><?= PROJECT_NOUN ?>:</label>
+            <div class="col-sm-8">
+              <select name="safety_projectid" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php $query = mysqli_query($dbc,"SELECT projectid, projecttype, project_name, businessid, clientid, status FROM project WHERE deleted=0 AND (status NOT IN ('Archive') OR `projectid`='$projectid') order by `projectid` DESC");
+                while($row = mysqli_fetch_array($query)) {
+                  echo "<option value='".$row['projectid']."' ".($row['projectid'] == $form_details['safety_projectid'] ? 'selected' : '').">".get_project_label($dbc,$row).'</option>';
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+      <?php } ?>
+
+      <?php if(strpos($value_config, ','."Site".',') !== FALSE && $action == 'view') { ?>
+          <div class="form-group">
+            <label for="company_name" class="col-sm-4 control-label">Site:</label>
+            <div class="col-sm-8">
+              <select name="safety_siteid" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php $query = mysqli_query($dbc,"SELECT * FROM `contacts` WHERE `category`='Sites' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+                while($row = mysqli_fetch_array($query)) {
+                  echo "<option value='".$row['contactid']."' ".($row['contactid'] == $form_details['safety_siteid'] ? 'selected' : '' ).">".($row['display_name'] == '' ? $row['site_name'] : $row['display_name'])."</option>";
+                } ?>
+              </select>
+            </div>
+          </div>
+      <?php } ?>
+
+      <?php if(strpos($value_config, ','."Ticket".',') !== FALSE && $action == 'view') { ?>
+          <div class="form-group">
+            <label for="company_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
+            <div class="col-sm-8">
+              <select name="safety_ticketid" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php $ticket_list = mysqli_fetch_all(mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` NOT IN ('Done','Archive') ORDER BY `heading`"),MYSQLI_ASSOC);
+                foreach($ticket_list as $ticket) {
+                  echo "<option value='".$ticket['ticketid']."' ".($ticket['ticketid'] == $form_details['safety_ticketid'] ? 'selected' : '').">".get_ticket_label($dbc, $ticket).'</option>';
+                } ?>
+              </select>
+            </div>
+          </div>
+      <?php } ?>
+
+      <?php if(strpos($value_config, ','."Client".',') !== FALSE && $action == 'view') { ?>
+          <div class="form-group">
+            <label for="company_name" class="col-sm-4 control-label">Client:</label>
+            <div class="col-sm-8">
+              <select name="safety_clientid" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification`, `name` FROM `contacts` WHERE `deleted`=0 AND `status`>0 AND (CONCAT(`first_name`,`last_name`) != '' OR `name` != '')")) as $row) {
+                  echo '<option value="'.$row['contactid'].'" '.($row['contactid'] == $form_details['safety_clientid'] ? 'selected' : '').'>'. $row['full_name'] .'</option>';
+                } ?>
+              </select>
+            </div>
+          </div>
       <?php } ?>

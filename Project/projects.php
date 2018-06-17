@@ -4,7 +4,7 @@ include_once('../include.php'); ?>
 <script src="project.js"></script>
 <script>
 $(document).ready(function() {
-    <?php if(!empty($_GET['type'])) { ?>
+    <?php if(!empty($_GET['type']) && !isset($_GET['edit'])) { ?>
         selectType('<?= $_GET['type']?>');
     <?php } ?>
 	$(window).resize(function() {
@@ -76,9 +76,9 @@ if($_GET['edit'] > 0 || isset($_GET['fill_user_form'])) {
 		$projectid = $_GET['projectid'];
 	}
 	$project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
-	$label .= '</a>: '.($project['projecttype'] != '' && in_array('Types',$project_classify) ? '<a href="?tile_name='.$tile.'&type='.$project['projecttype'].'">'.$project_tabs[$project['projecttype']].'</a> - ' : '').' <a href="?edit='.$projectid.'">'.get_project_label($dbc, $project);
+	$label .= '</a>: '.($project['projecttype'] != '' && in_array('Types',$project_classify) ? '<a href="?tile_name='.$tile.'&type='.$project['projecttype'].'">'.$project_tabs[$project['projecttype']].'</a> - ' : '').' <a class="project_name" href="?edit='.$projectid.'">'.get_project_label($dbc, $project);
 } else if(isset($_GET['edit'])) {
-	$label .= '</a>: <a href="">New '.PROJECT_NOUN;
+	$label .= '</a>: <a class="project_name" href="">New '.PROJECT_NOUN;
 }
 $tab_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='$projecttype'"))['config_tabs']),explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='ALL'"))['config_tabs']))));
 if(count($tab_config) == 0) {

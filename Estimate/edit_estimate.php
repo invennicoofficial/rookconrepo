@@ -100,7 +100,7 @@ if (isset($_POST['submit'])) {
 
 			<?php if($type == 'summary') { ?>
 			<div class="form-group">
-				<label for="additional_note" class="col-sm-2 control-label">Estimate:</label>
+				<label for="additional_note" class="col-sm-2 control-label"><?= ESTIMATE_TILE ?>:</label>
 				<div class="col-sm-10">
 					<textarea name="estimate_data" rows="15" cols="50" class="form-control"><?php echo $estimate_all['estimate_data']; ?></textarea>
 				</div>
@@ -132,7 +132,7 @@ if (isset($_POST['submit'])) {
 							<th>Quantity</th>
 							<th>Cost</th>
 							<th>% Margin</th>
-							<th>Estimate Price</th>
+							<th><?= ESTIMATE_TILE ?> Price</th>
 							<th>$ Profit</th>
 							<th>Total</th>
 						</tr>

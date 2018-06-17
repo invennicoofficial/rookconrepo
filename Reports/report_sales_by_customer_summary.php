@@ -183,7 +183,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $patientid = $row_report['patientid'];
 
         $report_data .= '<tr nobr="true">';
-		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#report_div\').outerHeight()); return false;">'.get_contact($dbc, $patientid). '</a></td>';
+		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $patientid). '</a></td>';
         $report_data .= '<td><a href="../Invoice/all_invoice.php?patientid='.$patientid.'&from='.$starttime.'&to='.$endtime.'">$'.$row_report['all_payment'].'</a></td>';
         $report_data .= '</tr>';
 

@@ -15,7 +15,7 @@ $(document).ready(function() {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('FLHA',$categories) ? ' checked' : '' ?> value="FLHA" name="subtabs"> FLHA</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Toolbox',$categories) ? ' checked' : '' ?> value="Toolbox" name="subtabs"> Toolbox</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Tailgate',$categories) ? ' checked' : '' ?> value="Tailgate" name="subtabs"> Tailgate</label>
-	<label class="form-checkbox"><input type="checkbox" <?= in_array('Forms',$categories) ? ' checked' : '' ?> value="Forms" name="subtabs"> Forms</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Form',$categories) ? ' checked' : '' ?> value="Form" name="subtabs"> Forms</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Manuals',$categories) ? ' checked' : '' ?> value="Manuals" name="subtabs"> Manuals</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Incident Reports',$categories) ? ' checked' : '' ?> value="Incident Reports" name="subtabs"> Incident Reports</label>
 </div>

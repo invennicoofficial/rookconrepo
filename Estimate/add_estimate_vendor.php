@@ -120,10 +120,10 @@ function selectCategory(sel) {
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			var result = response.split('**##**');
-			
+
 			$("#part_no_"+arr[1]).html(result[0]);
 			$("#prproduct_"+arr[1]).html(result[1]);
-			
+
 			$("#part_no_"+arr[1]).trigger("change.select2");
 			$("#prproduct_"+arr[1]).trigger("change.select2");
 		}
@@ -211,7 +211,7 @@ $field_config_vendors = ','.$get_field_config_vendors['vendors'].',';
             <!-- <label class="col-sm-1 text-center">Canadian $ Cost Per Unit</label> -->
             <!-- <label class="col-sm-1 text-center">Rate Card Price</label> -->
             <label class="col-sm-1 text-center">Purchase Order Price</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <!-- <label class="col-sm-1 text-center">Hours</label> -->
             <label class="col-sm-1 text-center">Total</label>
         </div><?php
@@ -507,7 +507,7 @@ $field_config_vendors = ','.$get_field_config_vendors['vendors'].',';
 				<div class="col-sm-1">
                     <input name="purchase_order_price[]" id="purchase_order_price_0" readonly type="text" class="form-control" />
                 </div>
-				
+
                 <div class="col-sm-1" >
                     <input name="vestimateprice[]" id='vestimateprice_0' onchange="countVendor(this)" type="text" class="form-control" />
                 </div>

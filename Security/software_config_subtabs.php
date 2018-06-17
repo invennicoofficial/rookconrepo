@@ -3,7 +3,7 @@
 	 * Title:		Software Subtab Settings
 	 * Function:	Settings for Subtabs within a main Tile
 	 */
-	
+
 	include ('../include.php');
 	error_reporting(0);
 	/* Check and set the $tile variable */
@@ -17,25 +17,25 @@
 
 	<script type="text/javascript">
 		$(document).on('change', 'select[name="sub_category"]', function() { changeLevel(this); });
-		
+
 		/* Called whenever the Security Level dropdown menu is changed */
 		function changeLevel(sel) {
 			var security_level = sel.value;
 			var tile = $("#tile").val();
 			window.location = 'software_config_subtabs.php?tile='+tile+'&level='+security_level;
 		}
-		
-		
+
+
 		/* Called whenever a turn on/off radio button is clicked */
 		function subtabConfig(sel) {
 			var tile		= $("#tile").val();
 			var level_url	= $("#level_url").val();
-			
+
 			//Alert if a Security Level is not selected from the dropdown menu
 			if (level_url === '') {
 				alert("Please select a Security Level from the dropdown menu first.");
 				window.location.reload();
-			
+
 			} else {
 				var type = sel.type;
 				var subtab = sel.name;
@@ -83,7 +83,7 @@
 		include_once ('../navigation.php');
 checkAuthorised('security');
 	?>
-	
+
 	<div class="container triple-pad-bottom">
 		<div class="row">
 			<div class="col-md-12">
@@ -160,29 +160,29 @@ checkAuthorised('security');
 					echo '<h2 class="double-pad-bottom">Sub Tab Permissions</h2>';
 					break;
 				} ?>
-				
+
 				<!-- Populate security level -->
 				<div class="form-group">
 					<label for="travel_task" class="col-sm-5 control-label">Select the Security Level you wish to set sub tab access privileges to:</label>
 					<div class="col-sm-7 double-pad-bottom">
-						
+
 						<?php
 							if ( !empty ( $_GET[ 'level' ] ) ) {
 								$level_url = $_GET[ 'level' ];
-							
+
 							} else {
 								$contacterid	= $_SESSION['contactid'];
 								$result			= mysqli_query ( $dbc, "SELECT * FROM contacts WHERE contactid='$contacterid'" );
-								
+
 								while ( $row = mysqli_fetch_assoc( $result ) ) {
 									$role = $row[ 'role' ];
 								}
-								
+
 								$level_url = (stripos(','.$role.',',',super,') !== false) ? 'admin' : $role;
 							}
 						?>
 						<input type="hidden" name="level_url" id="level_url" value="<?= $level_url; ?>" />
-						
+
 						<select id="sub_category" name="sub_category" class="chosen-select-deselect form-control" width="380">
 							<option value=""></option><?php foreach(get_security_levels($dbc) as $security_name => $security_level) { ?>
 								<option <?= $security_level == 'super' ? 'disabled' : '' ?> <?= $security_level == $level_url ? 'selected' : '' ?> value="<?= $security_level ?>"><?= $security_name ?></option>
@@ -190,7 +190,7 @@ checkAuthorised('security');
 						</select>
 					</div><!-- .col-sm-6 -->
 				</div><!-- .form-group -->
-			
+
 				<table class="table table-bordered">
 					<!-- Table headers -->
 					<tr class="hidden-sm">
@@ -199,7 +199,7 @@ checkAuthorised('security');
 						<th width="20%">Disable Sub Tab</th>
 						<th width="20%">Last Date Edited</th>
 					</tr><?php
-						
+
 					/* Tabbed View Contacts tile subtab settings */
 					if ( $tile == 'contacts' ) {
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
@@ -215,7 +215,7 @@ checkAuthorised('security');
 						}
 					}
 					/* End Tabbed View Contacts tile subtab settigns */
-					
+
 					/* Contacts tile subtab settings */
 					if ( $tile == 'contacts_inbox' ) {
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
@@ -231,7 +231,7 @@ checkAuthorised('security');
 						}
 					}
 					/* End Contacts tile subtab settigns */
-					
+
 					/* Client Information tile subtab settings */
 					if ( $tile == 'client_info' ) {
 						$tabs		= get_config ( $dbc, 'clientinfo_tabs' );
@@ -245,50 +245,50 @@ checkAuthorised('security');
 								echo '<tr><td>&nbsp;&nbsp;- Details (Limited Access)</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_details_limited' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Details (Full Access)</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_details_full' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Individual Service Plan</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_isp' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Medical Details</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_medical_details' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Medications</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_medications' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Key Methodologies</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_key_methodologies' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Protocols</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_protocols' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Routine</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_routine' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Communication</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_communication' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Activities</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_activities' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Charts</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_medical_charts' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Daily Log Notes</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'clients_daily_log_notes' );
-								
+
 								include_once('../Contacts/edit_fields.php');
 								foreach($tab_list as $tab_label => $tab_data) {
 									echo '<tr><td>Tab: '.$tab_label.'</td>';
@@ -297,7 +297,7 @@ checkAuthorised('security');
 							}
 						}
 					}
-					/* End Client Information tile subtab settigns */ 
+					/* End Client Information tile subtab settigns */
 					/* Members tile subtab settings */
 					if ( $tile == 'members' ) {
 						$tabs		= get_config ( $dbc, 'members_tabs' );
@@ -311,26 +311,26 @@ checkAuthorised('security');
 								echo '<tr><td>&nbsp;&nbsp;- Details (Limited Access)</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_details_limited' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Details (Full Access)</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_details_full' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Medical Details</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_medical_details' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Key Methodologies</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_key_methodologies' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Activities</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_activities' );
 
-								
+
 								echo '<tr><td>&nbsp;&nbsp;- Daily Log Notes</td>';
 								echo subtab_config_function( $dbc, $tile, $level_url, 'members_daily_log_notes' );
-								
+
 								include_once('../Contacts/edit_fields.php');
 								foreach($tab_list as $tab_label => $tab_data) {
 									echo '<tr><td>Tab: '.$tab_label.'</td>';
@@ -339,7 +339,7 @@ checkAuthorised('security');
 							}
 						}
 					}
-					/* End Members tile subtab settigns */ 
+					/* End Members tile subtab settigns */
 					/* Shop Work Orders tile subtab settings */
 					if ( $tile == 'shop_work_orders' ): ?>
 						<tr><td>Pending Work Order</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pending_work_order' ); ?></tr>
@@ -349,8 +349,8 @@ checkAuthorised('security');
 						<tr><td>Payroll</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'payroll' ); ?></tr>
 						<tr><td>Accounts Payable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'accounts_payable' ); ?></tr>
 						<tr><td>Billables</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'billables' ); ?></tr>
-					<?php 
-					/* End Shop Work Orders tile subtab settigns */ 
+					<?php
+					/* End Shop Work Orders tile subtab settigns */
 					/* Site Work Orders tile subtab settings */
 					elseif ( $tile == 'site_work_orders' ): ?>
 						<tr><td>Work Sites</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sites' ); ?></tr>
@@ -358,8 +358,8 @@ checkAuthorised('security');
 						<tr><td>Site Work Orders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'active' ); ?></tr>
 						<tr><td>Work Order Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'schedule' ); ?></tr>
 						<tr><td>Purchase Orders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'po' ); ?></tr>
-					<?php 
-					/* End Site Work Orders tile subtab settigns */ 
+					<?php
+					/* End Site Work Orders tile subtab settigns */
 					/* Field Jobs tile subtab settings */
 					elseif ( $tile == 'field_job' ): ?>
 						<tr><td>Sites</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sites' ); ?></tr>
@@ -370,7 +370,7 @@ checkAuthorised('security');
 						<tr><td>Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'invoices' ); ?></tr>
 						<tr><td>Payroll</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'payroll' ); ?></tr>
 					<?php
-					/* End Field Jobs tile subtab settigns */ 
+					/* End Field Jobs tile subtab settigns */
 					/* Inventory tile subtab settings */
 					elseif ($tile == 'inventory'): ?>
 						<tr><td>Inventory</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'inventory' ); ?></tr>
@@ -385,7 +385,7 @@ checkAuthorised('security');
 						<tr><td>Order Lists</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'orderlist' ); ?></tr>
 						<tr><td>Order Checklists</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'checklist_orders' ); ?></tr>
 					<?php
-					/* End Inventory tile subtab settigns */ 
+					/* End Inventory tile subtab settigns */
 					/* Staff tile subtab settings */
 					elseif ($tile == 'staff'):
 						/*
@@ -399,7 +399,7 @@ checkAuthorised('security');
 								$on_security[] = $field_name;
 							}
 						}
-						
+
 						foreach ( $on_security as $category => $value ) {
 							$select_value = get_securitylevel ( $dbc, $value ); ?>
 							<tr><td>Software Access for <?php echo $select_value; ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_access_'.$value ); ?></tr><?php
@@ -429,14 +429,14 @@ checkAuthorised('security');
 						<tr><td>Certificates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'certificates' ); ?></tr>
 						<tr><td>History</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'history' ); ?></tr>
 					<?php
-					/* End Staff tile subtab settigns */ 
+					/* End Staff tile subtab settigns */
 					/* Goals & Objective tile subtab settings */
 					elseif ($tile == 'gao'): ?>
 						<tr><td>The Company</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
 						<tr><td>My Department Goals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'department' ); ?></tr>
 						<tr><td>My Goals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
 					<?php
-					/* End Goals & Objective tile subtab settigns */ 
+					/* End Goals & Objective tile subtab settigns */
 					/* Profit & Loss tile subtab settings */
 					elseif ($tile == 'profit_loss'): ?>
 						<tr><td>Revenue</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'revenue' ); ?></tr>
@@ -445,11 +445,11 @@ checkAuthorised('security');
 						<tr><td>Expenses</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'expenses' ); ?></tr>
 						<tr><td>Summary</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ); ?></tr>
 					<?php
-					/* End Inventory tile subtab settigns */ 
+					/* End Inventory tile subtab settigns */
 					/* Reports tile subtab settings */
 					elseif ($tile == 'report'):
 						$reports = ','.get_config($dbc, 'reports_dashboard').','; ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Operations:</div></th></tr><?php
 						if(strpos($reports,',Daysheet,') !== false) { ?>
 							<tr><td>Therapist Day Sheet</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pt_daysheet' ); ?></tr>
@@ -573,7 +573,7 @@ checkAuthorised('security');
 						if(strpos($reports,',Import Details,') !== false) { ?>
 							<tr><td>Detailed Import Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'import_details' ); ?></tr>
 						<?php } ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Sales:</div></th></tr><?php
 						if(strpos($reports,',Validation by Therapist,') !== false) { ?>
 							<tr><td>Validation by Therapist</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pt_validation' ); ?></tr>
@@ -665,7 +665,7 @@ checkAuthorised('security');
 						if(strpos($reports,',Sales Estimates,') !== false) { ?>
 							<tr><td>Sales Estimates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sales_estimates' ); ?></tr>
 						<?php } ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Accounts Receivable:</div></th></tr><?php
 						if(strpos($reports,',A/R Aging Summary,') !== false) { ?>
 							<tr><td>A/R Aging Summary</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ar_aging' ); ?></tr>
@@ -697,7 +697,7 @@ checkAuthorised('security');
 						if(strpos($reports,',UI Invoice Report,') !== false) { ?>
 							<tr><td>UI Invoice Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ar_ui_invoice' ); ?></tr>
 						<?php } ?>
-                        
+
                         <!-- Profit & Loss -->
                         <tr><th colspan="4"><div style="text-align:left;width:100%;font-size:20px;">Profit &amp; Loss:</div></th></tr><?php
 						if ( strpos($reports, ',Revenue Receivables,') !== false ) { ?>
@@ -715,7 +715,7 @@ checkAuthorised('security');
 						if ( strpos($reports, ',Summary,') !== false ) { ?>
 							<tr><td>Summary</td><?= subtab_config_function( $dbc, $tile, $level_url, 'summary' ); ?></tr><?php
                         } ?>
-						
+
                         <!-- Marketing -->
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Marketing:</div></th></tr><?php
 						if(strpos($reports,',Customer Contact List,') !== false) { ?>
@@ -757,7 +757,7 @@ checkAuthorised('security');
 						if(strpos($reports,',Web Referrals Report,') !== false) { ?>
 							<tr><td>Web Referrals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'web_referrals' ); ?></tr>
 						<?php } ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Compensation:</div></th></tr><?php
 						if(strpos($reports,',Adjustment Compensation,') !== false) { ?>
 							<tr><td>Adjustment Compensation</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'compensation_adjust' ); ?></tr>
@@ -771,7 +771,7 @@ checkAuthorised('security');
 						if(strpos($reports,',Statutory Holiday Pay Breakdown,') !== false) { ?>
 							<tr><td>Statutory Holiday Pay Breakdown</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'compensation_statutory_breakdown' ); ?></tr>
 						<?php } ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Customer:</div></th></tr><?php
 						if(strpos($reports,',Customer Sales by Customer Summary,') !== false) { ?>
 							<tr><td>Sales by Customer Summary</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'customer_sales_customer' ); ?></tr>
@@ -815,7 +815,7 @@ checkAuthorised('security');
 						if(strpos($reports,',Customer Service Rates,') !== false) { ?>
 							<tr><td>Service Rates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'customer_service_rates' ); ?></tr>
 						<?php } ?>
-						
+
 						<tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Staff:</div></th></tr><?php
 						if(strpos($reports,',Staff Staff Tickets,') !== false) { ?>
 							<tr><td>Staff Tickets</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_staff_tickets' ); ?></tr>
@@ -844,9 +844,9 @@ checkAuthorised('security');
 						if(strpos($reports,',Staff Staff Compensation,') !== false) { ?>
 							<tr><td>Staff Compensation</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_staff_compensation' ); ?></tr>
 						<?php }
-					/* End Reports tile subtab settigns */ 
+					/* End Reports tile subtab settigns */
 					endif;
-						
+
 					/* Passwords tile subtab settings */
 					if ( $tile == 'passwords' ) {
 						$tabs		= get_config ( $dbc, 'password_category' );
@@ -859,11 +859,11 @@ checkAuthorised('security');
 						}
 					}
 					/* End Passwords tile subtab settigns */
-					
+
 					/* Rate Cards tile subtab settings */
 					if ( $tile == 'rate_card' ) { ?>
 						<tr><td>My Company</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
-						<tr><td>Estimate Scope Template</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'estimate' ); ?></tr>
+						<tr><td><?= ESTIMATE_TILE ?> Scope Template</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'estimate' ); ?></tr>
 						<tr><td>Customer Specific</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'customer' ); ?></tr>
 						<tr><td>Position</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'position' ); ?></tr>
 						<tr><td>Staff</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff' ); ?></tr>
@@ -871,7 +871,7 @@ checkAuthorised('security');
 						<tr><td>Equipment Category</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'category' ); ?></tr>
 						<tr><td>Labour</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'labour' ); ?></tr><?php
 					}
-					
+
 					/* HR tile subtab settings */
 					if ( $tile == 'hr' ) {
 						$hr_tabs = get_config($dbc, 'hr_tabs');
@@ -880,7 +880,7 @@ checkAuthorised('security');
 						}
 						?><tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
-					
+
 					/* Expenses tile subtab settings */
 					if ( $tile == 'expense' ) { ?>
 						<tr><td>Budget</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'budget' ); ?></tr>
@@ -894,7 +894,7 @@ checkAuthorised('security');
 						<tr><td>Payables</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'payables' ); ?></tr>
 						<tr><td>Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'report' ); ?></tr><?php
 					}
-					
+
 					/* Point of Sale Basic tile subtab settings */
 					if ( $tile == 'pos' ) { ?>
 						<tr><td>Sell</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sell' ); ?></tr>
@@ -903,7 +903,7 @@ checkAuthorised('security');
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unpaid' ); ?></tr>
 						<tr><td>Voided Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'voided' ); ?></tr><?php
 					}
-					
+
 					/* Invoicing tile subtab settings */
 					if ( $tile == 'invoicing' ) { ?>
 						<tr><td>Sell</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sell' ); ?></tr>
@@ -912,7 +912,7 @@ checkAuthorised('security');
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unpaid' ); ?></tr>
 						<tr><td>Voided Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'voided' ); ?></tr><?php
 					}
-					
+
 					/* Invoice tile subtab settings */
 					if ( $tile == 'invoice' ) { ?>
 						<tr><td>Sell</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sell' ); ?></tr>
@@ -925,7 +925,7 @@ checkAuthorised('security');
 						<tr><td>Unpaid Insurer Invoices Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ui_report' ); ?></tr>
 						<tr><td>Cash Out</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cashout' ); ?></tr><?php
 					}
-					
+
 					/* Point of Sale Advanced tile subtab settings */
 					if ( $tile == 'posadvanced' ) { ?>
 						<tr><td>Sell</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sell' ); ?></tr>
@@ -938,7 +938,7 @@ checkAuthorised('security');
 						<tr><td>Unpaid Insurer Invoices Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ui_report' ); ?></tr>
 						<tr><td>Cash Out</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cashout' ); ?></tr><?php
 					}
-					
+
 					/* Sales tile subtab settings */
 					if ( $tile == 'sales' ) { ?>
 						<tr><td>How to Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
@@ -946,14 +946,14 @@ checkAuthorised('security');
 						<tr><td>Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'schedule' ); ?></tr>
 						<tr><td>Reports</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reports' ); ?></tr><?php
 					}
-					
+
 					/* Sales Order tile subtab settings */
 					if ( $tile == 'sales_order' ) { ?>
 						<tr><td>Create an Order</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'create' ); ?></tr>
 						<tr><td>Pending Orders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pending' ); ?></tr>
 						<tr><td>Completed <?= SALES_ORDER_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'completed' ); ?></tr><?php
 					}
-					
+
 					/* Projects/Jobs tile subtab settings */
 					if ( $tile == 'project' ) {
 						$project_tabs = get_config($dbc, 'project_tabs');
@@ -989,7 +989,7 @@ checkAuthorised('security');
 							<tr><td><?= $field_config_project_custom_detail['tab'] ?></td><?php subtab_config_function( $dbc, $tile, $level_url, 'custom_'.config_safe_str($field_config_project_custom_detail['tab']) ); ?></tr>
 						<?php } ?>
 					<?php }
-					
+
 					/* My Profile tile subtab settings */
 					if ( $tile == 'profile' ) { ?>
 						<!-- <tr><td>Staff</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff' ); ?></tr>
@@ -1008,7 +1008,7 @@ checkAuthorised('security');
 						<tr><td>Accreditation &amp; Certificates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'certificates' ); ?></tr>
 						<tr><td>Goals &amp; Objectives</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'goals' ); ?></tr><?php
 					}
-					
+
 					/* Tasks tile subtab settings */
 					if ( $tile == 'tasks' ) { ?>
 						<tr><td>My Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
@@ -1018,26 +1018,26 @@ checkAuthorised('security');
 						<tr><td>Client Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'client' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
-					
+
 					/* Day Sheet tile subtab settings */
 					if ( $tile == 'daysheet' ) { ?>
 						<tr><td><?= TICKET_NOUN ?> Day Sheet</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket' ); ?></tr>
 						<tr><td>Work Order Day Sheet</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'work_order' ); ?></tr>
 						<tr><td>Day Overview</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'overview' ); ?></tr><?php
 					}
-					
+
 					/* Information Gathering tile subtab settings */
 					if ( $tile == 'infogathering' ) { ?>
 						<tr><td>Forms</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'forms' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
-					
+
 					/* Gantt Chart tile subtab settings */
 					if ( $tile == 'gantt_chart' ) { ?>
 						<tr><td>Estimated</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'estimated' ); ?></tr>
 						<tr><td>Gantt Chart</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'chart' ); ?></tr><?php
 					}
-					
+
 					/* Purchase Order tile subtab settings */
 					if ( $tile == 'purchase_order' ) { ?>
 						<tr><td>Create an Order</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'create' ); ?></tr>
@@ -1047,14 +1047,14 @@ checkAuthorised('security');
 						<tr><td>Remote Purchase Orders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'remote' ); ?></tr>
 						<tr><td>Completed Purchase Orders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'completed' ); ?></tr><?php
 					}
-					
+
 					/* Operations Manual tile subtab settings */
 					if ( $tile == 'ops_manual' ) { ?>
 						<tr><td>Dashboard</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'dashboard' ); ?></tr>
 						<tr><td>Follow Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'followup' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
-					
+
 					/* Payroll tile subtab settings */
 					if ( $tile == 'payroll' ) { ?>
 						<tr><td>Staff Compensation</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'compensation' ); ?></tr>
@@ -1063,14 +1063,14 @@ checkAuthorised('security');
 						<tr><td>Field Tickets Payroll</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'field_ticket' ); ?></tr>
 						<tr><td>Shop Work Orders Payroll</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'shop_work_order' ); ?></tr><?php
 					}
-					
+
 					/* Email Communication tile subtab settings */
 					if ( $tile == 'email_communication' ) { ?>
 						<tr><td>Internal</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'internal' ); ?></tr>
 						<tr><td>External</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'external' ); ?></tr>
 						<tr><td>Log</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'log' ); ?></tr><?php
 					}
-					
+
 					/* Equipment tile subtab settings */
 					if ( $tile == 'equipment' ) { ?>
 						<tr><td>Equipment Lists</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'equipment' ); ?></tr>
@@ -1084,26 +1084,26 @@ checkAuthorised('security');
 						<tr><td>Checklist</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'checklist' ); ?></tr>
 						<tr><td>Equipment Assignment</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'equip_assign' ); ?></tr><?php
 					}
-					
+
 					/* Time Tracking subtab settings */
 					if ( $tile == 'time_tracking' ) { ?>
 						<tr><td>Time Tracking</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'tracking' ); ?></tr>
 						<tr><td>Shop Time Sheets</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'shop_time_sheets' ); ?></tr><?php
 					}
-					
+
 					/* Project Billing & Invoices subtab settings */
 					if ( $tile == 'billing' ) { ?>
 						<tr><td>Billing</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'billing' ); ?></tr>
 						<tr><td>Generated Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'invoices' ); ?></tr>
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'accounts_receivable' ); ?></tr>
 					<?php }
-					
+
 					/* Communication subtab settings */
 					if ( $tile == 'communication_schedule' ) { ?>
 						<tr><td>Email Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'email' ); ?></tr>
 						<tr><td>Phone Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'phone' ); ?></tr>
 					<?php }
-					
+
 					/* Client Documentation subtab settings */
 					if ( $tile == 'client_documentation' ) { ?>
 						<tr><td>Medication</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'medication' ); ?></tr>
@@ -1113,7 +1113,7 @@ checkAuthorised('security');
 						<tr><td>Daily Log Notes</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'daily_log_notes' ); ?></tr>
 					<?php }
 					// End of Client Documentation subtab settings
-					
+
 					/* Settings tile subtab settings */
 					if ( $tile == 'software_config' ) { ?>
 						<tr><td>Styling</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'style' ); ?></tr>
@@ -1135,7 +1135,7 @@ checkAuthorised('security');
 					<?php }
 					// include ('../Settings/settings_subtab_settings.php');
 					/* End of Settings tile subtab settings */
-					
+
 					// Client Projects Subtab Settings
 					if ( $tile == 'client_projects' ) { ?>
 						<tr><td>Pending Projects</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pending' ); ?></tr>
@@ -1145,7 +1145,7 @@ checkAuthorised('security');
 						<tr><td>Daysheet</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'daysheet' ); ?></tr>
 					<?php }
 					// Client Projects
-					
+
 					// Contracts Subtab Settings
 					if ( $tile == 'contracts' ) {
 						$contract_tabs = explode('#*#',mysqli_fetch_array(mysqli_query($dbc, "SELECT `contract_tabs` FROM `field_config_contracts`"))['contract_tabs']);
@@ -1155,34 +1155,34 @@ checkAuthorised('security');
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr>
 					<?php }
 					// Contracts Projects
-					
+
 					/* Communication subtab settings */
 					if ( $tile == 'certificate' ) { ?>
 						<tr><td>Active</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cert_active' ); ?></tr>
 						<tr><td>Suspended</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cert_suspended' ); ?></tr>
 						<tr><td>Follow Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cert_followup' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cert_reporting' ); ?></tr><?php
-                    } 
-					
+                    }
+
 					/* Non Verbal Communication/Emoji Comm subtab settings */
 					if ( $tile == 'non_verbal_communication' ) { ?>
 						<tr><td>Emotions</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'emotions' ); ?></tr>
 						<tr><td>Activities</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'activities' ); ?></tr><?php
                     }
-					
+
 					/* Form Builder subtab settings */
 					if ( $tile == 'form_builder' ) { ?>
 						<tr><td>Custom Forms</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'form_list' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Policies & Procedures subtab settings */
 					if ( $tile == 'policy_procedure' ) { ?>
 						<tr><td>Manuals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'manuals' ); ?></tr>
 						<tr><td>Follow Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'follow_up' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Security subtab settings */
 					if ( $tile == 'security' ) { ?>
 						<tr><td>Software Functionality</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'tiles' ); ?></tr>
@@ -1193,27 +1193,27 @@ checkAuthorised('security');
 						<tr><td>Password Reset</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'password' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Employee Handbook subtab settings */
 					if ( $tile == 'emp_handbook' ) { ?>
 						<tr><td>Manuals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'manuals' ); ?></tr>
 						<tr><td>Follow Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'follow_up' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Safety Manual subtab settings */
 					if ( $tile == 'safety_manual' ) { ?>
 						<tr><td>Manuals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'manuals' ); ?></tr>
 						<tr><td>Follow Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'follow_up' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Project Workflow subtab settings */
 					if ( $tile == 'project_workflow' ) { ?>
 						<tr><td>Active Workflow</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'active' ); ?></tr>
 						<tr><td>Add/Edit Workflow</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'add_edit' ); ?></tr><?php
                     }
-					
+
 					/* Safety subtab settings */
 					if ( $tile == 'safety' ) {
                         $safety_main        = get_config($dbc, 'safety_main_site_tabs');
@@ -1230,12 +1230,12 @@ checkAuthorised('security');
 						<tr><td>Manuals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'manuals' ); ?></tr>
 						<tr><td><?= INC_REP_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'incidents' ); ?></tr>
                     <?php }
-					
+
 					/* Checklist subtab settings */
 					if ( $tile == 'checklist' ) { ?>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Time Clock subtab settings */
 					if ( $tile == 'sign_in_time' ) { ?>
 						<tr><td>How To Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
@@ -1245,7 +1245,7 @@ checkAuthorised('security');
 						<tr><td>How To Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
 						<tr><td>Time Clock</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'time_clock' ); ?></tr><?php
                     }
-					
+
 					/* Cold Call subtab settings */
 					if ( $tile == 'calllog' ) { ?>
 						<tr><td>How To Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
@@ -1256,13 +1256,13 @@ checkAuthorised('security');
 						<tr><td>Goals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'goals' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
                     }
-					
+
 					/* Field Ticket Estimates subtab settings */
 					if ( $tile == 'field_ticket_estimates' ) { ?>
 						<tr><td>Bid</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'bid' ); ?></tr>
 						<tr><td>Cost Estimate</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cost_estimate' ); ?></tr><?php
                     }
-					
+
 					/* Services subtab settings */
 					if ( $tile == 'services' ) {
                         $sql = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `services` WHERE `category`!='' ORDER BY `category`");
@@ -1271,13 +1271,13 @@ checkAuthorised('security');
                             <tr><td><?= $row['category']; ?></td><?= subtab_config_function( $dbc, $tile, $level_url, $row_cat_subtab ); ?></tr><?php
                         }
                     }
-					
+
 					/* Cost Estimates subtab settings */
 					if ( $tile == 'cost_estimate' ) { ?>
 						<tr><td>Internal Cost Estimates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'internal_cost_estimate' ); ?></tr>
 						<tr><td>Customer Cost Estimates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'customer_cost_estimates' ); ?></tr><?php
                     }
-					
+
 					/* Time Sheets subtab settings */
 					if ( $tile == 'timesheet' ) { ?>
 						<tr><td>Time Sheets</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Time_Sheets' ); ?></tr>
@@ -1288,7 +1288,7 @@ checkAuthorised('security');
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Reporting' ); ?></tr>
 						<tr><td>Payroll</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Payroll' ); ?></tr><?php
                     }
-					
+
 					/* Treatment Charts subtab settings */
 					if ( $tile == 'treatment_charts' ) { ?>
 						<tr><td>Front Desk</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'front_desk' ); ?></tr>
@@ -1298,7 +1298,7 @@ checkAuthorised('security');
 						<tr><td>WCB</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'wcb' ); ?></tr>
 						<tr><td>Uncategorized Forms</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'uncategorized' ); ?></tr><?php
                     }
-					
+
 					/* Ticket subtab settings */
 					if ( $tile == 'ticket' ) { ?>
 						<?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_subtab) { ?>
@@ -1330,7 +1330,7 @@ checkAuthorised('security');
 						<tr><td>View Payable Hours in Planned/Tracked/Payable Table</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'view_payable' ); ?></tr>
 						<tr><td>All Other Accordions</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'all_access' ); ?></tr><?php
                     }
-                    
+
 					/* PT Day Sheet tile subtab settings */
 					if ($tile == 'therapist') { ?>
 						<tr><td>Day Sheet</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'daysheet' ); ?></tr>
@@ -1339,7 +1339,7 @@ checkAuthorised('security');
 						<tr><td>Compensation</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'compensation' ); ?></tr>
 						<tr><td>Appointment Summary</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ); ?></tr><?php
                     }
-                    
+
 					/* CRM tile subtab settings */
 					if ($tile == 'crm') { ?>
 						<tr><td>Referrals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'referrals' ); ?></tr>
@@ -1350,7 +1350,7 @@ checkAuthorised('security');
 						<tr><td>Newsletter</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'newsletter' ); ?></tr>
 						<tr><td>Reminders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reminders' ); ?></tr><?php
                     }
-                    
+
 					/* Budget tile subtab settings */
 					if ($tile == 'budget') { ?>
 						<tr><td>How To Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
@@ -1358,7 +1358,7 @@ checkAuthorised('security');
 						<tr><td>Active Budgets</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'active_budget' ); ?></tr>
 						<tr><td>Budget Expense Tracking</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'expense_tracking' ); ?></tr><?php
                     }
-                    
+
 					/* Injury tile subtab settings */
 					if ($tile == 'injury') { ?>
 						<tr><td>Active</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'active' ); ?></tr>
@@ -1372,7 +1372,7 @@ checkAuthorised('security');
                     		<tr><td><?= $calendar_type ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, $calendar_type ); ?></tr><?php
                     	}
                     }
-                    
+
 					/* Notifications tile subtab settings */
 					if ($tile == 'confirmation') { ?>
 						<tr><td>Appointment Confirmations</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'appointments' ); ?></tr>
@@ -1383,7 +1383,7 @@ checkAuthorised('security');
 						<tr><td>- Add Follow Up Feedback</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'add_feedback' ); ?></tr>
 						<tr><td>- View Follow Up Feedback</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'view_feedback' ); ?></tr><?php
                     }
-                    
+
 					/* Reactivation/Follo Up tile subtab settings */
 					if ($tile == 'reactivation') { ?>
 						<tr><td>Active Reactivations</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'active' ); ?></tr>
@@ -1393,14 +1393,14 @@ checkAuthorised('security');
 						<tr><td>Assessment Follow-Up</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'assessment_followup' ); ?></tr>
 						<tr><td>Deactivated Contacts</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'deactivated_contacts' ); ?></tr><?php
                     }
-                    
+
 					/* Exercise Library tile subtab settings */
 					if ($tile == 'exercise_library') { ?>
 						<tr><td>Send Exercise Plan</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'send_plan' ); ?></tr>
 						<tr><td>Company Library</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
 						<tr><td>My Private Library</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'private' ); ?></tr><?php
                     }
-                    
+
 					/* Fund Development tile subtab settings */
 					if ($tile == 'fund_development') { ?>
 						<tr><td>Funders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'funders' ); ?></tr>
@@ -1425,7 +1425,7 @@ checkAuthorised('security');
                     	<tr><td>Communication</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'communication' ); ?></tr>
                     	<tr><td>Activities</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'activities' ); ?></tr><?php
 	                }
-					
+
 					/* Client Documentation subtab settings */
 					if ( $tile == 'charts' ) { ?>
 						<tr><td>Bowel Movement</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'bowel_movement' ); ?></tr>
@@ -1438,7 +1438,7 @@ checkAuthorised('security');
 						<tr><td>Daily Dishwasher Temp</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'daily_dishwasher_temp' ); ?></tr>
 						<tr><td>Custom Charts</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'custom_chart' ); ?></tr><?php
                     }
-					
+
 					/* Check Out subtab settings */
 					if ( $tile == 'check_out' ) { ?>
 						<tr><td>Create Invoice</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'sell' ); ?></tr>
@@ -1452,7 +1452,7 @@ checkAuthorised('security');
 						<tr><td>Cash Out</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'cashout' ); ?></tr>
 						<tr><td>Gift Card</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'gf' ); ?></tr><?php
                     }
-					
+
 					/* Accounts Receivable subtab settings */
 					if ( $tile == 'accounts_receivables' ) { ?>
 						<tr><td>Insurer A/R</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'insurer_ar' ); ?></tr>
@@ -1461,7 +1461,7 @@ checkAuthorised('security');
 						<tr><td>Insurer Paid A/R Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'insurer_ar_report' ); ?></tr>
 						<tr><td>Insurer A/R Clinic Master</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'insurer_ar_cm' ); ?></tr><?php
                     }
-					
+
 					/* Agendas & Meetings subtab settings */
 					if ( $tile == 'agenda_meeting' ) { ?>
 						<tr><td>How To Guide</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'how_to_guide' ); ?></tr>
@@ -1476,7 +1476,7 @@ checkAuthorised('security');
 							<tr><td><?= $documents_all_tab ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, $documents_all_tab ); ?></tr><?php
 						}
                     }
-					
+
 					/* Compensation subtab settings */
 					if ( $tile == 'goals_compensation' ) { ?>
 						<tr><td>Staff Goals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_goals' ); ?></tr>
@@ -1484,7 +1484,7 @@ checkAuthorised('security');
 						<tr><td>Stat Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'stat_report' ); ?></tr>
 						<tr><td>Hourly Pay</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'hourly_pay' ); ?></tr><?php
                     }
-					
+
 					/* Trip Optimizer subtab settings */
 					if ( $tile == 'optimize' ) { ?>
 						<tr><td>Upload</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'upload' ); ?></tr>
@@ -1493,11 +1493,11 @@ checkAuthorised('security');
                     } ?>
 
 				</table>
-				
+
 				<div class="double-pad-top"><a class="btn brand-btn btn-lg" href="security.php?tab=privileges<?php if(isset($_GET['level']) && $_GET['level'] !== '') { echo '&level='.$_GET['level']; } ?>">Back</a></div>
-				
+
 			</div><!-- .col-md-12 -->
         </div><!-- .row -->
     </div><!-- .container -->
-	
+
 <?php include ('../footer.php'); ?>
