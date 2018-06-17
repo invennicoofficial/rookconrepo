@@ -7,6 +7,7 @@
 		<script>
 			$(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reload_contact_notes();
 			window.parent.reload_contact_notes();
+			window.parent.reload_site();
 			$(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reload_sidebar();
 			window.parent.reload_sidebar();
 		</script>
@@ -67,7 +68,7 @@ if($access_any > 0) {
 			<input type="hidden" name="contact_note" value="1">
 			<input type="hidden" name="contact_clientid" value="<?= $_GET['clientid'] ?>">
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label">Contact:</label>
+				<label for="site_name" class="col-sm-4 control-label"><?= get_contact($dbc, $_GET['clientid'], 'category') == 'Sites' ? 'Site' : 'Contact' ?>:</label>
 				<div class="col-sm-8">
 					<?= !empty(get_client($dbc, $_GET['clientid'])) ? get_client($dbc, $_GET['clientid']) : get_contact($dbc, $_GET['clientid']) ?>
 				</div>

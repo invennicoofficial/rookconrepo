@@ -1,4 +1,4 @@
-<?php 
+<?php
 include ('../database_connection.php');
 ?>
 <script>
@@ -180,7 +180,7 @@ $field_config_expense = ','.$get_field_config_expense['expense'].',';
             <label class="col-sm-1 text-center">Cost</label>
             <?php } ?>
             <label class="col-sm-1 text-center">% Margin</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center">$ Profit</label>
             <label class="col-sm-1 text-center">Total</label>
 
@@ -405,7 +405,7 @@ $field_config_expense = ','.$get_field_config_expense['expense'].',';
 -->
 
 <div class="form-group">
-    <label for="company_name" class="col-sm-4 control-label">Expense Estimate:</label>
+    <label for="company_name" class="col-sm-4 control-label">Expense <?= ESTIMATE_TILE ?>:</label>
     <div class="col-sm-8">
       <input name="expense_total" value="<?php echo $final_total_expenses;?>" type="text" class="form-control">
     </div>

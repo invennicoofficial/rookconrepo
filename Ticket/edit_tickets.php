@@ -216,12 +216,14 @@ if($ticket_type == '') {
 ?>
 <input type="hidden" id="ticketid" name="ticketid" value="<?php echo $ticketid ?>" />
 <input name="unlocked_tabs" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['unlocked_tabs'] ?>">
-<input name="heading" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>">
-<input type="hidden" name="projectid" id="projectid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $projectid ?>">
-<input type="hidden" name="businessid" id="businessid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $businessid ?>">
-<input type="hidden" name="clientid" id="clientid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $clientid ?>">
 <input type="hidden" name="action_mode" id="action_mode" value="<?= $_GET['action_mode'] ?>">
 <input type="hidden" name="overview_mode" id="overview_mode" value="<?= $_GET['overview_mode'] ?>">
+<input name="heading" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>">
+<?php if(empty($ticketid) && !empty($_GET['projectid'])) { ?>
+	<input type="hidden" name="projectid" id="projectid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $projectid ?>">
+	<input type="hidden" name="businessid" id="businessid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $businessid ?>">
+	<input type="hidden" name="clientid" id="clientid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $clientid ?>">
+<?php } ?>
 <?php if(!empty($_GET['milestone_timeline'])) { ?>
 	<input type="hidden" name="milestone_timeline" id="milestone_timeline" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $milestone_timeline ?>">
 <?php } ?>
@@ -438,7 +440,7 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 			$access_medication = in_array('medication',$ticket_role_level);
 			$access_complete = in_array('complete',$ticket_role_level);
 			$access_services = in_array('services',$ticket_role_level);
-			$access_all = in_array('ticket',$ticket_role_level);
+			$access_all = in_array('all_access',$ticket_role_level);
 		}
 	}
 } else if(count(array_filter($arr, function ($var) { return (strpos($var, 'default') !== false); })) > 0) {
@@ -454,7 +456,7 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 			$access_medication = in_array('medication',$ticket_role_level);
 			$access_complete = in_array('complete',$ticket_role_level);
 			$access_services = in_array('services',$ticket_role_level);
-			$access_all = in_array('ticket',$ticket_role_level);
+			$access_all = in_array('all_access',$ticket_role_level);
 		}
 	}
 } else if(strpos($value_config, ',Edit Section Options,') !== FALSE) {
@@ -2040,6 +2042,32 @@ var setHeading = function() {
 				</div>
 			</div>
 		<?php } ?>
+		<div class="clearfix"></div>
+		<div class="gap-top add_gap_here">
+			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
+				<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+			<?php } ?>
+			<?php if($access_any) { ?>
+				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
+				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="archive(ticketid);"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+				<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
+					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
+				<?php } ?>
+				<?php if(strpos($value_config,',Multiple,') !== FALSE) { ?>
+					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right multiple_button btn brand-btn" onclick="return multiple_tickets($('[name=multiple_ticket_count]').val(), ticketid);">Multiple <?= TICKET_TILE ?></a>
+					<div class="col-sm-1 pull-right"><input type="number" value="1" min="1" step="1" class="form-control" name="multiple_ticket_count"></div>
+				<?php } ?>
+				<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
+				while($pdf = $pdfs->fetch_assoc()) { ?>
+					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" onclick="<?= $pdf['target'] == 'slider' ? "overlayIFrameSlider(this.href, 'auto', true, true); return false;" : "" ?>"><?= $pdf['pdf_name'] ?></a>
+				<?php } ?>
+			<?php } ?>
+			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {
+				$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
+				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
+			<?php } ?>
+			<div class="clearfix"></div>
+		</div>
 	</div>
 <?php } ?>
 <?php if(empty($_GET['calendar_view'])) { ?>
@@ -2551,9 +2579,9 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 			<div class="clearfix"></div>
-			<div class="gap-top add_gap_here">
+			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-					<a href="<?php echo $back_url; ?>" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>

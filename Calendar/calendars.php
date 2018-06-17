@@ -1,6 +1,5 @@
 <?php include('../include.php');
 // error_reporting(E_ALL);
-
 $detect = new Mobile_Detect;
 $is_mobile = ( $detect->isMobile() ) ? true : false;
 if($is_mobile) {
@@ -132,6 +131,31 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	</div>
 	<div id="dialog-staff-add" title="Add Staff or Replace Staff" style="display: none;">
 		Would you like to add this Staff or replace all Staff with the new Staff?
+	</div>
+	<div id="dialog-scheduled-time" title="Change Scheduled Time" style="display: none;">
+		<input type="hidden" name="change_ticket_table" value="">
+		<input type="hidden" name="change_ticket_id" value="">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Scheduled Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="change_to_do_date" value="" class="form-control datepicker">
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Scheduled Start Time:</label>
+			<div class="col-sm-8">
+				<input type="text" name="change_to_do_start_time" value="" class="form-control datetimepicker">
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Scheduled End Time:</label>
+			<div class="col-sm-8">
+				<input type="text" name="change_to_do_end_time" value="" class="form-control datetimepicker">
+			</div>
+			<div class="clearfix"></div>
+		</div>
 	</div>
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
 		<div class="iframe">

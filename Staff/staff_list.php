@@ -132,17 +132,12 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
 		echo '</div>';
 		foreach($contact_sort as $id): ?>
 			<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
-			<div class="dashboard-item override-dashboard-item">
+			<div class="dashboard-item override-dashboard-item set-relative">
 				<div class="col-sm-6">
 					<img src="../img/person.PNG" class="inline-img"><?= ($security_access['edit'] > 0 || ($view_id && $security_access['visible'] > 0) ? "<a href='staff_edit.php?contactid=".$row['contactid']."&from_url=".rawurlencode($_SERVER['REQUEST_URI'])."'>" : '').decryptIt($row['first_name']).' '.decryptIt($row['last_name']).($security_access['edit'] > 0 ? '</a>' : '&nbsp;') ?>
 					<?php if(!($security_access['edit'] > 0) && $row['contactid'] == $_SESSION['contactid']) { ?>
 						<a href="<?= WEBSITE_URL ?>/Profile/my_profile.php?edit_contact=true&from_staff_tile=true" title="Edit My Profile"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img"></a>
 					<?php } ?>
-					<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE && $tab != 'suspended'): ?>
-						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right"></a>
-					<?php elseif($tab != 'suspended'): ?>
-						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right"></a>
-					<?php endif; ?>
 				</div>
 				<?php if(in_array('Employee ID', $field_display) && $row['contactid'] > 0): ?>
 					<div class="col-sm-6">
@@ -269,6 +264,13 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
 					</div>
 				<?php } ?>
 				<div class="clearfix"></div>
+                <div class="set-favourite">
+					<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE && $tab != 'suspended'): ?>
+						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right"></a>
+					<?php elseif($tab != 'suspended'): ?>
+						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right"></a>
+					<?php endif; ?>
+                </div>
 			</div>
 		<?php endforeach; ?>
 		<?php echo '<div class="pagination_links">';

@@ -5778,3 +5778,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   background-color: #fff;
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#F4BC52 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #F4BC52 !important; }

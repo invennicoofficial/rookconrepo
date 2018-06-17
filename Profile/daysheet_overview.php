@@ -116,17 +116,6 @@ if (isset($_POST['add_manual'])) {
         $html_weekly .= '</ul>';
     }
 
-    if($ticket > 0) {
-        $html_weekly .= 'Ticket';
-
-        $est = mysqli_query($dbc, "SELECT * FROM day_overview WHERE type='Ticket' AND contactid='$contactid' AND DATE(today_date) = CURDATE()");
-        $html_weekly .= '<ul>';
-        while($est_row = mysqli_fetch_array( $est )) {
-            $html_weekly .= '<li>'.$est_row['description'].'</li>';
-        }
-        $html_weekly .= '</ul>';
-    }
-
     if($tasks > 0) {
         $html_weekly .= 'Task';
 

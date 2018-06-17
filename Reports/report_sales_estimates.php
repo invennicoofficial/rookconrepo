@@ -156,14 +156,14 @@ function report_estimates($dbc, $starttime, $endtime, $table_style, $table_row_s
     $report_data .=  '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
 
     $report_data .=  '<tr style="'.$table_row_style.'">';
-    $report_data .=  '<th width="18%">Estimate Name</th>';
+    $report_data .=  '<th width="18%">'.ESTIMATE_TILE.' Name</th>';
     $report_data .=  '<th width="18%">Customer</th>';
     $report_data .=  '<th width="18%">Created Date</th>';
     $report_data .=  '<th width="18%">Date of Last Status</th>';
     $report_data .=  '<th width="18%">Status</th>';
     $report_data .=  '<th width="10%"></th>';
     $report_data .=  '</tr>';
-	
+
 	$estimate_list = mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `deleted`=0 AND IFNULL(`status_date`,`created_date`) BETWEEN '$starttime' AND '$endtime'");
 	while($row = mysqli_fetch_assoc($estimate_list)) {
 		$report_date .= '<tr>
@@ -175,7 +175,7 @@ function report_estimates($dbc, $starttime, $endtime, $table_style, $table_row_s
 			<td data-title="">'.($row['projectid'] > 0 ? '<a href="../Project/projects.php?edit='.$row['projectid'].'">'.PROJECT_NOUN.' #'.$row['projectid'].'</a>' : '<a href="../Estimate/convert_to_project.php?estimate='.$row['estimateid'].'">Create '.PROJECT_NOUN.'</a>').'</td>
 		</tr>';
 	}
-	
+
     $report_data .=  '</table>';
 
     return $report_data;

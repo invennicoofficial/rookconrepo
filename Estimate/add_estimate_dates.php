@@ -2,7 +2,7 @@
 	$expiry_date = date('Y-m-d', strtotime($created_date.' + '.$expiry_length.' days'));
 } ?>
 <div class="form-group clearfix">
-    <label for="first_name" class="col-sm-4 control-label text-right">Date Estimate Created:</label>
+    <label for="first_name" class="col-sm-4 control-label text-right">Date <?= ESTIMATE_TILE ?> Created:</label>
     <div class="col-sm-8">
         <input name="created_date" value="<?php echo $created_date; ?>" type="text" class="datepicker"></p>
     </div>

@@ -1,9 +1,20 @@
 <div class="col-md-12">
 	<?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Documents</h3>') ?>
-	<div class="document_table" id="no-more-tables"><?php include('add_ticket_view_documents.php'); ?></div>
 	<?php if($access_all === TRUE) { ?>
 		<?php foreach ($field_sort_order as $field_sort_field) { ?>
-			<?php if(strpos($value_config, ',Documents Docs,') !== FALSE && $field_sort_field == 'Documents Docs') { ?>
+			<?php if(strpos($value_config, ',Project Docs,') !== FALSE && $field_sort_field == 'Project Docs') {
+				$doc_type = 'project'; ?>
+				<div class="project_doc_table" id="no-more-tables"><?php include('add_ticket_view_documents.php'); ?></div>
+			<?php } ?>
+			
+			<?php if(strpos($value_config, ',Contact Docs,') !== FALSE && $field_sort_field == 'Contact Docs') {
+				$doc_type = 'contact'; ?>
+				<div class="contact_doc_table" id="no-more-tables"><?php include('add_ticket_view_documents.php'); ?></div>
+			<?php } ?>
+			
+			<?php if(strpos($value_config, ',Documents Docs,') !== FALSE && $field_sort_field == 'Documents Docs') {
+				unset($doc_type); ?>
+				<div class="document_table" id="no-more-tables"><?php include('add_ticket_view_documents.php'); ?></div>
 				<div class="form-group">
 					<label for="additional_note" class="col-sm-4 control-label">Upload Document(s):
 							<span class="popover-examples list-inline">&nbsp;

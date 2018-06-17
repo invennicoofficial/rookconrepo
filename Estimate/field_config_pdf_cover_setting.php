@@ -10,7 +10,7 @@ $cover_font_colour = $pdf_settings['cover_font_colour']; ?>
 <h3>Cover Page</h3>
 <div class="dashboard-item">
 	<div class="form-group">
-		<label class="col-sm-3 control-label">Cover Page Text:<br /><small>The following text will be replaced in the final document as follows:<br />[RECIPIENT]: Estimate Recipient's Name<br />[CREATED]: Date Estimate Created<br />[EXPIRY]: Estimate Expiry Date</small></label>
+		<label class="col-sm-3 control-label">Cover Page Text:<br /><small>The following text will be replaced in the final document as follows:<br />[RECIPIENT]: <?= ESTIMATE_TILE ?> Recipient's Name<br />[CREATED]: Date <?= ESTIMATE_TILE ?> Created<br />[EXPIRY]: <?= ESTIMATE_TILE ?> Expiry Date</small></label>
 		<div class="col-sm-9">
 			<textarea name="cover_text"><?= html_entity_decode($cover_text) ?></textarea>
 		</div>
@@ -30,7 +30,7 @@ $cover_font_colour = $pdf_settings['cover_font_colour']; ?>
 				<select class="form-control" name="cover_font_type">
 					<?php foreach($font_type_array as $font_type_value => $font_types): ?>
 						<option <?= $font_type_value == $cover_font_type ? 'selected' : '' ?> value="<?= $font_type_value ?>"><?= $font_types ?></option>
-					<?php endforeach; ?>					
+					<?php endforeach; ?>
 				</select>
 			</div>
 			<div class="col-sm-5">

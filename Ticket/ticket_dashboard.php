@@ -1,5 +1,5 @@
 <?php
-$archive_query = "UPDATE tickets SET status='Unassigned' WHERE contactid IS NULL OR contactid = ''";
+$archive_query = "UPDATE tickets SET status='Unassigned' WHERE (contactid IS NULL OR contactid = '') AND `status` != 'Archive' AND `deleted` = 0";
 $delete_result = mysqli_query($dbc, $archive_query);
 
 $ticket_tabs = [];
@@ -353,6 +353,30 @@ function setActions() {
 				data: fileData
 			});
 		}).click();
+	});
+	$('.reply-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: '../Project/projects_ajax.php?action=project_actions',
+				method: 'POST',
+				data: {
+					field: 'comment',
+					value: this.value,
+					table: 'tickets',
+					id: item.data('id'),
+					id_field: 'ticketid'
+				}
+			});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
 	});
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');

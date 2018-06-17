@@ -203,11 +203,11 @@ if(in_array('Summary Payments',$tab_config)) {
 	$total_length += $block_length;
 }
 $display_column = 0;
-$displayed_length = 0; 
+$displayed_length = 0;
 if($_GET['edit'] > 0) {
 ?>
 <div class="col-sm-6">
-	<?php 
+	<?php
 		foreach($blocks as $block) {
 		if($block[0] == $displayed_length && $display_column == 0) {
 			$displayed_length = 0;
@@ -221,9 +221,9 @@ if($_GET['edit'] > 0) {
 			$displayed_length += $block[0];
 			echo $block[1];
 		}
-	} 
+	}
 	?>
 </div>
 <?php } else {
-	echo '<h2>Please fill up Project Details to see summary of project.</h2>';
+	echo '<h2>Please add Project Details in order to see a Summary of the Project.</h2>';
 } ?>

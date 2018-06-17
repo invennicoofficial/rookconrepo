@@ -29,7 +29,7 @@ function addType() {
 	var clone = $('.type-option').last().clone();
 	clone.find('input').val('');
 	$('.type-option').last().after(clone);
-	
+
 	$('input').off('change', saveType).change(saveType);
 	$('[name="estimate_type[]"]').last().focus();
 }
@@ -41,7 +41,7 @@ function removeType(a) {
 	saveType();
 }
 </script>
-<h3>Estimate Types</h3>
+<h3><?= ESTIMATE_TILE ?> Types</h3>
 <label class="col-sm-10 text-center hide-titles-mob">Type Name (cannot contain commas)</label>
 <label class="col-sm-2 hide-titles-mob"></label>
 <?php foreach($estimate_types as $type) { ?>

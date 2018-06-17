@@ -142,6 +142,14 @@ error_reporting(0);
 		}
 	}
 
+	if(!empty($_GET['agendameetingid'])) {
+		$agendameetingid = $_GET['agendameetingid'];
+        $query_update = "UPDATE `agenda_meeting` SET `deleted`='$deleted' WHERE `agendameetingid`='$agendameetingid'";
+        $result_update = mysqli_query($dbc, $query_update);
+		if($_GET['action'] == 'delete') {
+			header('Location: Agenda Meetings/'.$_GET['page'].'.php');
+		}
+	}
 	if(!empty($_GET['fieldpoid'])) {
 		$id = $_GET['fieldpoid'];
 		$query_update = "UPDATE `field_po` SET `deleted`='$deleted' WHERE `fieldpoid`='$id'";
@@ -277,7 +285,7 @@ error_reporting(0);
 	}
 
 
-	
+
 
 	if(!empty($_GET['infogatheringid'])) {
 		$infogatheringid = $_GET['infogatheringid'];
@@ -529,14 +537,16 @@ error_reporting(0);
         $query_update = "UPDATE `vendor_price_list` SET deleted='$deleted' WHERE inventoryid='$vplid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
-            if ( !empty($contactid) ) {
+            if ( !empty($_GET['back_url']) ) {
+            	header('Location: '.urldecode($_GET['back_url']));
+            } else if ( !empty($contactid) ) {
                 header('Location: Vendors/contacts_inbox.php?category='.$category.'&edit='.$contactid);
             } else {
                 header('Location: Vendor Price List/inventory.php?type=active&category='.$category.'&filter=Top');
             }
         }
     }
-    
+
     if(!empty($_GET['order_list_id'])) {
 		$order_list_id = $_GET['order_list_id'];
         $contactid = $_GET['contactid'];
@@ -915,7 +925,7 @@ error_reporting(0);
         $result_update = mysqli_query($dbc, $query_update);
     }
 
-	
+
     if(!empty($_GET['staff_documentsid'])) {
         $staff_documentsid = $_GET['staff_documentsid'];
         $category = $_GET['category'];
@@ -945,7 +955,7 @@ error_reporting(0);
         $webpromoidid   = $_GET['webpromoid'];
         $query_update   = "UPDATE `website_promotions` SET `deleted`='$deleted' WHERE `promoid`=$webpromoidid";
         $result_update  = mysqli_query ( $dbc, $query_update );
-        
+
         if ( $_GET['action']=='delete' ) {
             header('Location: Website/website_promotions.php');
         }

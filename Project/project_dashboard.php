@@ -144,12 +144,15 @@ $(document).ready(function() {
 			selectType(project_type);
 		} else {
 			ajaxCalls.forEach(function(call) { call.abort(); });
-			query = this.value.toLowerCase();
+			var item = document.createElement('div');
+			item.innerHTML = this.value;
+			query = item.innerText.toLowerCase();
 			clearTimeout(loadResults);
 			loadResults = setTimeout(function() {
 				current_list = [];
 				search_list.forEach(function(project_string) {
-					if(project_string.toLowerCase().indexOf(query) !== -1) {
+					item.innerHTML = project_string;
+					if(item.innerText.toLowerCase().indexOf(query) !== -1) {
 						current_list.push({'projectid':project_string.split(' ')[0]});
 					}
 				});

@@ -9,7 +9,10 @@ if(!defined('MYSQL_ASSOC')) {
 	define('MYSQL_ASSOC',MYSQLI_ASSOC);
 }
 // Number Pagination
-function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set = false) {
+function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set = false, $defaultRows) {
+	if(!$allow_row_set || empty($defaultRows)) {
+		$defaultRows = $rowsPerPage;
+	}
     $result  = mysqli_query($dbc, $query) or die('Error, query failed<!--'.$query.'-->');
     $row     = mysqli_fetch_array($result, MYSQLI_BOTH);
     $numrows = $row['numrows'];
@@ -17,7 +20,7 @@ function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set
 		$numrows = $row[0];
 	}
 	// If there are fewer rows than are displayed on a single page, just skip the pagination
-	if(!($numrows > $rowsPerPage)) {
+	if(!($numrows > $defaultRows)) {
 		return;
 	}
 
@@ -103,7 +106,7 @@ function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set
 			unset($query['pagerows']);
 			$row_set = 'Rows: <select placeholder="Rows Per Page" onchange="window.location=\'?'.http_build_query($query).'&pagerows=\'+this.value">';
         }
-		for($i = 25; $i < $numrows + 25; $i += 25) {
+		for($i = $defaultRows; $i < $numrows + $defaultRows; $i += $defaultRows) {
 			$row_set .= "<option ".($rowsPerPage == $i ? 'selected' : '')." value=$i>$i</option>";
 		}
 		$row_set .= '</select>';

@@ -14,7 +14,12 @@ function user_setting() {
 		});
 	} else {
 		$.ajax({    //create an ajax request to settings_ajax.php
-			url: "<?php echo WEBSITE_URL; ?>/Settings/settings_ajax.php?fill=system_display&name="+this.name+"&value="+this.value
+			url: "<?php echo WEBSITE_URL; ?>/Settings/settings_ajax.php?fill=system_display",
+			method: 'POST',
+			data: {
+				name: this.name,
+				value: this.value
+			}
 		});
 	}
 }
@@ -67,7 +72,7 @@ if ( !empty($note) ) { ?>
 			<th width="30%">System Option</th>
 		</tr>
 		<tr>
-			<td data-title="Preference">Contacts Sort Order</td>
+			<td data-title="Preference">Contacts Sort Order:</td>
 			<td data-title="User Setting"><select name="contacts_sort_order" data-target="user" class="form-control chosen-select"><option></option>
 				<option <?php echo ($preferences['contacts_sort_order'] > 0 ? '' : 'selected'); ?> value="0">System Default</option>
 				<option <?php echo ($preferences['contacts_sort_order'] == 1 ? 'selected' : ''); ?> value="1">First Name</option>
@@ -79,7 +84,7 @@ if ( !empty($note) ) { ?>
 			<select></td>
 		</tr>
 		<tr>
-			<td data-title="Preference">Time Format</td>
+			<td data-title="Preference">Time Format:</td>
 			<td data-title="User Setting"><select name="time_format" data-target="user" class="form-control chosen-select"><option></option>
 				<option <?php echo ($preferences['time_format'] > 0 ? '' : 'selected'); ?> value="0">System Default</option>
 				<option <?php echo ($preferences['time_format'] == 1 ? 'selected' : ''); ?> value="1">HH:MM - 24 hour clock with 2-digit hour</option>
@@ -94,7 +99,13 @@ if ( !empty($note) ) { ?>
 				<option <?php echo ($system_time == 4 ? 'selected' : ''); ?> value="4">H:MM - 24 hour clock with 1-digit hour</option>
 			<select></td>
 		</tr>
-
-
+		<tr>
+			<td data-title="Preference">Report Row Colour Styling: <em>Reports (that have been designed to use this) will alternate between these two colours.</em></td>
+			<td data-title="User Setting"></td>
+			<td data-title="User Setting">
+				<div class="col-sm-6"><input type="color" name="report_row_colour_1" data-target="system" class="form-control" value="<?= get_config($dbc, 'report_row_colour_1') ?>"></div>
+				<div class="col-sm-6"><input type="color" name="report_row_colour_2" data-target="system" class="form-control" value="<?= get_config($dbc, 'report_row_colour_2') ?>"></div>
+			</td>
+		</tr>
 	</table>
 </div>

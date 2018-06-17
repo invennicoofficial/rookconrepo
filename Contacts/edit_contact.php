@@ -338,8 +338,8 @@ function saveFieldMethod(field) {
 							$(field).hide();
 							$(field).val('');
 						} else if(field.name == 'category' && field.value != field.defaultValue) {
-							if('<?= (IFRAME_PAGE && $_GET['change'] != 'true') || isset($_GET['fields']) ? 'IFRAME' : '' ?>' == '') {
-								window.location.replace('?<?= IFRAME_PAGE ? 'mode=iframe&' : '' ?>profile=false&businessid=<?= $_GET['businessid'] ?>&category='+field.value+'&edit='+ $('[name=contactid]').val());
+							if('<?= (IFRAME_PAGE && $_GET['change'] != 'true') ? 'IFRAME' : '' ?>' == '') {
+								window.location.replace('?<?= IFRAME_PAGE ? 'mode=iframe&' : '' ?><?= $_GET['change'] == 'true' ? 'change=true&' : '' ?>profile=false&businessid=<?= $_GET['businessid'] ?>&category='+field.value+'&edit='+ $('[name=contactid]').val());
 							}
 						} else if(field.name == 'primary_contact') {
 							if($(field).is(':checked')) {
@@ -828,7 +828,7 @@ function calculateAllocatedHours() {
 		<?php }
 //} ?>
 
-            <div id='edit_profile' class="<?= $slider_layout == 'full' ? 'iframe_edit' : '' ?>" style='<?= ($_GET['edit'] > 0 && !isset($mandatory_config) && $_GET['profile'] != 'false' && $_GET['fields'] != 'all_fields') || (!isset($mandatory_config) && IFRAME_PAGE && $_GET['edit'] != 'new') ? 'display:none;' : '' ?>'>
+            <div id='edit_profile' class="<?= $slider_layout == 'full' ? 'iframe_edit' : '' ?>" style='<?= ($_GET['edit'] > 0 && !isset($mandatory_config) && $_GET['profile'] != 'false' && $_GET['fields'] != 'all_fields') || (!isset($mandatory_config) && IFRAME_PAGE && $_GET['edit'] != 'new' && $_GET['profile'] != 'false') ? 'display:none;' : '' ?>'>
                 <!--<div <?= $_GET['fields'] == 'all_fields' ? '' : 'class="scale-to-fill tile-content" style="width:calc(100% - 20px);"' ?>>-->
                 <div class="main-screen standard-dashboard-body">
                     <div class="standard-dashboard-body-title" style="<?= $_GET['fields'] == 'fields_only' ? 'display:none;' : '' ?>">

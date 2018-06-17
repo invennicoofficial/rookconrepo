@@ -60,7 +60,7 @@ if (isset($_POST['add_manual'])) {
     $communications = $get_total_communication['total_communication'];
 
     if($estimate > 0) {
-        $html_weekly .= 'Estimate';
+        $html_weekly .= ESTIMATE_TILE;
 
         $est = mysqli_query($dbc, "SELECT * FROM day_overview WHERE type='Estimate' AND contactid='$contactid' AND DATE(today_date) = CURDATE()");
         $html_weekly .= '<ul>';
@@ -420,7 +420,7 @@ if (isset($_POST['add_manual'])) {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_est" >
-						Estimate<span class="glyphicon glyphicon-plus"></span>
+						<?= ESTIMATE_TILE ?><span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -950,7 +950,7 @@ if (isset($_POST['add_manual'])) {
 				<th>Description</th>
 				<th>Time-Actual</th>
 				<th>Time-Manual</th>
-				<th>Time-Summary</th>	
+				<th>Time-Summary</th>
 				</tr>";
 				$times = array();
 				$final = '00:00:00';
@@ -974,7 +974,7 @@ if (isset($_POST['add_manual'])) {
 					$minutes = '00';
 					$seconds = '00';
 					$spent_time = '';
-					
+
 					if($ticketNumber != '') {
 						$query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' ORDER BY tickettimerid DESC";
 						$result1 = mysqli_query($dbc, $query_check_credentials1);
@@ -990,7 +990,7 @@ if (isset($_POST['add_manual'])) {
 									$from_time = strtotime($row1['end_time']);
 									$times[] = round(abs($to_time - $from_time) / 60,2);
 									$add_times += round(abs($to_time - $from_time),2);
-								}	
+								}
 							}
 
 							$hours = floor($add_times / 3600);

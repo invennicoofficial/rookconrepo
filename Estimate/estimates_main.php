@@ -33,12 +33,12 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
 <div class="collapsible-horizontal collapsed hide-titles-mob">
 	<div class="col-xs-12 col-sm-6 col-md-3 gap-top">
 		<div class="summary-block">
-			<span class="text-lg"><?= number_format($summary['total'],0) ?></span><br />Total Estimates
+			<span class="text-lg"><?= number_format($summary['total'],0) ?></span><br />Total <?= ESTIMATE_TILE ?>
 		</div>
 	</div>
 	<div class="col-xs-12 col-sm-6 col-md-3 gap-top">
 		<div class="summary-block">
-			<a href="?status=all"><span class="text-lg">$<?= number_format($summary['value'],2) ?></span></a><br />Value of Estimates
+			<a href="?status=all"><span class="text-lg">$<?= number_format($summary['value'],2) ?></span></a><br />Value of <?= ESTIMATE_TILE ?>
 		</div>
 	</div>
 	<?php foreach($summarized as $summ_status) {
@@ -90,12 +90,12 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
 			<div class="panel-body" data-file="">
 				<div class="col-xs-12 col-sm-6 col-md-3 gap-top">
 					<div class="summary-block">
-						<span class="text-lg"><?= number_format($summary['total'],0) ?></span></a><br />Total Estimates
+						<span class="text-lg"><?= number_format($summary['total'],0) ?></span></a><br />Total <?= ESTIMATE_TILE ?>
 					</div>
 				</div>
 				<div class="col-xs-12 col-sm-6 col-md-3 gap-top">
 					<div class="summary-block">
-						<a href="?status=all"><span class="text-lg">$<?= number_format($summary['value'],2) ?></span></a><br />Value of Estimates
+						<a href="?status=all"><span class="text-lg">$<?= number_format($summary['value'],2) ?></span></a><br />Value of <?= ESTIMATE_TILE ?>
 					</div>
 				</div>
 				<?php foreach($summarized as $summ_status) {

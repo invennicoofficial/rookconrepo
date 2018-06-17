@@ -58,7 +58,7 @@ if (isset($_POST['submit_tab_config'])) {
 		$groups[] = implode(',',$group);
 	}
 	$staff_groups = implode('#*#',$groups);
-	
+
 	//Custom Accordions
 	$accordions = [];
 	foreach($_POST['accordion'] as $key => $value) {
@@ -75,7 +75,7 @@ if (isset($_POST['submit_tab_config'])) {
         $query_insert_config = "INSERT INTO `field_config_estimate` (`config_fields`, `config_fields_dashboard`, `field_info`, `estimate_groups`, `custom_accordions`) VALUES ('$config_fields', '$config_fields_dashboard', '$label_config', '$staff_groups', '$accordion_config')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-	
+
 	//Field Labels and Order
 	$labels = [];
 	foreach($_POST['estimate_field_name'] as $key => $name) {
@@ -156,7 +156,7 @@ function remove_accordion() {
 
 <div class="container">
 <div class="row">
-<h1>Estimates</h1>
+<h1><?= ESTIMATE_TILE ?></h1>
 <div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $main_page; ?>" class="btn brand-btn">Back to Dashboard</a></div>
 <!--<a href="#" class="btn brand-btn" onclick="history.go(-1);return false;">Back</a>-->
 <div class="pad-left">
@@ -166,9 +166,9 @@ function remove_accordion() {
 	<?php else: ?>
 		<?php $active_tab = 'active_tab'; ?>
 	<?php endif; ?>
-	<a href='field_config_estimate.php'><button type="button" class="btn brand-btn mobile-block <?php echo $active_tab; ?>" >Estimates Config</button></a>
+	<a href='field_config_estimate.php'><button type="button" class="btn brand-btn mobile-block <?php echo $active_tab; ?>" ><?= ESTIMATE_TILE ?> Config</button></a>
 	<a href='field_config_quote.php'><button type="button" class="btn brand-btn mobile-block" >Quote Config</button></a>
-	<a href='field_config_estimate.php?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $tab_active_tab; ?>" >Estimates Tab Config</button></a>
+	<a href='field_config_estimate.php?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $tab_active_tab; ?>" ><?= ESTIMATE_TILE ?> Tab Config</button></a>
 </div>
 	<br>
 <?php if($_GET['tab']): ?>
@@ -210,7 +210,7 @@ $project_tabs = get_config($dbc, 'project_tabs');
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_dash" >
-                    Estimates Dashboard Config<span class="glyphicon glyphicon-plus"></span>
+                    <?= ESTIMATE_TILE ?> Dashboard Config<span class="glyphicon glyphicon-plus"></span>
                 </a>
             </h4>
         </div>
@@ -218,10 +218,10 @@ $project_tabs = get_config($dbc, 'project_tabs');
         <div id="collapse_dash" class="panel-collapse collapse">
             <div class="panel-body">
 
-                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate#".',') !== FALSE) { echo " checked"; } ?> value="Estimate#" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Estimate#&nbsp;&nbsp;
+                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate#".',') !== FALSE) { echo " checked"; } ?> value="Estimate#" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;<?= ESTIMATE_TILE ?>#&nbsp;&nbsp;
 
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Business".',') !== FALSE) { echo " checked"; } ?> value="Business" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Business&nbsp;&nbsp;
-                <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) { echo " checked"; } ?> value="Estimate Name" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Estimate Name&nbsp;&nbsp;
+                <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) { echo " checked"; } ?> value="Estimate Name" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;<?= ESTIMATE_TILE ?> Name&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Total Cost".',') !== FALSE) { echo " checked"; } ?> value="Total Cost" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Total Cost&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Notes".',') !== FALSE) { echo " checked"; } ?> value="Notes" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Notes&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Financial Summary".',') !== FALSE) { echo " checked"; } ?> value="Financial Summary" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Financial Summary&nbsp;&nbsp;
@@ -239,7 +239,7 @@ $project_tabs = get_config($dbc, 'project_tabs');
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_basic" >
-                    Estimates Configuration<span class="glyphicon glyphicon-plus"></span>
+                    <?= ESTIMATE_TILE ?> Configuration<span class="glyphicon glyphicon-plus"></span>
                 </a>
             </h4>
         </div>
@@ -259,7 +259,7 @@ $project_tabs = get_config($dbc, 'project_tabs');
 					<input type="hidden" name="info_name[]" value="expiry_length">
 				</div>
 				<div class="form-group">
-					<label class="col-sm-4 control-label text-right">Add Estimate/Project Types separated by a comma:</label>
+					<label class="col-sm-4 control-label text-right">Add <?= ESTIMATE_TILE ?>/Project Types separated by a comma:</label>
 					<div class="col-sm-8"><input name="project_tabs" type="text" value="<?php echo $project_tabs; ?>" class="form-control"/></div>
 				</div>
             </div>
@@ -806,7 +806,7 @@ $project_tabs = get_config($dbc, 'project_tabs');
 					unset($acc_fields[0]); ?>
 					<div class="custom-accordion">
 						<button class="btn brand-btn pull-right remove-accordion">Remove Accordion</button><div class="clearfix"></div>
-						<label class="col-sm-4"></label><label class="col-sm-4" style="text-align:center;">Field Order</label><label class="col-sm-4" style="text-align:center;">Estimate Label</label>
+						<label class="col-sm-4"></label><label class="col-sm-4" style="text-align:center;">Field Order</label><label class="col-sm-4" style="text-align:center;"><?= ESTIMATE_TILE ?> Label</label>
 						<div class="form-group">
 							<label for="accordion[]" class="col-sm-4 control-label">Accordion Name:</label>
 							<div class="col-sm-8">

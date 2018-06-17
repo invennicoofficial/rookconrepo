@@ -48,6 +48,10 @@ if($_GET['fill'] == 'promotion_service_config') {
 	}
 }
 
+if($_GET['fill'] == 'setting_tile') {
+	set_config($dbc, filter_var($_POST['field'],FILTER_SANITIZE_STRING), filter_var($_POST['value'],FILTER_SANITIZE_STRING));
+}
+
 if($_GET['fill'] == 'promotion_cat_config') {
     $value = $_GET['value'];
 	$query = mysqli_query($dbc,"SELECT promotionid, heading FROM promotion WHERE category = '$value'");
@@ -604,7 +608,7 @@ if($_GET['fill'] == 'e_head_config') {
 	while($row = mysqli_fetch_array($query)) {
 		$amount += $row['amount'];
 	}
-    
+
     echo $amount;
 }
 
