@@ -95,9 +95,9 @@ include_once ('../navigation.php'); ?>
 		<div class="main-screen">
             <div class="tile-header">
                 <div class="col-xs-12 col-sm-8">
-                    <h1><a href="?">Estimates</a>
+                    <h1><a href="?"><?= ESTIMATE_TILE ?></a>
                     <?php if(!empty($_GET['edit'])) {
-                    echo ': Estimate #'.$_GET['edit'].' - <span id="estimate_name_fill"></span>';
+                    echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
                     }
                     ?>
                     </h1>
@@ -110,7 +110,7 @@ include_once ('../navigation.php'); ?>
                         // echo "<div class='pull-right gap-left'><a href='?style_settings=design_styleA' style='font-size: 0.5em;'><button class='btn brand-btn'>PDF Style</button></a></div>";
                     }
                     if($edit_access > 0) {
-                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New Estimate</button>";
+                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".ESTIMATE_TILE."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>

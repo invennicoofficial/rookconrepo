@@ -114,7 +114,7 @@ $(document).ready(function() {
         }
     });
 
-	$('.iframe_open').click(function(){
+	/* $('.iframe_open').click(function(){
 			var id = $(this).attr('id');
 			var arr = id.split('_');
 		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Contacts/add_contacts.php?category=Patient&contactid='+arr[0]);
@@ -126,7 +126,7 @@ $(document).ready(function() {
 				$('.iframe_holder').hide(1000);
 				$('.hide_on_iframe').show(1000);
 				location.reload();
-	});
+	}); */
 
 });
 $(document).on('change', 'select[name="status[]"]', function() { changeStatus(this); });
@@ -156,12 +156,20 @@ function show_hide_email() {
 <?php include_once ('../navigation.php');
 $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 ?>
-<div class="container triple-pad-bottom">
+<div id="invoice_div" class="container triple-pad-bottom">
+    <div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+    <!--
     <div class='iframe_holder' style='display:none;'>
-		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
+		<img src='<?php //echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
 		<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left: 20px; font-size: 30px;'></span>
 		<iframe id="iframe_instead_of_window" style='width: 100%;' height="1000px; border:0;" src=""></iframe>
     </div>
+    -->
 	<div class="row hide_on_iframe">
         <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>: Invoices</h1>
         <?php
@@ -359,16 +367,13 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					echo "<tr>";
 
 					if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '' : '<a href="add_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'] . '</td>';
+						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="add_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'] . '</td>';
 					}
-
-
 					if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
-
 						echo '<td data-title="Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
 					}
 					if (strpos($value_config, ','."customer".',') !== FALSE) {
-						echo '<td data-title="Customer">' . get_contact($dbc, $contactid, 'name_company') . '</td>';
+						echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
 					}
 					if (strpos($value_config, ','."total_price".',') !== FALSE) {
 						echo '<td data-title="Total" align="right">$' . number_format($invoice['final_price'],2) . '</td>';

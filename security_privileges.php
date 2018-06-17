@@ -423,11 +423,11 @@ checkAuthorised();
             </tr>
             <?php } ?>
 
-            <tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Estimates/Quotes:</div></th></tr>
+            <tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 
 			<?php if(strpos($on_security, ',estimate,') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Estimate</td>
+                <td data-title="Comment"><?= ESTIMATE_TILE ?></td>
                 <?php echo security_tile_config_function('estimate', get_privileges($dbc, 'estimate',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>

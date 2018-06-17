@@ -139,7 +139,7 @@ $field_config_staff = ','.$get_field_config_staff['staff'].',';
             <label class="col-sm-1 text-center">Unit of Measure</label>
             <label class="col-sm-1 text-center">Quantity</label>
             <label class="col-sm-1 text-center">Rate Card Price</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center">Total</label>
         </div>
 

@@ -61,95 +61,99 @@ if(empty($_GET['type'])) {
 					include('rate_sidebar.php');
 				} ?>
 				<div class='main-content-screen scale-to-fill has-main-screen <?= IFRAME_PAGE ? '' : 'hide-titles-mob' ?>' style="overflow-y:hidden;">
-					<div class='main-screen standard-dashboard-body override-main-screen form-horizontal'  <?= IFRAME_PAGE ? 'style="height:auto;"' : '' ?>>
-						<?php if($_GET['status'] == 'import') {
-							include_once('import_rates.php');
-						} else if($_GET['type'] == 'universal') {
-							include('company_add_rate_card.php');
-						} else if($_GET['type'] == 'company') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('company_show_rate_card.php');
-							} else if(!empty($_GET['id'])) {
+					<div class='main-screen standard-body override-main-screen form-horizontal'  <?= IFRAME_PAGE ? 'style="height:auto;"' : '' ?>>
+						<div class="standard-body-title"><h3><?= $_GET['id'] > 0 ? 'Edit Rate Card' : 'Rate Cards' ?></h3></div>
+						<div class="standard-body-content pad-left pad-right"><div class="clearfix"></div>
+							<?php if($_GET['status'] == 'import') {
+								include_once('import_rates.php');
+							} else if($_GET['type'] == 'universal') {
 								include('company_add_rate_card.php');
-							} else {
-								include('company_current_rate_card.php');
+							} else if($_GET['type'] == 'company') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('company_show_rate_card.php');
+								} else if(!empty($_GET['id'])) {
+									include('company_add_rate_card.php');
+								} else {
+									include('company_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'customer') {
+								if($_GET['ratecardid'] > 0 && $_GET['status'] == 'show') {
+									include('customer_show_rate_card.php');
+								} else if(!empty($_GET['id']) || !empty($_GET['ratecardid'])) {
+									include('customer_add_rate_card.php');
+								} else {
+									include('customer_active_rate_card.php');
+								}
+							} else if($_GET['type'] == 'holiday') {
+								if($_GET['ratecardid'] > 0 && $_GET['status'] == 'show') {
+									include('holiday_show_rate_card.php');
+								} else if(!empty($_GET['id']) || !empty($_GET['ratecardid'])) {
+									include('holiday_add_rate_card.php');
+								} else {
+									include('holiday_active_rate_card.php');
+								}
 							}
-						} else if($_GET['type'] == 'customer') {
-							if($_GET['ratecardid'] > 0 && $_GET['status'] == 'show') {
-								include('customer_show_rate_card.php');
-							} else if(!empty($_GET['id']) || !empty($_GET['ratecardid'])) {
-								include('customer_add_rate_card.php');
-							} else {
-								include('customer_active_rate_card.php');
-							}
-						} else if($_GET['type'] == 'holiday') {
-							if($_GET['ratecardid'] > 0 && $_GET['status'] == 'show') {
-								include('holiday_show_rate_card.php');
-							} else if(!empty($_GET['id']) || !empty($_GET['ratecardid'])) {
-								include('holiday_add_rate_card.php');
-							} else {
-								include('holiday_active_rate_card.php');
-							}
-						}
-                        else if($_GET['type'] == 'estimate') {
-							include('estimate_scope.php');
-						} else if($_GET['type'] == 'position') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('position_show_rate_card.php');
-							} else if(!empty($_GET['id'])) {
-								include('position_add_rate_card.php');
-							} else {
-								include('position_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'staff') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('staff_show_rate_card.php');
-							} else if(!empty($_GET['id'])) {
-								include('staff_add_rate_card.php');
-							} else {
-								include('staff_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'equipment') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('equipment_show_rate_card.php');
-							} else if($_GET['status'] == 'add') {
-								include('equipment_add_rate_card.php');
-							} else {
-								include('equipment_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'category') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('category_show_rate_card.php');
-							} else if(!empty($_GET['id'])) {
-								include('category_add_rate_card.php');
-							} else {
-								include('category_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'services') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('services_show_rate_card.php');
-							} else if(!empty($_GET['id']) || !empty($_GET['service'])) {
-								include('services_add_rate_card.php');
-							} else {
-								include('services_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'labour') {
-							if($_GET['id'] > 0 && $_GET['status'] == 'show') {
-								include('labour_show_rate_card.php');
-							} else if(!empty($_GET['id'])) {
-								include('labour_add_rate_card.php');
-							} else {
-								include('labour_current_rate_card.php');
-							}
-						} else if($_GET['type'] == 'tasks') {
-							if(!empty($_GET['id']) || !empty($_GET['task'])) {
-								include('tasks_add_rate_card.php');
-							} else {
-								include('tasks_current_rate_card.php');
-							}
-						} else { ?>
-							<h4 class="pad-10">Please select a type of Rate Card from the left</h4>
-						<?php } ?>
+							else if($_GET['type'] == 'estimate') {
+								include('estimate_scope.php');
+							} else if($_GET['type'] == 'position') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('position_show_rate_card.php');
+								} else if(!empty($_GET['id'])) {
+									include('position_add_rate_card.php');
+								} else {
+									include('position_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'staff') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('staff_show_rate_card.php');
+								} else if(!empty($_GET['id'])) {
+									include('staff_add_rate_card.php');
+								} else {
+									include('staff_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'equipment') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('equipment_show_rate_card.php');
+								} else if($_GET['status'] == 'add') {
+									include('equipment_add_rate_card.php');
+								} else {
+									include('equipment_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'category') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('category_show_rate_card.php');
+								} else if(!empty($_GET['id'])) {
+									include('category_add_rate_card.php');
+								} else {
+									include('category_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'services') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('services_show_rate_card.php');
+								} else if(!empty($_GET['id']) || !empty($_GET['service'])) {
+									include('services_add_rate_card.php');
+								} else {
+									include('services_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'labour') {
+								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
+									include('labour_show_rate_card.php');
+								} else if(!empty($_GET['id'])) {
+									include('labour_add_rate_card.php');
+								} else {
+									include('labour_current_rate_card.php');
+								}
+							} else if($_GET['type'] == 'tasks') {
+								if(!empty($_GET['id']) || !empty($_GET['task'])) {
+									include('tasks_add_rate_card.php');
+								} else {
+									include('tasks_current_rate_card.php');
+								}
+							} else { ?>
+								<h4 class="pad-10">Please select a type of Rate Card from the left</h4>
+							<?php } ?>
+							<div class="clearfix"></div>
+						</div>
 					</div>
 				</div>
 			<?php } ?>

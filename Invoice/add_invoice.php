@@ -1155,7 +1155,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 					<div class="clearfix"></div>
 					<div class="additional_product form-group clearfix">
-						<div class="col-sm-<?= $col1 ?>" <?= (in_array('inventory_cat',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Inventory Category:</label>
+						<div class="col-sm-<?= $col1 ?>" <?= (in_array('inventory_cat',$field_config) ? '' : 'style="display:none;"') ?>>
+                            <label class="show-on-mob">Inventory Category:</label>
 							<select data-placeholder="Select Category..." id="inventorycat_0" name="inventorycat[]" class="chosen-select-deselect form-control inventorycat" width="380">
 								<option value=""></option>
 								<?php $query = mysqli_query($dbc,"SELECT `category` FROM inventory WHERE deleted=0 GROUP BY `category` ORDER BY `category`");
@@ -1164,7 +1165,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 								} ?>
 							</select>
 						</div>
-						<div class="col-sm-<?= $col2 ?>" <?= (in_array('inventory_part',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Inventory Part #:</label>
+						<div class="col-sm-<?= $col2 ?>" <?= (in_array('inventory_part',$field_config) ? '' : 'style="display:none;"') ?>>
+                            <label class="show-on-mob">Inventory Part #:</label>
 							<select data-placeholder="Select Part #..." id="inventorypart_0" name="inventorypart[]" class="chosen-select-deselect form-control inventorypart" width="380">
 								<option value=""></option>
 								<?php $query = mysqli_query($dbc,"SELECT `category`, `part_no` FROM inventory WHERE deleted=0 ORDER BY `part_no`");
@@ -1173,7 +1175,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 								} ?>
 							</select>
 						</div>
-						<div class="col-sm-<?= $col3 ?>"><label class="show-on-mob">Inventory Name:</label>
+						<div class="col-sm-<?= $col3 ?>">
+                            <label class="show-on-mob">Inventory Name:</label>
 							<select data-placeholder="Select Inventory..." id="inventoryid_0" name="inventoryid[]" class="chosen-select-deselect form-control inventoryid" width="380">
 								<option value=""></option>
 								<?php $query = mysqli_query($dbc,"SELECT `inventoryid`, `category`, `part_no`, `name` FROM inventory WHERE deleted=0 ORDER BY name");
@@ -1182,21 +1185,24 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 								} ?>
 							</select>
 						</div> <!-- Quantity -->
-						<div class="col-sm-<?= $col4 ?>" <?= (in_array('inventory_type',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Type:</label>
+						<div class="col-sm-<?= $col4 ?>" <?= (in_array('inventory_type',$field_config) ? '' : 'style="display:none;"') ?>>
+                            <label class="show-on-mob">Type:</label>
 							<select data-placeholder="Select a Type..." id="invtype_0" name="invtype[]" class="chosen-select-deselect form-control invtype" width="480">
 								<option value="General">General</option>
 								<option <?= (strpos($injury_type,'WCB') === false && $injury_type != '' ? "disabled" : '') ?> value="WCB">WCB</option>
 								<option <?= (strpos($injury_type,'MVA') === false && $injury_type != '' ? "disabled" : '') ?> value="MVA">MVA</option>
 							</select>
 						</div>
-						<div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
-							<input name="unit_price[]" id="unitprice_0" value=0 type="number" step="any" readonly class="form-control invunitprice" />
+						<div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>>
+                            <label class="show-on-mob">Unit Price:</label>
+							<input name="unit_price[]" id="unitprice_0" value="0" type="text" step="any" readonly class="form-control invunitprice" />
 						</div>
-						<div class="col-sm-<?= $col6 ?>"><label class="show-on-mob">Quantity:</label>
+						<div class="col-sm-<?= $col6 ?>">
+                            <label class="show-on-mob">Quantity:</label>
 							<input name="quantity[]" id="quantity_0" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value=1 type="number" min="0" step="any" class="form-control quantity" />
 						</div>
 						<div class="col-sm-<?= $col7 ?>"><label class="show-on-mob">Total:</label>
-							<input name="sell_price[]" id="sellprice_0" onchange="countTotalPrice()" value=0 type="number" step="any" readonly class="form-control sellprice" />
+							<input name="sell_price[]" id="sellprice_0" onchange="countTotalPrice()" value="0" type="text" step="any" readonly class="form-control sellprice" />
 							<input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
 							<input name="inventory_gst_exempt[]" type="hidden" value="0" />
 						</div>

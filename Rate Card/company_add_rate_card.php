@@ -1,5 +1,6 @@
 <?php
 require_once('../include.php');
+$src_card = '';
 if(isset($_POST['submit'])) {
     $who_added = $_SESSION['contactid'];
     $when_added = date('Y-m-d');
@@ -14,6 +15,11 @@ if(isset($_POST['submit'])) {
 		$tile_name = isset($_POST['tile_name']) ? filter_var($_POST['tile_name'][$key],FILTER_SANITIZE_STRING) : '';
 		$rate_card_types = isset($_POST['rate_card_types']) ? filter_var($_POST['rate_card_types'][$key],FILTER_SANITIZE_STRING) : '';
 		$description = isset($_POST['description']) ? filter_var($_POST['description'][$key],FILTER_SANITIZE_STRING) : '';
+		$item_id = isset($_POST['item_id']) ? filter_var($_POST['item_id'][$key],FILTER_SANITIZE_STRING) : '';
+		if($item_id == 'Subsistence Pay') {
+			$item_id = 0;
+			$description = 'Subsistence Pay';
+		}
 		$daily = isset($_POST['daily']) ? filter_var($_POST['daily'][$key],FILTER_SANITIZE_STRING) : '';
 		$hourly = isset($_POST['hourly']) ? filter_var($_POST['hourly'][$key],FILTER_SANITIZE_STRING) : '';
 		$uom = isset($_POST['uom']) ? filter_var($_POST['uom'][$key],FILTER_SANITIZE_STRING) : '';
@@ -25,11 +31,11 @@ if(isset($_POST['submit'])) {
 		$sort_order = isset($_POST['sort_order']) ? filter_var($_POST['sort_order'][$key],FILTER_SANITIZE_STRING) : '';
 		$deleted = $_POST['deleted'][$key];
 
-		if(!empty($heading) || !empty($rate_card_types) || !empty($description) || !empty($daily) || !empty($hourly) || !empty($uom) || !empty($cost) || !empty($cust_price) || !empty($total) || !empty($sort_order) || !empty($deleted)) {
+		if(!empty($heading) || !empty($rate_card_types) || !empty($description) || !empty($item_id) || !empty($daily) || !empty($hourly) || !empty($uom) || !empty($cost) || !empty($cust_price) || !empty($total) || !empty($sort_order) || !empty($deleted)) {
 			if(strpos($id, 'NEW_') === FALSE) {
-				$query = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card_name', `ref_card`='$ref_card', `rate_categories`='$rate_categories', `tile_name`='$tile_name', `rate_card_types`='$rate_card_types', `heading`='$heading', `description`='$description', `daily`='$daily', `hourly`='$hourly', `uom`='$uom', `cost`='$cost', `cust_price`='$cust_price', `profit`='$profit', `margin`='$margin', `sort_order`='$sort_order', `deleted`='$deleted' where `companyrcid`='$id'";
+				$query = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card_name', `ref_card`='$ref_card', `rate_categories`='$rate_categories', `tile_name`='$tile_name', `rate_card_types`='$rate_card_types', `heading`='$heading', `description`='$description', `item_id`='$item_id', `daily`='$daily', `hourly`='$hourly', `uom`='$uom', `cost`='$cost', `cust_price`='$cust_price', `profit`='$profit', `margin`='$margin', `sort_order`='$sort_order', `deleted`='$deleted' where `companyrcid`='$id'";
 			} else {
-				$query = "INSERT INTO `company_rate_card` (`rate_card_name`, `ref_card`, `rate_categories`, `tile_name`, `rate_card_types`, `heading`, `description`, `daily`, `hourly`, `uom`, `cost`, `cust_price`, `profit`, `margin`, `sort_order`, `deleted`) VALUES ('$rate_card_name', '$ref_card', '$rate_categories', '$tile_name', '$rate_card_types', '$heading' , '$description', '$daily', '$hourly', '$uom', '$cost', '$cust_price', '$profit', '$margin', '$sort_order', '$deleted')";
+				$query = "INSERT INTO `company_rate_card` (`rate_card_name`, `ref_card`, `rate_categories`, `tile_name`, `rate_card_types`, `heading`, `description`, `item_id`, `daily`, `hourly`, `uom`, `cost`, `cust_price`, `profit`, `margin`, `sort_order`, `deleted`) VALUES ('$rate_card_name', '$ref_card', '$rate_categories', '$tile_name', '$rate_card_types', '$heading' , '$description', '$item_id', '$daily', '$hourly', '$uom', '$cost', '$cust_price', '$profit', '$margin', '$sort_order', '$deleted')";
 			}
 			$result = mysqli_query($dbc, $query);
 			
@@ -54,19 +60,21 @@ if(isset($_POST['submit'])) {
 				}
 				$result = mysqli_query($dbc, $query);
 			}
+			$_GET['id'] = $rc_id;
 		}
     }
 	$start_date = filter_var($_POST['start_date'],FILTER_SANITIZE_STRING);
 	$end_date = filter_var($_POST['end_date'],FILTER_SANITIZE_STRING);
 	$alert_date = filter_var($_POST['alert_date'],FILTER_SANITIZE_STRING);
 	$alert_staff = filter_var(implode(',',$_POST['alert_staff']),FILTER_SANITIZE_STRING);
-	mysqli_query($dbc,"UPDATE `company_rate_card` SET `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff' WHERE `rate_card_name` = '$rate_card_name'");
-	// print_r($_POST);
-    echo '<script type="text/javascript"> window.location.replace("?card='.$_GET['card'].'&type='.$_GET['card'].'"); </script>';
+	mysqli_query($dbc,"UPDATE `company_rate_card` SET `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff', `ref_card`='$ref_card' WHERE `rate_card_name` = '$rate_card_name'");
+	if($_POST['submit'] != 'ref_card') {
+		echo '<script type="text/javascript"> window.location.replace("?card='.$_GET['card'].'&type='.$_GET['card'].'"); </script>';
+	}
 }
 
 if($_GET['id'] > 0) {
-	$rate_info = "SELECT `rate_tiles`.`rate_card_name`, `rate_tiles`.`ref_card`, `rate_tiles`.`start_date`, `rate_tiles`.`end_date`, `rate_tiles`.`alert_date`, `rate_tiles`.`alert_staff` FROM `company_rate_card` `rate_tiles` LEFT JOIN `company_rate_card` `rate_name` ON `rate_tiles`.`rate_card_name`=`rate_name`.`rate_card_name` WHERE `rate_name`.`companyrcid`='{$_GET['id']}' AND `rate_tiles`.`deleted`=0 GROUP BY `rate_tiles`.`rate_card_name`, `rate_tiles`.`tile_name` ORDER BY `rate_tiles`.`tile_name`";
+	$rate_info = "SELECT `rate_tiles`.`rate_card_name`, `rate_tiles`.`ref_card`, `rate_tiles`.`start_date`, `rate_tiles`.`end_date`, `rate_tiles`.`alert_date`, `rate_tiles`.`alert_staff` FROM `company_rate_card` `rate_tiles` LEFT JOIN `company_rate_card` `rate_name` ON `rate_tiles`.`rate_card_name`=`rate_name`.`rate_card_name` WHERE (`rate_name`.`companyrcid`='{$_GET['id']}') AND `rate_tiles`.`deleted`=0 GROUP BY `rate_tiles`.`rate_card_name`, `rate_tiles`.`tile_name` ORDER BY `rate_tiles`.`tile_name`";
 	$rate_info = $dbc->query($rate_info);
 	$row = $rate_info->fetch_assoc();
 	$rate_id = $_GET['id'];
@@ -144,9 +152,11 @@ if(tile_enabled($dbc, 'timesheet')['user_enabled']) {
 if(tile_enabled($dbc, 'driving_log')['user_enabled']) {
 	$tile_list[] = 'Mileage';
 }
-$tile_list[] = 'Other';
+// $tile_list[] = 'Other';
 foreach(array_unique(array_merge(explode('#*#',mysqli_fetch_array(mysqli_query($dbc,"SELECT `custom_accordions` FROM `field_config_estimate`"))['custom_accordions']),explode('#*#',mysqli_fetch_array(mysqli_query($dbc,"SELECT `custom_accordions` FROM `field_config_cost_estimate`"))['custom_accordions']))) as $accordion) {
-	$tile_list[] = $accordion;
+	if($accordion != '') {
+		$tile_list[] = $accordion;
+	}
 }
 $card_tab = filter_var($_GET['card'],FILTER_SANITIZE_STRING);
 $field_config = get_config($dbc,$card_tab.'_rate_fields');
@@ -196,7 +206,22 @@ function setFunctions() {
 	$('[name^=quantity]').each(function() {
 		changePriceTotal(this);
 	});
-	// $('[name="rate_card_types[]"],[name="tile_name[]"]').change(get_types_tiles);
+	$('[name=ref_card]').change(function() {
+		if(this.value != $(this).data('value')) {
+			$('button[name=submit]').val('ref_card');
+			$('button[name=submit]').click()
+		}
+	});
+	$('table').sortable({
+		handle: '.handle',
+		items: 'tr:not(:first)',
+		stop: function () {
+			var i = 0;
+			$('[name="sort_order[]"]').each(function() {
+				$(this).val(i++);
+			});
+		}
+	});
 	initInputs();
 }
 function calcBreakdowns() {
@@ -314,7 +339,9 @@ function changeTile(sel) {
 				select = 'selected';
 				selected = true;
 			}
-			current.append("<option "+select+" value='Subsistence Pay'>Subsistence Pay</option>");
+			if(tile == 'Position') {
+				current.append("<option "+select+" value='Subsistence Pay'>Subsistence Pay</option>");
+			}
 			if(!selected && value != undefined) {
 				current.append("<option selected value='"+value+"'>"+value+"</option>");
 			}
@@ -442,6 +469,7 @@ function loadRates(select) {
 		</div>
 	<?php } ?>
 	<input type="hidden" name="submit" value="Submit">
+	<h3>Rate Card Details</h3>
 
 	<?php if(strpos($field_config,',category,') !== FALSE && $card_tab != 'universal') { ?>
 		<div class="form-group clearfix completion_date">
@@ -472,7 +500,7 @@ function loadRates(select) {
 				<label for="first_name" class="col-sm-4 control-label text-right"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the Rate Card that will be used as a base rate to calculate savings within the current Rate Card."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					Primary Rate Card:</label>
 				<div class="col-sm-8">
-					<select name="ref_card" data-placeholder="Select a Primary Rate Card" class="chosen-select-deselect"><option />
+					<select name="ref_card" data-placeholder="Select a Primary Rate Card" class="chosen-select-deselect" data-value="<?= $ref_card ?>"><option />
 						<?php $rate_cards = $dbc->query("SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0 AND `rate_card_name` != '$rate_name' GROUP BY `rate_card_name` ORDER BY `rate_card_name`");
 						while($rate_card_row = $rate_cards->fetch_assoc()) { ?>
 							<option <?= $ref_card == $rate_card_row['rate_card_name'] ? 'selected' : '' ?> value="<?= $rate_card_row['rate_card_name'] ?>"><?= $rate_card_row['rate_card_name'] ?></option>
@@ -516,7 +544,7 @@ function loadRates(select) {
 	<?php foreach($tile_list as $tile_name) {
 		$cat_name = '';
 		$type_name = ''; ?>
-		<label class="col-sm-4 text-center"><h4>Rate Card: <?= $tile_name ?></h4></label>
+		<label class="col-sm-4"><h4>Rate Card: <?= $tile_name ?></h4></label>
 		<?php if($tile_name == 'Material') {
 			$company_cats = $dbc->query("SELECT `material`.`category` FROM `company_rate_card` LEFT JOIN `material` ON `company_rate_card`.`description`=`material`.`name` WHERE `tile_name` LIKE 'Material' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `material`.`category`");
 			$cat = $company_cats->fetch_assoc(); 
@@ -540,7 +568,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
@@ -568,7 +596,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
@@ -596,7 +624,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
@@ -624,7 +652,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
@@ -652,14 +680,14 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Equipment') {
 			// $company_cats = $dbc->query("SELECT `equipment`.`category` FROM `company_rate_card` LEFT JOIN `equipment` ON `company_rate_card`.`item_id`=`equipment`.`equipmentid` WHERE `tile_name` LIKE 'Equipment' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `equipment`.`category` UNION SELECT 'type_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `type` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name' UNION SELECT 'category_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `category` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name'");
-			$company_cats = $dbc->query("SELECT 'type_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `type` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name' UNION SELECT 'category_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `category` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name'");
+			$company_cats = $dbc->query("SELECT 'type_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `type` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND (`rate_card_name`='$rate_name' OR `rate_card_name`='$ref_card') AND `rate_card_name` != '' UNION SELECT 'category_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `category` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND (`rate_card_name`='$rate_name' OR `rate_card_name`='$ref_card') AND `rate_card_name` != ''");
 			$cat = $company_cats->fetch_assoc(); 
 			do { ?>
 				<div class="form-group">
@@ -683,7 +711,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>
@@ -711,7 +739,7 @@ function loadRates(select) {
 							$type_name = '';
 							include('company_add_tile_rates.php');
 						} else {
-							echo '<h4>Please select a category</hr>';
+							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>

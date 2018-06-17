@@ -7,11 +7,15 @@ function completeStopStatus(btn, stop_id) {
 		success: function(response) {
 			if(response != '') {
 				<?php if(IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE) { ?>
-					window.parent.$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
+					<?php if(strpos($value_config, ','."Customer Stop Status".',') === FALSE) { ?>
+						window.parent.$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
+					<?php } ?>
 					window.parent.$('[name="complete"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').prop('checked', true);
 					window.location.replace('../blank_loading_page.php');
 				<?php } else { ?>
-					$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
+					<?php if(strpos($value_config, ','."Customer Stop Status".',') === FALSE) { ?>
+						$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
+					<?php } ?>
 					$('[name="complete"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').prop('checked', true);
 				<?php } ?>
 			}
@@ -29,14 +33,27 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 		echo "<h4>".$customer_approval['location_name'].' '.$customer_approval['client_name']."</h4>";
 		echo '<div class="customer_notes">';
 			foreach($field_sort_order as $field_sort_field) {
-				if($customer_approval['completed'] == 0 && (strpos($value_config,',Customer Slider,') === FALSE || IFRAME_PAGE || $access_any > 0)) {
+				if($customer_approval['completed'] == 0 && (strpos($value_config,',Customer Slider,') === FALSE || (IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE) || $access_any > 0)) {
 					if(strpos($value_config, ','."Customer Slider".',') !== FALSE && $field_sort_field == 'Customer Slider') {
-						if(IFRAME_PAGE) { ?>
+						if(IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE) { ?>
 							<a href="../blank_loading_page.php" class="pull-right"><img class="slider-close" src="../img/icons/cancel.png"></a>
 						<?php } else { ?>
 							<button class="btn brand-btn pull-right" onclick="overlayIFrameSlider('../Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&tile_name=<?= $_GET['tile_name'] ?>&ticketid=<?= $ticketid ?>&stop=<?= $customer_approval['stop'] ?>', '95%', true, true); return false;">Get Customer Feedback</button>
 							<div class="clearfix"></div>
 						<?php } ?>
+					<?php }
+					if(strpos($value_config, ','."Customer Stop Status".',') !== FALSE && $field_sort_field == 'Customer Stop Status') { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Status:</label>
+							<div class="col-sm-8">
+								<?php $attached_stop = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '".$customer_approval['line_id']."'")); ?>
+								<select data-placeholder="Select a Status..." name="status" data-table="ticket_schedule" data-id="<?= $attached_stop['id'] ?>" data-id-field="id" id="status" class="chosen-select-deselect"><option/>
+									<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $cat_tab) {
+										echo "<option ".($attached_stop['status'] == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
+									} ?>
+								</select>
+							</div>
+						</div>
 					<?php }
 					if(strpos($value_config, ','."Customer Property Damage".',') !== FALSE && $field_sort_field == 'Customer Property Damage') { ?>
 						<div class="form-group">
@@ -146,7 +163,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								$checkout_id = $dbc->query("SELECT `id` FROM `ticket_attached` WHERE `src_table`='Delivery' AND `line_id`='".$customer_approval['line_id']."' AND `deleted`=0")->fetch_assoc(); ?>
 								<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkout_id['id'] ?>" data-id-field="id" class="no_time">
 							<?php } ?>
-							<button class="btn brand-btn pull-right" onclick="<?= strpos($value_config,',Finish Button Hide,') !== FALSE ? "$(this).hide();" : "$(this).attr('disabled',true).text('Completed!');" ?>$(this).closest('.customer_notes').find('[name=signature]').change();$(this).closest('.customer_notes').find('input,select,textarea').attr('readonly',true).click(function() { return false; });$(this).closest('.form-group').find('[name=completed]').val(1).change(); <?= strpos($value_config, ','."Customer Sign Off Complete Status".',') !== FALSE ? "completeStopStatus(this, '".$customer_approval['stop']."');" : '' ?> <?= IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE && strpos($value_config, ','."Customer Sign Off Complete Status".',') === FALSE ? "window.location.replace('../blank_loading_page.php');" : '' ?> return false;">Complete</button>
+							<button class="btn brand-btn pull-right" onclick="<?= strpos($value_config,',Finish Button Hide,') !== FALSE ? "$(this).hide();" : "$(this).attr('disabled',true).text('Completed!');" ?>$(this).closest('.customer_notes').find('[name=signature]').change();$(this).closest('.customer_notes').find('input,select,textarea').attr('readonly',true).click(function() { return false; });$(this).closest('.form-group').find('[name=completed]').val(1).change(); <?= strpos($value_config, ','."Customer Sign Off Complete Status".',') !== FALSE ? "completeStopStatus(this, '".$customer_approval['stop']."');" : '' ?> <?= IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE ? "window.location.replace('../blank_loading_page.php');" : '' ?> <?= strpos($value_config, ','."Customer Complete Exits Ticket".',') !== FALSE ? (IFRAME_PAGE ? "window.location.replace('../blank_loading_page.php');" : "window.location.replace('".$back_url."');") : '' ?> return false;">Complete</button>
 						</div>
 					<?php }
 				} else {

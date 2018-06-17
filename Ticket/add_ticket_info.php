@@ -1,5 +1,16 @@
+<div id="dialog-service-template" title="Add or Replace Services" style="display:none;">
+	<b>Would you like to add or replace services?</b>
+</div>
 <?php if(!empty($_GET['customer_service_template']) && $ticketid > 0) {
-	$ticket_services = explode(',',$get_ticket['serviceid']);
+	if($_GET['replace_services'] == 1) {
+		$ticket_services = [];
+		$ticekt_service_qty = [];
+	} else {
+		$ticket_services = explode(',',$get_ticket['serviceid']);
+		if(empty(array_filter($ticket_services))) {
+			$_GET['replace_services'] = 1;
+		}
+	}
 	$template_services = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `templateid` = '".$_GET['customer_service_template']."'"));
 	$template_items = explode(',', $template_services['serviceid']);
 	$rate_card = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='{$get_ticket['clientid']}' AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')")->fetch_assoc();
@@ -12,9 +23,26 @@
 	}
 	$ticket_services = implode(',',array_unique(array_filter($ticket_services)));
 	mysqli_query($dbc, "UPDATE `tickets` SET `serviceid` = '$ticket_services', `service_templateid` = '".$_GET['customer_service_template']."' WHERE `ticketid` = '$ticketid'");
-	echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
+	if($_GET['replace_services'] == 1) {
+		foreach(array_filter(explode(',',$ticket_services)) as $ticket_service) {
+			$ticket_service_qty[] = 1;
+		}
+		$ticket_service_qty = implode(',', $ticket_service_qty);
+		mysqli_query($dbc, "UPDATE `tickets` SET `service_qty` = '$ticket_service_qty' WHERE `ticketid` = '$ticketid'");
+		echo '<script type="text/javascript">reload_billing();reload_service_checklist();</script>';
+	} else {
+		echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
+	}
 } else if(!empty($_GET['load_service_template']) && $ticketid > 0) {
-	$ticket_services = explode(',',$get_ticket['serviceid']);
+	if($_GET['replace_services'] == 1) {
+		$ticket_services = [];
+		$ticekt_service_qty = [];
+	} else {
+		$ticket_services = explode(',',$get_ticket['serviceid']);
+		if(empty(array_filter($ticket_services))) {
+			$_GET['replace_services'] = 1;
+		}
+	}
 	$template_services = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `templateid` = '".$_GET['load_service_template']."'"));
 	$template_items = explode(',', $template_services['serviceid']);
 	foreach($template_items as $template_item) {
@@ -24,7 +52,16 @@
 	}
 	$ticket_services = implode(',',array_unique(array_filter($ticket_services)));
 	mysqli_query($dbc, "UPDATE `tickets` SET `serviceid` = '$ticket_services', `service_templateid` = '".$_GET['load_service_template']."' WHERE `ticketid` = '$ticketid'");
-	echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
+	if($_GET['replace_services'] == 1) {
+		foreach(array_filter(explode(',',$ticket_services)) as $ticket_service) {
+			$ticket_service_qty[] = 1;
+		}
+		$ticket_service_qty = implode(',', $ticket_service_qty);
+		mysqli_query($dbc, "UPDATE `tickets` SET `service_qty` = '$ticket_service_qty' WHERE `ticketid` = '$ticketid'");
+		echo '<script type="text/javascript">reload_billing();reload_service_checklist();</script>';
+	} else {
+		echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
+	}
 } ?>
 <h3><?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : (strpos($value_config, ',Ticket Details,') !== FALSE ? TICKET_NOUN.' Details' : 'Services')) ?></h3>
 <script type="text/javascript">
@@ -202,12 +239,37 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 	function addCustomerServiceTemplate() {
 		var templateid = $('[name="customer_service_template"]').val();
 		if(templateid != undefined && templateid > 0) {
-			$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
-				setSave();
-				initSelectOnChanges();
-				initInputs('#collapse_ticket_info');
-				initInputs('#tab_section_ticket_info');
-				setBilling();
+		    $( "#dialog-service-template" ).dialog({
+				resizable: false,
+				height: "auto",
+				width: ($(window).width() <= 500 ? $(window).width() : 500),
+				modal: true,
+				buttons: {
+					"Add Services": function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
+							setSave();
+							initSelectOnChanges();
+							initInputs('#collapse_ticket_info');
+							initInputs('#tab_section_ticket_info');
+							setBilling();
+						});
+						$(this).dialog('close');
+					},
+					"Replace Services": function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&replace_services=1', function() {
+							setSave();
+							initSelectOnChanges();
+							initInputs('#collapse_ticket_info');
+							initInputs('#tab_section_ticket_info');
+							setBilling();
+						});
+						$(this).dialog('close');
+					},
+			        Cancel: function() {
+			        	$('[name="customer_service_template"]').val('').trigger('change.select2');
+			        	$(this).dialog('close');
+			        }
+				}
 			});
 		}
 	}
@@ -236,12 +298,37 @@ if((strpos($value_config,',Service Load Template,') !== FALSE || strpos($value_c
 	function loadServiceTemplate() {
 		var templateid = $('[name="load_service_template"]').val();
 		if(templateid != undefined && templateid > 0) {
-			$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
-				setSave();
-				initSelectOnChanges();
-				initInputs('#collapse_ticket_info');
-				initInputs('#tab_section_ticket_info');
-				setBilling();
+		    $( "#dialog-service-template" ).dialog({
+				resizable: false,
+				height: "auto",
+				width: ($(window).width() <= 500 ? $(window).width() : 500),
+				modal: true,
+				buttons: {
+					"Add Services": function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
+							setSave();
+							initSelectOnChanges();
+							initInputs('#collapse_ticket_info');
+							initInputs('#tab_section_ticket_info');
+							setBilling();
+						});
+						$(this).dialog('close');
+					},
+					"Replace Services": function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&replace_services=1', function() {
+							setSave();
+							initSelectOnChanges();
+							initInputs('#collapse_ticket_info');
+							initInputs('#tab_section_ticket_info');
+							setBilling();
+						});
+						$(this).dialog('close');
+					},
+			        Cancel: function() {
+			        	$('[name="load_service_template"]').val('').trigger('change.select2');
+			        	$(this).dialog('close');
+			        }
+				}
 			});
 		}
 	}
@@ -277,6 +364,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		</div>
 		<?php if($access_services === TRUE) { ?>
 			<div class="pull-right">
+				<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If the <?= TICKET_NOUN ?> is predetermined the services will show. If you would like to change the <?= TICKET_NOUN ?>, click this Edit button."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
 				<a href="" onclick="addServices(this); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon" title="Edit Services"></a>
 			</div>
 			<div class="clearfix"></div>
@@ -497,7 +585,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
 									<div class="form-group">
 									  <label for="site_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Service Heading:</label>
-									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '7' : '8' ?>">
+									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '7' ?>">
 										<select data-placeholder="Select a Heading..." name="serviceid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control serviceid">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT serviceid, heading, service_type, category, estimated_hours FROM services WHERE ". $query_mod ." order by heading");
@@ -521,9 +609,11 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 										</select>
 									  </div>
 									  <?php if(strpos($value_config,',Service Multiple,') !== FALSE) { ?>
-										<div class="col-sm-1">
+										<div class="col-sm-2">
 											<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
 											<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+                                            <a href="" onclick="viewService(this); return false;"><img class="inline-img" src="../img/icons/eyeball.png"></a>
+
 										</div>
 									  <?php } ?>
 									</div>

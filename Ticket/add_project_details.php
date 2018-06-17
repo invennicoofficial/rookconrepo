@@ -115,16 +115,16 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Contact,') !== false && $field_sort_field == 'Detail Contact' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Contact Name:</label>
 				<div class="col-sm-7">
 					<select name="clientid" id="clientid" data-placeholder="Select a Contact..." data-category="<?= get_config($dbc, 'ticket_business_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_business_contact') ?: '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option>
-						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification` FROM `contacts` WHERE `deleted`=0 AND `status`>0 AND CONCAT(`first_name`,`last_name`) != ''")) as $row) {
+						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification`, `name` FROM `contacts` WHERE `deleted`=0 AND `status`>0 AND (CONCAT(`first_name`,`last_name`) != '' OR `name` != '')")) as $row) {
 							$selected = ( $clientid==$row['contactid'] ) ? 'selected="selected"' : ($businessid > 0 && $businessid != $row['businessid'] ? 'style="display:none;"' : '');
-							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. $row['first_name'] . ' ' . $row['last_name'] .'</option>';
+							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. $row['full_name'] .'</option>';
 						} ?>
 						<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
 					</select>
@@ -135,7 +135,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Contact Phone,') !== false && $field_sort_field == 'Detail Contact Phone' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">Phone Numbers:</label>
@@ -177,7 +177,7 @@ var projectFilter = function() {
 			  </div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Project,') !== false && $field_sort_field == 'Detail Project' && ($force_project == 'manual' || $force_project == '')) { ?>
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label"><span class="text-red">*</span> <?= PROJECT_NOUN ?> Name:</label>
@@ -217,7 +217,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Staff:</label>
@@ -326,7 +326,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if(strpos($value_config,',Detail Status,') !== FALSE && $field_sort_field == 'Detail Status') { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Status:</label>
@@ -366,7 +366,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if(strpos($value_config,',Detail Total Budget Time,') !== FALSE && $field_sort_field == 'Detail Total Budget Time') { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Total Budget Time:</label>
@@ -385,7 +385,7 @@ var projectFilter = function() {
 			</div>
 			<?php $pdf_contents[] = ['Business', get_contact($dbc,$businessid,'name')]; ?>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Contact,') !== false && $field_sort_field == 'Detail Contact' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Name:</label>
@@ -401,7 +401,7 @@ var projectFilter = function() {
 			</div>
 			<?php $pdf_contents[] = ['Name', implode('<br />',$contact_list)]; ?>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Contact Phone,') !== false && $field_sort_field == 'Detail Contact Phone' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">Phone Numbers:</label>
@@ -425,7 +425,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Project,') !== false && $field_sort_field == 'Detail Project' && ($force_project == 'manual' || $force_project == '')  && $access_view_project_details > 0) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><?= PROJECT_NOUN ?> Name:</label>
@@ -455,7 +455,7 @@ var projectFilter = function() {
 			</div>
 			<?php $pdf_contents[] = ['Date', $get_ticket['to_do_date']]; ?>
 		<?php } ?>
-		
+
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' && $access_view_project_details > 0) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Staff:</label>
@@ -549,7 +549,7 @@ var projectFilter = function() {
 			</div>
 			<?php $pdf_contents[] = ['Max Capacity', $get_ticket['max_capacity']]; ?>
 		<?php } ?>
-		
+
 		<?php if(strpos($value_config,',Detail Status,') !== FALSE && $field_sort_field == 'Detail Status' && $access_view_project_details > 0) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Status:</label>
@@ -575,7 +575,7 @@ var projectFilter = function() {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<?php if(strpos($value_config,',Detail Total Budget Time,') !== FALSE && $field_sort_field == 'Detail Total Budget Time') { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Total Budget Time:</label>

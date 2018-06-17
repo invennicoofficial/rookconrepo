@@ -217,6 +217,7 @@ function saveFields() {
 		piece_types: $('[name=piece_types]').val(),
 		delivery_types: $('[name=delivery_types]').val(),
 		delivery_timeframe_default: $('[name=delivery_timeframe_default]').val(),
+		ticket_warehouse_start_time: $('[name=ticket_warehouse_start_time]').val(),
 		ticket_custom_field: $('[name^=ticket_custom_field]').attr('name'),
 		ticket_custom_field_value: $('[name^=ticket_custom_field]').val(),
 		ticket_custom_field_values: $('[name^=ticket_custom_field_values]').attr('name'),

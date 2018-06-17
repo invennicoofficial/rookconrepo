@@ -173,9 +173,9 @@ $(document).ready(function() {
 <a href="estimate.php" class="btn brand-btn">Back to Dashboard</a>
 <!--<a href="#" class="btn brand-btn" onclick="history.go(-1);return false;">Back</a>-->
 <br><br>
-<a href='field_config_estimate.php'><button type="button" class="btn brand-btn mobile-block" >Estimates Config</button></a>
+<a href='field_config_estimate.php'><button type="button" class="btn brand-btn mobile-block" ><?= ESTIMATE_TILE ?> Config</button></a>
 <a href='field_config_quote.php'><button type="button" class="btn brand-btn mobile-block active_tab" >Quote Config</button></a>
-<a href='field_config_estimate.php?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $tab_active_tab; ?>" >Estimates Tab Config</button></a>
+<a href='field_config_estimate.php?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $tab_active_tab; ?>" ><?= ESTIMATE_TILE ?> Tab Config</button></a>
 <br><br>
 
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">

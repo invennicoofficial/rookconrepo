@@ -98,7 +98,7 @@ function send_notification() {
 						<option></option>
 						<?php $contacts_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 						foreach ($contacts_list as $noti_contactid) {
-							echo '<option value="'.$noti_contactid.'" data-businessid="'.get_contact($dbc, $noti_contactid, 'businessid').'">'.get_contact($dbc, $noti_contactid).'</option>';
+							echo '<option '.(strpos(','.$get_ticket['clientid'].',',','.$noti_contactid.',') !== FALSE ? 'selected' : '').' value="'.$noti_contactid.'" data-businessid="'.get_contact($dbc, $noti_contactid, 'businessid').'">'.get_contact($dbc, $noti_contactid).'</option>';
 						} ?>
 					</select>
 				</div>

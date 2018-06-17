@@ -63,6 +63,7 @@ if(!empty($_GET['formid'])) {
     $fields = $get_field_level['fields'];
     $fields_value = explode('**FFM**', $get_field_level['fields_value']);
 	$all_task = $get_field_level['all_task'];
+    
 }
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND form='$form'"));
 $form_config = ','.$get_field_config['fields'].',';
@@ -455,33 +456,24 @@ $form_config = ','.$get_field_config['fields'].',';
         <div id="collapse_sa<?php echo $sa_inc;?>" class="panel-collapse collapse">
             <div class="panel-body">
 
-                <?php
-                if($assign_staff_done == 0) { ?>
-                <?php include ('../phpsign/sign3.php');
-                ?>
+            <?php
+            if($assign_staff_done == 0) { ?>
 
-                <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
-                   <div class="form-group">
-                    <label for="business_street" class="col-sm-4 control-label">Name:</label>
-                    <div class="col-sm-8">
-                        <input name="assign_staff_<?php echo $assign_staff_id;?>" type="text" class="form-control" />
-                    </div>
-                  </div>
-                <?php } ?>
-
-                <div class="sigPad" id="linear2" style="width:404px;">
-                <ul class="sigNav">
-                <li class="drawIt"><a href="#draw-it" >Draw It</a></li>
-                <li class="clearButton"><a href="#clear">Clear</a></li>
-                </ul>
-                <div class="sig sigWrapper" style="height:auto;">
-                <div class="typed"></div>
-                <canvas class="pad" width="400" height="150" style="border:2px solid black;"></canvas>
-                <input type="hidden" name="sign_<?php echo $assign_staff_id;?>" class="output">
+            <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
+               <div class="form-group">
+                <label for="business_street" class="col-sm-4 control-label">Name:</label>
+                <div class="col-sm-8">
+                    <input name="assign_staff_<?php echo $assign_staff_id;?>" type="text" class="form-control" />
                 </div>
-                </div>
+              </div>
+            <?php } ?>
 
-                <?php } ?>
+            <?php $output_name = 'sign_'.$assign_staff_id;
+            include('../phpsign/sign_multiple.php'); ?>
+
+            <?php } else {
+                echo '<img src="monthly_site_safety_inspection/download/safety_'.$assign_staff_id.'.png">';
+            } ?>
 
             </div>
         </div>

@@ -64,7 +64,7 @@ if(!empty($_GET['edit'])) {
 				$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticket_type` = '$ticket_type' AND `businessid` = '$businessid' AND `deleted` = 0 AND `ticketid` != '$ticketid' ORDER BY `ticketid` DESC LIMIT 0, 5");
 				if(mysqli_num_rows($tickets) > 0) {
 					while($row = mysqli_fetch_assoc($tickets)) {
-						$block .= '<p><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'">'.get_ticket_label($dbc, $row).'</a></p>';
+						$block .= get_ticket_block($dbc, $row, $value_config);
 					}
 				} else {
 					$block .= '<p>No '.TICKET_TILE.' Found.</p>';
@@ -152,4 +152,36 @@ if(!empty($_GET['edit'])) {
 	echo $block;
 } else {
 	echo '<h3 style="margin: 20px 20px 0px 20px;">Invalid '.TICKET_NOUN.'</h3>';
+}
+
+function get_ticket_block($dbc, $ticket, $value_config) {
+	$html = '';
+	if(strpos($value_config, ',Customer History Field Service Template,')) {
+		$html .= '<div class="clearfix"></div><div class="form-group">
+			<label class="col-sm-4 control-label">Service Template:</label>
+			<div class="col-sm-8">'.mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."' AND '".$ticket['service_templateid']."' > 0"))['name'].'</div>
+		</div>';
+	}
+	if(strpos($value_config, ',Customer History Field Display Notes,')) {
+		$notes_html = '';
+		$ticket_notes = mysqli_query($dbc, "SELECT `ticket_comment`.*, `tickets`.`ticket_type` FROM ticket_comment LEFT JOIN `tickets` ON `ticket_comment`.`ticketid`=`tickets`.`ticketid` WHERE `ticket_comment`.ticketid='".$ticket['ticketid']."' AND `ticket_comment`.type='note' AND `ticket_comment`.`deleted`=0 ORDER BY ticketcommid DESC");
+		while($row = mysqli_fetch_assoc($ticket_notes)) {
+			$notes_html .= profile_id($dbc, $row['created_by'], false);
+			$notes_html .= '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment'].$row['note']);
+			$notes_html .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['note_date'].$row['created_date'];
+			$notes_html .= "</em>";
+			$notes_html .= '</div><div class="clearfix"></div><hr>';
+		}
+		$html .= '<div class="clearfix"></div><div class="form-group">
+			<label class="col-sm-12 control-label">Notes:</label>
+			<div class="col-sm-12">'.$notes_html.'</div>
+		</div>';
+	}
+
+	if(strpos($value_config, ',Customer History Field') !== FALSE) {
+		$html = '<div class="block-group"><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'"><h3 style="margin-top: 0;">'.get_ticket_label($dbc, $ticket).'</a></h3>'.$html.'<div class="clearfix"></div></div>';
+	} else {
+		$html = '<p><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'">'.get_ticket_label($dbc, $ticket).'</a></p>';
+	}
+	return $html;
 }

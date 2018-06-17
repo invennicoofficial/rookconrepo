@@ -262,7 +262,7 @@ if(isset($_GET['status'])){
 					/*echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='". $info_contact_type ."'><img src='" . WEBSITE_URL . "/img/info.png' width='20'></a></span><a href='contacts.php?category=" . $cat_tab . "&filter=".$top_url."'><button type='button' class='btn brand-btn mobile-100 mobile-block ". $active_daily ."' >". $cat_tab ."</button></a></div>";*/
 				}
 
-						
+
 				// Other Tile tabs
 				$get_tabs_tiles_config = mysqli_fetch_array(mysqli_query($dbc,"SELECT `value` FROM `general_configuration` WHERE  `name` = '".FOLDER_NAME."_tabs_tiles'"))['value'];
 				if ($get_tabs_tiles_config != '') {

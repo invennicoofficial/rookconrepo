@@ -136,7 +136,7 @@ function businessFilter() {
 }
 function setBusiness(contact) {
 	var business = $(contact).find('option:selected').data('business');
-	if(business != $('[name=businessid]').val()) {
+	if(business != $('[name=businessid]').val() && business > 0) {
 		$('[name=businessid]').val(business).trigger('change.select2');
 		setTimeout(function() { $('[name=businessid]').change(); }, 1000);
 	}

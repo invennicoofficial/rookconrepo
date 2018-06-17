@@ -71,13 +71,13 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                         $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
                     }
                 }
-                /* 
+                /*
                 if ( check_subtab_persmission($dbc, 'pos', ROLE, 'sell') === true ) {
                     $pos_layout	= get_config($dbc, 'pos_layout');
                     $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
                 } */
-                
-                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];                
+
+                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
                 break;
 			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>'Point of Sale']; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
@@ -101,7 +101,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                 return ['link'=>"Safety/index.php",'name'=>'Safety'];
                 break;
             case 'rate_card': return ['link'=>"Rate Card/ratecards.php",'name'=>'Rate Cards']; break;
-			case 'estimate': return ['link'=>"Estimate/estimates.php",'name'=>'Estimates']; break;
+			case 'estimate': return ['link'=>"Estimate/estimates.php",'name'=>ESTIMATE_TILE]; break;
 			case 'field_ticket_estimates': return ['link'=>"Field Ticket Estimates/estimate.php",'name'=>'Field Ticket Estimates']; break;
 			case 'site_work_orders': return ['link'=>"Site Work Orders/site_work_orders.php",'name'=>'Site Work Orders']; break;
 			case 'shop_work_orders': return ['link'=>"Project Workflow/project_workflow_dashboard.php?tile=Shop Work Orders",'name'=>'Shop Work Orders']; break;
@@ -136,9 +136,9 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                 $pnl_reports = ['Revenue Receivables'=>'report_pnl_revenue_receivables.php?type=pnl', 'Staff Compensation'=>'report_pnl_staff_compensation.php?type=pnl', 'Expenses'=>'report_pnl_expenses.php?type=pnl', 'Costs'=>'report_pnl_costs.php?type=pnl', 'Summary'=>'report_pnl_summary.php?type=pnl'];
                 $marketing_reports = ['Customer Contact List'=>'report_customer_contact_list.php?type=marketing', 'Customer Stats'=>'report_customer_stats.php?type=marketing', 'Demographics'=>'report_demographics.php?type=marketing', 'CRM Recommendations - By Date'=>'report_crm_recommend_date.php?type=marketing', 'CRM Recommendations - By Customer'=>'report_crm_recommend_customer.php?type=marketing', 'POS Coupons'=>'report_pos_coupons.php?type=marketing', 'Postal Code'=>'report_postalcode.php?type=marketing', 'Referral'=>'report_referral.php?type=marketing', 'Web Referrals Report'=>'report_web_referral.php?type=marketing', 'Pro Bono Report'=>'report_marketing_pro_bono.php?type=marketing', 'Net Promoter Score'=>'report_marketing_net_promoter_score.php?type=marketing'];
                 $compensation_reports = ['Adjustment Compensation'=>'report_compensation_adjustments.php?type=compensation', 'Hourly Compensation'=>'report_hourly_compensation.php?type=compensation', 'Therapist Compensation'=>'report_compensation.php?type=compensation', 'Statutory Holiday Pay Breakdown'=>'report_stat_holiday_pay.php?type=compensation'];
-                
+
                 $reports_url = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports);
-                
+
                 if ($is_mobile) {
                     $mobile_reports_landing_subtab_config = get_config($dbc, 'reports_mobile_landing_subtab');
                     if ( !empty($mobile_reports_landing_subtab_config) ) {
@@ -162,16 +162,16 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                         $reports_url = 'report_tiles.php';
                     }
                 }
-                
+
                 return ['link'=>'Reports/'.$reports_url,'name'=>'Reports'];
-                
+
                 /* $detect = new Mobile_Detect;
                 if ( $detect->isMobile() ) {
                     $report_value_config = get_config($dbc, 'reports_dashboard');
                     $configured_reports  = explode(',', $report_value_config);
                     $configured_reports  = array_filter($configured_reports);
                     $report_link = '';
-                    
+
                     $operations_reports = array('Daysheet'=>'report_daysheet.php', 'Therapist Stats'=>'report_stat.php', 'Block Booking vs Not Block Booking'=>'report_bb_vs_not_bb.php', 'Injury Type'=>'report_injury.php', 'Treatment Report'=>'report_treatment.php', 'Equipment List'=>'report_equipment_list.php', 'Equipment Transfer'=>'report_equip_transfer.php', 'Work Order'=>'report_work_order.php', 'Staff Tickets'=>'reports_staff_tickets.php', 'Day Sheet Report'=>'reports_daysheet_reports.php', 'Appointment Summary'=>'report_daily_appoint_summary.php', 'Patient Block Booking'=>'report_patient_block_booking.php', 'Assessment Tally Board'=>'report_tally_board.php', 'Assessment Follow Up'=>'report_assessment_followup.php', 'Field Jobs'=>'report_field_jobs.php', 'Shop Work Orders'=>'report_shop_work_orders.php', 'Shop Work Order Task Time'=>'report_operations_shop_task_time.php', 'Shop Work Order Time'=>'report_operations_shop_time.php', 'Site Work Orders'=>'report_site_work_orders.php', 'Scrum Business Productivity Summary'=>'reports_scrum_business_productivity_summary.php', 'Scrum Staff Productivity Summary'=>'reports_scrum_staff_productivity_summary.php', 'Scrum Status Report'=>'reports_scrum_status_report.php', 'Drop Off Analysis'=>'report_drop_off_analysis.php', 'Discharge Report'=>'report_discharge.php', 'Ticket Report'=>'report_ticket.php', 'Site Work Time'=>'report_site_work_time.php', 'Site Work Driving'=>'report_site_work_driving.php', 'Purchase Orders'=>'reports_purchase_orders.php', 'Inventory Log'=>'report_inventory_log.php', 'Point of Sale'=>'reports_pos.php', 'Credit Card on File'=>'report_cc_on_file.php', 'Checklist Time'=>'report_checklist_time.php');
 
                     $sales_reports = array('Validation by Therapist'=>'report_daily_validation.php', 'POS Validation'=>'report_pos_daily_validation.php', 'Daily Deposit Report'=>'report_daily_deposit.php', 'Monthly Sales by Injury Type'=>'report_review_sales.php', 'Invoice Sales Summary'=>'report_invoice_sales_summary.php', 'Sales by Customer Summary'=>'report_sales_by_customer_summary.php', 'Sales History by Customer'=>'report_sales_by_customer_detail.php', 'Sales by Service Summary'=>'report_sales_by_product_service_summary.php', 'Sales by Service Category'=>'report_sales_by_product_service_category.php', 'Sales by Inventory Summary'=>'report_sales_by_inventory_summary.php', 'Sales Summary by Injury Type'=>'report_daily_sales_summary.php', 'Inventory Analysis'=>'report_general_inventory.php', 'Unassigned/Error Invoices'=>'report_unassigned_invoices.php', 'Staff Revenue Report'=>'report_revenue.php', 'Expense Summary Report'=>'report_expenses.php', 'Phone Communication'=>'report_phone_communication.php', 'Sales by Inventory/Service Detail'=>'report_sales_by_product_service_detail.php', 'Payment Method List'=>'report_payment_method_list.php', 'Patient History'=>'report_patient_appoint_history.php', 'Receipts Summary Report'=>'report_receipt_summary.php', 'Gross Revenue by Staff'=>'report_gross_revenue_by_staff.php',  'Patient Invoices'=>'report_patient_unpaid_invoices.php', 'POS Sales Summary'=>'report_pos_daily_sales_summary.php', 'Profit-Loss'=>'report_profit_loss.php',  'Transaction List by Customer'=>'report_transaction_list_by_customer.php', 'Unbilled Invoices'=>'report_unbilled_charges.php', 'Deposit Detail'=>'report_deposit_detail.php');
@@ -183,7 +183,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                     $marketing_reports = array('Customer Contact List'=>'report_customer_contact_list.php', 'Customer Stats'=>'report_customer_stats.php', 'Demographics'=>'report_demographics.php', 'CRM Recommendations - By Date'=>'report_crm_recommend_date.php', 'CRM Recommendations - By Customer'=>'report_crm_recommend_customer.php', 'POS Coupons'=>'report_pos_coupons.php', 'Postal Code'=>'report_postalcode.php', 'Referral'=>'report_referral.php', 'Web Referrals Report'=>'report_web_referral.php', 'Pro Bono Report'=>'report_marketing_pro_bono.php', 'Net Promoter Score'=>'report_marketing_net_promoter_score.php');
 
                     $compensation_reports = array('Adjustment Compensation'=>'report_compensation_adjustments.php', 'Hourly Compensation'=>'report_hourly_compensation.php', 'Therapist Compensation'=>'report_compensation.php', 'Statutory Holiday Pay Breakdown'=>'report_stat_holiday_pay.php');
-                    
+
                     foreach ( $configured_reports as $config_val ) {
                         foreach($operations_reports as $key=>$file_name){
                             if ($config_val==$key) {
@@ -194,7 +194,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     if (empty($report_link)) {
                         foreach ( $configured_reports as $config_val ) {
                             foreach($sales_reports as $key=>$file_name){
@@ -207,7 +207,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     if (empty($report_link)) {
                         foreach ( $configured_reports as $config_val ) {
                             foreach($ar_reports as $key=>$file_name){
@@ -220,7 +220,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     if (empty($report_link)) {
                         foreach ( $configured_reports as $config_val ) {
                             foreach($pnl_reports as $key=>$file_name){
@@ -233,7 +233,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     if (empty($report_link)) {
                         foreach ( $configured_reports as $config_val ) {
                             foreach($marketing_reports as $key=>$file_name){
@@ -246,7 +246,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     if (empty($report_link)) {
                         foreach ( $configured_reports as $config_val ) {
                             foreach($compensation_intersect as $key=>$file_name){
@@ -259,12 +259,12 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                             }
                         }
                     }
-                    
+
                     return ['link'=>$report_link,'name'=>'Reports'];
                 } else {
                     return ['link'=>'Reports/report_tiles.php','name'=>'Reports'];
                 } */
-                
+
                 break;
 			case 'passwords': return ['link'=>"Passwords/passwords.php?category=Website",'name'=>'Passwords']; break;
 			case 'gantt_chart': return ['link'=>"Gantt Chart/estimated_gantt_chart.php",'name'=>'Gantt Chart']; break;

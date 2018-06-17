@@ -24,7 +24,7 @@ function addDetail(select) {
 }
 </script>
 <div class="form-horizontal col-sm-12" data-tab-name="details">
-	<h3>Estimate Notes</h3>
+	<h3><?= ESTIMATE_TILE ?> Notes</h3>
 	<?php foreach($detail_types as $config_str => $field) {
 		if(in_array($config_str, $config) || $details[$field[1]] != '') { ?>
 			<div class="form-group">
@@ -77,7 +77,7 @@ function addDetail(select) {
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-sm-4">Include on Estimate PDF:</label>
+				<label class="col-sm-4">Include on <?= ESTIMATE_TILE ?> PDF:</label>
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" name="include_pdf" value="1" <?= $note['include_pdf'] > 0 ? 'checked' : '' ?> data-table="estimate_notes" data-id="<?= $note['id'] ?>" data-id-field="id"> Yes</label>
 				</div>

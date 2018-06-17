@@ -300,7 +300,7 @@ while($row = mysqli_fetch_array( $result )) {
 		  <option value=""></option>
 		  <option value="Pending" <?php if($row['status'] == "Pending") { echo " selected"; } ?> >Pending</option>
 		  <option value="In Development" <?php if($row['status'] == "In Development")  { echo " selected"; } ?> >In Development</option>
-		  <option value="Go to Estimate" <?php if($row['status'] == "Go to Estimate")  { echo " selected"; } ?> >Go to Estimate</option>
+		  <option value="Go to Estimate" <?php if($row['status'] == "Go to Estimate")  { echo " selected"; } ?> >Go to <?= ESTIMATE_TILE ?></option>
 		  <option value="Approve as Project" <?php if($row['status'] == "Approve as Project")  { echo " selected"; } ?> >Approve as <?php echo (PROJECT_TILE == 'Projects' ? 'Project' : (PROJECT_TILE == 'Jobs' ? 'Job' : PROJECT_TILE)); ?></option>
 		  <option value="Attach To A Project" <?php if($row['status'] == "Attach To A Project")  { echo " selected"; } ?> >Attach to a <?php echo (PROJECT_TILE == 'Projects' ? 'Project' : (PROJECT_TILE == 'Jobs' ? 'Job' : PROJECT_TILE)); ?></option>
 		  <option value="Archive/Delete" <?php if($row['status'] == "Archive/Delete")  { echo " selected"; } ?> >Archive/Delete</option>

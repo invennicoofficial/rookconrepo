@@ -253,7 +253,7 @@ function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table
 
         $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
         $report_data .= '<td>'.$row_report['paid_date'].'</td>';
-		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#report_div\').outerHeight()); return false;">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
+		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
         $report_data .= '<td>'.$row_report['paid'].'</td>';
         $report_data .= '<td>$'.$patient_price.'</td>';
 

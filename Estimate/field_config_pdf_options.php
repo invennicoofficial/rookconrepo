@@ -17,7 +17,7 @@ function saveText() {
 	});
 }
 </script>
-<h3>Estimate PDF Options</h3>
+<h3><?= ESTIMATE_TILE ?> PDF Options</h3>
 <div class="form-horizontal">
 	<div class="form-group">
 		<label class="col-sm-4 control-label">PDF Notes:<br><em>(e.g. - details about quote, etc., displayed immediately after the quote)</em></label>

@@ -3,7 +3,8 @@ checkAuthorised('estimate');
 error_reporting(0);
 $style = $_GET['style'];
 $estimateid = $_GET['edit'];
-$config_sql = "SELECT * FROM `estimate_pdf_setting` WHERE (`style` = '$style' OR '$style' = '') AND (`estimateid`='$estimateid' OR `estimateid` IS NULL) ORDER BY `estimateid` DESC, `style` ASC";
+//$config_sql = "SELECT * FROM `estimate_pdf_setting` WHERE (`style` = '$style' OR '$style' = '') AND (`estimateid`='$estimateid' OR `estimateid` IS NULL) ORDER BY `estimateid` DESC, `style` ASC";
+$config_sql = "SELECT * FROM `estimate_pdf_setting` WHERE `pdfsettingid`='$style' AND (`estimateid`='$estimateid' OR `estimateid` IS NULL) ORDER BY `estimateid` DESC, `style` ASC";
 $settings = mysqli_fetch_assoc(mysqli_query($dbc, $config_sql));
 $estimate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 if(empty($_GET['style'])) {
@@ -35,8 +36,9 @@ class MYPDF extends TCPDF {
 	public function Footer() {
 		// Position at 15 mm from bottom
 		$this->SetY(PDF_BOTTOM_MARGIN);
-		$footer = str_replace('[PAGE #]', $this->getAliasNumPage(), FOOTER);
-		$this->writeHTMLCell(0, 0, '', '', $footer, 0, 0, false, "L", true);
+		//$footer = str_replace('[PAGE #]', $this->getAliasNumPage(), FOOTER);
+        $footer = str_replace('[PAGE #]', $this->PageNo(), FOOTER);
+		$this->writeHTMLCell(220, 0, '', '', $footer, 0, 0, false, "L", false);
 	}
 }
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -81,7 +83,7 @@ if(!empty($_GET['email'])) {
         $mail_send = get_email($dbc, $each_email);
         if($mail_send != '') {
             $meeting_attachment = 'download/'.$file_name;
-            send_email('', $mail_send, '', '', 'Review Estimate', 'Please find attached estimate for your review', $meeting_attachment);
+            send_email('', $mail_send, '', '', 'Review '.ESTIMATE_TILE, 'Please find attached estimate for your review', $meeting_attachment);
         }
     }
 

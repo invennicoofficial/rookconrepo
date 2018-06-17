@@ -10,12 +10,12 @@ if(!($estimateid > 0)) {
 <div class="blue tile-navbar">
 	<a href="?edit=<?= $_GET['edit'] ?>"><span class="block-clear <?= $_GET['tab'] == '' ? 'active' : '' ?>">Details</span></a><?php
     
-    $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+    $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
     $scope_count = $query->num_rows;
     
     if ( $scope_count > 0 ) {
         while($row = mysqli_fetch_array($query)) {
-            $headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+            $headings[preg_replace('/[^a-z0-9]*/','',strtolower($row[0]))] = $row[0];
         }
     } else {
         $headings['scope'] = 'Scope';

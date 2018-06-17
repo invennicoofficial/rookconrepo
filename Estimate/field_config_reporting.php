@@ -32,7 +32,7 @@ function saveReporting() {
 	});
 }
 </script>
-<h3>Estimate Stats</h3>
+<h3><?= ESTIMATE_TILE ?> Stats</h3>
 <div class="form-group">
 <?php foreach($estimate_status as $status) { ?>
 	<div class="col-sm-2">
@@ -43,7 +43,7 @@ function saveReporting() {
 
 <div class="clearfix"></div>
 
-<h3>Estimate Alerts</h3>
+<h3><?= ESTIMATE_TILE ?> Alerts</h3>
 <div class="form-group">
 <?php foreach($estimate_status as $status) { ?>
 	<div class="col-sm-2">

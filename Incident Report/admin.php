@@ -127,6 +127,9 @@ $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                                     if (strpos($value_config, ','."Location".',') !== FALSE) {
                                         echo '<th>Location</th>';
                                     }
+									if($status != 'Pending') {
+										echo '<th>'.($status == 'Revision' ? 'In Revision' : ($status == 'Review' ? 'Under Review' : 'Approved')).'</th>';
+									}
                                     if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                         echo '<th>View</th>';
                                     }
@@ -229,6 +232,9 @@ $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                                         if (strpos($value_config, ','."Location".',') !== FALSE) {
                                             echo '<td data-title="Location">' . $row['location'] . '</td>';
                                         }
+										if($status != 'Pending') {
+											echo '<td data-title="'.($status == 'Revision' ? 'In Revision' : ($status == 'Review' ? 'Under Review' : 'Approved')).'">'.profile_id($dbc, $row['approved_by'], false).'</td>';
+										}
                                         if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                             $name_of_file = 'incident_report_'.$row['incidentreportid'].'.pdf';
                         					echo '<td data-title="PDF"><a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>';

@@ -127,7 +127,7 @@ include_once ('../navigation.php'); ?>
 		</div>
 		<div class="row hide_on_iframe">
 			<div class="main-screen" style="background-color: #fff; border-width: 0; height: auto; margin-top: -20px;">
-				<h1 class="no-gap-top padded"><a href="<?= !empty($_GET['from']) ? urldecode(strpos($_GET['from'],'list_common') !== FALSE ? '?'.explode('?',$_GET['from'])[1] : $_GET['from']) : '?' ?>"><?= $folder_label ?></a><?php if($config_access > 0) {
+				<h1 class="no-gap-top padded"><a href="<?= !empty($_GET['from']) ? urldecode(strpos($_GET['from'],'list_common') !== FALSE ? '?'.explode('?',$_GET['from'])[1] : $_GET['from']) : '?' ?>"><?= $folder_label ?><?= ($_GET['edit'] > 0 ? ': '.(!empty(get_client($dbc, $_GET['edit'])) ? get_client($dbc, $_GET['edit']) : get_contact($dbc, $_GET['edit'])) : '') ?></a><?php if($config_access > 0) {
 					echo "<div class='pull-right'><a href='?settings=fields'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me settings-icon'></a></div>";
 				} ?>
 				<?php

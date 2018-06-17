@@ -707,7 +707,12 @@ if (isset($_POST['submit_btn'])) {
                         $col5 = 3;
                         $col1 = $col2 = $col4 = 0;
                     }
+                    mysqli_set_charset($dbc, 'utf8');
+                    $inventory_list = mysqli_fetch_all(mysqli_query($dbc,"SELECT `inventoryid`, `category`, `part_no`, `name` FROM inventory WHERE deleted=0 ORDER BY name"),MYSQLI_ASSOC);
                     ?></label>
+                    <script>
+                        var inv_list = <?= json_encode($inventory_list) ?>;
+                    </script>
                     <div class="col-sm-7">
                         <div class="form-group clearfix hide-titles-mob">
                             <?php if(in_array('inventory_cat',$field_config)) { ?><label class="col-sm-<?= $col1 ?>">Category</label><?php } ?>
@@ -783,7 +788,7 @@ if (isset($_POST['submit_btn'])) {
                                         </div>
                                         <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
                                             <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" class="form-control invunitprice" />
-                                            <?php echo $sell_price / $quantity; ?>
+                                            <?php echo number_format($sell_price / $quantity,2); ?>
                                         </div> <!-- Quantity -->
                                         <div class="col-sm-<?= $col6 ?>"><label class="show-on-mob">Quantity:</label>
                                             <input name="init_quantity[]" value="<?= $quantity ?>" type="hidden" class="form-control" />
@@ -792,7 +797,7 @@ if (isset($_POST['submit_btn'])) {
                                         <div class="col-sm-<?= $col7 ?>"><label class="show-on-mob">Total:</label>
                                             <input name="init_price[]" value="<?= $sell_price ?>" type="hidden" />
                                             <input name="sell_price[]" id="<?php echo 'sellprice_'.$id_loop; ?>" onchange="countTotalPrice()" value="0" type="hidden" step="any" readonly class="form-control sellprice" />
-                                            <input name="sell_price_display[]" id="<?php echo 'sellpricedisplay_'.$id_loop; ?>" value="<?= $sell_price ?>" type="number" step="any" readonly class="form-control" />
+                                            <input name="sell_price_display[]" id="<?php echo 'sellpricedisplay_'.$id_loop; ?>" value="<?= number_format($sell_price,2) ?>" type="text" step="any" readonly class="form-control" />
                                             <input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                                             <input name="inventory_gst_exempt[]" type="hidden" value="<?= $gst_exempt ?>" />
                                         </div>

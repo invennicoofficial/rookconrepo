@@ -13,7 +13,7 @@ $(document).ready(function() {
 		$('.order_list_inventory').removeClass('active_tab');
         $(this).addClass('active_tab');
     });
-	
+
 	if($('.order_list_inventory').length == 1 && '<?php echo $load_tab; ?>' != 'Master') {
 		$('.order_list_inventory').click();
 	}
@@ -64,7 +64,7 @@ $(document).ready(function() {
 
         return false;
     });
-	
+
 	var add_new_in_misc = 1;
 	$('#deleteinventorymisc_0').hide();
 	$('#add_row_in_misc').on( 'click', function () {
@@ -215,7 +215,7 @@ function fillmargincrcinventoryvalue(est) {
             jQuery('#'+profitmarginid).val(deltaper.toFixed(2));
         }
     }
-    
+
     changeInventoryTotal();
 }
 
@@ -243,7 +243,7 @@ function countInventory(txb) {
     $('[name="intotalmisc_display[]"]').each(function () {
         sum_fee += Number($(this).val());
     });
-	
+
     $('[name="inventory_total"]').val('$'+round2Fixed(sum_fee));
     $('[name="inventory_summary"]').val('$'+round2Fixed(sum_fee)).change();
 
@@ -373,7 +373,7 @@ function changeInventoryTotal() {
 		sum_cost += (+$($('[name^=crc_inventory_cost_]')[key]).val() || 0) * qty;
 		sum_total += +$(this).val() || 0;
 	});
-    
+
 	sum_profit = sum_total - sum_cost;
 	per_profit_margin = (sum_profit / sum_total) * 100;
 	if(isNaN(per_profit_margin)) {
@@ -438,7 +438,7 @@ function countMiscInventory(txb)
 
 		document.getElementById('intotalmisc_'+split_id[1]).value = parseFloat($('#inestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
 	if(split_id[0] == 'inqtymisc') {
 		var estqty = txb.value;
 		if(estqty == null || estqty == '') {
@@ -448,7 +448,7 @@ function countMiscInventory(txb)
 
 		document.getElementById('intotalmisc_'+split_id[1]).value = parseFloat($('#inestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
     var sum_fee = 0;
 	//$('[name="intotalmisc[]"]').each(function () {
     sum_fee += +document.getElementById('intotalmisc_'+split_id[1]).value || 0;
@@ -486,7 +486,7 @@ function changeProfitInventoryPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[0] == 'inprofitmargin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -497,7 +497,7 @@ function changeProfitInventoryPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeInventoryTotal();
 }
 
@@ -522,7 +522,7 @@ function changeProfitInventoryRCPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[2] == 'margin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -533,7 +533,7 @@ function changeProfitInventoryRCPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeInventoryTotal();
 }
 
@@ -558,7 +558,7 @@ function changeProfitInventoryMiscPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[0] == 'inmarginmisc')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -569,7 +569,7 @@ function changeProfitInventoryMiscPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeInventoryTotal();
 }
 </script>
@@ -611,7 +611,7 @@ $field_config_inventory = ','.$get_field_config_inventory['inventory'].',';
 			}
 			$columns += 9;
 			?>
-			
+
             <?php if (strpos($base_field_config, ','."Inventory Category".',') !== FALSE) { ?>
             <label class="col-sm-2 text-center" data-columns="<?php echo $columns; ?>" data-width="2">Category</label>
             <?php } ?>
@@ -644,7 +644,7 @@ $field_config_inventory = ','.$get_field_config_inventory['inventory'].',';
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Cost</label>
             <?php } ?>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">% Margin</label>
-            <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Estimate Price</label>
+            <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">$ Profit</label>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Total</label>
         </div>
@@ -1080,7 +1080,7 @@ $field_config_inventory = ','.$get_field_config_inventory['inventory'].',';
 			}
 		}
 		?>
-		
+
 		<div class="form-group clearfix" style="margin-left:5px">
 			<h3>Misc Items</h3>
 			<div class="form-group clearfix">
@@ -1160,15 +1160,15 @@ $field_config_inventory = ','.$get_field_config_inventory['inventory'].',';
 								break;
 						}
 					} ?>
-					
+
 					<div class="col-sm-1" >
 						<a href="#" onclick="deleteEstimate(this,'inventorymisc_','inheadmisc_'); return false;" id="deleteinventorymisc_0" class="btn brand-btn">Delete</a>
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="add_here_new_in_misc"></div>
-			
+
 			<div class="form-group triple-gapped clearfix">
 				<div class="col-sm-offset-4 col-sm-8">
 					<button id="add_row_in_misc" class="btn brand-btn pull-left">Add Row</button>
@@ -1205,7 +1205,7 @@ $field_config_inventory = ','.$get_field_config_inventory['inventory'].',';
                 </div>
                 <?php
             }
-            
+
             $misc_rc = 0;
             while($misc_row_rc = mysqli_fetch_array($query_misc_rc)) { ?>
                 <div class="clearfix"></div>

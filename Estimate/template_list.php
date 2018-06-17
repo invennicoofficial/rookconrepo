@@ -71,7 +71,7 @@ function removeTemplate(id) {
             <a href="?template=<?= $template['id'] ?>"><li class="<?= $_GET['template'] == $template['id'] ? 'active blue' : '' ?>"><?= $template['template_name'] ?><img src="../img/remove.png" class="pull-right inline-img" onclick="removeTemplate(<?= $template['id'] ?>); $(this).closest('a').hide(); return false;"></li></a>
         <?php } ?>
         <a href="?template=new"><li class="<?= $_GET['template'] == 'new' ? 'active blue' : '' ?>">Create New Template</li></a>
-        <a href="?template=copy_new"><li class="<?= $_GET['template'] == 'copy_new' ? 'active blue' : '' ?>">Copy Estimate into New Template</li></a>
+        <a href="?template=copy_new"><li class="<?= $_GET['template'] == 'copy_new' ? 'active blue' : '' ?>">Copy <?= ESTIMATE_TILE ?> into New Template</li></a>
     </ul>
 </div>
 

@@ -213,7 +213,7 @@ if (isset($_POST['submit'])) {
 					$attachment .= $file_support.'*#FFM#*';
 				}
 			}
-            
+
 			// foreach($arr_email as $to) {
                 try {
 					send_email([$_POST['email_sender']=>$_POST['email_name']], $arr_email, '', '', $subject, $email_body, $attachment);
@@ -742,10 +742,10 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
 					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Update Agendas</button>
 					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<?php } ?>
-					
+
 				<button	type="submit" name="submit"	value="Save" class="btn brand-btn btn-lg pull-right">Save<?= ($status == 'Pending' || $status == 'Approve' ? ' and Email' : '') ?> Agendas</button>
 				<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				
+
 				<button	type="submit" name="submit"	value="temp_save" class="btn brand-btn btn-lg pull-right">Save</button>
 				<span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Agenda without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 			</div>

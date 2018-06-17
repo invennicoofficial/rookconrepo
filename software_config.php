@@ -445,10 +445,10 @@ checkAuthorised();
             </tr>
             <?php } ?>
 
-            <tr><th colspan='5'><div style='text-align:left;width:100%;font-size:20px;'>Estimates/Quotes:</div></th></tr>
+            <tr><th colspan='5'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 			<?php if (strpos($estimate, 'turn_on') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Estimates</td>
+                <td data-title="Comment"><?= ESTIMATE_TILE ?></td>
                 <?php echo tile_config_function($dbc,'estimate'); ?>
             </tr>
             <?php } ?>

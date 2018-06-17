@@ -155,7 +155,7 @@ switch($_GET['type']) {
     case 'appt' : $calendar_label = 'Appointment Calendar'; $calendar_config = 'appt'; break;
     case 'staff' : $calendar_label = 'Staff Schedule Calendar'; $calendar_config = 'staff_schedule'; break;
     case 'schedule' : $calendar_label = 'Dispatch Calendar'; $calendar_config = 'scheduling'; break;
-    case 'estimates' : $calendar_label = 'Sales Estimates Calendar'; $calendar_config = 'estimates'; break;
+    case 'estimates' : $calendar_label = 'Sales '.ESTIMATE_TILE.' Calendar'; $calendar_config = 'estimates'; break;
     case 'ticket' : $calendar_label = TICKET_NOUN.' Calendar'; $calendar_config = 'ticket'; break;
     case 'shift' : $calendar_label = 'Shift Calendar'; $calendar_config = 'shift'; break;
     case 'event' : $calendar_label = 'Events Calendar'; $calendar_config = 'event'; break;
@@ -431,7 +431,7 @@ switch($_GET['type']) {
         $use_unbooked = '';
         $offline_mode = get_config($dbc, 'shift_offline');
         if($_GET['view'] != 'monthly') {
-            $add_reminder = get_config($dbc, 'shift_reminders');   
+            $add_reminder = get_config($dbc, 'shift_reminders');
         }
         $teams = '';
         $equipment_assignment = '';
