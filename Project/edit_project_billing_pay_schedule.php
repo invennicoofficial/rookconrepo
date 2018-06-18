@@ -24,6 +24,7 @@ $(document).ready(function() {
 	set_save_fields();
 });
 function add_payment() {
+	destroyInputs();
 	var clone = $('.pay-group').last().clone();
 	clone.data('id','').data('table','project_payments');
 	clone.find('input').val('');
@@ -31,8 +32,8 @@ function add_payment() {
 	clone.find('span').first().next().html('<input type="text" name="heading" class="form-control">');
 	clone.find('span').first().next().next().html('<input type="number" name="amount" class="form-control">');
 	$('.pay-group').last().after(clone);
-	clone.find('input').first().focus();
 	set_save_fields();
+	clone.find('input').first().focus();
 }
 function remove_payment(line) {
 	var line = $(line).closest('.pay-group');
@@ -41,6 +42,7 @@ function remove_payment(line) {
 }
 function set_save_fields() {
 	$('input').off('change',saveField).change(saveField);
+	initInputs();
 }
 function saveFieldMethod(field) {
 	$.post('projects_ajax.php?action=payment_details',{
@@ -48,7 +50,7 @@ function saveFieldMethod(field) {
 		table: $(field).closest('.pay-group').data('table'),
 		field: field.name,
 		value: field.value,
-		project: '<?= $projectid ?>'
+		projectid: '<?= $projectid ?>'
 	},function(response) {
 		if(response > 0) {
 			$(field).closest('.pay-group').data('id',response);
@@ -57,8 +59,8 @@ function saveFieldMethod(field) {
 	});
 }
 </script>
-<?php $query = $dbc->query("SELECT * FROM (SELECT '' `heading`, `invoice`.`tile_name`, `invoice`.`invoiceid`, `invoice`.`invoiceid` `id`, 'invoice' `table`, `invoice`.`total_price`, `invoice`.`due_date`, `invoice_payment`.`date_paid` FROM `invoice` LEFT JOIN `invoice_payment` ON `invoice`.`invoiceid`=`invoice_payment`.`invoiceid` WHERE `invoice`.`projectid`='$projectid' AND `invoice`.`status` NOT IN ('Void','Archived') UNION SELECT `heading`, '' `tile_name`, 0 `invoiceid`, `id`, 'project_payments' `table`, `amount` `total_price`, `due_date`, `date_paid` FROM `project_payments` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status` != 'Void') `payments` ORDER BY `due_date`");
-if($query->num_rows > 0) { ?>
+<?php $query = $dbc->query("SELECT * FROM (SELECT '' `heading`, `invoice`.`tile_name`, `invoice`.`invoiceid`, `invoice`.`invoiceid` `id`, 'invoice' `table`, `invoice`.`total_price`, `invoice`.`due_date`, `invoice_payment`.`date_paid` FROM `invoice` LEFT JOIN `invoice_payment` ON `invoice`.`invoiceid`=`invoice_payment`.`invoiceid` WHERE `invoice`.`projectid`='$projectid' AND `invoice`.`status` NOT IN ('Void','Archived') UNION SELECT `heading`, '' `tile_name`, 0 `invoiceid`, `id`, 'project_payments' `table`, `amount` `total_price`, `due_date`, `date_paid` FROM `project_payments` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status` != 'Void') `payments` ORDER BY `due_date`"); ?>
+<div class="form-horizontal">
 	<div class="hide-titles-mob text-center">
 		<span class="col-sm-2"></span>
 		<span class="col-sm-2">Heading</span>
@@ -67,9 +69,11 @@ if($query->num_rows > 0) { ?>
 		<span class="col-sm-2">Paid Date</span>
 		<span class="col-sm-1">History</span>
 		<span class="col-sm-1"></span>
+		<div class="clearfix"></div>
 	</div>
 	<?php $pay_line = 1;
-	while($payment = $query->fetch_assoc()) { ?>
+	$payment = $query->fetch_assoc();
+	do { ?>
 		<div class="pay-group form-group" data-table="<?= $payment['table'] ?>" data-id="<?= $payment['id'] ?>">
 			<span class="col-sm-2">Payment <?= $pay_line++ ?></span>
 			<span class="col-sm-2"><span class="show-on-mob">Heading</span>
@@ -94,17 +98,17 @@ if($query->num_rows > 0) { ?>
 				<span class="show-on-mob">Paid Date</span>
 				<input type="text" name="date_paid" value="<?= $payment['date_paid'] ?>" class="form-control datepicker">
 			</span>
-			<span class="col-sm-1"><a href="../Project/payment_history.php?projectid=<?= $projectid ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;">View History</a></span>
+			<span class="col-sm-1 text-center"><?php if(!($payment['invoiceid'] > 0)) { ?><a href="../Project/payment_history.php?id=<?= $payment['id'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img" src="../img/icons/eyeball.png"></a><?php } ?></span>
 			<span class="col-sm-1">
 				<input type="hidden" name="deleted" value="0">
 				<input type="hidden" name="status" value="">
 				<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_payment(this);">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="add_payment();">
-				<a href="" onclick="overlayIFrameSlider(this.href,'auto',true,true);"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img cursor-hand"></a>
+				<?php if($payment['invoiceid'] > 0) { ?>
+					<!--<a href="../Invoice/add_invoice.php?invoiceid=<?= $payment['invoiceid'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true);"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img cursor-hand"></a>-->
+				<?php } ?>
 			</span>
 		</div>
-	<?php }
-} else {
-	echo '<h3>No Due Payments Found</h3>';
-} ?>
-<?php include('next_buttons.php'); ?>
+	<?php } while($payment = $query->fetch_assoc()); ?>
+	<?php include('next_buttons.php'); ?>
+</div>

@@ -573,7 +573,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 													<?php }
 													if($delivery_type_contacts != '') {
 														foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `category`='$delivery_type_contacts' AND `deleted`=0 AND `status` > 0")) as $contact) { ?>
-															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
+															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
 															<?php if($contact['full_name'] == $stop['type'] && $stop['type'] != 'warehouse') {
 																$stop['type'] = 'warehouse';
 															}
@@ -632,7 +632,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 										<div class="col-sm-8">
-											<input type="text" name="cust_est" class="form-control datepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['cust_est'] ?>">
+											<input type="text" name="cust_est" class="form-control" readonly value="<?= $stop['cust_est'] ?>">
 										</div>
 									</div>
 								<?php } ?>
@@ -701,7 +701,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Warehouse Pick Up:</label>
 										<div class="col-sm-8">
-											<label class="form-checkbox"><input type="radio" name="type_<?= $stop_i ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= $stop['type'] == 'warehouse' ? 'checked' : '' ?> data-field-name="type" data-index="<?= $stop_i ?>" value="warehouse">Yes</label>
+											<label class="form-checkbox"><input type="radio" name="type_<?= $stop_i ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= $stop['type'] == 'warehouse' ? 'checked' : '' ?> data-field-name="type" data-index="<?= $stop_i ?>" data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="warehouse">Yes</label>
 											<label class="form-checkbox"><input type="radio" name="type_<?= $stop_i ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= $stop['type'] == 'warehouse' ? '' : 'checked' ?> data-field-name="type" data-index="<?= $stop_i ?>" value="">No</label>
 										</div>
 									</div>
@@ -718,6 +718,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Notes".',') !== FALSE && $field_sort_field == 'Delivery Pickup Notes') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Delivery Notes:</label>
+										<div class="col-sm-8">
+											<textarea name="notes" class="no_tools form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><?= html_entity_decode($stop['notes']) ?></textarea>
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Arrival".',') !== FALSE && $field_sort_field == 'Delivery Pickup Arrival') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Arrival Time:</label>
@@ -731,6 +739,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Departure Time:</label>
 										<div class="col-sm-8">
 											<input type="text" name="checked_out" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Departure Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['checked_out'] ?>">
+										</div>
+									</div>
+								<?php } ?>
+								<?php if(strpos($value_config, ','."Delivery Calendar History".',') !== FALSE && $field_sort_field == 'Delivery Calendar History') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Calendar History:</label>
+										<div class="col-sm-8">
+											<?= html_entity_decode($stop['calendar_history']) ?>
 										</div>
 									</div>
 								<?php } ?>
@@ -1037,8 +1053,15 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
-							<?php if (strpos($value_config, ','."Delivery Pickup Status".',') !== FALSE && $field_sort_field == 'Delivery Pickup Status') { ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Departure".',') !== FALSE && $field_sort_field == 'Delivery Pickup Departure') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Departure Time:</label>
+									<div class="col-sm-8">
+										<?= $stop['checked_out'] ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Status".',') !== FALSE && $field_sort_field == 'Delivery Pickup Status') { ?>
 								<div class="form-group">
 									<label class="col-sm-4 control-label">Status:</label>
 									<div class="col-sm-8">
@@ -1046,14 +1069,23 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
-						<?php } ?>
-						<div class="form-group">
-									<label class="col-sm-4 control-label">Departure Time:</label>
+							<?php if(strpos($value_config, ','."Delivery Calendar History".',') !== FALSE && $field_sort_field == 'Delivery Calendar History') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Calendar History:</label>
 									<div class="col-sm-8">
-										<?= $stop['checked_out'] ?>
+										<?= html_entity_decode($stop['calendar_history']) ?>
 									</div>
 								</div>
 							<?php } ?>
+							<?php if(strpos($value_config, ','."Delivery Pickup Notes".',') !== FALSE && $field_sort_field == 'Delivery Pickup Notes') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Delivery Notes:</label>
+									<div class="col-sm-8">
+										<?= html_entity_decode($stop['notes']) ?>
+									</div>
+								</div>
+							<?php } ?>
+						<?php } ?>
 						<?php } ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Completed Stop:</label>

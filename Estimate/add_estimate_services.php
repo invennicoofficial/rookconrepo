@@ -319,7 +319,7 @@ $field_config_service = ','.$get_field_config_service['services_dashboard'].',';
 				<label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Cost</label>
             <?php } ?>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">% Margin</label>
-            <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Estimate Price</label>
+            <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">$ Profit</label>
             <label class="col-sm-1 text-center" data-columns="<?php echo $columns; ?>" data-width="1">Total</label>
         </div>

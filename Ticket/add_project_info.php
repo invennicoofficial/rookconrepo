@@ -155,7 +155,7 @@ var projectFilter = function() {
 		<?php if ( strpos($value_config, ',PI Project,') !== false && $field_sort_field == 'PI Project' && ($force_project == 'manual' || $force_project == '')) { ?>
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label"><span class="text-red">*</span> <?= PROJECT_NOUN ?> Name:</label>
-			  <div class="col-sm-8">
+			  <div class="col-sm-7">
 				<select data-placeholder="Select <?= PROJECT_NOUN ?> related to file #'s (e.g. 67, 77, etc.)..." name="projectid" id="projectid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 				  <option value=""></option>
 				  <?php $query = mysqli_query($dbc,"SELECT projectid, projecttype, project_name, businessid, clientid, status FROM project WHERE deleted=0 AND (status NOT IN ('Archive') OR `projectid`='$projectid') order by `projectid` DESC");
@@ -171,6 +171,10 @@ var projectFilter = function() {
 				  ?>
 				</select>
 			  </div>
+
+				<div class="col-sm-1">
+					<a href="" onclick="viewProject(this); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>
+				</div>
 			</div>
 		<?php } ?>
 

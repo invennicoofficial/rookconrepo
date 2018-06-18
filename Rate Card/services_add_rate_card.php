@@ -72,31 +72,38 @@ if (isset($_POST['submit'])) {
 	$rate_results = mysqli_query($dbc, $rates_sql);
 	$row = mysqli_fetch_array($result); ?>
 	<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Rate Card:</label>
-	<div class='col-sm-8'><select name='rate_card' data-placeholder='Select Rate Card' class='chosen-select-deselect form-control'><option></option>
-	<?php while($rate_name = mysqli_fetch_array($rate_results)) {
-		echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
-	} ?>
+		<div class='col-sm-8'>
+			<select name='rate_card' data-placeholder='Select Rate Card' class='chosen-select-deselect form-control'><option></option>
+				<?php while($rate_name = mysqli_fetch_array($rate_results)) {
+					echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
+				} ?>
+			</select>
+		</div>
+	</div>
 	<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Service:</label>
-	<div class='col-sm-8'><select name='serviceid' data-placeholder='Choose a Category' class='chosen-select-deselect form-control'><option></option>
-	<?php
-	$categories = mysqli_query($dbc, "SELECT serviceid, service_code, service_type, category, heading FROM `services`");
-	while($cat = mysqli_fetch_array($categories)) {
-		$service_text = '';
-		if($cat['service_code'] != '') {
-			$service_text .= $cat['service_code'].' : ';
-		}
-		if($cat['service_type'] != '') {
-			$service_text .= $cat['service_type'].' : ';
-		}
-		if($cat['category'] != '') {
-			$service_text .= $cat['category'].' : ';
-		}
-		if($cat['heading'] != '') {
-			$service_text .= $cat['heading'];
-		}
-		echo "<option".($cat['serviceid'] == $row['serviceid'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
-	} ?>
-	</select></div></div>
+		<div class='col-sm-8'>
+			<select name='serviceid' data-placeholder='Choose a Category' class='chosen-select-deselect form-control'><option></option>
+			<?php
+			$categories = mysqli_query($dbc, "SELECT serviceid, service_code, service_type, category, heading FROM `services`");
+			while($cat = mysqli_fetch_array($categories)) {
+				$service_text = '';
+				if($cat['service_code'] != '') {
+					$service_text .= $cat['service_code'].' : ';
+				}
+				if($cat['service_type'] != '') {
+					$service_text .= $cat['service_type'].' : ';
+				}
+				if($cat['category'] != '') {
+					$service_text .= $cat['category'].' : ';
+				}
+				if($cat['heading'] != '') {
+					$service_text .= $cat['heading'];
+				}
+				echo "<option".($cat['serviceid'] == $row['serviceid'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
+			} ?>
+			</select>
+		</div>
+	</div>
 	<?php $field_config = ','.get_config($dbc, 'services_rate_fields').','; ?>
 	<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Effective Start Date:</label>
 	<div class='col-sm-8'><input class='form-control datepicker' type='text' name='start_date' value='<?php echo $row['start_date']; ?>'></div></div>

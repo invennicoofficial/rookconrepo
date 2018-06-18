@@ -123,6 +123,7 @@ $job_complete_value = '';
         $working_alone = $get_field_level['working_alone'];
         $all_task = $get_field_level['all_task'];
         $job_complete = $get_field_level['job_complete'];
+        
     }
 ?>
 

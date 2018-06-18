@@ -562,6 +562,9 @@ if($_GET['action'] == 'update_fields') {
 				$contacts_tile = 'clientinfo';
 			}
 			mysqli_query($dbc, "UPDATE `contacts` SET `tile_name` = '$contacts_tile' WHERE `contactid` = '$id'");
+		} else if ($table_name == 'ticket_schedule') {
+			$status = get_config($dbc, 'ticket_default_status');
+			$dbc->query("UPDATE `ticket_schedule` SET `status`='$status' WHERE `id`='$id'");
 		}
 		if($detail_field != '') {
 			$dbc->query("UPDATE `$table_name` SET `$detail_field`='$detail' WHERE `$id_field`='$id'");
@@ -1244,6 +1247,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'piece_types', filter_var($_POST['piece_types'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'delivery_types', filter_var($_POST['delivery_types'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'delivery_timeframe_default', filter_var($_POST['delivery_timeframe_default'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_warehouse_start_time', filter_var($_POST['ticket_warehouse_start_time'],FILTER_SANITIZE_STRING));
 	set_config($dbc, $_POST['tab_transport_log_contact'], filter_var($_POST['tab_transport_log_contact_value'],FILTER_SANITIZE_STRING));
 	set_config($dbc, $_POST['ticket_custom_field'], filter_var($_POST['ticket_custom_field_value'],FILTER_SANITIZE_STRING));
 	set_config($dbc, $_POST['ticket_custom_field_values'], filter_var($_POST['ticket_custom_field_values_value'],FILTER_SANITIZE_STRING));
@@ -1706,8 +1710,8 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'get_category_list') {
 	$category = filter_var(($_POST['category'] ?: $_GET['category']),FILTER_SANITIZE_STRING);
 	echo '<option></option>';
-	foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `category` LIKE '$category'")) as $contact) {
-		echo '<option value="'.$contact['contactid'].'">'.$contact['name'].($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').$contact['first_name'].' '.$contact['last_name'].'</option>';
+	foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` LIKE '$category'")) as $contact) {
+		echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
 	}
 } else if($_GET['action'] == 'archive') {
 	$ticketid = filter_var($_POST['ticketid'], FILTER_SANITIZE_STRING);

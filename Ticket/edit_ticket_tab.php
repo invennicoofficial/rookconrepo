@@ -570,7 +570,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 				$access_medication = in_array('medication',$ticket_role_level);
 				$access_complete = in_array('complete',$ticket_role_level);
 				$access_services = in_array('services',$ticket_role_level);
-				$access_all = in_array('ticket',$ticket_role_level);
+				$access_all = in_array('all_access',$ticket_role_level);
 			}
 		}
 	} else if(count(array_filter($arr, function ($var) { return (strpos($var, 'default') !== false); })) > 0) {
@@ -586,7 +586,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 				$access_medication = in_array('medication',$ticket_role_level);
 				$access_complete = in_array('complete',$ticket_role_level);
 				$access_services = in_array('services',$ticket_role_level);
-				$access_all = in_array('ticket',$ticket_role_level);
+				$access_all = in_array('all_access',$ticket_role_level);
 			}
 		}
 	} else {

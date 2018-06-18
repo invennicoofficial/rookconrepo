@@ -12,13 +12,17 @@ var tile_options = [];
 $(document).ready(function() {
 	$('[data-table]').change(saveField);
 	$('#no-more-tables').sortable({
-		connectWith: '.sort_table',
+		handle: '.scope-handle',
+		items: '.sort_table',
+		update: save_sort
+	});
+	$('#no-more-tables').sortable({
 		handle: '.heading-handle',
 		items: 'table',
 		update: save_sort
 	});
 	$('.sort_table').sortable({
-		connectWith: '.sort_table',
+		connectWith: '#no-more-tables',
 		handle: '.line-handle',
 		items: 'tr',
 		update: save_sort
@@ -33,8 +37,13 @@ function save_sort() {
 	});
 }
 function set_headings() {
+	$('[name=heading][data-init]').each(function() {
+		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
+	});
+}
+function set_scopes() {
 	$('[name=scope_name][data-init]').each(function() {
-		$(this).closest('table').find('[name=scope_name][data-table]').val(this.value).change();
+		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
 	});
 }
 function getLock(tab_name) {
@@ -96,18 +105,40 @@ function lockTabs() {
 		$('[href=#view_profile] li').addClass('active blue');
 	}
 }
-function add_heading() {
+function add_heading(scope) {
 	$.ajax({
 		url: 'estimates_ajax.php?action=estimate_add_heading',
 		method: 'POST',
 		data: {
 			estimate: '<?= $estimateid ?>',
-			ratecard: '<?= $current_rate ?>'
+			scope: scope
 		},
 		success: function(response) {
-			console.log(response);
+			window.location.replace('?edit=<?= $estimateid ?>&status=templates');
 		}
 	});
+}
+function rem_heading(img) {
+	var block = $(img).closest('table');
+	block.find('[name=deleted]').val(1).change();
+	block.hide();
+}
+function add_scope(scope) {
+	$.ajax({
+		url: 'estimates_ajax.php?action=estimate_add_scope',
+		method: 'POST',
+		data: {
+			estimate: '<?= $estimateid ?>'
+		},
+		success: function(response) {
+			window.location.replace('?edit=<?= $estimateid ?>&status=templates');
+		}
+	});
+}
+function rem_scope(img) {
+	var block = $(img).closest('.sort_table');
+	block.find('[name=deleted]').val(1).change();
+	block.hide();
 }
 function saveFieldMethod() {
 	if(this.value == 'CUSTOM') {
@@ -178,20 +209,20 @@ function add_line() {
         $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
         $_GET['rate'] = $current_rate;
         
-        $headings = [];
-        $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+        $scope_list = [];
+        $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
         $scope_name = '';
         if(mysqli_num_rows($query) > 0) {
             while($row = mysqli_fetch_array($query)) {
-                $headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+                $scope_list[preg_replace('/[^a-z0-9]*/','',strtolower($row[0]))] = $row[0];
             }
         } else {
-            $headings['scope'] = 'Scope';
+            $scope_list['scope'] = 'Scope';
         } ?>
         
         <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->
         <div id="no-more-tables"><?php
-            foreach($headings as $head_id => $heading) {
+            foreach($scope_list as $scope_id => $scope) {
                 include('edit_headings.php');
             } ?>
         </div>

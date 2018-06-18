@@ -142,7 +142,8 @@ if($rows > 2500) {
 }
 $i = 0;
 ?>
-<h3 class="gap-left"><?php echo $category; ?>
+<div class="standard-dashboard-body-title">
+<h3 class="gap-left"><?php echo ucwords($category); ?>
 <div class="pull-right hide-titles-mob col-sm-8">
 	<form action="" method="POST">
 		<!--
@@ -169,9 +170,13 @@ $i = 0;
 	</form>
 </div>
 <div class="clearfix"></div>
-</h3><?php
+</h3>
+</div><?php
 $subtab = '';
 switch($status) {
+    case 'summary':
+        $subtab = 'contacts_summary';
+        break;
     case 'active':
         $subtab = 'contacts_active';
         break;
@@ -182,7 +187,7 @@ switch($status) {
         $subtab = 'contacts_archived';
         break;
     default:
-        $subtab = 'contacts_active';
+        //$subtab = 'contacts_active';
         break;
 }
 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `note` FROM `notes_setting` WHERE `tile`='contacts' AND `subtab`='$subtab'"));
@@ -212,6 +217,7 @@ if ( !empty($note) ) { ?>
 </style>
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 <div class="standard-dashboard-body-content">
+<?php if($_GET['list'] != 'summary') { ?>
 <div class="" style="margin:0;">
 	<?php if($rows > 0): ?>
 		<?php echo "<div class='pagination_links'>";
@@ -226,14 +232,9 @@ if ( !empty($note) ) { ?>
 			?>
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
-				<div class="dashboard-item">
+				<div class="dashboard-item set-relative">
 					<div class="col-sm-6">
 						<img src="../img/person.PNG" class="inline-img"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
-						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
-							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small"></a>
-						<?php else: ?>
-							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small"></a>
-						<?php endif; ?>
 					</div>
 					<?php if(in_array('Business', $field_display) && $row['businessid'] > 0): ?>
 						<div class="col-sm-6">
@@ -320,6 +321,13 @@ if ( !empty($note) ) { ?>
 						} ?>
 					</div>
 					<div class="clearfix"></div>
+                    <div class="set-favourite">
+						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
+							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small"></a>
+						<?php else: ?>
+							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small"></a>
+						<?php endif; ?>
+                    </div>
 				</div>
 				<!--<hr class="hide-on-mobile">-->
 			<?php endforeach; ?>
@@ -335,4 +343,98 @@ if ( !empty($note) ) { ?>
 		<?php echo '<h3 class="gap-left">No Record Found.</h3>' ?>
 	<?php endif; ?>
 </div>
+<?php } else {
+
+
+    echo '<h3 class="double-gap-left">Contact Per Category</h3>';
+    $lists = array_filter(explode(',',get_config($dbc, FOLDER_NAME.'_tabs')));
+    foreach($lists as $list_name) {
+        echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                echo '<h4>'.$list_name.'</h4>';
+                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"));
+                echo 'Active : '.$active_count['count'];
+                echo '<br>';
+                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"));
+                echo 'Inactive : '.$inactive_count['count'];
+            echo '</div>';
+        echo '</div>';
+    }
+    echo '<div class="clearfix"></div>';
+
+    echo '<h3 class="double-gap-left">Contact Per Business</h3>';
+    $lists = $dbc->query("SELECT contactid, name FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='Business' AND `status`=0");
+    while($list = $lists->fetch_assoc()) {
+        echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                $cid = $list['contactid'];
+                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `businessid`='$cid' AND `status`=1"));
+                if($active_count['count'] > 0) {
+                    echo decryptIt($list['name']).' : '.$active_count['count'].'<br />';
+                }
+            echo '</div>';
+        echo '</div>';
+    }
+    echo '<div class="clearfix"></div>';
+
+    echo '<h3 class="double-gap-left">Contacts Per Gender</h3>';
+    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_gender, `gender` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `gender`");
+    while($service_row = $service_categories->fetch_assoc()) {
+        echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                if($service_row['gender'] == '') {
+                    $service_row['gender'] = 'Not specified';
+                }
+                echo $service_row['gender'].': '.$service_row['total_gender'];
+            echo '</div>';
+        echo '</div>';
+    }
+    echo '<div class="clearfix"></div>';
+
+    echo '<h3 class="double-gap-left">Contact Per Classification</h3>';
+    $con_classifications = array_filter(explode(",", get_config($dbc, FOLDER_NAME.'_classification')));
+    if(count($con_classifications) > 0) {
+        foreach($con_classifications as $con_classification):
+            echo '<div class="col-sm-6">';
+                echo '<div class="overview-block">';
+                    $active_classification = explode(',', $_GET['classification']);
+                    if(!in_array($con_classification, $active_classification)) {
+                        $active_classification[] = $con_classification;
+                    } else {
+                        $active_classification = array_diff($active_classification, [$con_classification]);
+                    }
+                    $active_classification = implode(',', $active_classification);
+                    $classifications_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) count FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `classification`='$con_classification' AND `status`=1"));
+                    echo $con_classification.': '.$classifications_count['count'];
+                echo '</div>';
+            echo '</div>';
+        endforeach;
+    }
+    echo '<div class="clearfix"></div>';
+
+/*
+    echo '<h3>Contact per Regions</h3>';
+    $con_regions = array_filter(array_unique(explode(',', get_config($dbc, '%_region', true))));
+
+            if(count($con_regions) > 0) {
+
+                         foreach($con_regions as $con_region):
+                            $active_region = explode(',', $_GET['region']);
+                            if(!in_array($con_region, $active_region)) {
+                                $active_region[] = $con_region;
+                            } else {
+                                $active_region = array_diff($active_region, [$con_region]);
+                            }
+                            $active_region = implode(',', $active_region);
+                            $region_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) count FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `region`='$con_region' AND `status`=1"));
+                            echo $con_region.' : '.$region_count['count'].'<br />';
+                         endforeach;
+
+            } else {
+                echo '<h4>No Contacts</h4>';
+
+            }
+*/
+
+ } ?>
 </div>

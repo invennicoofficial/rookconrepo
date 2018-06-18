@@ -28,7 +28,7 @@ function saveFields() {
 	});
 }
 </script>
-<h4>Fields to Display on Estimates</h4>
+<h4>Fields to Display on <?= ESTIMATE_TILE ?></h4>
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Business',$value_config)) { echo " checked"; } ?> value="Business" name="config_fields[]"> Business</label>
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Contact',$value_config)) { echo " checked"; } ?> value="Contact" name="config_fields[]"> Contact</label>
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Site',$value_config)) { echo " checked"; } ?> value="Site" name="config_fields[]"> Site</label>
@@ -38,7 +38,7 @@ function saveFields() {
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Multiples',$value_config)) { echo " checked"; } ?> value="Multiples" name="config_fields[]"> Multiples per Line</label>
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Price Display',$value_config)) { echo " checked"; } ?> value="Price Display" name="config_fields[]"> Price Output Options</label>
 <label class="form-checkbox"><input type="checkbox" <?php if (in_array('Project Start',$value_config)) { echo " checked"; } ?> value="Project Start" name="config_fields[]"> Estimated Project Start Date</label>
-<label class="form-checkbox"><input type="checkbox" <?php if (in_array('Expiry',$value_config)) { echo " checked"; } ?> value="Expiry" name="config_fields[]"> Estimate Expiry Date</label>
+<label class="form-checkbox"><input type="checkbox" <?php if (in_array('Expiry',$value_config)) { echo " checked"; } ?> value="Expiry" name="config_fields[]"> <?= ESTIMATE_TILE ?> Expiry Date</label>
 <?php include('arr_detail_types.php');
 foreach($detail_types as $data => $info) { ?>
 	<label class="form-checkbox"><input type="checkbox" <?php if (in_array($data,$value_config)) { echo " checked"; } ?> value="<?= $data ?>" name="config_fields[]"> Details: <?= $info[0] ?></label>

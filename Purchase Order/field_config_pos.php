@@ -383,6 +383,9 @@ $(document).ready(function() {
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Site".',') !== FALSE) { echo " checked"; } ?> value="Site" name="pos[]">&nbsp;&nbsp;<?= SITES_CAT ?>
                         </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Order Forms".',') !== FALSE) { echo " checked"; } ?> value="Order Forms" name="pos[]">&nbsp;&nbsp;Order Forms
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -616,6 +619,9 @@ $(document).ready(function() {
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Average Cost".',') !== FALSE) { echo " checked"; } ?> value="Average Cost" name="pos[]">&nbsp;&nbsp;Average Cost
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) { echo " checked"; } ?> value="USD Cost Per Unit" name="pos[]">&nbsp;&nbsp;USD Cost Per Unit
                         </td>
                     </tr>
 

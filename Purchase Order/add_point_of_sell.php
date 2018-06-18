@@ -270,6 +270,7 @@ echo '    </script>';
 ?>
 <script type="text/javascript">
 
+ var vplcount = 1;
 $(document).ready(function() {
 
 	$("#default_tax").show();
@@ -316,7 +317,6 @@ $(document).ready(function() {
     $('#servdeleteservices_0').hide();
 	 var prodcount = 1;
     $('#proddeleteservices_0').hide();
-	 var vplcount = 1;
     $('#vpldeleteservices_0').hide();
 
 	//BEGIN INVENTORY CODE
@@ -383,6 +383,14 @@ $(document).ready(function() {
         vplcount++;
         return false;
     });
+
+	  $('#order_forms').change(function() {
+		var vpl_name = $(this).find('option:selected').val();
+		var vendorid = $(this).find('option:selected').data('vendorid');
+		if(vpl_name != undefined && vpl_name != '') {
+			overlayIFrameSlider('<?= WEBSITE_URL ?>/Vendor Price List/order_form.php?from_tile=purchase_orders&vendorid='+vendorid+'&vpl_name='+vpl_name+'&vplcount='+vplcount, 'auto', true, true);
+		}
+	  });
 
 	// END Vendor Price List and BEGIN Product
 
@@ -1372,6 +1380,32 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 		</div>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Order Forms".',') !== FALSE) { ?>
+		<script type="text/javascript">
+		$(document).on('change','select[name="contactid[]"]', function() { filterOrderForms(); });
+		function filterOrderForms() {
+			$('#order_forms option').hide();
+			$('select[name="contactid[]"]').each(function() {
+				var vendorid = $(this).val();
+				$('#order_forms option[data-vendorid='+vendorid+']').show();
+			});
+			$('#order_forms').trigger('change.select2');
+		}
+		</script>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Load Order Form:</label>
+			<div class="col-sm-9">
+				<select id="order_forms" name="order_forms" data-placeholder="Select an Order Form..." class="chosen-select-deselect form-control">
+					<option></option>
+					<?php $order_forms = mysqli_query($dbc, "SELECT `vpl_name`, `vendorid` FROM `vendor_price_list` WHERE `deleted` = 0 AND IFNULL(`vpl_name`,'') != '' AND `vendorid` > 0 GROUP BY CONCAT(`vendorid`,`vpl_name`) ORDER BY `vpl_name`");
+					while($order_form = mysqli_fetch_assoc($order_forms)) {
+						echo '<option data-vendorid="'.$order_form['vendorid'].'" value="'.$order_form['vpl_name'].'">'.$order_form['vpl_name'].'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+	<?php } ?>
+
 	<input type="hidden" id="hiddenpricing" value="0" />
 <?php if(!isset($_GET['order_list'])) { ?>
   <?php if (strpos($value_config, ','."Product Pricing".',') !== FALSE) { ?>
@@ -1423,6 +1457,9 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 			}
 			if (strpos($value_config, ','."Average Cost".',') !== FALSE) { ?>
 				<option value="average_cost" selected>Average Cost</option><?php
+			}
+			if (strpos($value_config, ','."USD Cost Per Price".',') !== FALSE) { ?>
+				<option value="usd_cpu" selected>USD Cost Per Price</option><?php
 			} ?>
 		</select>
 	</div>

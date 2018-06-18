@@ -5305,3 +5305,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 }
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#455884 !important; }
 .calendar .main-screen .panel .panel-title > a:hover { color:#455884 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #455884 !important; }

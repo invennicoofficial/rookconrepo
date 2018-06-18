@@ -50,13 +50,13 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100 tab">How To Guide</button><?php
             }
-            
+
             if ( check_subtab_persmission( $dbc, 'agenda_meeting', ROLE, 'agenda' ) !== false ) { ?>
                 <a href="agenda.php"><button type="button" class="btn brand-btn mobile-block mobile-100 tab active_tab">Agendas</button></a><?php
             } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100 tab">Agendas</button><?php
             }
-            
+
             if ( check_subtab_persmission( $dbc, 'agenda_meeting', ROLE, 'meeting' ) !== false ) { ?>
                 <a href="meeting.php"><button type="button" class="btn brand-btn mobile-block mobile-100 tab">Meetings</button></a><?php
             } else { ?>
@@ -70,10 +70,10 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
 				}
 			?>
 		</div><?php
-        
+
         $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='am_agenda'"));
         $note = $notes['note'];
-            
+
         if ( !empty($note) ) { ?>
             <div class="notice double-gap-bottom popover-examples">
                 <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -146,19 +146,19 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
 
         $offset = ($pageNum - 1) * $rowsPerPage;
 
-
+        $login_contact = $_SESSION['contactid'];
         if($search_client != '' && $search_date != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND '$search_client' IN (businessid, businesscontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND '$search_client' IN (businessid, businesscontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND '$search_client' IN (businessid, businesscontactid) AND FIND_IN_SET($login_contact, companycontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid)  AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) AND deleted = 0 AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC";
         } elseif($search_client != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC";
         } elseif($search_date != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC";
         } else {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+            $query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Agenda' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0  ORDER BY date_of_meeting DESC";
         }
 
         $result = mysqli_query($dbc, $query_check_credentials);
@@ -175,6 +175,7 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             echo '<th>Date of Meeting</th>';
             echo '<th>Time of Meeting</th>';
             echo '<th>Location</th>';
+            echo '<th>Company Attendees</th>';
             echo '<th>Function</th>';
             echo "</tr>";
         } else {
@@ -187,8 +188,7 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             echo '<td data-title="Meeting Date">' . $row['date_of_meeting'] . '</td>';
             echo '<td data-title="Meeting Time">' . $row['time_of_meeting'].' - '.$row['end_time_of_meeting'] . '</td>';
             echo '<td data-title="Location">' . $row['location'] . '</td>';
-
-
+            echo '<td data-title="Location">' .  get_multiple_contact($dbc, $row['companycontactid']). '</td>';
             echo '<td data-title="Function">';
             if(vuaed_visible_function($dbc, 'agenda_meeting') == 1) {
                 if($row['status'] == 'Approve') {
@@ -198,6 +198,8 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
                 } else if($row['status'] == 'Pending') {
                     echo '<a href=\'add_agenda.php?agendameetingid='.$row['agendameetingid'].'\'>Edit</a>';
                 }
+                echo '<a href=\'../delete_restore.php?action=delete&page=agenda&agendameetingid='.$row['agendameetingid'].'\' onclick="return confirm(\'Are you sure?\')"> | Archive</a>';
+
 				//echo '<a href=\'add_agenda.php?agendameetingid='.$row['agendameetingid'].'\'>Edit</a>';
             }
             echo '</td>';

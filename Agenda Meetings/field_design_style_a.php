@@ -14,7 +14,7 @@ $top_margin = 9;
 $header_margin = 9;
 $bottom_margin = 9;
 $pdf_color = '#000000';
-$text = 'Estimate';
+$text = ESTIMATE_TILE;
 $header_font_colour = '#000000';
 $header_font = 'Encode Sans, sans-serif';
 $header_font_size = 9;
@@ -123,7 +123,7 @@ $pages_content = '<table style="height:80%; width:100%;">
 $toc_content = '<table style="height:80%; width:100%;">
 	<tr>
 		<td style="color:'.$settings['pages_font_size'].';font-size:'.$settings['pages_font_size'].'px;'.($settings['pages_font_type'] == 'bold' || $settings['pages_font_type'] == 'bold_italic' ? 'font-weight:900;' : '').($settings['pages_font_type'] == 'italic' || $settings['pages_font_type'] == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$settings['font'].';margin-top:95px;">';
-$toc_content .= '<h4>Estimate Scope</h4>';
+$toc_content .= '<h4>'.ESTIMATE_TILE.' Scope</h4>';
 $toc_content .= '</td>
 	</tr>
 </table>';

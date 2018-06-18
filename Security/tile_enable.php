@@ -232,7 +232,7 @@ $(document).ready(function() {
 
 	$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='security_software_functionality'"));
     $note = $notes['note'];
-        
+
     if ( !empty($note) ) { ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -862,7 +862,7 @@ $(document).ready(function() {
                     <div class="panel-heading">
                         <h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field38" >
-								Estimates / Quoting<span class="glyphicon glyphicon-plus"></span>
+								<?= ESTIMATE_TILE ?> / Quoting<span class="glyphicon glyphicon-plus"></span>
 							</a>
                         </h4>
                     </div>
@@ -887,7 +887,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'cost_estimate'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Estimates</td>
+                                        <td data-title="Comment"><?= ESTIMATE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'estimate'); ?>
                                     </tr>
                                     <tr>

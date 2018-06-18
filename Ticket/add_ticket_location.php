@@ -1,3 +1,19 @@
+<?php if(strpos($value_config, ',Location Filter By Client,') !== FALSE) { ?>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('[name="clientid"]').off('change',filterSitesByClient).change(filterSitesByClient);
+	filterSitesByClient();
+});
+function filterSitesByClient() {
+	$('[name="siteid"] option').hide();
+	$('[name="clientid"]').each(function() {
+		var clientid = $(this).val();
+		$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
+	});
+	$('[name="siteid"]').trigger('change.select2');
+}
+</script>
+<?php } ?>
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Site</h3>') ?>
 <?php if($access_all > 0) { ?>
 	<?php foreach($field_sort_order as $field_sort_field) { ?>
@@ -7,9 +23,9 @@
 				<div class="col-sm-7">
 					<select data-placeholder="Select Site..." name="siteid" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 						<option value=""></option>
-						<?php $query = mysqli_query($dbc,"SELECT `contacts`.contactid, site_name, display_name, lsd, google_maps_address, business_address, address, city, province, postal_code, country, `contacts_description`.notes, police_contact, poison_control, non_emergency, site_emergency_contact, emergency_notes, key_number, door_code_number, alarm_code_number FROM `contacts` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` WHERE `category`='Sites' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+						<?php $query = mysqli_query($dbc,"SELECT `contacts`.contactid, site_name, display_name, lsd, google_maps_address, business_address, address, city, province, postal_code, country, `contacts_description`.notes, police_contact, poison_control, non_emergency, site_emergency_contact, emergency_notes, key_number, door_code_number, alarm_code_number, `businessid` FROM `contacts` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` WHERE `category`='Sites' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
 						while($row = mysqli_fetch_array($query)) {
-							echo "<option ".($get_ticket['siteid'] == $row['contactid'] ? 'selected' : '')." data-full-address='".decryptIt($row['business_address'])."' data-site='".$row['site_name']."' data-display='".$row['display_name']."' data-lsd='".$row['lsd']."' data-street='".$row['address']."' data-city='".$row['city']."' data-province='".$row['province']."' data-postal='".$row['postal_code']."' data-country='".$row['country']."' data-google='".$row['google_maps_address']."' data-notes='".$row['notes']."' data-police='".(empty($row['police_contact']) ? '911' : $row['police_contact'])."' data-poison='".$row['poison_control']."' data-non-emerg='".$row['non_emergency']."' data-emerg='".$row['site_emergency_contact']."' data-emerg-notes='".$row['emergency_notes']."' data-key-number='".$row['key_number']."' data-door-code-number='".$row['door_code_number']."' data-alarm-code-number='".$row['alarm_code_number']."' value='".$row['contactid']."'>".($row['display_name'] == '' ? $row['site_name'] : $row['display_name']).'</option>';
+							echo "<option ".($get_ticket['siteid'] == $row['contactid'] ? 'selected' : '')." data-businessid='".$row['businessid']."' data-full-address='".decryptIt($row['business_address'])."' data-site='".$row['site_name']."' data-display='".$row['display_name']."' data-lsd='".$row['lsd']."' data-street='".$row['address']."' data-city='".$row['city']."' data-province='".$row['province']."' data-postal='".$row['postal_code']."' data-country='".$row['country']."' data-google='".$row['google_maps_address']."' data-notes='".$row['notes']."' data-police='".(empty($row['police_contact']) ? '911' : $row['police_contact'])."' data-poison='".$row['poison_control']."' data-non-emerg='".$row['non_emergency']."' data-emerg='".$row['site_emergency_contact']."' data-emerg-notes='".$row['emergency_notes']."' data-key-number='".$row['key_number']."' data-door-code-number='".$row['door_code_number']."' data-alarm-code-number='".$row['alarm_code_number']."' value='".$row['contactid']."'>".($row['display_name'] == '' ? $row['site_name'] : $row['display_name']).'</option>';
 							if($row['contactid'] == $get_ticket['siteid']) {
 								$get_ticket['location_site_name'] = $row['site_name'];
 								$get_ticket['location_display_name'] = $row['display_name'];
@@ -155,7 +171,7 @@
 		<?php } ?>
 		<?php if (strpos($value_config, ','."Location Notes".',') !== FALSE && $field_sort_field == 'Location Notes') { ?>
 			<div class="form-group clearfix site_info">
-				<label class="control-label col-sm-4">Notes:</label>
+				<label class="control-label col-sm-4">Site Notes:</label>
 				<div class="col-sm-12">
 					<textarea name="notes" data-table="contacts_description" data-id="<?= $get_ticket['siteid'] ?>" data-id-field="contactid" data-id-field="ticketid"><?= html_entity_decode($get_ticket['location_notes']) ?></textarea>
 				</div>
@@ -352,6 +368,10 @@
 					<?= html_entity_decode($get_ticket['location_notes']) ?>
 				</div>
 			</div>
+			<?php if(strpos($value_config, ','."Location Notes Anyone Can Add".',') !== FALSE) { ?>
+				<a class="pull-right no-toggle" href="" title="Add a Note" onclick="addSiteNote(this, '<?= $row['contactid'] ?>'); return false;"><img class="inline-img" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
+				<div class="clearfix"></div>
+			<?php } ?>
 			<?php $pdf_contents[] = ['Notes', html_entity_decode($get_ticket['location_notes'])]; ?>
 		<?php } ?>
 		<?php if (strpos($value_config, ','."Emergency".',') !== FALSE && $field_sort_field == 'Emergency') { ?>

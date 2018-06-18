@@ -5211,3 +5211,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 table td a { color:#e83324 !important; }
     table td a:hover { text-decoration:underline; }
 .overview-block, .dashboard-container { border:1px solid #e83324 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }

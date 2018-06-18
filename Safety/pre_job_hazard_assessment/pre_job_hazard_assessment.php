@@ -65,6 +65,7 @@ if(!empty($_GET['formid'])) {
     $site_address = $get_field_level['site_address'];
     $scope_of_work = $get_field_level['scope_of_work'];
 	$all_task = $get_field_level['all_task'];
+    
 
 }
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND form='$form'"));
@@ -257,8 +258,6 @@ $form_config = ','.$get_field_config['fields'].',';
 
             <?php
             if($assign_staff_done == 0) { ?>
-            <?php include ('../phpsign/sign3.php');
-            ?>
 
             <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
                <div class="form-group">
@@ -269,19 +268,12 @@ $form_config = ','.$get_field_config['fields'].',';
               </div>
             <?php } ?>
 
-            <div class="sigPad" id="linear2" style="width:404px;">
-            <ul class="sigNav">
-            <li class="drawIt"><a href="#draw-it" >Draw It</a></li>
-            <li class="clearButton"><a href="#clear">Clear</a></li>
-            </ul>
-            <div class="sig sigWrapper" style="height:auto;">
-            <div class="typed"></div>
-            <canvas class="pad" width="400" height="150" style="border:2px solid black;"></canvas>
-            <input type="hidden" name="sign_<?php echo $assign_staff_id;?>" class="output">
-            </div>
-            </div>
+            <?php $output_name = 'sign_'.$assign_staff_id;
+            include('../phpsign/sign_multiple.php'); ?>
 
-            <?php } ?>
+            <?php } else {
+                echo '<img src="pre_job_hazard_assessment/download/safety_'.$assign_staff_id.'.png">';
+            } ?>
 
         </div>
     </div>

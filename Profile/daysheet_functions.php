@@ -29,7 +29,7 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
         $label .= '<br />Address: '.$ticket['address'];
     }
     if((!empty($ticket['address']) || !empty($ticket['map_link'])) && in_array('Map Link', $daysheet_ticket_fields)) {
-        $map_link = json_encode(!empty($ticket['map_link']) ? $ticket['map_link'] : 'http://maps.google.com/maps/place/'.$ticket['address']);
+        $map_link = json_encode(!empty($ticket['map_link']) ? $ticket['map_link'] : 'http://maps.google.com/maps/place/'.$ticket['address'].','.$ticket['city']);
         $label .= '<br />Google Maps Link: <span onclick="googleMapsLink(this);" data-href=\''.$map_link.'\'><u class="no-slider">Click Here</u></span>';
     }
     if(!empty($ticket['to_do_start_time']) && in_array('Start Time', $daysheet_ticket_fields)) {
@@ -104,6 +104,10 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 	
     if(in_array('Details with Confirm', $daysheet_ticket_fields)) {
     	$label .= '<label class="form-checkbox"><input type="checkbox" name="status" value="'.$status_complete.'">Mark '.$status_complete.'</label>';
+    }
+
+    if(in_array('Delivery Notes', $daysheet_ticket_fields) && strip_tags(html_entity_decode($ticket['delivery_notes'])) != '') {
+    	$label .= 'Notes: '.html_entity_decode($ticket['delivery_notes']);
     }
 
     return $label;

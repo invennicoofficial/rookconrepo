@@ -57,7 +57,7 @@ function archive(id) {
 					$form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
 					echo "<div class='form'>";
 					echo '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
-					echo "<a href='?safetyid=".$form['safetyid']."&action=view'>$form_name</a>";
+					echo "<a href='?safetyid=".$form['safetyid']."&action=view' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Safety/index.php?safetyid=".$form['safetyid']."&siteid=".$_GET['siteid']."&action=view\", \"auto\", true, true, \"auto\", true); return false;'>$form_name</a>";
 					if($security['edit'] > 0) {
 						echo '<a href="" onclick="return archive(\''.$form['safetyid'].'\');" class="pull-right"><img class="inline-img" src="../img/icons/ROOK-trash-icon.png"></a>';
 						echo '<a href="?safetyid='.$form['safetyid'].'&action=edit" class="pad-horizontal pull-right"><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>';

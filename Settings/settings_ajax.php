@@ -108,7 +108,7 @@ else if($fill == 'display_pref') {
 	set_user_settings($dbc, $_GET['name'], $_GET['value']);
 }
 else if($fill == 'system_display') {
-	set_config($dbc, $_GET['name'], $_GET['value']);
+	set_config($dbc, $_POST['name'], $_POST['value']);
 }
 else if($fill == 'font_type') {
 	$font_type = filter_var(htmlspecialchars($_POST['value']),FILTER_SANITIZE_STRING);

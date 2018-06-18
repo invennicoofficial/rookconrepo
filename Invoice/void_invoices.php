@@ -114,7 +114,7 @@ $(document).ready(function() {
         }
     });
 
-	$('.iframe_open').click(function(){
+	/* $('.iframe_open').click(function(){
 			var id = $(this).attr('id');
 			var arr = id.split('_');
 		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Contacts/add_contacts.php?category=Patient&contactid='+arr[0]);
@@ -126,7 +126,7 @@ $(document).ready(function() {
 				$('.iframe_holder').hide(1000);
 				$('.hide_on_iframe').show(1000);
 				location.reload();
-	});
+	}); */
 
 });
 $(document).on('change', 'select[name="status[]"]', function() { changeStatus(this); });
@@ -156,13 +156,20 @@ function show_hide_email() {
 <?php include_once ('../navigation.php');
 $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 ?>
-<div class="container triple-pad-bottom">
+<div id="invoice_div" class="container triple-pad-bottom">
+    <div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+    <!--
     <div class='iframe_holder' style='display:none;'>
-
-		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
+		<img src='<?php //echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
 		<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left: 20px; font-size: 30px;'></span>
 		<iframe id="iframe_instead_of_window" style='width: 100%;' height="1000px; border:0;" src=""></iframe>
     </div>
+    -->
 	<div class="row hide_on_iframe">
         <h2><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>: Void Invoices</h2>
         <?php
@@ -413,7 +420,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 				
 				while($invoice = mysqli_fetch_array( $result ))
 				{
-					$invoice_pdf = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf';
+					$invoice_pdf = '../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid'].'.pdf';
 					$style = '';
 					if($invoice['status'] == 'Posted Past Due') {
 						$style = 'color:green;';
@@ -425,7 +432,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					echo "<tr>";
 
 					if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . '</td>';
+						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . '</td>';
 					}
 
 
@@ -434,7 +441,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 						echo '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
 					}
 					if (strpos($value_config, ','."customer".',') !== FALSE) {
-						echo '<td data-title="Customer">' . get_contact($dbc, $contactid, 'name_company') . '</td>';
+						echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$contactid.'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid) . '</a></td>';
 					}
 					if (strpos($value_config, ','."total_price".',') !== FALSE) {
 						echo '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
@@ -443,7 +450,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 						echo '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
 					}
 					if (strpos($value_config, ','."delivery".',') !== FALSE) {
-						echo '<td data-title="Delivery/Shipping Type">' . $invoice['delivery_type'] . '</td>';
+						echo '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
 					}
 					if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
 						echo '<td data-title="Invoice PDF">';

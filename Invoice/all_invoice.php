@@ -136,7 +136,7 @@ $(document).ready(function() {
         }
     });
 
-	$('.iframe_open').click(function(){
+	/* $('.iframe_open').click(function(){
 			var id = $(this).attr('id');
 			var arr = id.split('_');
 		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Contacts/add_contacts.php?category=Patient&contactid='+arr[0]);
@@ -148,7 +148,7 @@ $(document).ready(function() {
 				$('.iframe_holder').hide(1000);
 				$('.hide_on_iframe').show(1000);
 				location.reload();
-	});
+	}); */
 
 });
 </script>
@@ -157,13 +157,21 @@ $(document).ready(function() {
 <?php include_once ('../navigation.php');
 $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 ?>
-<div class="container triple-pad-bottom">
+<div id="invoice_div" class="container triple-pad-bottom">
+    <div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+    <!--
     <div class='iframe_holder' style='display:none;'>
 
-		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
+		<img src='<?php //echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
 		<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left: 20px; font-size: 30px;'></span>
 		<iframe id="iframe_instead_of_window" style='width: 100%;' height="1000px; border:0;" src=""></iframe>
     </div>
+    -->
 	<div class="row hide_on_iframe">
         <h2><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
         <?php
@@ -266,33 +274,50 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             }
             ?>
 
-            <div class="form-group">
-              <label for="site_name" class="col-sm-2 control-label">Search by Customer:</label>
-              <div class="col-sm-4" style="width:20%">
-                  <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
-                  <option value=""></option>
-                    <?php
-                    $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
-                    while($row = mysqli_fetch_array($query)) {
-                    ?><option <?php if ($row['patientid'] == $search_user) { echo " selected"; } ?> value='<?php echo  $row['patientid']; ?>' ><?php echo get_contact($dbc, $row['patientid']); ?></option>
-                    <?php	}
-                    ?>
-                </select>
-              </div>
-                Invoice#:
-                    <input name="search_invoiceid" type="text" class="form-control1" value="<?php echo $search_invoiceid; ?>">
-                Invoice Date
-                    <input name="search_date" type="text" class="datepicker" value="<?php echo $search_date; ?>">
-
-                <button type="submit" name="search_user_submit" id="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-                <!-- <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button> -->
+            <div class="row">
+                <div class="col-sm-5">
+                    <div class="row">
+                        <label class="col-sm-4">Search by Customer:</label>
+                        <div class="col-sm-8">
+                            <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                                <option value=""></option><?php
+                                /* $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
+                                while($row = mysqli_fetch_array($query)) { ?>
+                                    <option <?php if ($row['patientid'] == $search_user) { echo " selected"; } ?> value='<?php echo  $row['patientid']; ?>' ><?php echo get_contact($dbc, $row['patientid']); ?></option><?php
+                                } */
+                                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                foreach($query as $id) {
+                                    $selected = '';
+                                    $selected = $id == $search_user ? 'selected = "selected"' : '';
+                                    echo "<option ".$selected." value='".$id."'>".get_contact($dbc, $id).'</option>';
+                                } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="col-sm-3"><label class="control-label">Invoice #:</label></div>
+                        <div class="col-sm-9"><input name="search_invoiceid" type="text" class="form-control" value="<?php echo $search_invoiceid; ?>"></div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="col-sm-4"><label class="control-label">Invoice Date</label></div>
+                        <div class="col-sm-8"><input name="search_date" type="text" class="datepicker form-control" value="<?php echo $search_date; ?>"></div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <button type="submit" name="search_user_submit" id="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                    <!-- <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button> -->
+                </div>
             </div>
 
             <input type="hidden" name="patientpdf" value="<?php echo $search_user; ?>">
             <input type="hidden" name="invoicepdf" value="<?php echo $search_invoiceid; ?>">
             <input type="hidden" name="datepdf" value="<?php echo $search_date; ?>">
 
-            <div class="table-responsive">
+            <div id="no-more-tables" class="table-responsive double-gap-top">
             <?php
             //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             // Display Pager
@@ -345,16 +370,13 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 //}
                 echo "<table border='2' cellpadding='10' class='table'>";
-                echo "<tr>";
-                echo "<th>Invoice#</th>
+                echo "<tr class='hidden-xs'>";
+                echo "<th>Invoice #</th>
                 <th>Invoice Date</th>
-                <th>Patient</th>
-                <th>Service Date</th>
-                <th>Service</th>
+                <th>Customer</th>
                 <th>Total</th>
                 <th>Paid</th>
-                <th>Patient Invoice</th>
-                <th>Patient Receipt</th>
+                <th>Invoice PDF</th>
                 <th>Function</th>
                 </tr>";
             } else {
@@ -369,36 +391,45 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 echo '<tr>';
 
-                echo '<td>' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid'].'<br />For Invoice #'.$row['invoiceid_src']) . '</td>';
-                echo '<td>' . $row['invoice_date'] . '</td>';
+                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid'].'<br />For Invoice #'.$row['invoiceid_src']) . '</td>';
+                echo '<td data-title="Date">' . $row['invoice_date'] . '</td>';
 
                 if($row['patientid'] != 0) {
 					//echo '<td><a class="iframe_open" id="'.$row['patientid'].'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-					echo '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row['patientid']). '</a></td>';
+					echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row['patientid']). '</a></td>';
                     //echo '<td>'.get_contact($dbc, $row['patientid']). '</td>';
                 } else {
-                    echo '<td>Non Patient</td>';
+                    echo '<td data-title="Customer">Non Customer</td>';
                 }
 
-                echo '<td>' . $row['service_date'] . '</td>';
+                //echo '<td>' . $row['service_date'] . '</td>';
 
-                $serviceid = $row['serviceid'];
-                echo '<td>'. get_all_from_service($dbc, $serviceid, 'service_code').' : '.get_all_from_service($dbc, $serviceid, 'service_type') . '</td>';
-                echo '<td>$' . ($row['final_price']).'<br>';
+                //$serviceid = $row['serviceid'];
+                //echo '<td>'. get_all_from_service($dbc, $serviceid, 'service_code').' : '.get_all_from_service($dbc, $serviceid, 'service_type') . '</td>';
+                
+                echo '<td data-title="Total">$<b>' . ($row['final_price']).'</b><br>';
 
-                $insurer = '';
-                $invoice_insurer =	mysqli_query($dbc,"SELECT insurer_price, paid FROM invoice_insurer WHERE	invoiceid='$invoiceid'");
-                while($row_invoice_insurer = mysqli_fetch_array($invoice_insurer)) {
-                    $insurer .= 'I : '.$row_invoice_insurer['insurer_price'].' : '.$row_invoice_insurer['paid'].'<br>';
-                }
+                    $insurer = '';
+                    $invoice_insurer =	mysqli_query($dbc,"SELECT insurer_price, paid FROM invoice_insurer WHERE	invoiceid='$invoiceid'");
+                    while($row_invoice_insurer = mysqli_fetch_array($invoice_insurer)) {
+                        $insurer .= 'I : '.$row_invoice_insurer['insurer_price'].' : '.$row_invoice_insurer['paid'].'<br>';
+                    }
 
-                $patient = '';
-                $invoice_patient =	mysqli_query($dbc,"SELECT SUM(patient_price) price, paid FROM invoice_patient WHERE invoiceid='$invoiceid' GROUP BY `paid`");
-                while($row_patient_insurer = mysqli_fetch_array($invoice_patient)) {
-                    $patient .= 'P : '.$row_patient_insurer['price'].' : '.$row_patient_insurer['paid'].'<br>';
-                }
+                    $patient = '';
+                    /* $invoice_patient =	mysqli_query($dbc,"SELECT SUM(patient_price) price, paid FROM invoice_patient WHERE invoiceid='$invoiceid' GROUP BY `paid`");
+                    while($row_patient_insurer = mysqli_fetch_array($invoice_patient)) {
+                        $patient .= 'P : '.$row_patient_insurer['price'].' : '.$row_patient_insurer['paid'].'<br>';
+                    } */
+                    $invoice_patient =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `invoiceid`='$invoiceid'"))['payment_type'];
+                    list($paid_payment_type, $paid_payment_amount) = explode('#*#', $invoice_patient);
+                    $paid_payment_type_arr = explode(',', $paid_payment_type);
+                    $paid_payment_amount_arr = explode(',', $paid_payment_amount);
+                    $payment_count = count($paid_payment_type_arr);
+                    for ($i=0; $i<$payment_count; $i++) {
+                        echo '$'. number_format($paid_payment_amount_arr[$i],2) .' - '. $paid_payment_type_arr[$i] .'<br />';
+                    }
 
-                echo $insurer.$patient.'</td>';
+                    echo $insurer.$patient.'</td>';
 
 				$patient_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`patient_price`) total_paid FROM `invoice_patient` WHERE `invoiceid`='".$row['invoiceid']."' AND IFNULL(`paid`,'') NOT IN ('On Account','')"))['total_paid'];
 				$insurer_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`='Yes'"))['total_paid'];
@@ -406,20 +437,20 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 				if($row['final_price'] == $patient_paid + $insurer_paid) {
 					$paid = 'Paid in Full';
 				} else if ($row['final_price'] == $patient_paid + $insurer_paid + $insurer_owing) {
-					$paid = 'Patient Balance Paid in Full<br />Insurer Balance Owing: $'.number_format($insurer_owing, 2);
+					$paid = 'Balance Paid in Full<br />Balance Owing: $'.number_format($insurer_owing, 2);
 				} else {
-					$paid = 'Patient Balance Owing: $'.number_format($row['final_price'] - $patient_paid - $insurer_paid - $insurer_owing, 2);
-					$paid = 'Patient Balance Paid in Full<br />Insurer Balance Owing: $'.number_format($insurer_owing, 2);
+					$paid = 'Balance Owing: $'.number_format($row['final_price'] - $patient_paid - $insurer_paid - $insurer_owing, 2);
+					$paid = 'Balance Paid in Full<br />Balance Owing: $'.number_format($insurer_owing, 2);
 				}
 
-                echo '<td>' . $paid . '</td>';
+                echo '<td data-title="Paid">' . $paid . '</td>';
 
                 if($row['final_price'] != '' && $row['invoice_type'] != 'Saved') {
                     $name_of_file = 'Download/invoice_'.$row['invoiceid'].'.pdf';
                     if(file_exists($name_of_file)) {
                         //$md5 = md5_file($name_of_file);
                         //if($md5 == $row['invoice_md5']) {
-                            echo '<td><a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
+                            echo '<td><a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
                         //} else {
                         //    echo '<td>(Error : File has been Changed)</td>';
                         //}
@@ -430,7 +461,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     echo '<td>-</td>';
                 }
 
-				echo '<td>';
+				/* echo '<td>';
                 if($row['patient_payment_receipt'] == 1) {
                     $name_of_file = 'Download/patientreceipt_'.$row['invoiceid'].'.pdf';
                     if(file_exists($name_of_file)) {
@@ -447,7 +478,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 						}
 					}
                 }
-                echo '</td>';
+                echo '</td>'; */
 
                 $invoiceid= $row['invoiceid'];
                 $patient_price =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS total_patient_pay FROM invoice_patient WHERE	invoiceid='$invoiceid' AND paid != 'On Account'"));
@@ -522,9 +553,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             }
 
             echo "<tr>";
-
-            echo "<td><b>Total</b></td><td></td><td></td><td></td><td></td><td><b>$".$final_total."</b></td><td></td><td></td><td></td><td></td>";
-
+                echo "<td colspan='3'><b>Total</b></td><td colspan='5'><b>$".$final_total."</b></td>";
             echo "</tr>";
 
             echo '</table></div>';

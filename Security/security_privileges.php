@@ -173,10 +173,10 @@ function go_to_dashboard(target) {
 	}
 
 	$section_display = ','.get_config($dbc, 'tile_enable_section').',';
-	
+
     $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='security_set_security_previleges'"));
     $note = $notes['note'];
-        
+
     if ( !empty($note) ) { ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -833,7 +833,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',estimates,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Estimates / Quoting:</div></th></tr>
+			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?> / Quoting:</div></th></tr>
 
 			<?php if(strpos($on_security, ',cost_estimate,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('cost_estimate', $dashboard_list) ? 'current' : '') ?>'>
@@ -843,7 +843,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',estimate,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('estimate', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Estimates</td>
+				<td data-title="Comment"><?= ESTIMATE_TILE ?></td>
 				<?php echo security_tile_config_function('estimate', get_privileges($dbc, 'estimate',$level), 0, $level_url, 0, 1); ?>
 			</tr>
 			<?php } ?>

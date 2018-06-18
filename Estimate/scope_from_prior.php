@@ -56,7 +56,7 @@ function copyEstimate() {
 }
 </script>
 <div class="col-sm-12">
-	<h3>Previous Estimates<a href="" class="pull-right"><img class="inline-img" src="../img/icons/close.png"></a></h3>
+	<h3>Previous <?= ESTIMATE_TILE ?><a href="" class="pull-right"><img class="inline-img" src="../img/icons/close.png"></a></h3>
 	<?php if(in_array('Business',$config)) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">Business:</label>
@@ -100,7 +100,7 @@ function copyEstimate() {
 		</div>
 	<?php } ?>
 	<div class="form-group">
-		<label class="col-sm-4">Estimate:</label>
+		<label class="col-sm-4"><?= ESTIMATE_TILE ?>:</label>
 		<div class="col-sm-8">
 			<select name="prior_estimate" class="chosen-select-deselect">
 				<option></option>

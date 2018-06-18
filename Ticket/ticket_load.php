@@ -57,6 +57,7 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 			echo (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '');
 			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '');
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '');
+			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note">' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
 			$status_icon = get_ticket_status_icon($dbc, $ticket['status']);
 			if(!empty($status_icon)) {
@@ -70,6 +71,7 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 	<?php } ?>
 
 
+	<input type='text' name='reply' value='' class="form-control" style="display:none;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<div class="select_users" style="display:none;">
 		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>

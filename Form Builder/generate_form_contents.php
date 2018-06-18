@@ -677,9 +677,7 @@ function checkMandatoryFields() {
                 <div class="panel-body">
         <?php } ?>
                     <?php
-                    if($assign_staff_done == 0) {
-                        $output_name = 'sign_'.$assign_staff_id; ?>
-                    <?php include ('../phpsign/sign_multiple.php'); ?>
+                    if($assign_staff_done == 0) { ?>
 
                     <?php if (strpos($assign_staff_sa, 'Extra') !== false) { ?>
                        <div class="form-group">
@@ -689,6 +687,8 @@ function checkMandatoryFields() {
                         </div>
                       </div>
                     <?php } ?>
+                    <?php $output_name = 'sign_'.$assign_staff_id; ?>
+                    <?php include ('../phpsign/sign_multiple.php'); ?>
 
                     <?php } ?>
 

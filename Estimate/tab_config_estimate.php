@@ -9,7 +9,7 @@ Dashboard
 	foreach($tabNames as $tabName) {
 		$tab .= "'" . $tabName . "',";
 	}
-	
+
 	$tab = rtrim($tab, ",");
 	$get_current_tabs = mysqli_fetch_all(mysqli_query($dbc,"DELETE FROM `estimate_tab` WHERE `estimate_tab` NOT IN (" . $tab . ")"));
 	foreach($tabNames as $tabName) {
@@ -19,11 +19,11 @@ Dashboard
 			mysqli_query($dbc, $query_insert_tab);
 		}
 	}
-	
+
 	?>
 <?php endif; ?>
 <div class="pad-left">
-	<a href='?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $_GET['tab'] == 'add' ? 'active_tab' : ''; ?>" >Add Estimates Tabs</button></a>
+	<a href='?tab=add'><button type="button" class="btn brand-btn mobile-block <?php echo $_GET['tab'] == 'add' ? 'active_tab' : ''; ?>" >Add <?= ESTIMATE_TILE ?> Tabs</button></a>
 	<?php $get_tabs = mysqli_query($dbc,"select estimate_tab, estimate_tab_id from estimate_tab");
 	while($row = mysqli_fetch_assoc($get_tabs)) {
 		$tab_list[] = $row['estimate_tab']; ?>
@@ -39,9 +39,9 @@ Dashboard
 			<input name="estimate_tab_name" id="estimate_tab_name" value='<?php echo implode(',', $tab_list); ?>' type="text" class="form-control"><p></p>
 		</div>
 	</div>
-	
+
 	<div class="clearfix double-gap-bottom"></div>
-	
+
     <div class="col-sm-6">
         <a href="estimate.php" class="btn config-btn btn-lg">Back</a>
 	</div>
