@@ -14,7 +14,10 @@
 	} */
 	
 	if($db_version_jonathan < 7) {
-		// June 14, 2018
+		// June 16, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `notes` TEXT AFTER `order_number`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 6);
 	}
