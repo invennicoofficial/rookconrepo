@@ -578,7 +578,7 @@ if(!empty($_GET['safetyid'])) {
 
             <?php if (strpos($value_config, ','."Comments".',') !== FALSE) { ?>
               <div class="form-group">
-                <label for="first_name[]" class="col-sm-4 control-label">Comments 1:</label>
+                <label for="first_name[]" class="col-sm-4 control-label">Comments:</label>
                 <div class="col-sm-8">
                   <textarea name="comment" rows="5" cols="50" class="form-control"></textarea>
                 </div>

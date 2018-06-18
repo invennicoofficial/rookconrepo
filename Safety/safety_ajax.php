@@ -5,6 +5,9 @@ if($_GET['action'] == 'setting_tabs') {
 	set_config($dbc, 'safety_dashboard', implode(',',$_POST['subtabs']));
 	set_config($dbc, 'safety_bypass_list', implode(',',$_POST['bypass']));
 }
+ else if($_GET['action'] == 'settings_config') {
+	set_config($dbc, filter_var($_POST['name'],FILTER_SANITIZE_STRING), htmlentities(filter_var($_POST['value'],FILTER_SANITIZE_STRING)));
+}
 else if($_GET['action'] == 'setting_sites') {
 	set_config($dbc, 'safety_main_site_tabs', implode(',',$_POST['sites']));
 } else if($_GET['action'] == 'mark_favourite') {
