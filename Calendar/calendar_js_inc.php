@@ -1105,4 +1105,59 @@ function getClientStaff(contactid, type) {
 		method: 'POST'
 	});
 }
+function changeScheduledTime(btn) {
+	var block = $(btn).closest('.used-block');
+	var ticket_table = $(block).data('tickettable');
+	var ticketid = $(block).data('ticket');
+	var ticket_scheduleid = $(block).data('ticketscheduleid');
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=get_ticket_scheduled_time',
+		method: 'POST',
+		data: { ticket_table: ticket_table, ticketid: ticketid, ticket_scheduleid: ticket_scheduleid },
+		success:function(response) {
+			if(response != '') {
+				var arr = response.split('#*#');
+				$('[name="change_to_do_date"]').val(arr[0]);
+				$('[name="change_to_do_start_time"]').val(arr[1]);
+				$('[name="change_to_do_end_time"]').val(arr[2]);
+				$('[name="change_ticket_table"]').val(ticket_table);
+				if(ticket_table == 'ticket_schedule') {
+					$('[name="change_ticket_id"]').val(ticket_scheduleid);
+				} else {
+					$('[name="change_ticket_id"]').val(ticketid);
+				}
+				dialogScheduledTime();
+			}
+		}
+	});
+}
+function dialogScheduledTime() {
+    $( "#dialog-scheduled-time" ).dialog({
+		resizable: false,
+		height: "auto",
+		width: ($(window).width() <= 500 ? $(window).width() : 500),
+		modal: true,
+		buttons: {
+			"Submit": function() {
+				var ticket_table = $('[name="change_ticket_table"]').val();
+				var id = $('[name="change_ticket_id"]').val();
+				var to_do_date = $('[name="change_to_do_date"]').val();
+				var to_do_start_time = $('[name="change_to_do_start_time"]').val();
+				var to_do_end_time = $('[name="change_to_do_end_time"]').val();
+				$.ajax({
+					url: '../Calendar/calendar_ajax_all.php?fill=update_ticket_scheduled_time',
+					method: 'POST',
+					data: { ticket_table: ticket_table, id: id, to_do_date: to_do_date, to_do_start_time: to_do_start_time, to_do_end_time: to_do_end_time },
+					success:function(response) {
+						reload_all_data();
+					}
+				});
+				$(this).dialog('close');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+		}
+	});	
+}
 </script>

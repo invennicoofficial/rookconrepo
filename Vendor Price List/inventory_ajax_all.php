@@ -1,7 +1,6 @@
 <?php
-include ('../database_connection.php');
-include ('../function.php');
-include ('../global.php');
+include('../include.php');
+ob_clean();
 
 if($_GET['fill'] == 'prodselectCategory') {
     $name = $_GET['name'];
@@ -77,5 +76,18 @@ if($_GET['fill'] == 'show_category_dropdown') {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('show_category_dropdown_vpl', '$value')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
+}
+
+if($_GET['fill'] == 'get_vpl_pricing') {
+	$pricing_field = $_GET['pricing'];
+	$vendorid = $_GET['vendorid'];
+	$vpl_name = $_GET['vpl_name'];
+
+	$pricings = [];
+	$vpl_pricings = mysqli_query($dbc, "SELECT `inventoryid`, `$pricing_field` FROM `vendor_price_list` WHERE `deleted` = 0 AND `vendorid` = '$vendorid' AND `vpl_name` = '$vpl_name'");
+	while($row = mysqli_fetch_assoc($vpl_pricings)) {
+		$pricings[$row['inventoryid']] = $row[$pricing_field];
+	}
+	echo json_encode($pricings);
 }
 ?>

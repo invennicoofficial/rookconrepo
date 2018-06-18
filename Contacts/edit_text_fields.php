@@ -17,7 +17,7 @@
 		<?php if($contact['businessid'] == '' && $_GET['businessid'] > 0) { ?>
 			<script>
 			$(document).ready(function() {
-				$('[name=businessid]').change();
+				$('select[name=businessid]').first().change();
 			});
 			</script>
 		<?php } ?>

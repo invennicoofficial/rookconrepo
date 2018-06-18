@@ -40,7 +40,7 @@ function addStatus() {
 	var clone = $('.status-option').last().clone();
 	clone.find('input').val('').removeAttr('checked');
 	$('.status-option').last().after(clone);
-	
+
 	$('input').off('change', saveStatus).change(saveStatus);
 	$('[name="estimate_status[]"]').last().focus();
 }
@@ -52,7 +52,7 @@ function removeStatus(a) {
 	saveStatus();
 }
 </script>
-<h3>Estimate Status</h3>
+<h3><?= ESTIMATE_TILE ?> Status</h3>
 <label class="col-sm-8 text-center hide-titles-mob">Status Name</label>
 <label class="col-sm-1 hide-titles-mob">Use for <?= PROJECT_TILE ?></label>
 <label class="col-sm-3 hide-titles-mob">Summarize on Dashboard</label>

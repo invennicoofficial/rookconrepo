@@ -153,7 +153,7 @@ $field_config_sred = ','.$get_field_config_sred['sred'].',';
             <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
             <label class="col-sm-1 text-center">Quantity</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center">Total</label>
         </div>
 

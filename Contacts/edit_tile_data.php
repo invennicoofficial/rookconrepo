@@ -332,18 +332,18 @@
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Estimates Addition") { ?>
-	<h4>Estimates</h4>
+	<h4><?= ESTIMATE_TILE ?></h4>
 	<?php $result = mysqli_query($dbc, "SELECT * FROM `estimate` WHERE (CONCAT(',',`assign_staffid`,',') LIKE '%,".$contactid.",%' OR `clientid` = '".$contactid."' OR `businessid` = '".$contactid."') AND `deleted`=0");
 	if(mysqli_num_rows($result) > 0) { ?>
 		<table class="table table-bordered">
 			<tr>
 				<th>Customer</th>
 				<th>Contact</th>
-				<th>Estimate Status</th>
+				<th><?= ESTIMATE_TILE ?> Status</th>
 				<th>Next Action</th>
 				<th>Follow Up Date</th>
 				<th>Function</th>
@@ -367,7 +367,7 @@
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Ticket Addition") { ?>
@@ -386,7 +386,7 @@
 		}
 		$tile_security = get_security($dbc, 'ticket');
 		include('../Ticket/ticket_table.php');
-	} else { 
+	} else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Tasks Addition") { ?>
@@ -547,7 +547,7 @@
 						<td data-title="Staff"><?php
 							if (empty($row['primary_staff']) && empty($row['assign_staff'])) {
 								echo '-';
-							} else {								
+							} else {
 								echo (!empty($row['primary_staff']) ? 'Primary Staff: <a href="'.WEBSITE_URL.'/Staff/staff_edit.php?contactid='.$row['primary_staff'].'">'.get_contact($dbc, $row['primary_staff']).'</a>' : '');
 								if(!empty($row['assign_staff'])) {
 									$staff_list = '<br />Assigned Staff: ';
@@ -556,7 +556,7 @@
 									}
 									$staff_list = rtrim($staff_list, ', ');
 									echo $staff_list;
-								}	
+								}
 							} ?>
 						</td>
 					<?php } ?>
@@ -574,13 +574,13 @@
 						</td>
 					<?php } ?>
 					<td data-title="Function">
-						<a href="<?= WEBSITE_URL ?>/Sales Order/order.php?p=details&sotid=<?= $row['sotid'] ?>">View</a> | 
+						<a href="<?= WEBSITE_URL ?>/Sales Order/order.php?p=details&sotid=<?= $row['sotid'] ?>">View</a> |
 						<a href="<?= WEBSITE_URL ?>/Sales Order/generate_pdf.php?sotid=<?= $row['sotid'] ?>" target="_blank">PDF</a>
 					</td>
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	} ?>
 
@@ -625,7 +625,7 @@
 						<td data-title="Staff"><?php
 							if (empty($row['primary_staff']) && empty($row['assign_staff'])) {
 								echo '-';
-							} else {								
+							} else {
 								echo (!empty($row['primary_staff']) ? 'Primary Staff: <a href="'.WEBSITE_URL.'/Staff/staff_edit.php?contactid='.$row['primary_staff'].'">'.get_contact($dbc, $row['primary_staff']).'</a>' : '');
 								if(!empty($row['assign_staff'])) {
 									$staff_list = '<br />Assigned Staff: ';
@@ -634,7 +634,7 @@
 									}
 									$staff_list = rtrim($staff_list, ', ');
 									echo $staff_list;
-								}	
+								}
 							} ?>
 						</td>
 					<?php } ?>
@@ -661,7 +661,7 @@
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Appointments Addition") {
@@ -906,7 +906,7 @@
 		                }
 	                ?>
 					<td data-title="Total">$<?= $row['final_price'] ?><br><?= $insurer.$patient ?></td>
-					<?php 
+					<?php
 						$patient_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`patient_price`) total_paid FROM `invoice_patient` WHERE `invoiceid`='".$row['invoiceid']."' AND IFNULL(`paid`,'') NOT IN ('On Account','')"))['total_paid'];
 						$insurer_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`='Yes'"))['total_paid'];
 						$insurer_owing = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`!='Yes'"))['total_paid'];
@@ -1085,7 +1085,7 @@
 					<td data-title="Staff"><?php
 						if (empty($row['primary_staff']) && empty($row['share_lead'])) {
 							echo '-';
-						} else {								
+						} else {
 							echo (!empty($row['primary_staff']) ? 'Primary Staff: <a href="'.WEBSITE_URL.'/Staff/staff_edit.php?contactid='.$row['primary_staff'].'">'.get_contact($dbc, $row['primary_staff']).'</a>' : '');
 							if(!empty($row['share_lead'])) {
 								$staff_list = '<br />Share Lead: ';
@@ -1094,7 +1094,7 @@
 								}
 								$staff_list = rtrim($staff_list, ', ');
 								echo $staff_list;
-							}	
+							}
 						} ?>
 					</td>
 					<td data-title="Status">
@@ -1112,7 +1112,7 @@
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Expense Addition") {
@@ -1138,7 +1138,7 @@
 				</tr>
 			<?php } ?>
 		</table>
-	<?php } else { 
+	<?php } else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Email Communication Addition") {
@@ -1150,7 +1150,7 @@
 		if (mysqli_num_rows($email_list) > 0) { ?>
 			<table class="table table-bordered" style="white-space: normal;">
 				<tr class="hidden-sm hidden-xs">
-					<?php 
+					<?php
 				        if (strpos($pc_value_config, ','."Email#".',') !== FALSE) {
 				            echo '<th>Email#</th>';
 				        }
@@ -1204,7 +1204,7 @@
 				</tr>
 				<?php while ($row = mysqli_fetch_array($email_list)) { ?>
 					<tr>
-						<?php 
+						<?php
 					        if (strpos($pc_value_config, ','."Email#".',') !== FALSE) {
 					            echo '<td data-title="Email#">' . $row['email_communicationid']. '</td>';
 					        }
@@ -1280,7 +1280,7 @@
 					</tr>
 				<?php } ?>
 			</table>
-		<?php } else { 
+		<?php } else {
 			echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 		}
 	}
@@ -1293,7 +1293,7 @@
 		if (mysqli_num_rows($email_list) > 0) { ?>
 			<table class="table table-bordered" style="white-space: normal;">
 				<tr class="hidden-sm hidden-xs">
-					<?php 
+					<?php
 				        if (strpos($pc_value_config, ','."Phone#".',') !== FALSE) {
 				            echo '<th>Phone#</th>';
 				        }
@@ -1329,7 +1329,7 @@
 				</tr>
 				<?php while ($row = mysqli_fetch_array($email_list)) { ?>
 					<tr>
-						<?php 
+						<?php
 					        if (strpos($pc_value_config, ','."Phone#".',') !== FALSE) {
 					            echo '<td data-title="Phone#">' . $row['phone_communicationid']. '</td>';
 					        }
@@ -1381,7 +1381,7 @@
 					</tr>
 				<?php } ?>
 			</table>
-		<?php } else { 
+		<?php } else {
 			echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 		}
 	}
@@ -1611,7 +1611,7 @@
 	if(mysqli_num_rows($doc_list) > 0) { ?>
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
-            	<?php 
+            	<?php
 					if (strpos($cd_value_config, ','."Client".',') !== FALSE) {
 						echo '<th>Client</th>';
 					}
@@ -1689,7 +1689,7 @@
 			</tr>
 			<?php while($row = mysqli_fetch_array($doc_list)) { ?>
 				<tr>
-	            	<?php 
+	            	<?php
 						$client_documentsid = $row['client_documentsid'];
 						if (strpos($cd_value_config, ','."Client".',') !== FALSE) {
 							echo '<td data-title="Client">' . get_client($dbc, $row['contactid']) . '</td>';
@@ -1809,7 +1809,7 @@
 	if(mysqli_num_rows($doc_list) > 0) { ?>
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
-            	<?php 
+            	<?php
 					if (strpos($sd_value_config, ','."Staff".',') !== FALSE) {
 						echo '<th>Staff</th>';
 					}
@@ -1887,7 +1887,7 @@
 			</tr>
 			<?php while($row = mysqli_fetch_array($doc_list)) { ?>
 				<tr>
-	            	<?php 
+	            	<?php
 						$staff_documentsid = $row['staff_documentsid'];
 						if (strpos($sd_value_config, ','."Staff".',') !== FALSE) {
 							echo '<td data-title="Staff"><a href="'.WEBSITE_URL.'/Staff/staff_edit.php?contactid=' . $row['contactid'] . '&from=' . urlencode(WEBSITE_URL . $_SERVER['REQUEST_URI']) . '">' . get_contact($dbc, $row['contactid']) . '</a></td>';
@@ -2336,7 +2336,7 @@
 				var heading = $(select).closest('td').nextAll().find('[name="heading"]').first();
 				$.post('contacts_ajax.php?action=loadServices', { category: select.value, target: 'heading' }, function(response) {
 					heading.empty().html(response).trigger('chosen.select2');
-				});	
+				});
 			}
 		}
 	}

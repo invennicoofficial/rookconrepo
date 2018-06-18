@@ -10,7 +10,7 @@ if($_GET['action'] == 'save_template_field') {
 	$template_id = filter_var($_POST['template_id'],FILTER_SANITIZE_STRING);
 	$field_name = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-	
+
 	$sql = "";
 	if($table == 'estimate_templates') {
 		if(!is_numeric($template_id)) {
@@ -59,7 +59,7 @@ if($_GET['action'] == 'save_template_field') {
 } else if($_GET['action'] == 'table_locks') {
 	$user_id = filter_var($_POST['session_id'],FILTER_SANITIZE_STRING);
 	$table_row = filter_var($_POST['estimateid'],FILTER_SANITIZE_STRING);
-	
+
 	//Check if anybody is using the currently requested section
 	$locked = [];
 	$messages = [];
@@ -243,8 +243,11 @@ if($_GET['action'] == 'save_template_field') {
 	}
 } else if($_GET['action'] == 'estimate_add_heading') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
-	$ratecard = filter_var(hex2bin($_POST['ratecard']),FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`rate_card`,`sort_order`) SELECT '$estimateid','$ratecard',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='$ratecard'");
+	$scope_name = filter_var($_POST['scope'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Details ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name'");
+} else if($_GET['action'] == 'estimate_add_scope') {
+	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT `scope_name`)+1),'Details' FROM `estimate_scope`,IFNULL(MAX(`sort_order`),0)+1 WHERE `estimateid`='$estimateid' GROUP BY `estimateid`");
 } else if($_GET['action'] == 'estimate_fields') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
@@ -262,7 +265,7 @@ if($_GET['action'] == 'save_template_field') {
 		echo $id;
 		if($table == 'estimate') {
 			mysqli_query($dbc, "UPDATE `estimate` SET `created_by`='".$_SESSION['contactid']."', `created_date`=DATE(NOW()) WHERE `estimateid`='$id'");
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Estimate', date('Y-m-d'), '', 'Added Estimate #'.$id, $id);
+			insert_day_overview($dbc, $_SESSION['contactid'], ESTIMATE_TILE, date('Y-m-d'), '', 'Added Estimate #'.$id, $id);
 		}
 	}
 	if($table == 'estimate_actions') {
@@ -296,7 +299,7 @@ if($_GET['action'] == 'save_template_field') {
 	$timediff = strtotime($timestamp_now) - strtotime($day_overview_last['timestamp']);
 	if($timediff > 900 && !empty($estimate)) {
 		$estimate_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `estimate_name` FROM `estimate` WHERE `estimateid` = '$estimate'"))['estimate_name'];
-		insert_day_overview($dbc, $_SESSION['contactid'], 'Estimate', date('Y-m-d'), '', 'Edited Estimate #'.$estimate.(!empty($estimate_name) ? ': '.$estimate_name : ''), $estimate);
+		insert_day_overview($dbc, $_SESSION['contactid'], ESTIMATE_TILE, date('Y-m-d'), '', 'Edited Estimate #'.$estimate.(!empty($estimate_name) ? ': '.$estimate_name : ''), $estimate);
 	}
 
 } else if($_GET['action'] == 'setting_types') {
@@ -355,4 +358,94 @@ if($_GET['action'] == 'save_template_field') {
 } else if($_GET['action'] == 'addContentPage') {
 	$dbc->query('INSERT INTO `estimate_content_page` () VALUES ()');
 	echo $dbc->insert_id;
+} else if($_GET['action'] == 'inventory_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$inv_list = $dbc->query("SELECT * FROM `inventory` WHERE `deleted`=0 AND `category`='$category'");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Inventory</div>
+		<div class="col-sm-2">Price</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($inv = $inv_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Inventory:</label><input type="hidden" name="inventoryid[]" value="'.$inv['inventoryid'].'">'.$inv['name'].' '.$inv['product_name'].' '.$inv['part_no'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Price:</label><input type="hidden" name="cost[]" value="'.($inv['average_cost'] > 0 ? $inv['average_cost'] : $inv['cost']).'"><input type="number" readonly class="form-control" name="price[]" value="'.$inv['final_retail_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
+} else if($_GET['action'] == 'service_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$serv_list = $dbc->query("SELECT `services`.`serviceid`,`services`.`heading`, `company_rate_card`.`cust_price`,`company_rate_card`.`cost` FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name`='Services' AND `company_rate_card`.`deleted`=0 WHERE `services`.`deleted`=0 AND `services`.`category`='$category' GROUP BY `services`.`serviceid`");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Service</div>
+		<div class="col-sm-2">Rate</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($service = $serv_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Service:</label><input type="hidden" name="serviceid[]" value="'.$service['serviceid'].'">'.$service['heading'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Rate:</label><input type="hidden" name="cost[]" value="'.$service['cost'].'"><input type="number" readonly class="form-control" name="price[]" value="'.$service['cust_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
+} else if($_GET['action'] == 'labour_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$labour_list = $dbc->query("SELECT `labour`.`labourid`,`labour`.`heading`, `company_rate_card`.`cust_price`,`company_rate_card`.`cost` FROM `labour` LEFT JOIN `company_rate_card` ON `labour`.`labourid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name`='Labour' AND `company_rate_card`.`deleted`=0 WHERE `labour`.`deleted`=0 AND `labour`.`labour_type`='$category' GROUP BY `labour`.`labourid`");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Labour</div>
+		<div class="col-sm-2">Rate</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($labour = $labour_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Labour:</label><input type="hidden" name="labour_id[]" value="'.$labour['labourid'].'">'.$labour['heading'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Rate:</label><input type="hidden" name="cost[]" value="'.$labour['cost'].'"><input type="number" readonly class="form-control" name="price[]" value="'.$labour['cust_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
+} else if($_GET['action'] == 'equip_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$equip_list = $dbc->query("SELECT `equipment`.`equipmentid`,`equipment`.`heading`, `company_rate_card`.`cust_price`,`company_rate_card`.`cost` FROM `equipment` LEFT JOIN `company_rate_card` ON `equipment`.`equipmentid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name`='Equipment' AND `company_rate_card`.`deleted`=0 WHERE `equipment`.`deleted`=0 AND `equipment`.`category`='$category' GROUP BY `equipment`.`equipmentid`");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Equipment</div>
+		<div class="col-sm-2">Rate</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($equipment = $equip_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Equipment:</label><input type="hidden" name="equipment_id[]" value="'.$equipment['equipmentid'].'">'.$equipment['heading'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Rate:</label><input type="hidden" name="cost[]" value="'.$equipment['cost'].'"><input type="number" readonly class="form-control" name="price[]" value="'.$equipment['cust_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
+} else if($_GET['action'] == 'material_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$material_list = $dbc->query("SELECT `material`.`materialid`,`material`.`name`, `company_rate_card`.`cust_price`,`company_rate_card`.`cost` FROM `material` LEFT JOIN `company_rate_card` ON `material`.`materialid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name`='Material' AND `company_rate_card`.`deleted`=0 WHERE `material`.`deleted`=0 AND `material`.`category`='$category' GROUP BY `material`.`materialid`");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Material</div>
+		<div class="col-sm-2">Rate</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($material = $material_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Material:</label><input type="hidden" name="material_id[]" value="'.$material['materialid'].'">'.$material['name'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Rate:</label><input type="hidden" name="cost[]" value="'.$material['cost'].'"><input type="number" readonly class="form-control" name="price[]" value="'.$material['cust_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
+} else if($_GET['action'] == 'product_list') {
+	$category = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
+	$product_list = $dbc->query("SELECT `products`.`productid`,`products`.`heading`, `company_rate_card`.`cust_price`,`company_rate_card`.`cost` FROM `products` LEFT JOIN `company_rate_card` ON `products`.`productid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name`='Products' AND `company_rate_card`.`deleted`=0 WHERE `products`.`deleted`=0 AND `products`.`category`='$category' GROUP BY `products`.`productid`");
+	echo '<div class="form-group hide-titles-mob">
+		<div class="col-sm-8">Product</div>
+		<div class="col-sm-2">Rate</div>
+		<div class="col-sm-2">Quantity</div>
+	</div>';
+	while($product = $product_list->fetch_assoc()) {
+		echo '<div class="form-group">
+			<div class="col-sm-8"><label class="show-on-mob">Product:</label><input type="hidden" name="product_id[]" value="'.$product['productid'].'">'.$product['heading'].'</div>
+			<div class="col-sm-2"><label class="show-on-mob">Rate:</label><input type="hidden" name="cost[]" value="'.$product['cost'].'"><input type="number" readonly class="form-control" name="price[]" value="'.$product['cust_price'].'"></div>
+			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
+		</div>';
+	}
 }

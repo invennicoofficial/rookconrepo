@@ -91,7 +91,7 @@ function countRCTotalCont() {
 
     $('[name="contractor_total"]').val('$'+round2Fixed(sum_fee));
     $('[name="contractor_summary"]').val('$'+round2Fixed(sum_fee)).change();
-	
+
     var contractor_budget = $('[name="contractor_budget"]').val();
     if(contractor_budget >= sum_fee) {
         $('[name="contractor_total"]').css("background-color", "#9CBA7F"); // Red
@@ -132,7 +132,7 @@ $field_config_contractor = ','.$get_field_config_contractor['contractor'].',';
             <label class="col-sm-1 text-center">Rate Card Price</label>
             <label class="col-sm-1 text-center">Unit of Measure</label>
             <label class="col-sm-1 text-center">Quantity</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center">Total</label>
         </div>
 

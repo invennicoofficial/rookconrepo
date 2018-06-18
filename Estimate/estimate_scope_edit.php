@@ -121,7 +121,7 @@ foreach($src_options as $option) {
 } ?>
 function add_item(btn) {
 	var type = $(btn).data('type');
-	var block = $(btn).parent().next();
+	var block = $(btn).next();
 	var object = '<div class="col-sm-12">';
 	if(type == 'miscellaneous') {
 		object = object+'<h4>Miscellaneous<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png"></h4><input type="hidden" name="item[]" value="|miscellaneous|"><input type="text" class="form-control" name="misc_item[]">';
@@ -136,7 +136,7 @@ function add_item(btn) {
 		}
 		object = object+(type != 'position' ? (type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-6">') : '<div class="col-sm-11">')+'<select name="item[]" class="chosen-select-deselect form-control" data-type="'+type+'"><option></option></select></div><img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png">';
 	}
-	object = object+'<input type="hidden" name="heading[]" value="'+$(btn).closest('h3').find('[name=heading_value]').val()+'"><div class="clearfix"></div><hr /></div>';
+	object = object+'<input type="hidden" name="heading[]" value="'+$('.heading_value').first().text()+'"><div class="clearfix"></div><hr /></div>';
 	block.append(object);
 	setSort();
 	var object = block.find('.col-sm-12').last();
@@ -145,6 +145,7 @@ function add_item(btn) {
 		fill_select(selects.get(0));
 	}
 	object.find('input[type=text],select,textarea').first().focus();
+	block.show();
 }
 function setSort() {
 	$('.block-item').sortable({
@@ -286,7 +287,7 @@ function setIncluded(input) {
 					</div>
 				<?php } ?>
 				<div class="form-group">
-					<label class="col-sm-4">Load Estimate Scope:</label>
+					<label class="col-sm-4">Load <?= ESTIMATE_TILE ?> Scope:</label>
 					<div class="col-sm-8">
 						<select name="prior_estimate" class="chosen-select-deselect" onchange="window.location.replace('?estimateid=<?= $_GET['estimateid'] ?>&scope=<?= $_GET['scope'] ?>&mode<?= $_GET['mode'] ?>=&src=<?= $_GET['src'] ?>&priorid='+this.value+'&rate=<?= $_GET['rate'] ?>');">
 							<option></option>
@@ -332,13 +333,20 @@ function setIncluded(input) {
 		$heading_order[] = 'Billing Frequency***Billing Frequency';
 	}
 	$value_config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+	$scope_name = '';
+	$query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+	while($row = mysqli_fetch_array($query)) {
+		if($_GET['scope'] == preg_replace('/[^a-z]*/','',strtolower($row[0]))) {
+			$scope_name = $row[0];
+		}
+	}
 	$_GET['rate'] = $current_rate;
 	if($_GET['templateid'] > 0) {
 		$query = mysqli_query($dbc, "SELECT `heading_name`, `id` FROM `estimate_template_headings` WHERE `template_id`='{$_GET['templateid']}' AND `deleted`=0 ORDER BY `sort_order`");
 	} else if($_GET['priorid'] > 0) {
-		$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='{$_GET['priorid']}' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
+		$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='{$_GET['priorid']}' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `scope_name`='$scope_name' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 	} else {
-		$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
+		$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `scope_name`='$scope_name' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 	}
 	$heading_ids = [];
 	if(mysqli_num_rows($query) > 0) {
@@ -349,25 +357,19 @@ function setIncluded(input) {
 	} else {
 		$headings['scope'] = 'Scope';
 	}
-	foreach(array_reverse($tiles,true) as $label => $name) {
-		if(in_array('Scope Item '.$name,$value_config) || !in_array_starts('Scope Item ',$value_config)) {
-			echo '<h3>'.$label.'</h3>
-				<img class="inline-img pull-right" data-type="'.$name.'" onclick="add_item(this); return false;" src="../img/icons/ROOK-add-icon.png">';
-		}
-	}
 
 	$i = 0;
 	foreach($headings as $heading_str => $heading) {
-		echo "<h3><span>$heading</span>";
+		echo "<h3><span class='heading_name'>$heading</span>";
 		echo '<img class="inline-img small" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).closest(\'h3\').find(\'*\').hide().filter(\'input\').show().focus();">';
 		echo '<input type="text" class="form-control" style="display:none;" name="heading_value" value="'.$heading.'" onblur="setHeading(this);"></h3>';
         echo '<div class="clearfix"></div>';
 		if($_GET['templateid'] > 0) {
 			$lines = mysqli_query($dbc, "SELECT * FROM `estimate_template_lines` WHERE `heading_id`='{$heading_ids[$heading_str]}' AND `deleted`=0 ORDER BY `sort_order`");
 		} else if($_GET['priorid'] > 0) {
-			$lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$priorid' AND `estimateid` > 0 AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `heading`='$heading' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `sort_order`");
+			$lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$priorid' AND `estimateid` > 0 AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `heading`='$heading' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `scope_name`='$scope_name' AND `deleted`=0 ORDER BY `sort_order`");
 		} else {
-			$lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `heading`='$heading' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `sort_order`");
+			$lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `heading`='$heading' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `scope_name`='$scope_name' AND `deleted`=0 ORDER BY `sort_order`");
 		}
 		echo '<div class="col-sm-12 block-item gap-top gap-bottom">';
 		while($line = mysqli_fetch_array($lines)) {

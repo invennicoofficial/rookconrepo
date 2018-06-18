@@ -83,16 +83,16 @@ function send_csv(a) {
 			$position = '';
 
             if(!empty($_GET['search_site'])) {
-                $search_site = $_GET['search_site'];    
-            } 
+                $search_site = $_GET['search_site'];
+            }
             if(!empty($_GET['search_staff'])) {
-                $search_staff_list = $_GET['search_staff'];    
+                $search_staff_list = $_GET['search_staff'];
             }
 			if(!empty($_GET['search_start_date'])) {
-				$search_start_date = $_GET['search_start_date'];    
+				$search_start_date = $_GET['search_start_date'];
 			}
 			if(!empty($_GET['search_end_date'])) {
-				$search_end_date = $_GET['search_end_date'];    
+				$search_end_date = $_GET['search_end_date'];
 			}
 			$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 			$timesheet_approval_initials = get_config($dbc, 'timesheet_approval_initials');
@@ -111,7 +111,7 @@ function send_csv(a) {
 		        }
 		        $security_query = " AND (".implode(" OR ", $security_query).")";
 		    }
-			?>  
+			?>
 
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                   <label for="site_name" class="control-label">Search By Staff:</label>
@@ -163,10 +163,11 @@ function send_csv(a) {
                       <select data-placeholder="Select a Site" name="search_site" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
                       <option value=""></option>
                       <?php
-                        $query = mysqli_query($dbc,"SELECT `contactid`, CONCAT(IFNULL(`site_name`,''),IF(IFNULL(`site_name`,'') != '' AND IFNULL(`display_name`,'') != '',': ',''),IFNULL(`display_name`,'')) display_name FROM `contacts` WHERE `category`='Sites' AND `deleted`=0");
+                        $query = mysqli_query($dbc,"SELECT `contactid`, CONCAT(IFNULL(`site_name`,''),IF(IFNULL(`site_name`,'') != '' AND IFNULL(`display_name`,'') != '',': ',''),IFNULL(`display_name`,'')) display_name FROM `contacts` WHERE `category`='Sites' AND `deleted`=0 ORDER BY display_name");
                         while($row1 = mysqli_fetch_array($query)) {
+                            if($row1['display_name'] != '') {
 							?><option <?php if ($row1['contactid'] == $search_site) { echo " selected"; } ?> value='<?php echo  $row1['contactid']; ?>' ><?php echo $row1['display_name']; ?></option>
-						<?php } ?>
+						<?php } } ?>
                     </select>
                   </div>
 				  <div class="clearfix"></div>
@@ -259,7 +260,7 @@ function send_csv(a) {
 					foreach($schedule_days as $key => $day_of_week) {
 						$schedule_list[$day_of_week] = $schedule_hrs[$key];
 					}
-					
+
 					$start_of_year = date('Y-01-01', strtotime($search_start_date));
 					$sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
 						IFNULL(SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)),0) STAT_AVAIL,
@@ -268,7 +269,7 @@ function send_csv(a) {
 						IFNULL(SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)),0) VACA_HRS
 						FROM `time_cards` WHERE `staff`='$search_staff' AND `date` < '$search_start_date' AND `date` >= '$start_of_year' AND `approv`='N' AND `deleted`=0";
 					$year_to_date = mysqli_fetch_array(mysqli_query($dbc, $sql));
-					
+
 					$stat_hours = $year_to_date['STAT_AVAIL'];
 					$stat_taken = $year_to_date['STAT_HRS'];
 					$vacation_hours = $year_to_date['VACA_AVAIL'];
@@ -319,7 +320,7 @@ function send_csv(a) {
 						<?php
 						echo '<button type="submit" name="approv_db" value="approv_btn" class="btn brand-btn pull-right">Update and Approve Selected</button>';
 						echo '<button type="submit" name="approv_db" value="update_btn" class="btn brand-btn pull-right">Update Hours</button>'; ?>
-						
+
 						<table class='table table-bordered'>
 						<tr class='hidden-xs hidden-sm'>
 							<td colspan="2">Balance Forward Y.T.D.</td>
@@ -429,7 +430,7 @@ function send_csv(a) {
 								} else {
 									$hrs['TRAINING'] = 0;
 								}
-										
+
 								if($timesheet_approval_status_comments == 1) {
 									if(!empty(trim($row['manager_approvals'],','))) {
 										$approval_list = [];
@@ -775,7 +776,7 @@ function send_csv(a) {
 										if(empty($row['ticketid'])) {
 											$driving_time = 'Driving Time';
 										}
-										
+
 										if($timesheet_approval_status_comments == 1) {
 											if(!empty(trim($row['manager_approvals'],','))) {
 												$approval_list = [];
@@ -803,7 +804,7 @@ function send_csv(a) {
 										foreach ($shifts as $shift) {
 											$hours .= $shift['starttime'].' - '.$shift['endtime'].'<br>';
 											$hours_off = $shift['dayoff_type'] == '' ? $hours_off : $shift['dayoff_type'];
-											
+
 										}
 										$hours = $hours_off == '' ? $hours : $hours_off;
 									} else {

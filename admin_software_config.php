@@ -500,7 +500,7 @@ checkAuthorised();
 		$client_projects = $get_config['client_projects'];
 		$preformance_review = $get_config['preformance_review'];
 		$training_quiz = $get_config['training_quiz'];
-        
+
 		$website = $get_config['website'];
 
         $section_display = ','.get_config($dbc, 'tile_enable_section').',';
@@ -1115,7 +1115,7 @@ checkAuthorised();
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field10" >
-                                Estimates / Quoting
+                                <?= ESTIMATE_TILE ?> / Quoting
                             </a>
 							<span style="font-size: 0.4em; margin: 0 3em;"><label><input type="checkbox" name="tile_enable_section[]" style="height:1.5em; width:1.5em;" value="estimates" <?= (strpos($section_display, ',estimates,') !== FALSE ? 'checked' : '') ?>> Show in Security Tile</label></span><span class="glyphicon glyphicon-plus"></span>
                         </h4>
@@ -1141,7 +1141,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'cost_estimate', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Estimates</td>
+                                        <td data-title="Comment"><?= ESTIMATE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'estimate', 'admin'); ?>
                                     </tr>
                                     <tr>
@@ -1579,7 +1579,7 @@ checkAuthorised();
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Communication -->
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -1615,7 +1615,7 @@ checkAuthorised();
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 

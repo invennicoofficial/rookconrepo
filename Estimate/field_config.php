@@ -24,7 +24,7 @@ function deleteStyle(img) {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_status">
-					Estimate Status<span class="glyphicon glyphicon-plus"></span>
+					<?= ESTIMATE_TILE ?> Status<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -39,7 +39,7 @@ function deleteStyle(img) {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_types">
-					Estimate Types<span class="glyphicon glyphicon-plus"></span>
+					<?= ESTIMATE_TILE ?> Types<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -84,7 +84,7 @@ function deleteStyle(img) {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_fields">
-					Estimate Fields<span class="glyphicon glyphicon-plus"></span>
+					<?= ESTIMATE_TILE ?> Fields<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -113,14 +113,15 @@ function deleteStyle(img) {
 </div>
 <div class='tile-sidebar hide-titles-mob standard-collapsible default-height'>
 	<ul>
-		<a href="?settings=status"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Estimate Status</li></a>
-		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>">Estimate Types</li></a>
+		<a href="?settings=status"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'status' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Status</li></a>
+		<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
+		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Types</li></a>
 		<a href="?settings=groups"><li class="<?= $_GET['settings'] == 'groups' ? 'active blue' : '' ?>">Staff Collaboration Groups</li></a>
 		<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard Settings</li></a>
-		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Estimate Fields</li></a>
+		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Fields</li></a>
 		<a href="?settings=reporting"><li class="<?= $_GET['settings'] == 'reporting' ? 'active blue' : '' ?>">Reporting</li></a>
 		<a href="?settings=pdf_options"><li class="<?= $_GET['settings'] == 'pdf_options' ? 'active blue' : '' ?>">PDF Options</li></a>
-		<li><a class="<?= $_GET['settings'] == 'pdf' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_estimate_designs">Estimate Designs<span class="arrow"></span></a>
+		<li><a class="<?= $_GET['settings'] == 'pdf' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_estimate_designs"><?= ESTIMATE_TILE ?> Designs<span class="arrow"></span></a>
 			<ul id="collapse_estimate_designs" class="collapse <?= $_GET['settings'] == 'pdf' ? 'in' : '' ?>">
 				<?php if($_GET['settings'] == 'pdf') {
 					include('field_config_pdf_save.php'); ?>
@@ -130,7 +131,7 @@ function deleteStyle(img) {
 					<li><a href="?settings=pdf&style=<?= $pdf_style['pdfsettingid'] ?>&design=style"><?= $pdf_style['style_name'] == '' ? '(Untitled Template)' : $pdf_style['style_name'] ?><img data-id="<?= $pdf_style['pdfsettingid'] ?>" onclick="deleteStyle(this); return false;" class="inline-img pull-right" src="../img/remove.png"></a>
 					<?php if($_GET['style'] == $pdf_style['pdfsettingid']) { ?>
 						<ul>
-							<a href="?settings=pdf&style=<?= $_GET['style'] ?>&design=style"><li class="<?= $_GET['design'] == 'style' ? 'active blue' : '' ?>">Estimate Design</li></a>
+							<a href="?settings=pdf&style=<?= $_GET['style'] ?>&design=style"><li class="<?= $_GET['design'] == 'style' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Design</li></a>
 							<a href="?settings=pdf&style=<?= $_GET['style'] ?>&design=cover"><li class="<?= $_GET['design'] == 'cover' ? 'active blue' : '' ?>">Cover Page</li></a>
 							<a href="?settings=pdf&style=<?= $_GET['style'] ?>&design=toc"><li class="<?= $_GET['design'] == 'toc' ? 'active blue' : '' ?>">Table of Contents</li></a>
 							<a href="?settings=pdf&style=<?= $_GET['style'] ?>&design=pages"><li class="<?= $_GET['design'] == 'pages' ? 'active blue' : '' ?>">Add Page</li></a>
@@ -154,6 +155,9 @@ function deleteStyle(img) {
 			break;
 		case 'types':
 			include('field_config_types.php');
+			break;
+		case 'tile':
+			include('field_config_tile.php');
 			break;
 		case 'reporting':
 			include('field_config_reporting.php');

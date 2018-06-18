@@ -12,17 +12,17 @@ $closed_date = strtotime($closed_date) > date('Y-m-01') ? $closed_date : date('Y
 $estimate_status = explode('#*#',get_config($dbc, 'estimate_status'));
 $estimate_types = explode(',',get_config($dbc,'project_tabs'));
 if(in_array('Total Estimates',$summary_view)) {
-	$summary_blocks[] = '<div class="overview-block"><h4>Total Estimates: '.$summary['total'].'</h4></div>';
+	$summary_blocks[] = '<div class="overview-block"><h4>Total '.ESTIMATE_TILE.': '.$summary['total'].'</h4></div>';
 	$summary_height[] = 38;
 	$total_height += 38;
 }
 if(in_array('Total Value',$summary_view)) {
-	$summary_blocks[] = '<div class="overview-block"><h4>Total Value of Estimates: $'.number_format($summary['value'],2).'</h4></div>';
+	$summary_blocks[] = '<div class="overview-block"><h4>Total Value of '.ESTIMATE_TILE.': $'.number_format($summary['value'],2).'</h4></div>';
 	$summary_height[] = 38;
 	$total_height += 38;
 }
 if(in_array('6 Month Value',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>Estimates (Last 6 Months)</h4>';
+	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' (Last 6 Months)</h4>';
 	for($i = 0; $i < 6; $i++) {
 		$date = strtotime("- $i months");
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`='$closed_status' AND `status_date` BETWEEN '".date('Y-m-01',$date)."' AND '".date('Y-m-t',$date)."',`total_price`,0) `closed` FROM `estimate` WHERE `deleted`=0"));
@@ -34,7 +34,7 @@ if(in_array('6 Month Value',$summary_view)) {
 	$total_height += 145;
 }
 if(in_array('Current Year Value',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>Estimates This Year</h4>';
+	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' This Year</h4>';
 	$block_height = 38;
 	foreach($estimate_status as $status) {
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF((`status`='$status' AND `status`!='$completed_status') OR (`status`='$completed_status' AND `status_date` > '".date('Y-01-01')."'),1,0) `count` FROM `estimate` WHERE `deleted`=0"));
@@ -47,7 +47,7 @@ if(in_array('Current Year Value',$summary_view)) {
 	$total_height += $block_height;
 }
 if(in_array('Estimate Type $',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>Estimate Value by Type</h4>';
+	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' Value by Type</h4>';
 	$block_height = 38;
 	foreach($estimate_types as $type) {
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF((`estimatetype`='$type',`total_price`,0) `value` FROM `estimate` WHERE `deleted`=0"));
@@ -60,7 +60,7 @@ if(in_array('Estimate Type $',$summary_view)) {
 	$total_height += $block_height;
 }
 if(in_array('Estimate Type Count',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>Estimates by Type</h4>';
+	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' by Type</h4>';
 	$block_height = 38;
 	foreach($estimate_types as $type) {
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate` WHERE `estimatetype`='$type' AND `deleted`=0"));
@@ -79,7 +79,7 @@ if(in_array('Revenue Won',$summary_view)) {
 	$total_height += $block_height;
 }
 if(in_array('Revenue Won by Type',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>Estimate Value by Type</h4>';
+	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' Value by Type</h4>';
 	$block_height = 38;
 	foreach($estimate_types as $type) {
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF((`status`='$closed_status',`total_price`,0) `won`, SUM(IF((`status`='Archive',`total_price`,0) `lost` FROM `estimate` WHERE `estimatetype`='$type' AND `deleted`=0"));

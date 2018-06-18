@@ -136,7 +136,7 @@ $(document).ready(function() {
         }
     });
 
-	$('.iframe_open').click(function(){
+	/* $('.iframe_open').click(function(){
 			var id = $(this).attr('id');
 			var arr = id.split('_');
 		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Contacts/add_contacts.php?category=Patient&contactid='+arr[0]);
@@ -148,7 +148,7 @@ $(document).ready(function() {
 				$('.iframe_holder').hide(1000);
 				$('.hide_on_iframe').show(1000);
 				location.reload();
-	});
+	}); */
 
 });
 </script>
@@ -157,13 +157,20 @@ $(document).ready(function() {
 <?php include_once ('../navigation.php');
 $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 ?>
-<div class="container triple-pad-bottom">
+<div id="invoice_div" class="container triple-pad-bottom">
+    <div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+    <!--
     <div class='iframe_holder' style='display:none;'>
-
-		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
+		<img src='<?php //echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
 		<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left: 20px; font-size: 30px;'></span>
 		<iframe id="iframe_instead_of_window" style='width: 100%;' height="1000px; border:0;" src=""></iframe>
     </div>
+    -->
 	<div class="row hide_on_iframe">
         <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>: Refund / Adjustments</h1>
         <?php
@@ -412,7 +419,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 if($row['patientid'] != 0) {
 					//echo '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-                    echo '<td data-title="Customer">'. get_contact($dbc, $row['patientid']) .'</td>';
+                    echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
                 } else {
                     echo '<td data-title="Customer">-</td>';
                 }
@@ -422,16 +429,24 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 //$serviceid = $row['serviceid'];
                 //echo '<td>'. get_all_from_service($dbc, $serviceid, 'service_code').' : '.get_all_from_service($dbc, $serviceid, 'service_type') . '</td>';
                 
-                echo '<td data-title="Total">$' . ($row['final_price']).'<br>';
+                echo '<td data-title="Total">$<b>' . ($row['final_price']).'</b><br>';
                     $insurer = '';
                     $invoice_insurer =	mysqli_query($dbc,"SELECT insurer_price, paid FROM invoice_insurer WHERE	invoiceid='$invoiceid'");
                     while($row_invoice_insurer = mysqli_fetch_array($invoice_insurer)) {
                         $insurer .= 'I : '.$row_invoice_insurer['insurer_price'].' : '.$row_invoice_insurer['paid'].'<br>';
                     }
                     $patient = '';
-                    $invoice_patient =	mysqli_query($dbc,"SELECT SUM(patient_price) price, paid FROM invoice_patient WHERE invoiceid='$invoiceid' GROUP BY `paid`");
+                    /* $invoice_patient =	mysqli_query($dbc,"SELECT SUM(patient_price) price, paid FROM invoice_patient WHERE invoiceid='$invoiceid' GROUP BY `paid`");
                     while($row_patient_insurer = mysqli_fetch_array($invoice_patient)) {
                         $patient .= 'P : '.$row_patient_insurer['price'].' : '.$row_patient_insurer['paid'].'<br>';
+                    } */
+                    $invoice_patient =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `invoiceid`='$invoiceid'"))['payment_type'];
+                    list($paid_payment_type, $paid_payment_amount) = explode('#*#', $invoice_patient);
+                    $paid_payment_type_arr = explode(',', $paid_payment_type);
+                    $paid_payment_amount_arr = explode(',', $paid_payment_amount);
+                    $payment_count = count($paid_payment_type_arr);
+                    for ($i=0; $i<$payment_count; $i++) {
+                        echo '$'. number_format($paid_payment_amount_arr[$i],2) .' - '. $paid_payment_type_arr[$i] .'<br />';
                     }
                 echo $insurer.$patient.'</td>';
 
@@ -441,10 +456,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 				if($row['final_price'] == $patient_paid + $insurer_paid) {
 					$paid = 'Paid in Full';
 				} else if ($row['final_price'] == $patient_paid + $insurer_paid + $insurer_owing) {
-					$paid = 'Patient Balance Paid in Full<br />Insurer Balance Owing: $'.number_format($insurer_owing, 2);
+					$paid = 'Balance Paid in Full<br />Balance Owing: $'.number_format($insurer_owing, 2);
 				} else {
-					$paid = 'Patient Balance Owing: $'.number_format($row['final_price'] - $patient_paid - $insurer_paid - $insurer_owing, 2);
-					$paid = 'Patient Balance Paid in Full<br />Insurer Balance Owing: $'.number_format($insurer_owing, 2);
+					$paid = 'Balance Owing: $'.number_format($row['final_price'] - $patient_paid - $insurer_paid - $insurer_owing, 2);
+					$paid = 'Balance Paid in Full<br />Balance Owing: $'.number_format($insurer_owing, 2);
 				}
 
                 echo '<td data-title="Paid">' . $paid . '</td>';

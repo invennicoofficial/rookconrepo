@@ -145,7 +145,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 
         $total = 0;
         
-        $report_validation = mysqli_query($dbc, "SELECT `invoiceid`, `invoice_date`, `patientid`, SUM(`final_price` - `gst_amt` - `pst_amt` - `delivery` - `assembly` + `discount`) `sub_total`, `discount`, `delivery`, `assembly`, SUM(`final_price` - `gst_amt` - `pst_amt`) `total_before_tax`, `gst_amt`, `pst_amt`, `final_price`, `status` FROM `invoice` WHERE (`invoice_date` BETWEEN '$starttime' AND '$endtime') GROUP BY `invoiceid`");
+        $report_validation = mysqli_query($dbc, "SELECT `invoiceid`, `invoice_date`, `patientid`, SUM(`final_price` - `gst_amt` - `pst_amt` - `delivery` - `assembly` + `discount`) `sub_total`, `discount`, `delivery`, `assembly`, SUM(`final_price` - `gst_amt` - `pst_amt`) `total_before_tax`, `gst_amt`, `pst_amt`, `final_price`, `status` FROM `invoice` WHERE (`invoice_date` BETWEEN '$starttime' AND '$endtime') GROUP BY `invoiceid` ORDER BY `invoiceid`");
         $num_rows = mysqli_num_rows($report_validation);
 
         if($num_rows > 0) {

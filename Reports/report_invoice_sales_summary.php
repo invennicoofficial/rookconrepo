@@ -36,7 +36,7 @@ if (isset($_POST['printpdf'])) {
 
             $this->setCellHeightRatio(1.30);
             $this->SetFont('helvetica', '', 10);
-            $footer_text = "NOTE : This report displays the Total Customer Accounts Receivable, Insurer Accounts Receivable, Customer Paid Amounts, Insurer Paid Amounts, Unassigned/Error Invoices and the Total Sales for the selected date range, broken down by Injury Type (service), Inventory Sold, Refunds of Services and Refunds of Inventory. Total GST for the selected date range is also displayed.";
+            $footer_text = "NOTE : This report displays the Total Customer Accounts Receivable, Customer Paid Amounts, Unassigned/Error Invoices and the Total Sales for the selected date range, broken down by Service, Inventory Sold, Refunds of Services and Refunds of Inventory. Total GST for the selected date range is also displayed.";
             $this->writeHTMLCell(0, 0, 10 , 45, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -100,7 +100,7 @@ if (isset($_POST['printpdf'])) {
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            This report displays the Total Customer Accounts Receivable, Insurer Accounts Receivable, Customer Paid Amounts, Insurer Paid Amounts, Unassigned/Error Invoices and the Total Sales for the selected date range, broken down by Injury Type (service), Inventory Sold, Refunds of Services and Refunds of Inventory. Total GST for the selected date range is also displayed.</div>
+            This report displays the Total Customer Accounts Receivable, Customer Paid Amounts, Unassigned/Error Invoices and the Total Sales for the selected date range, broken down by Service, Inventory Sold, Refunds of Services and Refunds of Inventory. Total GST for the selected date range is also displayed.</div>
             <div class="clearfix"></div>
         </div>
 
@@ -409,23 +409,15 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
-    <th width="20%">
+    <th width="33%">
 		<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Not Paid or On Account"><img src="'. WEBSITE_URL .'/img/info.png" width="20" style="padding-bottom:5px;"></a></span>
 		Customer A/R
 	</th>
-    <th width="20%">
-		<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Not Paid or On Account"><img src="'. WEBSITE_URL .'/img/info.png" width="20" style="padding-bottom:5px;"></a></span>
-		Insurer A/R
-	</th>
-    <th width="20%">
+    <th width="33%">
 		<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Paid"><img src="'. WEBSITE_URL .'/img/info.png" width="20" style="padding-bottom:5px;"></a></span>
 		Customer Paid
 	</th>
-    <th width="20%">
-		<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Paid"><img src="'. WEBSITE_URL .'/img/info.png" width="20" style="padding-bottom:5px;"></a></span>
-		Insurer Paid
-	</th>
-    <th width="20%">
+    <th width="34%">
 		<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="All Errors: Unassigned Payments are not recorded as being to the Insurer or the Patient, and No Services / Inventory are not assigned to particular Services or Inventory. The total is the total amount that falls into one of the categories, some of which overlap."><img src="'. WEBSITE_URL .'/img/info.png" width="20" style="padding-bottom:5px;"></a></span>
 		Unassigned/Errors
 	</th>
@@ -434,20 +426,19 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     $report_data .= '<tr nobr="true">';
 
     $report_data .= '<td>';
-    /*
-    $report_data .= '<a href="../Reports/report_receivables.php?from='.$starttime.'&to='.$endtime.'"><b>$' . number_format($customer_ar, 2).'</b></a><br><br>'.$cat_customer_ar;
-    */
-    $report_data .= $cat_customer_ar.'<br><b>Total : $' . number_format($customer_ar, 2).'</b>';
+        /*
+        $report_data .= '<a href="../Reports/report_receivables.php?from='.$starttime.'&to='.$endtime.'"><b>$' . number_format($customer_ar, 2).'</b></a><br><br>'.$cat_customer_ar;
+        */
+        $report_data .= $cat_customer_ar.'<br><b>Total : $' . number_format($customer_ar, 2).'</b>';
     $report_data .= '</td>';
 
-    $report_data .= '<td>';
-    /*
+    /*$report_data .= '<td>';
     $report_data .= '
     <a href="../Reports/report_receivables.php?from='.$starttime.'&to='.$endtime.'"><b>$' . number_format($insurer_ar, 2).'</b></a><br><br>'.$cat_insurer_ar.'<br>';
     */
 
-    $report_data .= $cat_insurer_ar.'<br><b>Total : $' . number_format($insurer_ar, 2).'</b>';
-    $report_data .= '</td>';
+    /* $report_data .= $cat_insurer_ar.'<br><b>Total : $' . number_format($insurer_ar, 2).'</b>';
+    $report_data .= '</td>'; */
 
     $report_data .= '<td>';
     /*
@@ -456,13 +447,12 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     $report_data .= $cat_customer_paid.'<br><b>Total : $' . number_format($customer_paid, 2).'</b>';
     $report_data .= '</td>';
 
-    $report_data .= '<td>';
-    /*
+    /*$report_data .= '<td>';
     $report_data .= '
     <a href="../Account%20Receivables/insurer_account_receivables_report.php?p1='.$starttime.'&p2='.$endtime.'"><b>$' . number_format($insurer_paid, 2).'</b></a><br><br>'.$cat_insurer_paid.'<br>';
     */
-    $report_data .= $cat_insurer_paid.'<br><b>Total : $' . number_format($insurer_paid, 2).'</b>';
-    $report_data .= '</td>';
+    /* $report_data .= $cat_insurer_paid.'<br><b>Total : $' . number_format($insurer_paid, 2).'</b>';
+    $report_data .= '</td>'; */
 	
 	$report_data .= "<td>".$cat_unassigned."</td>";
     $report_data .= '</tr>';
@@ -480,7 +470,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td colspan="5">';
+    $report_data .= '<td colspan="3">';
     $report_data .= '<b><a href="'.WEBSITE_URL.'/Reports/report_unassigned_invoices.php?type=sales">Unassigned/Errors</a> : $'. number_format($un_total, 2).'</b>';
     $report_data .= '</td>';
     $report_data .= '</tr>';
@@ -489,7 +479,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
 	if($total_services != 0) {
 		$report_data .= '<tr nobr="true">';
-		$report_data .= '<td colspan="5">';
+		$report_data .= '<td colspan="3">';
 		$report_data .= '<b><a href="'.WEBSITE_URL.'/Reports/report_sales_by_product_service_summary.php?type=sales">Services</a> : $'. number_format($total_services, 2).'</b>';
 		$report_data .= '</td>';
 		$report_data .= '</tr>';
@@ -497,7 +487,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
 	if($total_inventory != 0) {
 		$report_data .= '<tr nobr="true">';
-		$report_data .= '<td colspan="5">';
+		$report_data .= '<td colspan="3">';
 		$report_data .= '<b><a href="'.WEBSITE_URL.'/Reports/report_sales_by_inventory_summary.php?type=sales">Inventory</a> : $'. number_format($total_inventory, 2).'</b>';
 		$report_data .= '</td>';
 		$report_data .= '</tr>';
@@ -505,33 +495,33 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
 	if($total_packages != 0) {
 		$report_data .= '<tr nobr="true">';
-		$report_data .= '<td colspan="5">';
+		$report_data .= '<td colspan="3">';
 		$report_data .= '<b>Packages : $'. number_format($total_packages, 2).'</b>';
 		$report_data .= '</td>';
 		$report_data .= '</tr>';
 	}
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td colspan="5">';
+    $report_data .= '<td colspan="3">';
     $report_data .= '<b>Total Sales : $'. number_format($total_sales, 2).'</b>';
     $report_data .= '</td>';
     $report_data .= '</tr>';
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td colspan="5">';
+    $report_data .= '<td colspan="3">';
     $report_data .= '<b>Total GST : $'. number_format($total_gst_amount, 2).'</b>';
     $report_data .= '</td>';
     $report_data .= '</tr>';
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td colspan="5">';
+    $report_data .= '<td colspan="3">';
     $report_data .= '<b>Grand Total (including GST) : $'. number_format($total_gst_amount+$total_sales, 2).'</b>';
     $report_data .= '</td>';
     $report_data .= '</tr>';
 
     if($promotion != 0) {
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td colspan="5">';
+        $report_data .= '<td colspan="3">';
         $report_data .= '<b>Promotion : $' . number_format($promotion, 2).'</b>'.$cat_promotion;
         $report_data .= '</td>';
         $report_data .= '</tr>';

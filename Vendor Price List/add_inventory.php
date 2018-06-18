@@ -332,6 +332,7 @@ $category = $_GET['category'];
             $request = $get_inventory['request'];
             $display_website = $get_inventory['display_website'];
             $vendorid =	$get_inventory['vendorid'];
+            $vpl_name = $get_inventory['vpl_name'];
             $size = $get_inventory['size'];
             $color = $get_inventory['color'];
             $weight = $get_inventory['weight'];

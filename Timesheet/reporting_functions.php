@@ -215,7 +215,7 @@
 						} else {
 							$hrs['TRAINING'] = 0;
 						}
-						
+
 						$row = mysqli_fetch_array($result);
 					} else {
 						$hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
@@ -896,6 +896,7 @@
 
                 $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` BETWEEN '$search_start_date' AND '$search_end_date'"))['expenses_owed'];
 
+                if($total > 0) {
                 $report .= '<tr>
                     <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Staff"><a href="'.$base_url.'&see_staff='.$search_staff.'">'.$staff['first_name'].' '.$staff['last_name'].'</a></td>'.
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
@@ -905,6 +906,7 @@
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Time">'.($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)).' h</td>
                 </tr>
             ';
+            }
 
         $tb_field = $value['config_field'];
 

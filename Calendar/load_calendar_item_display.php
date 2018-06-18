@@ -495,7 +495,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
 				$row_html .= '<br />'."Status: ".$status."</b></span>";
 				if($ticket['scheduled_lock'] > 0) {
-					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."'><img class='black-color pull-right inline-img' src='../img/icons/lock.png'></div>";
+					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";
 				} else {
 					$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div>";
 				}

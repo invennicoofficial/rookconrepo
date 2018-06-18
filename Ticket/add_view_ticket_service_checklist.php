@@ -124,10 +124,16 @@ function addAnotherRoomServiceChecklist(btn) {
 	});
 }
 function scrollToChecklist(a) {
-	if($(a).closest('.block-panels').length > 0) {
-		$(window).scrollTop($(a).offset().top);
+	if(self !== top) {
+		setTimeout(function() {
+			$('html,body').scrollTop($(a).offset().top + $('.standard-body').scrollTop() - $('.standard-body').offset().top);
+		},250);
 	} else {
-		$('.main-screen .main-screen').scrollTop($(a).offset().top + $('.main-screen .main-screen').scrollTop() - $('.main-screen .main-screen').offset().top);
+		if($(a).closest('.block-panels').length > 0) {
+			$(window).scrollTop($(a).offset().top);
+		} else {
+			$('.main-screen .main-screen').scrollTop($(a).offset().top + $('.main-screen .main-screen').scrollTop() - $('.main-screen .main-screen').offset().top);
+		}
 	}
 }
 </script>

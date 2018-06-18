@@ -112,7 +112,7 @@ if (isset($_POST['printpdf'])) {
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            This report shows estimated time and total actual time per ticket by employee.</div>
+            Use this report to view the estimated time vs. total actual time spent per ticket by employee in a selected time frame, as well as the total # of tickets.</div>
             <div class="clearfix"></div>
         </div>
 

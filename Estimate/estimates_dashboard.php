@@ -156,15 +156,15 @@ function clearEstimates() {
 								<?php if($estimate['projectid'] > 0) { ?>
 									<a href="../Project/projects.php?edit=<?= $estimate['projectid'] ?>"><img src="../img/icons/create_project.png" class="inline-img black-color" title="View <?= PROJECT_NOUN.' #'.$estimate['projectid'] ?>"></a>
 								<?php } else { ?>
-									<a href="convert_to_project.php?estimate=<?= $estimate['estimateid'] ?>" onclick="overlayIFrame('convert_select_project.php?estimateid=<?= $estimate['estimateid'] ?>');return false;"><img src="../img/icons/create_project.png" class="inline-img black-color" title="<?= $estimate['add_to_project'] > 0 ? 'Attach to '.PROJECT_NOUN.' #'.$estimate['add_to_project'] : 'Create '.PROJECT_NOUN.' from Estimate.' ?>"></a>
+									<a href="convert_to_project.php?estimate=<?= $estimate['estimateid'] ?>" onclick="overlayIFrame('convert_select_project.php?estimateid=<?= $estimate['estimateid'] ?>');return false;"><img src="../img/icons/create_project.png" class="inline-img black-color" title="<?= $estimate['add_to_project'] > 0 ? 'Attach to '.PROJECT_NOUN.' #'.$estimate['add_to_project'] : 'Create '.PROJECT_NOUN.' from '.ESTIMATE_TILE.'.' ?>"></a>
 								<?php } ?>
-								<a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img" title="View Estimate Financial Summary."></a>
-								<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="../img/notepad-icon-blue.png" class="inline-img black-color" title="Add Note to Estimate."></a>
-							<a href="Archive" onclick="$(this).closest('.dashboard-item').find('[name=status]').val('archived').trigger('change.select2').change(); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the Estimate."></a>
+								<a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img" title="View <?= ESTIMATE_TILE ?> Financial Summary."></a>
+								<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="../img/notepad-icon-blue.png" class="inline-img black-color" title="Add Note to <?= ESTIMATE_TILE ?>."></a>
+							<a href="Archive" onclick="$(this).closest('.dashboard-item').find('[name=status]').val('archived').trigger('change.select2').change(); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the <?= ESTIMATE_TILE ?>."></a>
 							</div>
 						</li>
 					<?php } ?>
-					<?= $summary['total'] == 0 ? '<li class="dashboard-item">No '.$status_name.' Estimates.</li>' : '' ?>
+					<?= $summary['total'] == 0 ? '<li class="dashboard-item">No '.$status_name.' '.ESTIMATE_TILE.'.</li>' : '' ?>
 				</ul>
 			</div>
 		<?php } ?>

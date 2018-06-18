@@ -9,13 +9,13 @@
 		$headingid = mysqli_insert_id($dbc);
 		mysqli_query($dbc, "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `description`, `src_id`, `qty`, `sort_order`) SELECT '$headingid', `src_table`, `description`, `src_id`, `qty`, `sort_order` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `heading`='$heading' AND `deleted`=0");
 	}
-	
+
 	echo "<script> window.location.replace('?template=".$templateid."'); </script>";
 } ?>
 <form class="form-horizontal" method="POST" action="">
 	<?php $estimate_list = mysqli_query($dbc, "SELECT `estimateid`, `estimate_name`, `created_date` FROM `estimate` WHERE `deleted`=0 AND `estimate_name` IS NOT NULL OR `created_date` IS NOT NULL"); ?>
 	<div class="form-group">
-		<label class="col-sm-4 control-label">Source Estimate:</label>
+		<label class="col-sm-4 control-label">Source <?= ESTIMATE_TILE ?>:</label>
 		<div class="col-sm-8">
 			<select class="chosen-select-deselect" data-placeholder="Select an Estimate" name="src_estimate">
 				<option></option>

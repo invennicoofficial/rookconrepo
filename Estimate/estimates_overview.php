@@ -49,13 +49,13 @@ function add_follow_up() {
 </script>
 <div class="form-horizontal main-screen fit-to-screen-full full-grey-screen" style="padding:0;">
 	<div class="main-item blue-border">
-		<h3>Estimate Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
+		<h3><?= ESTIMATE_TILE ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
 		<hr />
         <div class="row">
             <div class="col-sm-<?= empty($_GET['sideview']) ? '6' : '12' ?>">
-                <h4>Estimate Details:</h4>
+                <h4><?= ESTIMATE_TILE ?> Details:</h4>
                 <div class="row form-group">
-                    <label class="col-sm-4">Estimate #:</label>
+                    <label class="col-sm-4"><?= ESTIMATE_TILE ?> #:</label>
                     <div class="col-sm-8"><?= $estimate['estimateid'] ?></div>
                 </div>
                 <div class="row form-group">
@@ -146,7 +146,7 @@ function add_follow_up() {
                     </div>
                 </div>
                 <hr />
-                
+
                 <?php if(in_array('Overview Hours',$config)) { ?>
                     <div class="row form-group">
                         <label class="col-sm-4">Total Hours</label>
@@ -188,10 +188,10 @@ function add_follow_up() {
                     </div>
                 <?php } ?>
             </div>
-            
+
             <?php if(empty($_GET['sideview'])) { ?>
                 <div class="col-sm-6">
-                    <h4>Estimate Notes:</h4><?php
+                    <h4><?= ESTIMATE_TILE ?> Notes:</h4><?php
                     $notes = mysqli_query($dbc, "SELECT * FROM `estimate_notes` WHERE `deleted`=0 AND `estimateid`='$estimateid'");
                     if ( $notes->num_rows > 0 ) { ?>
                         <div id="no-more-tables">
@@ -218,14 +218,14 @@ function add_follow_up() {
                     <hr />
                 </div>
                 <div class="col-sm-6">
-                    <h4>Estimate History:</h4>
+                    <h4><?= ESTIMATE_TILE ?> History:</h4>
                     <?= $estimate['history'] ?>
                 </div>
                 <hr>
             <?php } ?>
         </div><!-- .row -->
 		<div class="col-sm-12">
-			<h4>Estimate Scope:</h4><?php
+			<h4><?= ESTIMATE_TILE ?> Scope:</h4><?php
             $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `sort_order`");
 			$heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 			if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
@@ -296,19 +296,19 @@ function add_follow_up() {
 								$order_info = explode('***',$order_info);
 								switch($order_info[0]) {
 									case 'Description':
-										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.$scope_description.'</td>';
+										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.html_entity_decode($scope_description).'</td>';
 										break;
 									case 'UOM':
-										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.$scope_line['uom'].'</td>';
+										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? $scope_line['uom'] : '').'</td>';
 										break;
 									case 'Quantity':
-										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.round($scope_line['qty'],2).'</td>';
+										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? round($scope_line['qty'],2) : '').'</td>';
 										break;
 									case 'Estimate Price':
-										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">$'.$scope_line['price'].'</td>';
+										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['price'] : '').'</td>';
 										break;
 									case 'Total':
-										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">$'.$scope_line['retail'].'</td>';
+										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['retail'] : '').'</td>';
 										break;
 								}
 							} ?>
@@ -318,7 +318,7 @@ function add_follow_up() {
 			</div>
 		</div>
         <hr />
-        
+
 		<?php if(empty($_GET['sideview'])) { ?>
 			<div class="col-sm-12">
 				<h4>Cost Analysis: <a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img" title="View Estimate Financial Summary." width="20"></a></h4>
@@ -350,7 +350,7 @@ function add_follow_up() {
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" class="btn brand-btn">Create <?= PROJECT_NOUN ?></a>
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" onclick="attach_to_project();$(this).hide();return false;" class="btn brand-btn">Attach to <?= PROJECT_NOUN ?></a>
 			<?php } ?>
-			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy Estimate</a>
+			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy <?= ESTIMATE_TILE ?></a>
 		<?php } ?>
 
         <?php $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
