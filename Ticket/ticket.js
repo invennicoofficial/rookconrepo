@@ -2035,6 +2035,11 @@ function siteSelect(value) {
 		if(opt.data('google') != '' && opt.data('google') != undefined) {
 			$('.site_info [name=google_maps_address]').val(opt.data('google'));
 			$('.site_info a:contains("Google Maps")').attr('href',opt.data('google')).attr('onclick','');
+		} else if(opt.data('street') != '' && opt.data('street') != undefined) {
+			var maps_link = 'http://maps.google.com/maps/place/'+opt.data('street');
+			$('.site_info [name=google_maps_address]').val(maps_link);
+			$('.site_info a:contains("Google Maps")').attr('href',maps_link).attr('onclick','');
+			$()
 		} else {
 			$('.site_info [name=google_maps_address]').val('');
 			$('.site_info a:contains("Google Maps")').attr('href','').attr('onclick','return false;');

@@ -66,6 +66,8 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Edit Staff".',') !== false) { echo " checked"; } ?> value="Edit Staff" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Edit Staff</label>
 
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Milestone Timeline".',') !== false) { echo " checked"; } ?> value="Milestone Timeline" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Milestone & Timeline</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Address".',') !== false) { echo " checked"; } ?> value="Site Address" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Address</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Notes".',') !== false) { echo " checked"; } ?> value="Site Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Notes</label>
 
 	</div>
 </div>

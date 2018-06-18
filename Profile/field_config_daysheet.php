@@ -144,6 +144,8 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Combined Details with Confirm', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Combined Details with Confirm">Include Detail Checkbox with Confirmation when Combined</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Details with Confirm', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Details with Confirm">Include Detail Checkbox with Confirmation</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Sort Completed to End', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Sort Completed to End">Display Completed <?= TICKET_TILE ?> at End</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Address', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Address"> Site Address</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Notes', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Notes"> Site Notes</label>
             </div>
             <div class="clearfix"></div>
             <label class="col-sm-4 control-label"><?= CONTACTS_NOUN ?> for Combined <?= TICKET_TILE ?>:</label>

@@ -326,6 +326,20 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 			echo '</div>
 		</div>';
 	}
+	if(in_array('Site Address',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Site Address:</label>
+			<div class="col-sm-8">'.$site['address'].'</div>
+		</div>';
+	}
+	if(in_array('Site Notes',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Site Notes:</label>
+			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
+		</div>';
+	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>
 		<div class="col-sm-6">
 			<?php $functions = [];
