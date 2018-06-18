@@ -1,6 +1,8 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
-$strict_view = strictview_visible_function($dbc, 'ticket');
+if(!isset($strict_view)) {
+	$strict_view = strictview_visible_function($dbc, 'ticket');
+}
 if(!empty($_POST['accordion'])) {
 	$sort_field = $_POST['accordion'];
 }
@@ -518,6 +520,10 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 	$config_access = config_visible_function($dbc, 'ticket');
+	$uneditable_statuses = ','.get_config($dbc, 'ticket_uneditable_status').',';
+	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
+		$strict_view = 1;
+	}
 	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
 		$access_project = false;
 		$access_staff = false;
@@ -739,20 +745,27 @@ if($generate_pdf) {
 				include('add_ticket_reg_loc_class.php');
 			}
 		} else {
-			$value_config = $global_value_config;
-			$custom_accordion = false;
-			$field_list = $accordion_list[$sort_field];
-			$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$sort_field."'"))['fields'];
-			if(empty($field_sort_order)) {
-				$field_sort_order = $value_config;
+			if(strpos($value_config, ',Complete Combine Checkout Summary,') !== FALSE && $sort_field == 'Complete') {
+				$sort_fields = ['Check Out'=>'ticket_checkout','Summary'=>'ticket_summary','Complete'=>'ticket_complete'];
+			} else {
+				$sort_fields = [$sort_field => $_GET['tab']];
 			}
-			$field_sort_order = explode(',', $field_sort_order);
-			foreach ($field_list as $default_field) {
-				if(!in_array($default_field, $field_sort_order)) {
-					$field_sort_order[] = $default_field;
+			foreach($sort_fields as $sort_field => $include_tab) {
+				$value_config = $global_value_config;
+				$custom_accordion = false;
+				$field_list = $accordion_list[$sort_field];
+				$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$sort_field."'"))['fields'];
+				if(empty($field_sort_order)) {
+					$field_sort_order = $value_config;
 				}
+				$field_sort_order = explode(',', $field_sort_order);
+				foreach ($field_list as $default_field) {
+					if(!in_array($default_field, $field_sort_order)) {
+						$field_sort_order[] = $default_field;
+					}
+				}
+				include('add_'.$include_tab.'.php');
 			}
-			include('add_'.$_GET['tab'].'.php');
 		} ?>
 		<div class="clearfix"></div>
 		<?php if($ticket_layout != 'Accordions') { ?>

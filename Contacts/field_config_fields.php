@@ -84,6 +84,16 @@ function save_guardian_tabs(tab) {
 	});
     //var guardian_tabs = '<?php filter_var(implode('#*#',array_filter($_POST['guardian_tabs'])),FILTER_SANITIZE_STRING); ?>';
 }
+function save_notes_label(input) {
+    var label = $(input).val();
+    var contact_type = $('[name="contact_type"]').val();
+    $.ajax({
+        url: '../Contacts/contacts_ajax.php?action=general_config',
+        method: 'POST',
+        data: { name: 'contacts_notes_label_'+contact_type, value: label },
+        success: function(response) { }
+    });
+}
 $(document).ready(function() {
 	$('input[type=checkbox]:checked').closest('.form-group .sort_group_blocks').each(function() {
 		$(this).find('[name="contact_field[]"]').first().prop('checked','checked');
@@ -412,6 +422,12 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                                             case 'Service Notes': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Service Notes', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Service Notes" onchange="save_options();">Service Notes</label><?php break;
                                         }
                                     } ?>
+                                    <div class="form-group block-group clearfix">
+                                        <label class="col-sm-4 control-label">Different Notes Label:</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="contacts_notes_label_<?= config_safe_str($_current_type) ?>" value="<?= get_config($dbc, 'contacts_notes_label_'. config_safe_str($current_type)) ?>" class="form-control" onchange="save_notes_label(this);">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

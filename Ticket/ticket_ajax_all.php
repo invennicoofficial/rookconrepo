@@ -1306,6 +1306,8 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_delivery_time_mintime', filter_var($_POST['ticket_delivery_time_mintime'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_delivery_time_maxtime', filter_var($_POST['ticket_delivery_time_maxtime'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_action_fields') {
@@ -2180,5 +2182,29 @@ if($_GET['action'] == 'update_fields') {
 	if(!empty($value)) {
 		echo '<a href="download/'.$value.'" target="_blank"><img src="download/'.$value.'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>';
 	}
+} else if($_GET['action'] == 'get_service_time_estimate') {
+	$ticketid = $_POST['ticketid'];
+
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$serviceids = explode(',', $ticket['serviceid']);
+	$service_qtys = explode(',', $ticket['service_qty']);
+
+	$time_est = 0;
+	foreach($serviceids as $i => $serviceid) {
+		$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$serviceid'"));
+		$estimated_hours = empty($service['estimated_hours']) ? '00:00' : $service['estimated_hours'];
+		$qty = empty($service_qtys[$i]) ? 1 : $service_qtys[$i];
+		$minutes = explode(':', $estimated_hours);
+		$minutes = ($minutes[0]*60) + $minutes[1];
+		$minutes = $qty * $minutes;
+		$time_est += $minutes;
+	}
+	$new_hours = $time_est / 60;
+	$new_minutes = $time_est % 60;
+	$new_hours = sprintf('%02d', $new_hours);
+	$new_minutes = sprintf('%02d', $new_minutes);
+	$time_est = $new_hours.':'.$new_minutes;
+
+	echo $time_est;
 }
 ?>

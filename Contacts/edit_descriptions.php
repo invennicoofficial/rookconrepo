@@ -34,7 +34,7 @@
 		<textarea name="comments" data-field="comments" data-table="contacts_description" class="form-control"><?= $contact['comments'] ?></textarea>
 	</div>
 <?php } else if($field_option == 'Notes') { ?>
-	<label class="col-sm-4 control-label">Notes:</label>
+	<label class="col-sm-4 control-label"><?= $contact['category'] == 'Sites' || $tab_label == 'Site Address' ? 'Site Notes' : (!empty(get_config($dbc, 'contacts_notes_label_'.config_safe_str($contact['category']))) ? get_config($dbc, 'contacts_notes_label_'.config_safe_str($contact['category'])) : 'Notes') ?>:</label>
 	<div class="col-sm-8">
 		<textarea name="notes" data-field="notes" data-table="contacts_description" class="form-control"><?= $contact['notes'] ?></textarea>
 	</div>

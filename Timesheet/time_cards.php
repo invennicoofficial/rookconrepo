@@ -747,6 +747,9 @@ function addSignature(chk) {
             $search_project = 0;
             $search_ticket = 0;
             $search_staff = $_SESSION['contactid'];
+            if(!empty($_GET['search_staff'])) {
+            	$search_staff = $_GET['search_staff'];
+            }
             if(!empty($_GET['search_client'])) {
             	$search_staff = $_GET['search_client'];
             }
@@ -777,6 +780,21 @@ function addSignature(chk) {
 				$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 			}
 			include('pay_period_dates.php'); ?>  
+
+				<?php if(in_array('search_staff',$value_config) && check_subtab_persmission($dbc, 'timesheet', ROLE, 'search_staff')) { ?>
+	                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
+	                  <label for="site_name" class="control-label">Search By Staff:</label>
+	                </div>
+	                  <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
+	                  	<select name="search_staff" class="chosen-select-deselect">
+	                  		<option></option>
+	                  		<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0 AND `contacts`.`category` IN (".STAFF_CATS.") AND `contacts`.`staff_category` NOT IN (".STAFF_CATS_HIDE.")"));
+			                foreach($query as $staff_row) { ?>
+			                    <option <?php if (strpos(','.$search_staff.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
+			                } ?>
+	                  	</select>
+	                  </div>
+				<?php } ?>
 
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                   <label for="site_name" class="control-label">Search By Start Date:</label>
