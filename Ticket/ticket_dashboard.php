@@ -124,6 +124,9 @@ function loadTickets() {
 	<?php if($_GET['form_list'] > 0) {
 		echo 'return;';
 	} ?>
+	if(ticket_list == undefined) {
+		return;
+	}
 	loadingOverlayHide();
 	clearTimeout(continue_loading);
 	ajax_loads.forEach(function(call) { call.abort(); });
@@ -192,7 +195,10 @@ function loadTickets() {
 		} else {
 			loadingOverlayShow('.main-content-screen');
 		}
-		var key = $('.search_list:visible').val().toLowerCase();
+		var key = $('.search_list:visible').val();
+		if(key != undefined) {
+			key = key.toLowerCase();
+		}
 		current_ticket_search_key = key;
 		filter_list.forEach(function(ticket) {
 			if(key == '' || key == undefined || ticket.key.toLowerCase().search(key) >= 0) {
@@ -200,8 +206,14 @@ function loadTickets() {
 			}
 		});
 	} else if($('.search_list:visible').val() != '') {
-		var key = $('.search_list:visible').val().toLowerCase();
+		var key = $('.search_list:visible').val();
+		if(key != undefined) {
+			key = key.toLowerCase();
+		}
 		current_ticket_search_key = key;
+		if(ticket_list['ticket'] == undefined) {
+			return;
+		}
 		ticket_list['ticket'].forEach(function(ticket) {
 			if(key == '' || key == undefined || ticket.key.toLowerCase().search(key) >= 0) {
 				result_list.push(ticket);
@@ -789,12 +801,31 @@ IF(!IFRAME_PAGE) { ?>
 					</ul>
 				</li>
 			<?php } ?>
-			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) { ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
+			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) {
+				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields')); ?>
+				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
 					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
-						<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', '' UNION SELECT 'recent', 'ZZZ', '', '', '', 'Top 25 Manifests', ''")) as $site) { ?>
-							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>"><?= $site['full_name'] ?></a></li>
+						<?php if(in_array('sort_top',$manifest_fields)) { ?>
+							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Top 25 Line Items</a></li>
 						<?php } ?>
+						<?php $project_type_list = [''];
+						if(in_array('sort_project',$manifest_fields)) {
+							$project_type_list = $project_types;
+						}
+						foreach($project_type_list as $type_id => $type_name) {
+							if(!empty($type_name)) { ?>
+								<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
+									<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
+							<?php } ?>
+							<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) { ?>
+								<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?></a></li>
+							<?php }
+							if(!empty($type_name)) { ?>
+									</ul>
+								</li>
+							<?php }
+						} ?>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Top 25 Manifests</a></li>
 					</ul>
 				</li>
 			<?php } ?>
@@ -806,13 +837,13 @@ IF(!IFRAME_PAGE) { ?>
 <?php } ?>
 <div class="main-content-screen scale-to-fill has-main-screen <?= IFRAME_PAGE ? '' : 'hide-titles-mob' ?>" style="<?= IFRAME_PAGE ? 'height:auto;' : '' ?>">
 	<div class="loading_overlay" style="display:none;"><div class="loading_wheel"></div></div>
-	<div class="main-screen standard-dashboard-body override-main-screen form-horizontal ticket_list">
+	<div class="main-screen standard-dashboard-body override-main-screen form-horizontal ticket_list" style="<?= IFRAME_PAGE ? 'height:auto;' : '' ?>">
 		<?php if($_GET['form_list'] > 0) {
 			$form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['form_list']}'")->fetch_assoc();
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
 		<div class="standard-dashboard-body-title">
-			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Top 25 Manifests <a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? ': Create Manifests <a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$siteid.'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a><a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
+			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Top 25 Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
 					<div class="notice popover-examples ticket_note_div" data-type="ticket_summary" style="display: none;">
@@ -855,6 +886,10 @@ IF(!IFRAME_PAGE) { ?>
 			<?php } else if($_GET['tab'] == 'invoice') { ?>
 				<div class="col-sm-12" id="no-more-tables">
 					<?php include('ticket_invoice.php'); ?>
+				</div>
+			<?php } else if($_GET['tab'] == 'manifest' && $_GET['manifestid'] > 0) { ?>
+				<div class="col-sm-12" id="no-more-tables">
+					<?php include('ticket_manifest_edit.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'manifest') { ?>
 				<div class="col-sm-12" id="no-more-tables">
