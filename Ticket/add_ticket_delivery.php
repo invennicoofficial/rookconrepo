@@ -632,7 +632,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 										<div class="col-sm-8">
-											<input type="text" name="cust_est" class="form-control datepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['cust_est'] ?>">
+											<input type="text" name="cust_est" class="form-control" readonly value="<?= $stop['cust_est'] ?>">
 										</div>
 									</div>
 								<?php } ?>
@@ -715,6 +715,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 													echo "<option ".($stop['status'] == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
 												} ?>
 											</select>
+										</div>
+									</div>
+								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Notes".',') !== FALSE && $field_sort_field == 'Delivery Pickup Notes') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Delivery Notes:</label>
+										<div class="col-sm-8">
+											<textarea name="notes" class="no_tools form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><?= html_entity_decode($stop['notes']) ?></textarea>
 										</div>
 									</div>
 								<?php } ?>
@@ -1045,8 +1053,15 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
-							<?php if (strpos($value_config, ','."Delivery Pickup Status".',') !== FALSE && $field_sort_field == 'Delivery Pickup Status') { ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Departure".',') !== FALSE && $field_sort_field == 'Delivery Pickup Departure') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Departure Time:</label>
+									<div class="col-sm-8">
+										<?= $stop['checked_out'] ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Status".',') !== FALSE && $field_sort_field == 'Delivery Pickup Status') { ?>
 								<div class="form-group">
 									<label class="col-sm-4 control-label">Status:</label>
 									<div class="col-sm-8">
@@ -1062,14 +1077,15 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
-						<?php } ?>
-						<div class="form-group">
-									<label class="col-sm-4 control-label">Departure Time:</label>
+							<?php if(strpos($value_config, ','."Delivery Pickup Notes".',') !== FALSE && $field_sort_field == 'Delivery Pickup Notes') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Delivery Notes:</label>
 									<div class="col-sm-8">
-										<?= $stop['checked_out'] ?>
+										<?= html_entity_decode($stop['notes']) ?>
 									</div>
 								</div>
 							<?php } ?>
+						<?php } ?>
 						<?php } ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Completed Stop:</label>

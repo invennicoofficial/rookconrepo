@@ -607,6 +607,7 @@ var clientFilter = function() {}
 var businessFilter = function() {}
 var setServiceFilters = function() {}
 var updateLabel = <?= ($_GET['edit'] > 0 && $_GET['new_ticket'] != 'true') || strpos($value_config, ',Hide New Ticketid,') === FALSE ? 'true' : 'false' ?>;
+var defaultStatus = '<?= $default_status ?>';
 
 var setHeading = function() {
 	if(ticketid > 0) {

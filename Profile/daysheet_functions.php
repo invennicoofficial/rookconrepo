@@ -120,5 +120,9 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
     	$label .= '<label class="form-checkbox"><input type="checkbox" name="status" value="'.$status_complete.'">Mark '.$status_complete.'</label>';
     }
 
+    if(in_array('Delivery Notes', $daysheet_ticket_fields) && strip_tags(html_entity_decode($ticket['delivery_notes'])) != '') {
+    	$label .= 'Notes: '.html_entity_decode($ticket['delivery_notes']);
+    }
+
     return $label;
 }
