@@ -2072,6 +2072,9 @@ function addScheduledStop() {
 	initInputs('.scheduled_stop');
 	setSave();
 	clone.find('[name=equipmentid],[name=to_do_date],[name=order_number]').change();
+	if(defaultStatus != '') {
+		clone.find('[name=status]').val(defaultStatus).trigger('change.select2');
+	}
 	sortScheduledStops();
 	$('.scheduled_stop').last().find('input').first().focus();
 }
