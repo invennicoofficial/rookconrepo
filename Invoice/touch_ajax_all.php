@@ -67,7 +67,7 @@ if ( $_GET['fill'] == 'posTouchAppointment' ) {
 
     // First set of items. No discounts without adding an item first.
     for ( $i=0; $i<count($serviceid); $i++ ) {
-        $get_service    = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`.`serviceid`, `category`, `heading`, `cust_price` FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name` LIKE 'Services' AND (`company_rate_card`.`end_date` >= NOW() OR `company_rate_card`.`end_date` = '0000-00-00') WHERE `services`.`serviceid`='{$serviceid[$i]}' ORDER BY `category`"));
+        $get_service    = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`.`serviceid`, `category`, `services`.`heading`, `cust_price` FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name` LIKE 'Services' AND (`company_rate_card`.`end_date` >= NOW() OR `company_rate_card`.`end_date` = '0000-00-00') WHERE `services`.`serviceid`='{$serviceid[$i]}' ORDER BY `category`"));
         $service_name   = $get_service['heading'];
         $total          = $get_service['cust_price'];
         $sub_total		= $get_service['cust_price'];

@@ -562,6 +562,9 @@ if($_GET['action'] == 'update_fields') {
 				$contacts_tile = 'clientinfo';
 			}
 			mysqli_query($dbc, "UPDATE `contacts` SET `tile_name` = '$contacts_tile' WHERE `contactid` = '$id'");
+		} else if ($table_name == 'ticket_schedule') {
+			$status = get_config($dbc, 'ticket_default_status');
+			$dbc->query("UPDATE `ticket_schedule` SET `status`='$status' WHERE `id`='$id'");
 		}
 		if($detail_field != '') {
 			$dbc->query("UPDATE `$table_name` SET `$detail_field`='$detail' WHERE `$id_field`='$id'");

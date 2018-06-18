@@ -200,7 +200,7 @@ if ( $customer===FALSE && $discount===FALSE && $coupon===FALSE && $email_reciept
 			
 			// Services Dashboard
 			if ( $service == '' && $serv_category != '' ) {
-				$query = mysqli_query($dbc, "SELECT `services`.`serviceid`, `category`, `heading`, `service_rate` FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name` LIKE 'Services' WHERE `category`='$serv_category' AND `services`.`deleted`=0 AND IFNULL(NULLIF(`include_in_pos`,''),1) > 0 AND `company_rate_card`.`deleted`=0 AND (`company_rate_card`.`end_date` >= NOW() OR `company_rate_card`.`end_date` = '0000-00-00') ORDER BY `category`");
+				$query = mysqli_query($dbc, "SELECT `services`.`serviceid`, `category`, `services`.`heading`, `cust_price` `service_rate` FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name` LIKE 'Services' WHERE `category`='$serv_category' AND `services`.`deleted`=0 AND IFNULL(NULLIF(`include_in_pos`,''),1) > 0 AND `company_rate_card`.`deleted`=0 AND (`company_rate_card`.`end_date` >= NOW() OR `company_rate_card`.`end_date` = '0000-00-00') ORDER BY `category`");
 				while ( $row = mysqli_fetch_array($query) ) {
 					echo '<div class="dashboard link col-sm-4"><a href="touch_main.php?classification=services&servcat='. $row['category'] .'&servid='. $row['serviceid'] .'&service='. bin2hex($row['heading']) .'" title="'. $row['heading'] .'">'. (strlen($row['heading']) > 15 ? substr($row['heading'], 0, 15).'...' : $row['heading']) .' <br /><small>$' . number_format($row['service_rate'], 2) .'</small></a></div>';
 				}
@@ -219,7 +219,7 @@ if ( $customer===FALSE && $discount===FALSE && $coupon===FALSE && $email_reciept
                 $double_gap_top = 'double-gap-top';
                 
                 if ( strpos($value_config, ',service_price,')!==false ) {
-                    $serv_price = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `service_rate`, `editable` FROM `company_rate_card` WHERE `item_id`='$servid' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND (`end_date` > NOW() OR `end_date` = '0000-00-00')")); ?>
+                    $serv_price = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `cust_price` `service_rate`, `editable` FROM `company_rate_card` WHERE `item_id`='$servid' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND (`end_date` > NOW() OR `end_date` = '0000-00-00')")); ?>
                     <div class="double-gap-top">Price:</div>
                     <input type="text" name="serv_price_edited" id="serv_price_edited" <?= $serv_price['editable'] > 0 ? '' : 'readonly' ?> value="<?= number_format($serv_price['service_rate'], 2, '.', ''); ?>" class="form-control gap-top" />
                     <?php $double_gap_top = 'gap-top';
