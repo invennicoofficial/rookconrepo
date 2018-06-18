@@ -33,6 +33,7 @@ switch ($software_config) {
     case 'silver':          $style_sheet = '<link rel="stylesheet" href="css/style_silver.css" type="text/css" />';         break;
     case 'blueorange':      $style_sheet = '<link rel="stylesheet" href="css/style_blue_orange.css" type="text/css" />';    break;
     case 'blackpurple':     $style_sheet = '<link rel="stylesheet" href="css/style_blackpurple.css" type="text/css" />';    break;
+    case 'blackred':        $style_sheet = '<link rel="stylesheet" href="css/style_blackred.css" type="text/css" />';       break;
     case 'washt':           $style_sheet = '<link rel="stylesheet" href="css/style_nightshadow.css" type="text/css" />';    break;    
     case 'btb':             $style_sheet = '<link rel="stylesheet" href="css/style_neon.css" type="text/css" />';           break;
     case 'blackneonred':    $style_sheet = '<link rel="stylesheet" href="css/style_black_neon_red.css" type="text/css" />'; break;
