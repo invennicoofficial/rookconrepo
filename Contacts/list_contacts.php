@@ -108,6 +108,11 @@ $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
                     <input type="submit" value="Filter" class="btn brand-btn" name="search_<?= $category; ?>_submit" style="display:none;" />
                 </form>
             </li>
+
+            <a href="?list=summary&status=summary">
+                <li class="<?= ($_GET['list']=='summary' && $_GET['status']=='summary') ? 'active blue' : '' ?>"><b>Summary</b></li>
+            </a>
+
             <?php foreach($lists as $list_name) {
                 //$contact_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) count FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1")); ?>
                 <!--
@@ -214,14 +219,74 @@ $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
                     </ul>
                 </li>
             <?php } ?>
+
+            <?php if(tile_visible($dbc, 'vpl') && FOLDER_NAME == 'vendors') { ?>
+                <li class="sidebar-higher-level highest-level">
+                    <a class="<?= !empty($_GET['vpl']) ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').first().toggle(); $(this).find('img').toggleClass('counterclockwise');">Vendor Price List <span class="arrow"></span></a>
+                    <ul style="<?= !empty($_GET['vpl']) ? '' : 'display:none;' ?>">
+                        <a href="?vpl=1">
+                            <li class="<?= !empty($_GET['vpl']) && empty($_GET['vendorid']) ? 'active blue' : '' ?>">All Vendor Price List Items</li>
+                        </a>
+                        <?php $vendor_lists = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT `vendor_price_list`.`vendorid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`name` FROM `vendor_price_list` LEFT JOIN `contacts` ON `vendor_price_list`.`vendorid` = `contacts`.`contactid` WHERE `vendor_price_list`.`vendorid` > 0 AND `vendor_price_list`.`deleted` = 0 AND `contacts`.`deleted` = 0"));
+                        foreach($vendor_lists as $row) { ?>
+                            <li class="sidebar-higher-level">
+                                <a class="<?= !empty($_GET['vpl']) && $_GET['vendorid'] == $row['vendorid'] ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= $row['full_name'] ?> <span class="arrow"></span></a>
+                                <ul style="<?= !empty($_GET['vpl']) && $_GET['vendorid'] == $row['vendorid'] ? '' : 'display:none;' ?>">
+                                    <a href="?vpl=1&vendorid=<?= $row['vendorid'] ?>">
+                                        <li class="<?= !empty($_GET['vpl']) && $_GET['vendorid'] == $row['vendorid'] && empty($_GET['vpl_name']) ? 'active blue' : '' ?>">All Items</li>
+                                    </a>
+                                    <?php $vpl_names = mysqli_query($dbc, "SELECT DISTINCT `vpl_name` FROM `vendor_price_list` WHERE `deleted` = 0 AND `vendorid` = '{$row['vendorid']}' AND IFNULL(`vpl_name`,'') != '' ORDER BY `vpl_name`");
+                                    while($vpl_name = mysqli_fetch_assoc($vpl_names)) { ?>
+                                        <a href="?vpl=1&vendorid=<?= $row['vendorid'] ?>&vpl_name=<?= $vpl_name['vpl_name'] ?>">
+                                            <li class="<?= !empty($_GET['vpl']) && $_GET['vendorid'] == $row['vendorid'] && $_GET['vpl_name'] == $vpl_name['vpl_name'] ? 'active blue' : '' ?>"><?= $vpl_name['vpl_name'] ?></li>
+                                        </a>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </li>
+            <?php } ?>
+
+            <?php if(tile_visible($dbc, 'vpl') && FOLDER_NAME == 'vendors' && get_config($dbc, 'show_orderforms_vpl') == 1) { ?>
+                <li class="sidebar-higher-level highest-level">
+                    <a class="<?= !empty($_GET['orderform']) ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').first().toggle(); $(this).find('img').toggleClass('counterclockwise');">Order Forms <span class="arrow"></span></a>
+                    <ul style="<?= !empty($_GET['orderform']) ? '' : 'display:none;' ?>">
+                        <?php $vendor_lists = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT `vendor_price_list`.`vendorid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`name` FROM `vendor_price_list` LEFT JOIN `contacts` ON `vendor_price_list`.`vendorid` = `contacts`.`contactid` WHERE `vendor_price_list`.`vendorid` > 0 AND `vendor_price_list`.`deleted` = 0 AND `contacts`.`deleted` = 0"));
+                        foreach($vendor_lists as $row) { ?>
+                            <li class="sidebar-higher-level">
+                                <a class="<?= !empty($_GET['orderform']) && $_GET['vendorid'] == $row['vendorid'] ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= $row['full_name'] ?> <span class="arrow"></span></a>
+                                <ul style="<?= !empty($_GET['orderform']) && $_GET['vendorid'] == $row['vendorid'] ? '' : 'display:none;' ?>">
+                                    <?php $vpl_names = mysqli_query($dbc, "SELECT DISTINCT `vpl_name` FROM `vendor_price_list` WHERE `deleted` = 0 AND `vendorid` = '{$row['vendorid']}' AND IFNULL(`vpl_name`,'') != '' ORDER BY `vpl_name`");
+                                    while($vpl_name = mysqli_fetch_assoc($vpl_names)) { ?>
+                                        <a href="?orderform=1&vendorid=<?= $row['vendorid'] ?>&vpl_name=<?= $vpl_name['vpl_name'] ?>">
+                                            <li class="<?= !empty($_GET['orderform']) && $_GET['vendorid'] == $row['vendorid'] && $_GET['vpl_name'] == $vpl_name['vpl_name'] ? 'active blue' : '' ?>"><?= $vpl_name['vpl_name'] ?></li>
+                                        </a>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </li>
+            <?php } ?>
         </ul>
     </div><!-- .tile-sidebar -->
 
     <div class='scale-to-fill has-main-screen hide-titles-mob'>
-        <div class='main-screen'>
+        <div class='main-screen <?= (!empty($_GET['vpl']) || !empty($_GET['orderform'])) && FOLDER_NAME == 'vendors' ? 'standard-body form-horizontal' : '' ?>'>
             <?php
-                $category = $list;
-                include('list_common.php');
+                if(!empty($_GET['vpl']) && FOLDER_NAME == 'vendors') {
+                    if(isset($_GET['inventoryid'])) {
+                        include('../Vendor Price List/edit_vpl.php');
+                    } else {
+                        include('../Vendor Price List/vpl_dashboard.php');
+                    }
+                } else if(!empty($_GET['orderform']) && FOLDER_NAME == 'vendors') {
+                    include('../Vendor Price List/order_form.php');
+                } else {
+                    $category = $list;
+                    include('list_common.php');
+                }
             ?>
         </div>
     </div>
@@ -238,24 +303,38 @@ if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
     </div>
 <?php } else { ?>
 	<div id="type_accordions" class="gap-top gap-left show-on-mob panel-group block-panels" style="width:95%;"><?php
-		$counter = 1;
-		foreach($lists as $list_name) { ?>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#type_accordions" href="#collapse_<?= $counter; ?>">
-							<?= $list_name; ?><span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
+		$counter = 1; ?>
+		<div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#type_accordions" href="#collapse_summary">
+                        Summary<span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse_summary" class="panel-collapse collapse">
+                <div class="panel-body" data-file="list_common.php?list=summary&status=summary">
+                    Loading...
+                </div>
+            </div>
+        </div><?php
+        foreach($lists as $list_name) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#type_accordions" href="#collapse_<?= $counter; ?>">
+                            <?= $list_name; ?><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
 
-				<div id="collapse_<?= $counter; ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file="list_common.php?list=<?=$list_name;?>&status=<?=$status;?>&category=<?=$list_name;?>&tile_name=<?=FOLDER_NAME?>">
-						Loading...
-					</div>
-				</div>
-			</div><?php
-			$counter++;
-		} ?>
+                <div id="collapse_<?= $counter; ?>" class="panel-collapse collapse">
+                    <div class="panel-body" data-file="list_common.php?list=<?=$list_name;?>&status=<?=$status;?>&category=<?=$list_name;?>&tile_name=<?=FOLDER_NAME?>">
+                        Loading...
+                    </div>
+                </div>
+            </div><?php
+            $counter++;
+        } ?>
 	</div>
 <?php } ?>

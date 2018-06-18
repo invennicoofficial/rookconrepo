@@ -1,4 +1,5 @@
-<?php include_once('../include.php'); ?>
+<?php include_once('../include.php');
+include('../Safety/field_list.php'); ?>
 <script>
 $(document).ready(function() {
 	$(window).resize(function() {
@@ -32,8 +33,8 @@ foreach(explode(',',get_config($dbc, 'safety_dashboard')) as $cat) {
 $bypass_cat = explode(',',get_config($dbc, 'safety_bypass_list'));
 // $site_list = array_filter(explode(',',get_config($dbc, 'safety_main_site_tabs')));
 $site_list = [];
-foreach(sort_contacts_query($dbc->query("SELECT `site_name`, `display_name` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `deleted`=0 AND `status` > 0")) as $site) {
-	$site_list[] = $site['display_name'] != '' ? $site['display_name'] : $site['site_name'];
+foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `site_name`, `display_name` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `deleted`=0 AND `status` > 0")) as $site) {
+	$site_list[$site['contactid']] = $site['display_name'] != '' ? $site['display_name'] : $site['site_name'];
 }
 $tab = $_GET['tab'] == '' ? (in_array('Pinned',$categories) ? 'pinned' : 'favourites') : filter_var($_GET['tab'],FILTER_SANITIZE_STRING);
 $tab_name = $categories[$tab];
@@ -62,13 +63,15 @@ if($_GET['reports'] == 'view') {
 }
 checkAuthorised('safety');
 
-if(!empty($_GET['safety'])) {
-    $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM hr WHERE hrid='".$_GET['hr']."'"))['user_form_id'];
+if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
+    $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM safety WHERE safetyid='".$_GET['safetyid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
         $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 } ?>
+
+<?php if(!IFRAME_PAGE) { ?>
 <div class="container" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0;"' : '' ?>>
 	<div class="iframe_overlay" style="margin-top: -20px; margin-left: -15px; display:none;">
 		<div class="iframe" style="position: relative; float: right; width: 50%; min-width: 25em; max-width: 100%; left: 0px;">
@@ -96,17 +99,20 @@ if(!empty($_GET['safety'])) {
             </div><!-- .tile-header -->
             
 			<div class="clearfix"></div>
+<?php } ?>
 			<?php $device = new Mobile_Detect;
 			if($device->isMobile) {
 				include('safety_mobile.php');
 			} else if(!empty($_GET['settings']) && $security['config'] > 0) {
 				include('field_config.php');
 			} else if(isset($_GET['safetyid'])) {
-			    if($user_form_layout == 'Sidebar') {
-			    	include('safety_user_forms_sidebar.php');
-			    } else {
-					include('safety_sidebar.php');
-			    }
+				if(!IFRAME_PAGE) {
+				    if($user_form_layout == 'Sidebar') {
+				    	include('safety_user_forms_sidebar.php');
+				    } else {
+						include('safety_sidebar.php');
+				    }
+				}
 				include('safety_form.php');
 			} else if(isset($_GET['safety_pdf'])) {
 				include('safety_pdf.php');
@@ -126,7 +132,9 @@ if(!empty($_GET['safety'])) {
 				include('safety_sidebar.php');
 				include('safety_list.php');
 			} ?>
+<?php if(!IFRAME_PAGE) { ?>
 		</div>
 	</div>
 </div>
 <?php include('../footer.php'); ?>
+<?php } ?>

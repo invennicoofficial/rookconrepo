@@ -13,7 +13,7 @@ $(document).ready(function() {
 		$('.order_list_equipment').removeClass('active_tab');
         $(this).addClass('active_tab');
     });
-	
+
 	if($('.order_list_equipment').length == 1 && '<?php echo $load_tab; ?>' != 'Master') {
 		$('.order_list_equipment').click();
 	}
@@ -59,7 +59,7 @@ $(document).ready(function() {
 
         return false;
     });
-    
+
     var add_new_eq_misc = 1;
 	$('#deleteequipmentmisc_0').hide();
 	$('#add_row_eq_misc').on( 'click', function () {
@@ -158,7 +158,7 @@ function fillmargincrcequipmentvalue(est) {
             jQuery('#'+profitmarginid).val(deltaper.toFixed(2));
         }
     }
-    
+
     changeEquipmentTotal();
 }
 
@@ -186,7 +186,7 @@ function countEquipment(txb) {
     $('[name="eqtotalmisc_display[]"]').each(function () {
         sum_fee += Number($(this).val());
     });
-    
+
     $('[name="equ_total"]').val('$'+round2Fixed(sum_fee));
     $('[name="equipment_summary"]').val('$'+round2Fixed(sum_fee)).change();
 
@@ -329,7 +329,7 @@ function changeEquipmentTotal() {
 		sum_cost += (+$($('[name^=crc_equipment_cost_]')[key]).val() || 0) * qty;
 		sum_total += +$(this).val() || 0;
 	});
-    
+
 	var sum_profit = sum_total - sum_cost;
 	per_profit_margin = (sum_profit / sum_total) * 100;
 	if(isNaN(per_profit_margin)) {
@@ -393,7 +393,7 @@ function countMiscEquipment(txb)
 
 		document.getElementById('eqtotalmisc_'+split_id[1]).value = parseFloat($('#eqestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
 	if(split_id[0] == 'eqqtymisc') {
 		var estqty = txb.value;
 		if(estqty == null || estqty == '') {
@@ -403,7 +403,7 @@ function countMiscEquipment(txb)
 
 		document.getElementById('eqtotalmisc_'+split_id[1]).value = parseFloat($('#eqestimatepricemisc_'+split_id[1]).val() * estqty);
 	}
-	
+
     var sum_fee = 0;
     /*$('[name="eqestimatetotal[]"]').each(function () {
         sum_fee += +$(this).val() || 0;
@@ -414,7 +414,7 @@ function countMiscEquipment(txb)
     //$('[name="eqtotalmisc[]"]').each(function () {
         sum_fee += +document.getElementById('eqtotalmisc_'+split_id[1]).value || 0;
     //});
-    
+
     sum_fee += +$('[name="equ_total"]').val();
     $('[name="equ_total"]').val('$'+round2Fixed(sum_fee));
     $('[name="equipment_summary"]').val('$'+round2Fixed(sum_fee)).change();
@@ -447,7 +447,7 @@ function changeProfitEquipmentPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[0] == 'eqprofitmargin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -458,7 +458,7 @@ function changeProfitEquipmentPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeEquipmentTotal();
 }
 
@@ -483,7 +483,7 @@ function changeProfitEquipmentRCPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[2] == 'margin')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -494,7 +494,7 @@ function changeProfitEquipmentRCPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeEquipmentTotal();
 }
 
@@ -519,7 +519,7 @@ function changeProfitEquipmentMiscPrice(profit)
 			jQuery('#'+ptotal).val(estimateTotal.toFixed(2));
 			jQuery('#'+marginid).val(estimateMargin.toFixed(2));
         }
-        
+
         if(split_id[0] == 'eqmarginmisc')
         {
 			estimateValue = (parseFloat(jQuery('#' + pcost).val()) / (1 - parseFloat(profit.value) / 100));
@@ -530,7 +530,7 @@ function changeProfitEquipmentMiscPrice(profit)
 			jQuery('#'+profitid).val(estimateProfit.toFixed(2));
         }
     }
-    
+
     changeEquipmentTotal();
 }
 </script>
@@ -573,7 +573,7 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
             <label class="col-sm-1 text-center">Cost</label>
             <?php } ?>
             <label class="col-sm-1 text-center">% Margin</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
             <label class="col-sm-1 text-center">$ Profit</label>
             <label class="col-sm-1 text-center">Total</label>
         </div>
@@ -1077,21 +1077,21 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
 								break;
 						}
 					} ?>
-					
+
 					<div class="col-sm-1" >
 						<a href="#" onclick="deleteEstimate(this,'equipmentmisc_','eqheadmisc_'); return false;" id="deleteequipmentmisc_0" class="btn brand-btn">Delete</a>
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="add_here_new_eq_misc"></div>
-			
+
 			<div class="form-group triple-gapped clearfix">
 				<div class="col-sm-offset-4 col-sm-8">
 					<button id="add_row_eq_misc" class="btn brand-btn pull-left">Add Row</button>
 				</div>
 			</div>
-            
+
             <br>
             <?php
             $query_misc_rc = mysqli_query($dbc,"SELECT * FROM estimate_misc WHERE accordion='Equipment' AND estimateid=" . $_GET['estimateid']);
@@ -1125,7 +1125,7 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
                 </div>
                 <?php
             }
-            
+
             $misc_rc = 0;
             while($misc_row_rc = mysqli_fetch_array($query_misc_rc)) { ?>
                 <div class="clearfix"></div>

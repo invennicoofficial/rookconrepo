@@ -3,7 +3,7 @@ error_reporting(0);
 include_once('../include.php'); ?>
 </head>
 <body>
-<?php 
+<?php
 checkAuthorised('estimate');
 $edit_access = vuaed_visible_function($dbc, 'estimate');
 $config_access = config_visible_function($dbc, 'estimate');
@@ -11,7 +11,7 @@ include_once ('../navigation.php'); ?>
 <div class="container">
 	<div class="row">
 		<div class="main-screen" style="background-color: #fff; border-width: 0; height: auto; margin-top: -20px;">
-			<h3 style="margin-top: 0; padding: 0.25em;"><a href="?">Estimate</a><?php if($config_access > 0) {
+			<h3 style="margin-top: 0; padding: 0.25em;"><a href="?"><?= ESTIMATE_TILE ?></a><?php if($config_access > 0) {
 				echo "<div class='pull-right' style='height: 1.35em; width: 1.35em;'><a href='?style_settings=design_styleA'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' style='height: 100%;'></a></div>";
 			} ?>
 			</h3>

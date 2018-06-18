@@ -30,7 +30,7 @@ if(!isset($estimate)) {
 					if($page_id == 'table_of_contents') { ?>
 						<li data-value="table_of_contents">Table of Contents<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php } else if($page_id == 'estimate_scope') { ?>
-						<li data-value="estimate_scope">Estimate Scope<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
+						<li data-value="estimate_scope"><?= ESTIMATE_TILE ?> Scope<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php } else { ?>
 						<li data-value="<?= $page_id ?>"><a href="edit_content_page.php?id=<?= explode('_',$page_id)[1] ?>" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Content Page<img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a><img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php }
@@ -85,7 +85,7 @@ if(!isset($estimate)) {
 			<div class="col-sm-8">
 				<label><input type="radio" name="quote_mode" <?= !in_array($estimate['quote_mode'],['Category','Total','None']) ? 'checked' : '' ?> value="All" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Each Line Total</label>
 				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'Category' ? 'checked' : '' ?> value="Category" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Category Totals</label>
-				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'Total' ? 'checked' : '' ?> value="Total" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Estimate Total Only</label>
+				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'Total' ? 'checked' : '' ?> value="Total" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> <?= ESTIMATE_TILE ?> Total Only</label>
 				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'None' ? 'checked' : '' ?> value="None" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> No Prices</label>
 			</div>
 		</div>

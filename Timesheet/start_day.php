@@ -281,7 +281,7 @@ function disableClient(chk) {
 						<button type="submit" name="submit" value="start_day" class="btn brand-btn pull-left">Start Tracking Time <?= $timesheet_hide_others == 1 ? '' : 'for Staff' ?></button>
 					<?php }
 				} else {
-					$end_time_list = sort_contacts_query(mysqli_query($dbc,"SELECT `contactid`, `first_name`, `last_name`, MAX(CONCAT(`time_cards`.`date`,' ',`time_cards`.`start_time`)) `started` FROM `contacts` LEFT JOIN `time_cards` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `contacts`.`category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `contacts`.`status`>0 AND `contacts`.`deleted`=0 AND `timer_start` > 0 AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` > 0 AND `type_of_time`='day_tracking' $hide_others_query"));
+					$end_time_list = sort_contacts_query(mysqli_query($dbc,"SELECT `contactid`, `first_name`, `last_name`, MAX(CONCAT(`time_cards`.`date`,' ',`time_cards`.`start_time`)) `started` FROM `contacts` LEFT JOIN `time_cards` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `contacts`.`category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `contacts`.`status`>0 AND `contacts`.`deleted`=0 AND `timer_start` > 0 AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` > 0 AND `type_of_time`='day_tracking' $hide_others_query GROUP BY `contacts`.`contactid`"));
 					if(count($end_time_list) > 0) { ?>
 						<h1><?= get_config($dbc, 'timesheet_end_tile') ?></h1>
 						<?php if($timesheet_hide_others == 0 && $timesheet_hide_groups != 1) { ?>

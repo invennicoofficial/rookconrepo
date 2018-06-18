@@ -219,8 +219,11 @@ if($_GET['action'] == 'mark_favourite') {
 		}
 	} else if($field == 'comment') {
 		if($table == 'intake_comments') {
-		mysqli_query($dbc, "INSERT INTO `intake_comments` (`intakeid`, `comment`, `created_by`, `created_date`) VALUES ('$id','".filter_var(htmlentities($value),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
-		echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$value.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
+			mysqli_query($dbc, "INSERT INTO `intake_comments` (`intakeid`, `comment`, `created_by`, `created_date`) VALUES ('$id','".filter_var(htmlentities($value),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$value.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
+		} else if($table == 'tickets') {
+			mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `comment`, `created_by`, `created_date`,`type`) VALUES ('$id','".filter_var(htmlentities('<p>'.$value.'</p>'),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."','note')");
+			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$value.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
 		} else {
 			mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$id','".filter_var(htmlentities($value),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
 			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$value.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
@@ -780,8 +783,8 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'get_category_list') {
 	$category = filter_var(($_POST['category'] ?: $_GET['category']),FILTER_SANITIZE_STRING);
 	echo '<option></option>';
-	foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status`=1 AND `category` LIKE '$category'")) as $contact) {
-		echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
+	foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `businessid`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `deleted`=0 AND `status`=1 AND `category` LIKE '$category'")) as $contact) {
+		echo '<option data-region="'.$contact['region'].'" data-location="'.$contact['con_locations'].'" data-classification="'.$contact['classification'].'" data-business="'.$contact['businessid'].'" value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
 	}
 } else if($_GET['action'] == 'sales_docs_upload') {
 	$projectid = $_POST['projectid'];
@@ -900,9 +903,16 @@ if($_GET['action'] == 'mark_favourite') {
 		if(!($id > 0)) {
 			$dbc->query("INSERT INTO `project_payments` (`projectid`) VALUES ('$projectid')");
 			$id = $dbc->insert_id;
+			echo $id;
 		}
 		$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-		$dbc->query("UPDATE `project_payments` SET `$field`='$value', `history`=CONCAT(IFNULL(CONCAT(`history`,'%lt;br /&gt;'),''),'$field set to $value by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."') WHERE `id`='$id'");
+		$dbc->query("UPDATE `project_payments` SET `$field`='$value', `history`=CONCAT(IFNULL(CONCAT(`history`,'&lt;br /&gt;'),''),'$field set to $value by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."') WHERE `id`='$id'");
+	}
+} else if($_GET['action'] == 'project_label') {
+	if($_POST['projectid'] > 0) {
+		echo get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$_POST['projectid']."'")));
+	} else {
+		echo 'New '.PROJECT_NOUN;
 	}
 }

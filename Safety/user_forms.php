@@ -44,11 +44,16 @@ if(!empty($_POST['field_level_hazard'])) {
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
 
             $complete_pdf = 1;
-            if(strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+            if(strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
 				$url_redirect = 'index.php?type=safety&reports=view';
 			} else {
 				$url_redirect = 'manual_reporting.php?type=safety';
 			}
+        } else if($tab == 'Toolbox' || $tab == 'Tailgate') {
+            $assign_staff = 'Organizer: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
+
+            $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 0)";
+            $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
     } else {
         $pdf_id = $_POST['fieldlevelriskid'];
@@ -79,7 +84,7 @@ if(!empty($_POST['field_level_hazard'])) {
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE  fieldlevelriskid='$pdf_id' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {
             $complete_pdf = 1;
-            if(strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+            if(strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
 				$url_redirect = 'index.php?type=safety&reports=view';
 			} else {
 				$url_redirect = 'manual_reporting.php?type=safety';
@@ -97,6 +102,12 @@ if(!empty($_POST['field_level_hazard'])) {
     $form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id`='$form_id'"));
     $pdf_name = preg_replace('/([^a-z])/', '', strtolower($form['name'])).'_'.$assign_id.'.pdf';
     mysqli_query($dbc, "UPDATE `user_form_pdf` SET `generated_file`='$pdf_name' WHERE `pdf_id`='$pdf_id'");
+
+    $safety_projectid = $_POST['safety_projectid'];
+    $safety_siteid = $_POST['safety_siteid'];
+    $safety_ticketid = $_POST['safety_ticketid'];
+    $safety_clientid = $_POST['safety_clientid'];
+    mysqli_query($dbc, "UPDATE `user_form_pdf` SET `safety_projectid` = '$safety_projectid', `safety_siteid` = '$safety_siteid', `safety_ticketid` = '$safety_ticketid', `safety_clientid` = '$safety_clientid' WHERE `pdf_id` = '$pdf_id'");
 
     include('../Form Builder/generate_form_pdf.php');
 
@@ -126,7 +137,7 @@ if(!empty($_POST['field_level_hazard'])) {
 
     include('../Form Builder/generate_form_pdf_page.php');
     
-    if($url_redirect == '' && strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+    if($url_redirect == '' && strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
         $url_redirect = 'index.php?safetyid='.$safetyid.'&action=view&formid='.$pdf_id.'';
     } else if($url_redirect == '') {
         $url_redirect = 'add_manual.php?safetyid='.$safetyid.'&action=view&formid='.$pdf_id.'';
@@ -148,7 +159,16 @@ if(!empty($_POST['field_level_hazard'])) {
         mysqli_query($dbc, "UPDATE `user_form_pdf` SET `status`='Done' WHERE `pdf_id`='$pdf_id'");
     }
 
-    echo "<script> window.location.replace('$url_redirect'); </script>";
+    if(IFRAME_PAGE && strpos($url_redirect, 'reports') !== FALSE) {
+        echo '<script type="text/javascript">
+        top.window.location.replace("'.$url_redirect.'"); </script>';
+    } else {
+        if(IFRAME_PAGE) {
+            $url_redirect .= '&mode=iframe';
+        }
+        echo '<script type="text/javascript">
+        window.location.replace("'.$url_redirect.'"); </script>';
+    }
 } else {
     $today_date = date('Y-m-d');
     $contactid = $_SESSION['contactid'];

@@ -2,7 +2,7 @@
 <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="The estimate will display exactly as outlined."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span><br />
 <label><input type="checkbox" name="quote_mode" <?= in_array('Category',$quote_mode) ? 'checked' : '' ?> value="Category" style="height:1.5em; width:1.5em;"> Display Category Totals</label>
 <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="The estimate will display only the totals for each accordion."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span><br />
-<label><input type="checkbox" name="quote_mode" <?= in_array('Total',$quote_mode) ? 'checked' : '' ?> value="Total" style="height:1.5em; width:1.5em;"> Display Estimate Total Only</label>
+<label><input type="checkbox" name="quote_mode" <?= in_array('Total',$quote_mode) ? 'checked' : '' ?> value="Total" style="height:1.5em; width:1.5em;"> Display <?= ESTIMATE_TILE ?> Total Only</label>
 <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="The estimate will only display the total with no other totals."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span><br />
 <?php if(in_array_starts('Total Multiple',$field_order) || $quote_multiple > 1) { ?>
 	<label><input type="number" name="quote_multiple" value="<?= $quote_multiple ?>" min="1" step="1" style="display:inline-block; width:4.5em;" class="form-control" onchange="toggleMultiples(this.value);"> Use Line Total Multiples</label>

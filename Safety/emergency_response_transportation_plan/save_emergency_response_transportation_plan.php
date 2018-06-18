@@ -61,11 +61,16 @@
 
             include ('emergency_response_transportation_plan_pdf.php');
             echo emergency_response_transportation_plan_pdf($dbc,$safetyid, $fieldlevelriskid);
-            if(strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+            if(strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
 				$url_redirect = 'index.php?type=safety&reports=view';
 			} else {
 				$url_redirect = 'manual_reporting.php?type=safety';
 			}
+        } else if($tab == 'Toolbox' || $tab == 'Tailgate') {
+            $assign_staff = 'Organizer: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
+
+            $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 0)";
+            $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
     } else {
@@ -101,7 +106,7 @@
         if($get_total_notdone['total_notdone'] == 0) {
             include ('emergency_response_transportation_plan_pdf.php');
             echo emergency_response_transportation_plan_pdf($dbc,$safetyid, $fieldlevelriskid);
-            if(strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+            if(strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
 				$url_redirect = 'index.php?type=safety&reports=view';
 			} else {
 				$url_redirect = 'manual_reporting.php?type=safety';
@@ -109,7 +114,7 @@
         }
     }
 
-    if($url_redirect == '' && strpos($_SERVER['script_name'],'index.php') !== FALSE) {
+    if($url_redirect == '' && strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
         $url_redirect = 'index.php?safetyid='.$safetyid.'&action=view&formid='.$fieldlevelriskid.'';
     } else if($url_redirect == '') {
         $url_redirect = 'add_manual.php?safetyid='.$safetyid.'&action=view&formid='.$fieldlevelriskid.'';
@@ -118,6 +123,14 @@
     if($field_level_hazard == 'field_level_hazard_save') {
         echo '<script type="text/javascript"> window.location.replace("safety.php?tab='.$get_manual['tab'].'&category='.$get_manual['category'].'"); </script>';
     } else {
-        echo '<script type="text/javascript">
-        window.location.replace("'.$url_redirect.'"); </script>';
+        if(IFRAME_PAGE && strpos($url_redirect, 'reports') !== FALSE) {
+            echo '<script type="text/javascript">
+            top.window.location.replace("'.$url_redirect.'"); </script>';
+        } else {
+            if(IFRAME_PAGE) {
+                $url_redirect .= '&mode=iframe';
+            }
+            echo '<script type="text/javascript">
+            window.location.replace("'.$url_redirect.'"); </script>';
+        }
     }

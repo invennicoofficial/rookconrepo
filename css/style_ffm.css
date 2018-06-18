@@ -5772,3 +5772,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#43D6DD !important; }
 body.innerframe h3, body.innerframe h4 { color:#fff !important; }
+.theme-color-border-bottom { border-bottom:2px solid #43D6DD !important; }

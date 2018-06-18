@@ -164,7 +164,7 @@ $field_config_custom = ','.$get_field_config_custom['custom'].',';
             <label class="col-sm-1 text-center">MSRP</label>
             <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
         </div>
 
         <?php if((!empty($_GET['cid'])) || (!empty($_GET['estimateid']))) {

@@ -173,10 +173,10 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 			$pdf->writeHTML($pdf_html, true, false, true, false, '');
 		}
 	}
-		
+
 	if($action == 'approve') {
-		echo insert_day_overview($dbc, $contactid, 'Estimate', date('Y-m-d'), '', 'Approved Estimate '.$estimate_name);
-	
+		echo insert_day_overview($dbc, $contactid, ESTIMATE_TILE, date('Y-m-d'), '', 'Approved Estimate '.$estimate_name);
+
 		$history = decryptIt(decryptIt($_SESSION['first_name'])).' '.decryptIt($_SESSION['last_name']).' Approved on '.date('Y-m-d H:i:s').'<br>';
 		$query_update_report = "UPDATE `estimate` SET `status` = 'Pending Quote', `history` = CONCAT(history,'$history') WHERE `estimateid` = '$estimateid'";
 		$result_update_report = mysqli_query($dbc, $query_update_report);
@@ -185,7 +185,7 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 	if($action == 'approve') {
 		$pdf->Output('download/quote_'.$estimateid.'.pdf', 'F');
 
-		$message = 'Estimate Approved and moved to Quote.';
+		$message = ESTIMATE_TILE.' Approved and moved to Quote.';
 		$url = $current_file == 'cost_estimate.php' ? 'cost_quote.php' : '../Quote/quotes.php';
 
 		echo '<script type="text/javascript"> alert("'.$message.'"); window.location.replace("'.$url.'"); </script>';
@@ -199,14 +199,14 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 			$pdf->SetAlpha(0.2);
 			$x_point = $pdf->getPageWidth() / 3;
 			$y_point = $pdf->getPageHeight() / 2;
-			
+
 			$pdf->StartTransform();
 			$pdf->Rotate(45, $x_point, $y_point);
 			$pdf->SetFont("helveticaB", "", 72);
 			$pdf->Text($x_point, $y_point, trim($text));
 			$pdf->StopTransform();
 		}
-		
+
 		$pdf->Output('download/draft_'.$estimateid.'.pdf', 'F');
 
 		echo '<script type="text/javascript"> window.location.replace("download/draft_'.$estimateid.'.pdf"); </script>';
@@ -222,7 +222,7 @@ if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
     $contactid = $_SESSION['contactid'];
     echo insert_day_overview($dbc, $contactid, 'Estimate', date('Y-m-d'), '', 'Rejected Estimate '.$estimate_name);
 
-    $message = 'Estimate Rejected and Removed from Estimate.';
+    $message = ESTIMATE_TILE.' Rejected and Removed from Estimate.';
     $url = $current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php';
     echo '<script type="text/javascript"> alert("'.$message.'"); window.location.replace("'.$url.'"); </script>';
 }
@@ -234,9 +234,9 @@ if((!empty($_GET['estimateid'])) && (!empty($_GET['status']))) {
     $result_update_report = mysqli_query($dbc, $query_update_report);
 
     if($status == 'Approve') {
-        echo '<script type="text/javascript"> alert("Estimate Approved and Moved to Project."); window.location.replace("'.$current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php'.'"); </script>';
+        echo '<script type="text/javascript"> alert("Approved and Moved to Project."); window.location.replace("'.$current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php'.'"); </script>';
     } else {
-        echo '<script type="text/javascript"> alert("Estimate Denied and Removed from Estimate."); window.location.replace("'.$current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php'.'"); </script>';
+        echo '<script type="text/javascript"> alert("Denied and Removed"); window.location.replace("'.$current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php'.'"); </script>';
     }
 }
 
@@ -248,7 +248,7 @@ $(document).ready(function() {
 $('.iframe_open').click(function(){
 		var id = $(this).attr('id');
 	   $('#iframe_instead_of_window').attr('src', 'estimate_history.php?estimateid='+id);
-	   $('.iframe_title').text('Estimate History');
+	   $('.iframe_title').text('History');
 	   $('.iframe_holder').show();
 	   $('.hide_on_iframe').hide();
 });
@@ -279,7 +279,7 @@ $('.close_iframer').click(function(){
 	<div class="row hide_on_iframe">
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        <h1><?php echo ($current_file == 'cost_estimate.php' ? 'Internal Cost Estimates Dashboard' : 'Estimates Dashboard'); ?></h1>
+        <h1><?php echo ($current_file == 'cost_estimate.php' ? 'Internal Cost '.ESTIMATE_TILE.' Dashboard' : 'Estimates Dashboard'); ?></h1>
 		<?php
         if(config_visible_function($dbc, 'estimate') == 1 || config_visible_function($dbc, 'cost_estimate') == 1) {
             echo '<br /><div class="pull-right">';
@@ -290,17 +290,17 @@ $('.close_iframer').click(function(){
         ?>
 		<?php if($current_file == 'cost_estimate.php'): ?>
 			<div class="tab-container">
-				<a href="cost_estimate.php" class="btn brand-btn active_tab">Internal Cost Estimates</a>
-				<a href="cost_quote.php" class="btn brand-btn">Client Cost Estimates</a>
+				<a href="cost_estimate.php" class="btn brand-btn active_tab">Internal Cost <?= ESTIMATE_TILE ?></a>
+				<a href="cost_quote.php" class="btn brand-btn">Client Cost <?= ESTIMATE_TILE ?></a>
 			</div>
 		<?php endif; ?>
-		
+
 		<div class='mobile-100-container'>
         <?php
         if(vuaed_visible_function($dbc, 'estimate') == 1 || vuaed_visible_function($dbc, 'cost_estimate') == 1) {
 			echo '<div class="pull-right mobile-100-pull-right">';
 				echo '<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a new estimate."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-				echo '<a href="add_estimate.php" class="btn brand-btn">Add Estimate</a>';
+				echo '<a href="add_estimate.php" class="btn brand-btn">Add '.ESTIMATE_TILE.'</a>';
 			echo '</div>';
         }
 		echo '</div>';
@@ -341,13 +341,13 @@ $('.close_iframer').click(function(){
             echo '<div id=\'no-more-tables\'><table class="table table-bordered">';
             echo '<tr class="hidden-xs hidden-sm">';
             if (strpos($config_fields_dashboard, ','."Estimate#".',') !== FALSE) {
-            echo '<th>Estimate #</th>';
+            echo '<th>'.ESTIMATE_TILE.' #</th>';
             }
             if (strpos($config_fields_dashboard, ','."Business".',') !== FALSE) {
             echo '<th>Business</th>';
             }
             if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) {
-            echo '<th>Estimate Name<br>Created Date</th>';
+            echo '<th>'.ESTIMATE_TILE.' Name<br>Created Date</th>';
             }
             if (strpos($config_fields_dashboard, ','."Total Cost".',') !== FALSE) {
             echo '<th>Total Cost</th>';
@@ -465,7 +465,7 @@ $('.close_iframer').click(function(){
         if(vuaed_visible_function($dbc, 'estimate') == 1 || vuaed_visible_function($dbc, 'cost_estimate') == 1) {
 			echo '<div class="pull-right mobile-100-pull-right">';
 				echo '<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a new estimate."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-				echo '<a href="add_estimate.php" class="btn brand-btn">Add Estimate</a>';
+				echo '<a href="add_estimate.php" class="btn brand-btn">Add '.ESTIMATE_TILE.'</a>';
 			echo '</div>';
         }
 

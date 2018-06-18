@@ -7,13 +7,13 @@ $staffid = !empty($_POST['staffid']) ? $_POST['staffid'] : '';
 <ul class="sidebar col-sm-3 hide-titles-mob">
 	<a href="?reports=statistics"><li>Reports</li></a>
 	<ul>
-		<a href="?reports=statistics"><li class="<?= $_GET['reports'] == 'statistics' ? 'active blue' : '' ?>">Estimate Stats</li></a>
-		<a href="?reports=alerts"><li class="<?= $_GET['reports'] == 'alerts' ? 'active blue' : '' ?>">Estimate Alerts</li></a>
+		<a href="?reports=statistics"><li class="<?= $_GET['reports'] == 'statistics' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Stats</li></a>
+		<a href="?reports=alerts"><li class="<?= $_GET['reports'] == 'alerts' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Alerts</li></a>
 	</ul>
 </ul>
 <div class='col-sm-9 has-main-screen hide-titles-mob'>
 	<div class='main-screen'>
-		<h3><?= $_GET['reports'] == 'alerts' ? 'Estimate Alerts' : 'Estimate Stats' ?></h3>
+		<h3><?= $_GET['reports'] == 'alerts' ? ESTIMATE_TILE.' Alerts' : ESTIMATE_TILE.' Stats' ?></h3>
 
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<div class="form-group">

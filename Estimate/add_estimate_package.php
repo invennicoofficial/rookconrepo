@@ -169,7 +169,7 @@ $field_config = ','.$get_field_config['package'].',';
             <label class="col-sm-1 text-center">MSRP</label>
             <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
-            <label class="col-sm-1 text-center">Estimate Price</label>
+            <label class="col-sm-1 text-center"><?= ESTIMATE_TILE ?> Price</label>
         </div>
 
         <?php if((!empty($_GET['pid'])) || (!empty($_GET['estimateid']))) {

@@ -2643,4 +2643,49 @@ if($_GET['fill'] == 'get_equipment_assignment_block') {
 
 	echo getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date);
 }
+if($_GET['fill'] == 'get_ticket_scheduled_time') {
+	$ticket_table = $_POST['ticket_table'];
+	$ticketid = $_POST['ticketid'];
+	$ticket_scheduleid = $_POST['ticket_scheduleid'];
+
+	if($ticket_table == 'ticket_schedule') {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '$ticket_scheduleid'"));
+	} else {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	}
+	echo $ticket['to_do_date'].'#*#'.date('H:i a',strtotime(date('Y-m-d').' '.$ticket['to_do_start_time'])).'#*#'.date('H:i a',strtotime(date('Y-m-d').' '.$ticket['to_do_end_time']));
+}
+if($_GET['fill'] == 'update_ticket_scheduled_time') {
+	$ticket_table = $_POST['ticket_table'];
+	$id = $_POST['id'];
+
+	$query = [];
+	$history = [];
+	if(!empty($_POST['to_do_date'])) {
+		$to_do_date = $_POST['to_do_date'];
+		$query[] = "`to_do_date` = '$to_do_date'";
+		$history[] = "Scheduled Date to ".$to_do_date;
+	}
+	if(!empty($_POST['to_do_start_time'])) {
+		$to_do_start_time = date('H:i:s', strtotime(date('Y-m-d').' '.$_POST['to_do_start_time']));
+		$query[] = "`to_do_start_time` = '$to_do_start_time'";
+		$history[] = "Sheduled Start Time to ".$_POST['to_do_start_time'];
+	}
+	if(!empty($_POST['to_do_end_time'])) {
+		$to_do_end_time = date('H:i:s', strtotime(date('Y-m-d').' '.$_POST['to_do_end_time']));
+		$query[] = "`to_do_end_time` = '$to_do_end_time'";
+		$history[] = "Sheduled End Time to ".$_POST['to_do_end_time'];
+	}
+
+	if($id > 0 && !empty($query)) {
+		$query = implode(', ', $query);
+		$history = htmlentities(get_contact($dbc, $_SESSION['contactid']).' updated '.implode(', ',$history).'<br>');
+		if($ticket_table == 'ticket_schedule') {
+			$id_field = 'id';
+		} else {
+			$id_field = 'ticketid';
+		}
+		mysqli_query($dbc, "UPDATE `$ticket_table` SET $query, `calendar_history` = CONCAT(IFNULL(`calendar_history`,''),'$history') WHERE `$id_field` = '$id'");
+	}
+}
 ?>

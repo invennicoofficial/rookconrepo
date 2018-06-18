@@ -5247,3 +5247,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .block-panels .panel-heading.active a {
   color: #fff !important;
 }
+.theme-color-border-bottom { border-bottom:2px solid #dc6a2e !important; }

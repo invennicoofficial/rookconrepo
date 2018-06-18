@@ -17,7 +17,7 @@ if (isset($_POST['submit'])) {
 	$sql = '';
 	if($id == '') {
 		$sql = "INSERT INTO `company_rate_card` (`rate_card_name`,`description`,`tile_name`,`start_date`,`end_date`,`daily`,`hourly`,`uom`,`cost`,`cust_price`,`history`,`created_by`,`alert_date`,`alert_staff`) VALUES
-			('$rate_card','$category','Labour','$start_date','$end_date','$daily','$hourly','$uom','$cost','$unit_price','$history','".$_SESSION['contactid']."','$alert_date','$alert_staff')";
+			('$rate_card','$category','Equipment','$start_date','$end_date','$daily','$hourly','$uom','$cost','$unit_price','$history','".$_SESSION['contactid']."','$alert_date','$alert_staff')";
 		$id = mysqli_insert_id($dbc);
 	}
 	else {
@@ -32,21 +32,21 @@ if (isset($_POST['submit'])) {
 	<?php
 	if(isset($_GET['id'])) {
 		$id = $_GET['id'];
-		$sql = "SELECT * FROM `category_rate_table` WHERE `rate_id`='".$_GET['id']."'";
+		$sql = "SELECT * FROM `company_rate_card` WHERE `companyrcid`='".$_GET['id']."'";
 		$result = mysqli_query($dbc, $sql);
 		$row = mysqli_fetch_array($result);
 	}
 	if(mysqli_num_rows($result) > 0):
-		$categories = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `equipment`");
-		$rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0 GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
-		$rate_results = mysqli_query($dbc, $rates_sql);
-		$row = mysqli_fetch_array($result); ?>
+		$categories = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `equipment` UNION SELECT DISTINCT(`type`) FROM `equipment`");
+		$rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0  GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
+		$rate_results = mysqli_query($dbc, $rates_sql); ?>
 		<h3>Rate Card Info</h3>
 		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Rate Card:</label>
 		<div class='col-sm-8'><select name='rate_card' data-placeholder='Select Rate Card' class='chosen-select-deselect form-control'><option></option>
 		<?php while($rate_name = mysqli_fetch_array($rate_results)) {
 			echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
 		} ?>
+		</select></div></div>
 		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Category:</label>
 		<div class='col-sm-8'><select name='category' data-placeholder='Choose a Category' class='chosen-select-deselect form-control'><option></option>
 		<?php while($cat = mysqli_fetch_array($categories)) {
@@ -104,7 +104,11 @@ if (isset($_POST['submit'])) {
 					<?php } ?>
 				</select>
 				<input type="text" name="uom" disabled class="form-control" style="display: none;">
+			</div>
+			</div>
 		<?php } ?>
+		<button type='submit' name='submit' value='<?php echo $id; ?>' class="btn brand-btn btn-lg pull-right">Submit</button>
+	<?php else: ?>
+		<h3>No Rate Card Found</h3>
 	<?php endif; ?>
-	<button type='submit' name='submit' value='<?php echo $id; ?>' class="btn brand-btn btn-lg pull-right">Submit</button>
-</div>
+</form></div>

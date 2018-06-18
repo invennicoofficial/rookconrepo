@@ -126,7 +126,7 @@ if (isset($_POST['save'])) {
     } else {
         echo '<script type="text/javascript">location.replace("add_estimate.php?estimateid='.$estimateid.'"); </script>';
     }
-    
+
 }
 
 if (isset($_POST['submit'])) {
@@ -182,7 +182,7 @@ if (isset($_POST['submit'])) {
     foreach ($_POST['packageid'] as $packageid_all) {
         if($packageid_all != '') {
             $query = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM package WHERE packageid='$packageid_all'"));
-			
+
             $package .= $packageid_all.'#'.$_POST['packageestimateprice'][$j].'**';
             $total_price += $_POST['packageestimateprice'][$j];
             $total_package += $_POST['packageestimateprice'][$j];
@@ -500,7 +500,7 @@ if (isset($_POST['submit'])) {
 
             $material_total += $_POST['mestimateqty'][$j];
             $material_price_total += $_POST['mestimateprice'][$j];
-			
+
             $m_html .= '<tr nobr="true">';
 			foreach($field_order as $field_data) {
 				$data = explode('***',$field_data);
@@ -734,7 +734,7 @@ if (isset($_POST['submit'])) {
 
     //Products
     $products = '';
-	
+
     $p_html = '';
     $total_product = 0;
     $j=0;
@@ -746,7 +746,7 @@ if (isset($_POST['submit'])) {
 				$products .= $_GET['estimatetabid'] . '$';
 			}*/
             $query = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM products WHERE productid='$productid_all'"));
-            
+
             $products .= $productid_all.'#'.$_POST['pestimateprice'][$j].'#'.$_POST['pestimateqty'][$j].'#'.$_POST['pestimateunit'][$j].'#'.$_POST['peprofit'][$j].'#'.$_POST['peprofitmargin'][$j].'**';
             $total_price += $_POST['pestimateprice'][$j]*$_POST['pestimateqty'][$j];
             $total_product += $_POST['pestimateprice'][$j]*$_POST['pestimateqty'][$j];
@@ -2087,7 +2087,7 @@ if (isset($_POST['submit'])) {
     include ('add_estimate_company_rate_card_estimate_data.php');
     include ('add_estimate_misc_estimate_data.php');
 	$accordion_type_count = count($accordion_types);
-	
+
     if($total_package != 0) {
         $review_budget .= '<tr><td>Packages</td>
 			<td>'.number_format((1-$cost_package/$total_package)*100, 2, '.', '').'%</td>
@@ -2461,7 +2461,7 @@ if (isset($_POST['submit'])) {
 		}
 		$category_totals .= '</tr>';
     }
-	
+
 	// Details
 	$detail_config = mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields_quote` FROM `field_config_estimate`"));
     $detail_detail = filter_var(htmlentities($_POST['detail_detail']),FILTER_SANITIZE_STRING);
@@ -2577,7 +2577,7 @@ if (isset($_POST['submit'])) {
 		$detail_html .= '<tr><td>Objective</td><td>'.html_entity_decode($detail_objective).'</td></tr>';
 	}
     $detail_note = filter_var(htmlentities($_POST['detail_note']),FILTER_SANITIZE_STRING);
-	
+
 	if($detail_html != '') {
 		$detail_html = '<table border="1px" style="padding:3px; border:1px solid black; width:100%;">
 			<tr nobr="true" style="background-color:lightgrey; color:black;">
@@ -2633,7 +2633,7 @@ if (isset($_POST['submit'])) {
     $html .= '</table><br><br>';
 	$html .= $detail_html;
 	$quote_html = $html;
-	
+
 	$html_arr = [];
 	if($accordion_type_count > 0) {
 		foreach($accordion_types as $accordion_type_html) {
@@ -2641,7 +2641,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 	$html .= $accordion_html;
-	
+
 	$html_close = '';
 
     $table_head = '<table border="1px" style="padding:3px; border:1px solid black; width:100%;">
@@ -2721,7 +2721,7 @@ if (isset($_POST['submit'])) {
 		$html_arr[$key] .= $html_close;
 		$html_arr[$key] .= '<tr><td border="0px" style="border-left:0px white hidden; border-top:0px white hidden; border-bottom:0px white hidden; width:90%;"><p style="text-align:right;">Total</p></td><td style="width:10%">$'.number_format((float)$type_total, 2, '.', '').'</td></tr></table><br />'.html_entity_decode(get_config($dbc, 'quote_sign_notes')).html_entity_decode($detail_note);
 	}
-	
+
     $final = ($total_price*$tax_rate)/100;
     $final_total = ($total_price+$final);
 
@@ -2804,7 +2804,7 @@ if (isset($_POST['submit'])) {
 	}
 	if(in_array('Category',explode(',',$quote_mode))) {
 		$quote_arr[] = $quote_html. $category_totals.$html_close;
-	} 
+	}
 	if($quote_mode == '' || in_array('All',explode(',',$quote_mode))) {
 		$quote_arr[] = $html.$html_close;
 	}
@@ -2861,7 +2861,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    insert_day_overview($dbc, $who_added, 'Estimate', $when_added, '', 'Edited Estimate '.$estimate_name);
+    insert_day_overview($dbc, $who_added, ESTIMATE_TILE, $when_added, '', 'Edited '.ESTIMATE_TILE.' '.$estimate_name);
 
     //include ('add_estimate_company_rate_card.php');
 
@@ -2949,25 +2949,25 @@ function deleteEstimate(sel, hide, blank) {
         $("#pestimatetotal_"+arr[1]).val('0');
         countProduct('delete');
     }
-	
+
 	if(arr[0] == 'deleteproductsmisc') {
         $("#ptotalmisc_"+arr[1]).val('0');
         $("#pqtymisc_"+arr[1]).val('0');
         countProduct('delete');
     }
-	
+
 	if(arr[0] == 'deleteinventorymisc') {
         $("#intotalmisc_"+arr[1]).val('0');
         $("#inqtymisc_"+arr[1]).val('0');
         countInventory('delete');
     }
-	
+
 	if(arr[0] == 'deleteequipmentmisc') {
         $("#eqtotalmisc_"+arr[1]).val('0');
         $("#eqqtymisc_"+arr[1]).val('0');
         countEquipment('delete');
     }
-	
+
 	if(arr[0] == 'deletelabourmisc') {
         $("#ltotalmisc_"+arr[1]).val('0');
         $("#lqtymisc_"+arr[1]).val('0');
@@ -3169,7 +3169,7 @@ foreach($info_config as $str) {
 <div class="container">
   <div class="row">
 
-    <h1>Estimate</h1>
+    <h1><?= ESTIMATE_TILE ?></h1>
 	<div class="gap-top double-gap-bottom"><a href="<?php echo $main_page; ?>" class="btn brand-btn">Back to Dashboard</a></div>
 
     <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -3179,7 +3179,7 @@ foreach($info_config as $str) {
         } ?>">
 
 		<div class="pad-left double-gap-bottom">
-			
+
 			<?php $base_field_config_all = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT config_fields FROM field_config_estimate WHERE `fieldconfigestimateid` = 1"));
 			$base_field_config = ','.$base_field_config_all['config_fields'].',';
 			if($_GET['estimateid']):
@@ -3309,7 +3309,7 @@ foreach($info_config as $str) {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_abi" >Estimate Information<span class="glyphicon glyphicon-minus"></span></a>
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_abi" ><?= ESTIMATE_TILE ?> Information<span class="glyphicon glyphicon-minus"></span></a>
 				</h4>
 			</div>
 
@@ -3321,7 +3321,7 @@ foreach($info_config as $str) {
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -3419,7 +3419,7 @@ foreach($info_config as $str) {
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- Hide this if WASHTECH is using ESTIMATES -->
 		<?php if(!isset($washtech_software_checker)) { ?>
 		<?php if (strpos($value_config, ','."Budget".',') !== FALSE): ?>
@@ -3442,7 +3442,7 @@ foreach($info_config as $str) {
 			</div>
 		<?php endif; ?>
 		<?php } ?>
-		
+
         <?php if(!empty($_GET['estimateid'])) { ?>
 		<?php /*if($estimateConfigValueCount == 0): ?>
 			<?php require('add_estimate_default.php'); ?>
@@ -3466,7 +3466,7 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
+
 			<?php if (strpos($value_config, ','."Promotion".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Promotion".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3484,7 +3484,7 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
+
 			<?php if (strpos($value_config, ','."Custom".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Custom".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3538,7 +3538,7 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
+
 			<?php if (strpos($value_config, ','."Products".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Products".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3610,7 +3610,7 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
+
 			<?php if (strpos($value_config, ','."Clients".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Clients".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3669,7 +3669,7 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
+
 			<?php if (strpos($value_config, ','."Inventory".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Inventory".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3686,8 +3686,8 @@ foreach($info_config as $str) {
 						</div>
 					</div>
 				</div>
-			<?php endif; ?>		
-				
+			<?php endif; ?>
+
 			<?php if (strpos($value_config, ','."Equipment".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Equipment".',') === FALSE) ? "display:none;" : ""; ?>">
 					<div class="panel-heading">
@@ -3704,7 +3704,7 @@ foreach($info_config as $str) {
 						</div>
 					</div>
 				</div>
-			<?php endif; ?>			
+			<?php endif; ?>
 
 			<?php if (strpos($value_config, ','."Labour".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Labour".',') === FALSE) ? "display:none;" : ""; ?>">
@@ -3722,7 +3722,7 @@ foreach($info_config as $str) {
 						</div>
 					</div>
 				</div>
-			<?php endif; ?>	
+			<?php endif; ?>
 
 			<?php if (strpos($value_config, ','."Expenses".',') !== FALSE): ?>
 				<div class="panel panel-default" style="<?php echo (strpos($estimateConfigValue, ','."Expenses".',') === FALSE) ? "display:none;" : ""; ?>">
@@ -3759,8 +3759,8 @@ foreach($info_config as $str) {
 					</div>
 				</div>
 			<?php endif; ?>
-			
-			
+
+
 			<?php include ('add_estimate_accordions.php'); ?>
 
 			<div class="panel panel-default">
@@ -3884,7 +3884,7 @@ foreach($info_config as $str) {
 		function() {
 			$('.js_submitter_actual').click();
 		}, 500);
-		
+
 		toggleMultiples(<?= $quote_multiple ?>, true);
     });
     </script>

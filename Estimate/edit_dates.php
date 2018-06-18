@@ -7,7 +7,7 @@ if(!isset($estimate)) {
 <div class="form-horizontal col-sm-12" data-tab-name="dates">
 	<h3>Deliverables</h3>
 	<div class="form-group">
-		<label class="col-sm-4">Date Estimate Created:</label>
+		<label class="col-sm-4">Date <?= ESTIMATE_TILE ?> Created:</label>
 		<div class="col-sm-8">
 			<input type="text" readonly class="form-control" value="<?= $estimate['created_date'] ?>">
 		</div>

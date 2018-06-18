@@ -551,7 +551,7 @@ if($_GET['tab'] != 'scrum_board') {
 								<?php if(in_array('attach',$quick_actions)) { ?>'<img src="../img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">'+<?php } ?>
 								<?php if(in_array('reply',$quick_actions)) { ?>'<img src="../img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">'+<?php } ?>
 								<?php if(in_array('time',$quick_actions)) { ?>'<img src="../img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">'+<?php } ?>
-                                <?php if(in_array('timer',$quick_actions)) { ?>'<img src="../img/icons/ROOK-timer-icon.png" class="inline-img timer-icon" title="Track Time">'+<?php } ?>
+                                <?php if(in_array('timer',$quick_actions)) { ?>'<img src="../img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Track Time">'+<?php } ?>
 								<?php if(in_array('archive',$quick_actions)) { ?>'<img src="../img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">'+<?php } ?>
 								'<img class="pull-right milestone-handle" src="../img/icons/drag_handle.png" style="height: 1em; margin-top: 0.5em;"></div>'+
 							'<h4><input type="checkbox" name="status" data-table="tasklist" data-id="'+response+'" data-id-field="tasklistid" data-incomplete="<?= $status_incomplete ?>" value="<?= $status_complete ?>" class="form-checkbox no-margin small"> Task #'+response+': '+text+'</h4>'+
@@ -781,7 +781,7 @@ if($_GET['tab'] != 'scrum_board') {
 									(in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '').
 									(in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">' : '').
 									(in_array('time',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">' : '').
-									(in_array('timer',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" class="inline-img timer-icon" title="Track Time">' : '').
+									(in_array('timer',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Track Time">' : '').
 									(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
 
 								$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$status_complete.'" class="form-checkbox no-margin small">

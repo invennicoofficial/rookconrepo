@@ -5257,3 +5257,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   filter: invert(45%) sepia(58%) saturate(342%) hue-rotate(194deg) brightness(93%) contrast(85%) !important;
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#6e78b0 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #99c73b !important; }

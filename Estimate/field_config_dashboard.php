@@ -34,14 +34,14 @@ function saveStatus() {
 <div class="form-group status-option">
 	<label class="col-sm-4">Summary Options:</label>
 	<div class="col-sm-8">
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('Total Estimates', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Total Estimates"> Total Estimates</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Total Estimates', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Total Estimates"> Total <?= ESTIMATE_TILE ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Total Value', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Total Value"> Total Value</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('6 Month Value', $summary_view) ? 'checked' : '' ?> name="summary_view" value="6 Month Value"> Estimate Values (6 Month)</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('Current Year Value', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Current Year Value"> Estimate Values Current Year</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('6 Month Value', $summary_view) ? 'checked' : '' ?> name="summary_view" value="6 Month Value"> <?= ESTIMATE_TILE ?> Values (6 Month)</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Current Year Value', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Current Year Value"> <?= ESTIMATE_TILE ?> Values Current Year</label>
 		<!-- <label class="form-checkbox"><input type="checkbox" <?= in_array('Service Cat $', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Service Cat $"> Estimates by Service Cat ($)</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Service Cat Hr', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Service Cat Hr"> Estimates by Service Cat (Hrs)</label> -->
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Type $', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimate Type $"> Estimates by Type ($)</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Type Count', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimate Type Count"> Estimates by Type Count</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Type $', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimate Type $"> <?= ESTIMATE_TILE ?> by Type ($)</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Type Count', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimate Type Count"> <?= ESTIMATE_TILE ?> by Type Count</label>
 		<!-- <label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Type Hr', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimate Type Hr"> Estimates by Type (Hrs)</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimates Month', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Estimates Month"> Estimates by Month</label> -->
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Revenue Won', $summary_view) ? 'checked' : '' ?> name="summary_view" value="Revenue Won"> Revenue Won & Lost</label>

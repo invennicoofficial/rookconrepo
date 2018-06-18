@@ -14,7 +14,7 @@ if (isset($_POST['add_tab'])) {
 	// Calendar Types
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'calendar_types' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='calendar_types') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['calendar_types'])."' WHERE `name`='calendar_types'");
-    
+
     // Calendar Work Anniversaries calendar_work_anniversaries
     $calendar_work_anniversaries = isset($_POST['calendar_work_anniversaries']) ? 1 : 0;
     $count_cwa = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configid`) `num_rows` FROM `general_configuration` WHERE `name`='calendar_work_anniversaries'"));
@@ -30,7 +30,7 @@ if (isset($_POST['add_tab'])) {
     set_config($dbc, 'calendar_reset_active', $_POST['calendar_reset_active']);
     set_config($dbc, 'calendar_reset_active_mode', $_POST['calendar_reset_active_mode']);
     set_config($dbc, 'calendar_auto_refresh', $_POST['calendar_auto_refresh']);
-    
+
 	// My Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_day_start') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".(explode(':',$_POST['my_start'])[0] == '00' ? '12:'.explode(':',$_POST['my_start'])[1] : $_POST['my_start'])."' WHERE `name`='my_day_start'");
@@ -313,7 +313,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['staff_schedule_monthly_start']."' WHERE `name`='staff_schedule_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'staff_schedule_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='staff_schedule_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['staff_schedule_monthly_days'])."' WHERE `name`='staff_schedule_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'staff_schedule_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='staff_schedule_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['staff_schedule_increments']."' WHERE `name`='staff_schedule_increments'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'staff_schedule_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='staff_schedule_wait_list') num WHERE num.rows=0");
@@ -415,7 +415,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['scheduling_monthly_start']."' WHERE `name`='scheduling_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['scheduling_monthly_days'])."' WHERE `name`='scheduling_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['scheduling_increments']."' WHERE `name`='scheduling_increments'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_wait_list') num WHERE num.rows=0");
@@ -521,7 +521,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['estimates_monthly_start']."' WHERE `name`='estimates_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['estimates_monthly_days'])."' WHERE `name`='estimates_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['estimates_increments']."' WHERE `name`='estimates_increments'");
 	if (!empty($_POST['estimates_calendar_notes'])) {
@@ -556,7 +556,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['ticket_monthly_start']."' WHERE `name`='ticket_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['ticket_monthly_days'])."' WHERE `name`='ticket_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['ticket_increments']."' WHERE `name`='ticket_increments'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_wait_list') num WHERE num.rows=0");
@@ -658,7 +658,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['shift_monthly_start']."' WHERE `name`='shift_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['shift_monthly_days'])."' WHERE `name`='shift_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['shift_increments']."' WHERE `name`='shift_increments'");
 	if (!empty($_POST['shift_calendar_notes'])) {
@@ -707,7 +707,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['event_monthly_start']."' WHERE `name`='event_monthly_start'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_monthly_days' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['event_monthly_days'])."' WHERE `name`='event_monthly_days'");
-	
+
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_increments' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_increments') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['event_increments']."' WHERE `name`='event_increments'");
 	if (!empty($_POST['event_calendar_notes'])) {
@@ -729,13 +729,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_ticket_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_ticket_summary') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$event_ticket_summary."' WHERE `name`='event_ticket_summary'");
-	
+
 	// Staff Settings
 	foreach($_POST['contactid'] as $row => $contactid) {
 		$calendar_color = $_POST['calendar_color'][$row];
 		$default_calendar = $_POST['default_calendar'][$row];
 		$calendar_enabled = (in_array($contactid, $_POST['calendar_enabled']) ? 1 : 0);
-		
+
 		mysqli_query($dbc, "UPDATE `contacts` SET `calendar_color`='$calendar_color', `calendar_enabled`='$calendar_enabled' WHERE `contactid`='$contactid'");
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '$contactid' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='$contactid') num WHERE num.rows=0");
 		mysqli_query($dbc, "UPDATE `user_settings` SET `calendar_view`='$default_calendar' WHERE `contactid`='$contactid'");
@@ -852,7 +852,7 @@ function showDefaultView(chk) {
 				if ($equip_assign_enabled != '') {
 					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Equipment Assignment.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."' >Equipment Assignment</button></a></div>";
 				}
-				
+
 				$appt_wait_list = get_config($dbc, 'appt_wait_list').get_config($dbc, 'scheduling_wait_list').get_config($dbc, 'staff_schedule_wait_list').get_config($dbc, 'ticket_wait_list');
 				if ($appt_wait_list != '') {
 					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Work Order view.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=workorder'><button type='button' class='btn brand-btn mobile-block ".$active_workorder."' >Work Orders</button></a></div>";
@@ -887,7 +887,7 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Appointment Calendar',$calendar_types) ? 'checked' : '' ?> value="Appointment Calendar"> Appointment Calendar</label>
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Staff Schedule Calendar',$calendar_types) ? 'checked' : '' ?> value="Staff Schedule Calendar"> Staff Schedule Calendar</label>
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Dispatch Calendar',$calendar_types) ? 'checked' : '' ?> value="Dispatch Calendar"> Dispatch Calendar</label>
-									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Sales Estimates Calendar',$calendar_types) ? 'checked' : '' ?> value="Sales Estimates Calendar"> Sales Estimates Calendar</label>
+									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Sales Estimates Calendar',$calendar_types) ? 'checked' : '' ?> value="Sales Estimates Calendar"> Sales <?= ESTIMATE_TILE ?> Calendar</label>
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Ticket Calendar',$calendar_types) ? 'checked' : '' ?> value="Ticket Calendar"> <?= TICKET_NOUN.' Calendar' ?></label>
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Shift Calendar',$calendar_types) ? 'checked' : '' ?> value="Shift Calendar"> Shift Calendar</label>
 									<label class="form-checkbox"><input type="checkbox" name="calendar_types[]" <?= in_array('Events Calendar',$calendar_types) ? 'checked' : '' ?> value="Events Calendar"> Events Calendar</label>
@@ -1672,7 +1672,7 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="staff_schedule_equip_assign" <?= $staff_schedule_equip_assign != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
-							<div class="form-group">	
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Staff Schedule Calendar Client Type:</label>
 								<div class="col-sm-8">
 			                        <select name="staff_schedule_client_type" data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
@@ -1939,12 +1939,12 @@ function showDefaultView(chk) {
 						</div>
 					</div>
 				</div>
-				
+
                 <div class="panel panel-default" <?= (!in_array('Sales Estimates Calendar', $calendar_types) ? 'style="display:none;"' : '') ?>>
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_estimates_calendar" >
-								Sales Estimates Calendar Settings<span class="glyphicon glyphicon-plus"></span>
+								Sales <?= ESTIMATE_TILE ?> Calendar Settings<span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
@@ -1952,7 +1952,7 @@ function showDefaultView(chk) {
 					<div id="collapse_estimates_calendar" class="panel-collapse collapse">
 						<div class="panel-body">
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Time Increments:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Time Increments:</label>
 								<div class="col-sm-8">
 									<?php $estimates_increments = get_config($dbc, 'estimates_increments'); ?>
 									<select name="estimates_increments" class="chosen-select-deselect"><option></option>
@@ -1966,21 +1966,21 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Day Start:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Day Start:</label>
 								<div class="col-sm-8">
 									<?php $estimates_day_start = get_config($dbc, 'estimates_day_start'); ?>
 									<input type="text" class="form-control datetimepicker" name="estimates_start" value="<?= $estimates_day_start ?>">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Day End:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Day End:</label>
 								<div class="col-sm-8">
 									<?php $estimates_day_end = get_config($dbc, 'estimates_day_end'); ?>
 									<input type="text" class="form-control datetimepicker" name="estimates_end" value="<?= $estimates_day_end ?>">
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Weekly View Week Start:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Weekly View Week Start:</label>
 								<div class="col-sm-8">
 									<?php $estimates_weekly_start = get_config($dbc, 'estimates_weekly_start'); ?>
 									<select name="estimates_weekly_start" class="chosen-select-deselect"><option></option>
@@ -1990,7 +1990,7 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Weekly View Days Included:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Weekly View Days Included:</label>
 								<div class="col-sm-8">
 									<?php $estimates_weekly_days = explode(',',get_config($dbc, 'estimates_weekly_days')); ?>
 									<label class="form-checkbox"><input type="checkbox" name="estimates_weekly_days[]" <?= in_array('Sunday',$estimates_weekly_days) ? 'checked' : '' ?> value="Sunday"> Sunday</label>
@@ -2003,7 +2003,7 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Monthly View # Of Days</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Monthly View # Of Days</label>
 								<div class="col-sm-8">
 									<?php $estimates_monthly_numdays = get_config($dbc, 'estimates_monthly_numdays'); ?>
 									<select name="estimates_monthly_numdays" class="chosen-select-deselect">
@@ -2014,7 +2014,7 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Monthly View Week Start:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Monthly View Week Start:</label>
 								<div class="col-sm-8">
 									<?php $estimates_monthly_start = get_config($dbc, 'estimates_monthly_start'); ?>
 									<select name="estimates_monthly_start" class="chosen-select-deselect"><option></option>
@@ -2024,7 +2024,7 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Monthly View Days Included:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Monthly View Days Included:</label>
 								<div class="col-sm-8">
 									<?php $estimates_monthly_days = explode(',',get_config($dbc, 'estimates_monthly_days')); ?>
 									<label class="form-checkbox"><input type="checkbox" name="estimates_monthly_days[]" <?= in_array('Sunday',$estimates_monthly_days) ? 'checked' : '' ?> value="Sunday"> Sunday</label>
@@ -2037,14 +2037,14 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Use Notes:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Use Notes:</label>
 								<div class="col-sm-8">
 									<?php $estimates_calendar_notes = get_config($dbc, 'estimates_calendar_notes'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="estimates_calendar_notes" <?= $estimates_calendar_notes != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Sales Estimates Calendar Use Reminders:</label>
+								<label class="col-sm-4 control-label">Sales <?= ESTIMATE_TILE ?> Calendar Use Reminders:</label>
 								<div class="col-sm-8">
 									<?php $estimates_reminders = get_config($dbc, 'estimates_reminders'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="estimates_reminders" <?= $estimates_reminders != '' ? 'checked' : '' ?> value="1"></label>
@@ -2053,7 +2053,7 @@ function showDefaultView(chk) {
 						</div>
 					</div>
 				</div>
-                
+
 				<div class="panel panel-default" <?= (!in_array('Ticket Calendar', $calendar_types) ? 'style="display:none;"' : '') ?>>
 					<div class="panel-heading">
 						<h4 class="panel-title">
@@ -2208,7 +2208,7 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="ticket_equip_assign" <?= $ticket_equip_assign != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
-							<div class="form-group">	
+							<div class="form-group">
 								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Calendar Client Type:</label>
 								<div class="col-sm-8">
 			                        <select name="ticket_client_type" data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
@@ -2654,7 +2654,7 @@ function showDefaultView(chk) {
 									</div>
 								</div>
 							<?php } ?>
-							
+
 							<!--<div class="form-group">
 								<div class="col-sm-4" style="text-align:center;">Holiday</div>
 								<div class="col-sm-3" style="text-align:center;">Day of Month</div>

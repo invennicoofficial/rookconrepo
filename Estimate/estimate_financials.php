@@ -7,7 +7,7 @@ $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='
 $total_cost = $total_price = 0; ?>
 <div id="no-more-tables" class="col-sm-12 fit-to-screen-full">
 	<div class='by-item'>
-		<h4>Profit & Loss by Item for <a href="?view=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : 'Estimate #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>
+		<h4>Profit & Loss by Item for <a href="?view=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>
 			<button class="btn brand-btn pull-right" onclick="$('.by-item,.by-heading').toggle(); return false;">View by Heading</button></h4>
 		<table class="table table-bordered">
 			<tr class="hidden-xs hidden-sm">
@@ -19,7 +19,7 @@ $total_cost = $total_price = 0; ?>
 				<th>Cost</th>
 				<th>% Margin</th>
 				<th>$ Profit</th>
-				<th>Estimate Price</th>
+				<th><?= ESTIMATE_TILE ?> Price</th>
 				<th>Total</th>
 			</tr>
 			<?php while($scope_line = mysqli_fetch_assoc($scope)) {
@@ -69,7 +69,7 @@ $total_cost = $total_price = 0; ?>
 		</table>
 	</div>
 	<div class='by-heading' style="display:none;">
-		<h4>Profit & Loss by Heading for <a href="?view=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : 'Estimate #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>
+		<h4>Profit & Loss by Heading for <a href="?view=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>
 			<button class="btn brand-btn pull-right" onclick="$('.by-item,.by-heading').toggle(); return false;">View by Item</button></h4>
 		<table class="table table-bordered">
 			<tr class="hidden-xs hidden-sm">

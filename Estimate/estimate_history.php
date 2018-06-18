@@ -16,7 +16,7 @@ error_reporting(0);
 <div class="container">
 	<div class="row">
 
-        <h1>Estimate History</h1>
+        <h1><?= ESTIMATE_TILE ?> History</h1>
 
         <?php
         $estimateid = $_GET['estimateid'];

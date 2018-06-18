@@ -82,7 +82,7 @@ else if($_GET['card'] == 'universal' || $_GET['card'] == 'company') {
 			$values = [];
 			$id = 0;
 			foreach($fields as $i => $field) {
-				if('companyrcid' == $field && $row[$i] > 0) {
+				if('companyrcid' == $field) {
 					$id = $row[$i];
 				} else {
 					$values[] = filter_var($row[$i],FILTER_SANITIZE_STRING);
@@ -96,6 +96,7 @@ else if($_GET['card'] == 'universal' || $_GET['card'] == 'company') {
 			}
 		}
 	}
+	echo "<script>window.location.replace('?type=company');</script>";
 }
 else if($_GET['card'] == 'customer' && isset($_POST['export'])) {
 	$rate_cards = $dbc->query("SELECT * FROM `rate_card` WHERE `deleted`=0");

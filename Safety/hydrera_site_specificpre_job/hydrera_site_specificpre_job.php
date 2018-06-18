@@ -95,6 +95,7 @@ $fields_value = '';
 
         $safety_topic = $get_field_level['safety_topic'];
         $concerns = $get_field_level['concerns'];
+        
     }
 ?>
 

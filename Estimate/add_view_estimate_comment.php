@@ -114,10 +114,10 @@
 		</script>
 		<?php
 		$sender = get_email($dbc, $_SESSION['contactid']);
-		$subject = 'Note Added on Estimate for you to review.';
+		$subject = 'Note Added on '.ESTIMATE_TILE.' for you to review.';
 		$body = 'Note : [NOTE]<br><br>
-            Please click below Estimate link to view all information.<br>
-            Estimate : <a target="_blank" href="'.$_SERVER['SERVER_NAME'].'/Estimate/add_estimate.php?estimateid=[ESTIMATEID]&note=add_view">Click Here</a><br>'
+            Please click below '.ESTIMATE_TILE.' link to view all information.<br>
+            '.ESTIMATE_TILE.' : <a target="_blank" href="'.$_SERVER['SERVER_NAME'].'/Estimate/add_estimate.php?estimateid=[ESTIMATEID]&note=add_view">Click Here</a><br>'
 		?>
 		<div id="email_send_div" style="display:none;">
 			<div class="form-group">

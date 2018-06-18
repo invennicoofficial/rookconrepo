@@ -86,7 +86,7 @@
             }
             if($num_rows_tickets > 0) {
                 $row_open_ticket = $row_open;
-                echo '<h4 style="font-weight: normal;">'.TICKET_NOUN.'</h4>';
+                echo '<h4 style="font-weight: normal;">'.TICKET_NOUN.'s</h4>';
                 if($daysheet_styling != 'card') {
                     echo '<ul id="past_due_tickets">';
                 }

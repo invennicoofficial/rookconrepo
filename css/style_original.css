@@ -5213,3 +5213,4 @@ display: table-cell;
     background: linear-gradient(to right, red, red);
     border: 2px solid #00adc5;
     box-shadow: 0 0 3px 3px #fafafa; }
+.theme-color-border-bottom { border-bottom:2px solid #3AC4F2 !important; }
