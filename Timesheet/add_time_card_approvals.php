@@ -10,6 +10,9 @@ if(strpos($_SERVER['HTTP_REFERER'],'time_card_approvals_coordinator.php') !== FA
 if(strpos($_SERVER['HTTP_REFERER'],'time_card_approvals_manager.php') !== FALSE) {
 	$back_url = 'time_card_approvals_manager.php';
 }
+if(strpos($_SERVER['HTTP_REFERER'],'payroll.php') !== FALSE) {
+	$back_url = 'payroll.php';
+}
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
     mysqli_query($dbc, "DELETE FROM time_cards WHERE time_cards_id=".$_GET['time_cards_id']);

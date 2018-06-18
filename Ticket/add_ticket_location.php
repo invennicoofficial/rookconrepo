@@ -363,13 +363,13 @@ function filterSitesByClient() {
 		<?php } ?>
 		<?php if (strpos($value_config, ','."Location Notes".',') !== FALSE && $field_sort_field == 'Location Notes') { ?>
 			<div class="form-group clearfix">
-				<label class="control-label col-sm-4">Notes:</label>
+				<label class="control-label col-sm-4">Site Notes:</label>
 				<div class="col-sm-8">
 					<?= html_entity_decode($get_ticket['location_notes']) ?>
 				</div>
 			</div>
-			<?php if(strpos($value_config, ','."Location Notes Anyone Can Add".',') !== FALSE) { ?>
-				<a class="pull-right no-toggle" href="" title="Add a Note" onclick="addSiteNote(this, '<?= $row['contactid'] ?>'); return false;"><img class="inline-img" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
+			<?php if(strpos($value_config, ','."Location Notes Anyone Can Add".',') !== FALSE && !$strict_view) { ?>
+				<a class="pull-right no-toggle" href="" title="Add a Note" onclick="addSiteNote(this, '<?= $row['contactid'] ?>', 1); return false;"><img class="inline-img" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
 				<div class="clearfix"></div>
 			<?php } ?>
 			<?php $pdf_contents[] = ['Notes', html_entity_decode($get_ticket['location_notes'])]; ?>

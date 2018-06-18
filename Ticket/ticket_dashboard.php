@@ -1,6 +1,8 @@
 <?php
-$archive_query = "UPDATE tickets SET status='Unassigned' WHERE (contactid IS NULL OR contactid = '') AND `status` != 'Archive' AND `deleted` = 0";
-$delete_result = mysqli_query($dbc, $archive_query);
+if(get_config($dbc, 'ticket_unassigned_status') == 1) {
+	$archive_query = "UPDATE tickets SET status='Unassigned' WHERE (contactid IS NULL OR contactid = '') AND `status` != 'Archive' AND `deleted` = 0";
+	$delete_result = mysqli_query($dbc, $archive_query);
+}
 
 $ticket_tabs = [];
 foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_tab) {

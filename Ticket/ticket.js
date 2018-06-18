@@ -1484,6 +1484,7 @@ function reload_checkin() {
 					initInputs('#tab_section_ticket_checkout');
 					setSave();
 					initSelectOnChanges();
+					reload_complete();
 				}
 			});
 		}
@@ -1499,6 +1500,7 @@ function reload_summary() {
 			initInputs('#tab_section_ticket_summary');
 			initInputs('#collapse_summary');
 			initSelectOnChanges();
+			reload_complete();
 		}
 	});
 }
@@ -1580,6 +1582,7 @@ function reload_service_checklist() {
 			$('.service_checklist').html(response);
 			initInputs('.service_checklist');
 			initSelectOnChanges();
+			calculateTimeEstimate();
 		}
 	});
 }
@@ -1601,6 +1604,14 @@ function reload_contact_notes() {
 }
 function reload_site() {
 	$('#collapse_ticket_location,#tab_section_ticket_location').load('../Ticket/edit_ticket_tab.php?tab=ticket_location&ticketid='+ticketid, function() {
+		setSave();
+		initSelectOnChanges();
+		initInputs('#collapse_ticket_contact_notes');
+		initInputs('#tab_section_ticket_contact_notes');
+	});
+}
+function reload_complete() {
+	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_contact_notes');
@@ -1673,7 +1684,7 @@ function reload_checklists() {
 		initInputs('#tab_section_ticket_view_checklist');
 	});
 }
-function addMulti(img, style) {
+function addMulti(img, style, clone_location = '') {
 	var multi_block = $(img).closest('.multi-block');
 	var type = multi_block.data('type');
 	var panel = multi_block.parents('.multi-block,.panel-body,.tab-section,.has-main-screen .main-screen').first();
@@ -1720,7 +1731,11 @@ function addMulti(img, style) {
 	block.find('textarea').removeAttr('id');
 	block.find('.select-div, .sig-div').show();
 	block.find('.manual-div, .img-div').hide();
-	source.after(block).after('<hr />');
+	if(clone_location == 'after') {
+		multi_block.after(block).after('<hr />');
+	} else {
+		source.after(block).after('<hr />');
+	}
 	var count = 0;
 	panel.find('.multi-block:visible').each(function() {
 		$(this).find('.block_count').html(++count);
@@ -2098,7 +2113,7 @@ function siteSelect(value) {
 			$('.site_info a:contains("Google Maps")').attr('href',opt.data('google')).attr('onclick','');
 		} else if(opt.data('street') != '' && opt.data('street') != undefined) {
 			var maps_link = 'http://maps.google.com/maps/place/'+opt.data('street');
-			$('.site_info [name=google_maps_address]').val(maps_link);
+			$('.site_info [name=google_maps_address]').val(maps_link).change();
 			$('.site_info a:contains("Google Maps")').attr('href',maps_link).attr('onclick','');
 			$()
 		} else {
@@ -2512,27 +2527,30 @@ function initLocks() {
 		$('.main-screen').scroll();
 	});
 }
-function addNote(type, btn) {
+function addNote(type, btn, force_allow = 0) {
 	if(ticketid > 0) {
 		$(btn).nextAll().find('.ticket_comments,.extra_billing').first().addClass('reload');
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&comment='+type+'&action_mode='+$('#action_mode').val(),'75%',false,true);
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&comment='+type+'&action_mode='+$('#action_mode').val()+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please create the '+ticket_name+' before adding notes.');
 	}
 }
-function addContactNote(btn) {
-	if($('#clientid').val() > 0) {
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+$('#clientid').val(),'75%',false,true);
+function addContactNote(btn, clientid = '', force_allow = 0) {
+	if($('#clientid').val() != undefined) {
+		clientid = $('#clientid').val();
+	}
+	if(clientid > 0) {
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+clientid+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please select a Contact before adding notes.');
 	}
 }
-function addSiteNote(btn, siteid = '') {
-	if(siteid == '') {
+function addSiteNote(btn, siteid = '', force_allow = 0) {
+	if(('#siteid').val() != undefined) {
 		siteid = $('#siteid').val();
 	}
 	if(siteid > 0) {
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+siteid,'75%',false,true);
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+siteid+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please select a Site before adding notes.');
 	}

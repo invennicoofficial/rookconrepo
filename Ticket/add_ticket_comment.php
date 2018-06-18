@@ -3,7 +3,7 @@
 		$clientid = $_POST['contact_clientid'];
 		$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
 		mysqli_query($dbc, "INSERT INTO `contacts_description` (`contactid`) SELECT '$clientid' FROM (SELECT COUNT(*) `rows` FROM `contacts_description` WHERE `contactid` = '$clientid') num WHERE num.rows=0");
-		mysqli_query($dbc, "UPDATE `contacts_description` SET `notes` = CONCAT(`notes`,'$comment') WHERE `contactid` = '$clientid'"); ?>
+		mysqli_query($dbc, "UPDATE `contacts_description` SET `notes` = CONCAT(IFNULL(`notes`,''),'$comment') WHERE `contactid` = '$clientid'"); ?>
 		<script>
 			$(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reload_contact_notes();
 			window.parent.reload_contact_notes();
@@ -37,11 +37,25 @@
 					send_email([$sender=>$sender_name], $address, '', '', $subject, $body, '');
 				} catch(Exception $e) { echo "Unable to send e-mail: ".$e->getMessage(); }
 			}
+			$role_address = [];
+			foreach(array_filter($_POST['assign_role']) as $role) {
+				$role_contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE CONCAT(',',`role`,',') LIKE '%,$role,%' AND `deleted` = 1 AND `status` > 0");
+				while($row = mysqli_fetch_assoc($role_contacts)) {
+					if(!empty(get_email($dbc, $row['contactid']))) {
+						$role_address[$row['contactid']] = get_email($dbc, $row['contactid']);
+					}
+				}
+			}
+			foreach(array_filter($role_address) as $address) {
+				try {
+					send_email([$sender=>$sender_name], $address, '', '', $subject, $body, '');
+				} catch(Exception $e) { echo "Unable to send e-mail: ".$e->getMessage(); }
+			}
 		}
 	}
 }
 
-if($access_any > 0) {
+if($access_any > 0 || $_GET['force_allow'] == 1) {
 	$comment_type = filter_var($_GET['comment'],FILTER_SANITIZE_STRING); ?>
 	<form class="col-sm-12 form-horizontal" action="" method="POST" enctype="multipart/form-data">
 		<h2>Add Note</h2><a class="pull-right" href="../blank_loading_page.php"><img class="slider-close" src="../img/icons/cancel.png"></a>
@@ -82,7 +96,7 @@ if($access_any > 0) {
 		</div>
 	  </div>
 
-	  <?php if(strpos($value_config,',Send Emails,') !== FALSE && $_GET['contact_note'] != 1) { ?>
+	  <?php if((strpos($value_config,',Send Emails,') !== FALSE || (strpos($value_config, ',Notes Alert,') !== FALSE && $comment_type == 'note')) && $_GET['contact_note'] != 1) { ?>
 		<div class="form-group" style="<?= in_array($comment_type, ['member_note']) ? "display:none;" : "" ?>">
 		  <label for="site_name" class="col-sm-4 control-label">Send Email:</label>
 		  <div class="col-sm-8">
@@ -117,6 +131,11 @@ if($access_any > 0) {
 				Please click the '.TICKET_NOUN.' link below to view all information.<br>
 				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
 		<script>
+		<?php if(strpos($value_config, ',Notes Email Default On,') !== FALSE && $_GET['contact_note'] != 1 && $comment_type == 'note') { ?>
+			$(document).ready(function() {
+				$('[name="check_send_email"]').click();
+			});
+		<?php } ?>
 		function ticket_comment_check_send_email(checked) {
 			if(checked.checked) {
 				$('[name="send_email_on_comment"]').val('Yes');
@@ -130,6 +149,23 @@ if($access_any > 0) {
 		}
 		</script>
 		<div class="ticket_comment_email_send_div email_div" style="display:none;">
+			<?php if(strpos($value_config, ',Notes Alert,') !== FALSE && $_GET['contact_note'] != 1 && $comment_type == 'note') { ?>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Alert:</label>
+					<div class="col-sm-8">
+						<select name="assign_role[]" multiple class="chosen-select-deselect form-control">
+							<option></option>
+							<?php $ticket_notes_alert_role = get_config($dbc, 'ticket_notes_alert_role');
+							$on_security = get_security_levels($dbc);
+							foreach($on_security as $category => $value) {
+								if($value != 'super') {
+									echo '<option value="'.$value.'" '.($ticket_notes_alert_role == $value ? 'selected' : '').'>'.$category.'</option>';
+								}
+							} ?>
+						</select>
+					</div>
+				</div>
+			<?php } ?>
 			<div class="form-group">
 				<label class="col-sm-4 control-label">Email Sender's Name:</label>
 				<div class="col-sm-8">
