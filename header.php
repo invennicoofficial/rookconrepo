@@ -81,6 +81,8 @@ if($software_config == 'swr') {
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_blue_orange.css" type="text/css">';
 } else if ($software_config == 'blackpurple'){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_blackpurple.css" type="text/css">';
+} else if ($software_config == 'blackred'){
+    echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_blackred.css" type="text/css">';
 } else if ($software_config == 'washt'){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_nightshadow.css" type="text/css">';
 } else if ($software_config == 'btb'){

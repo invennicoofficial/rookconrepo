@@ -145,6 +145,10 @@ if ( !empty($note) ) { ?>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'blackpurple') { echo "checked"; } ?> value='blackpurple'></td>
 			</tr>
 			<tr>
+				<td>Black & Red</td>
+				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'blackred') { echo "checked"; } ?> value='blackred'></td>
+			</tr>
+			<tr>
 				<td>Black & Turquoise</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'turq') { echo "checked"; } ?> value='turq'></td>
 			</tr>

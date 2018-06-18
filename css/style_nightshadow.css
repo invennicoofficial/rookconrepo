@@ -166,8 +166,6 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .hide_on_iframe2 label {
     color:#333;
     }
-#details_block h4 { color:#fff !important; }
-.hide_on_iframe2 h3 { color:#fff !important; }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
   border: 1px solid #777 !important;
   color: #000 !important;
@@ -183,3 +181,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .overview-block, .dashboard-container, .block-item, .connectedSortable { border-color:#000 !important; }
 .tile-navbar.blue a .block-clear { color:#ccc !important; }
 .theme-color-border-bottom { border-bottom:2px solid #000 !important; }
+.login { background-color:#D2D2D2; }
