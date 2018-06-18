@@ -357,7 +357,7 @@ if(!empty($_GET['safetyid'])) {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM safety WHERE safetyid='".$_GET['safetyid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
-        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';   
+        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 }
 ?>
@@ -578,7 +578,7 @@ if(!empty($_GET['safetyid'])) {
 
             <?php if (strpos($value_config, ','."Comments".',') !== FALSE) { ?>
               <div class="form-group">
-                <label for="first_name[]" class="col-sm-4 control-label">Comments:</label>
+                <label for="first_name[]" class="col-sm-4 control-label">Comments 1:</label>
                 <div class="col-sm-8">
                   <textarea name="comment" rows="5" cols="50" class="form-control"></textarea>
                 </div>
@@ -1097,7 +1097,7 @@ if(!empty($_GET['safetyid'])) {
             </div>
         <?php } ?>
 
-        
+
 
 		<script type="text/javascript">
 

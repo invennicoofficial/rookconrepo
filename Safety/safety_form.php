@@ -52,7 +52,7 @@ if (isset($_POST['add_manual'])) {
         $query_insert_config = "INSERT INTO `field_config_safety` (`pdf_header`, `pdf_footer`, `tab`, `form`, `fields`, `max_section`, `max_subsection`, `max_thirdsection`, `pdf_logo`) VALUES ('$pdf_header', '$pdf_footer', '$tab_field', '$form_name', '$fields', '$max_section', '$max_subsection', '$max_thirdsection', '$pdf_logo')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-	
+
     include ('save_form.php');
 }
 
@@ -403,13 +403,13 @@ function selectSubSection(sel) {
 </script>
 <script src="<?php echo WEBSITE_URL; ?>/js/jquery.simplecolorpicker.js"></script>
 			<link rel="stylesheet" href="<?php echo WEBSITE_URL; ?>/css/jquery.simplecolorpicker.css">
-<?php 
+<?php
 checkAuthorised('safety');
 if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM safety WHERE safetyid='".$_GET['safetyid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
-        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';   
+        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 }
 ?>
@@ -485,7 +485,7 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND (form='$form' OR ('$form' IN ('','Manual') AND `form` IN ('','Manual')))"));
             }
             $value_config = ','.$get_field_config['fields'].',';
-            
+
             if($value_config == ',,') {
                 $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Detail,Document,Staff,';
             }
@@ -663,10 +663,10 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
                         <?php include ('manual_video_field.php'); ?>
                     <?php } ?>
         			</ul>
-        			
+
                     <?php if (strpos($value_config, ','."Comments".',') !== FALSE) { ?>
                       <div class="form-group">
-                        <label for="first_name[]" class="col-sm-4 control-label">Comments:</label>
+                        <label for="first_name[]" class="col-sm-4 control-label">Comments 2:</label>
                         <div class="col-sm-8">
                           <textarea name="comment" rows="5" cols="50" class="form-control"></textarea>
                         </div>
@@ -1999,7 +1999,7 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
             <?php } ?>
         </div>
 
-        
+
 
 		<script type="text/javascript">
 
