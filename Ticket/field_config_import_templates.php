@@ -95,6 +95,23 @@ function saveTypes() {
 			<input typ="text" name="column" data-col="ticket_label" value="<?= $col ?>" class="form-control">
 		</div>
 	</div>
+	<?php foreach($template as $temp_line) {
+		$temp_line = explode('-*-',$temp_line);
+		if($temp_line[0] == 'ticket_type') {
+			$col = $temp_line[1];
+		}
+	} ?>
+	<div class="form-group">
+		<label class="control-label col-sm-4"><?= TICKET_NOUN ?> Type:<br /><em>If this is set, this type will be assigned to all <?= TICKET_TILE ?> imported for this template.</em></label>
+		<div class="col-sm-8">
+			<select name="column" data-col="ticket_type" data-placeholder="Select Type..." value="<?= $col ?>" class="chosen-select-deselect"><option />
+				<?php foreach($ticket_tabs as $type_name) {
+					$type_id = config_safe_str($type_name); ?>
+					<option <?= $type_id == $col ? 'selected' : '' ?> value="<?= $type_id ?>"><?= $type_name ?></option>
+				<?php } ?>
+			</select>
+		</div>
+	</div>
 	<?php include_once('ticket_field_list.php');
 	foreach($ticket_fields as $field_config_str) {
 		foreach(ticket_field_name($field_config_str) as $arr) {
@@ -114,6 +131,6 @@ function saveTypes() {
 		<?php }
 	} ?>
 <?php } ?>
-<?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_types.php') { ?>
+<?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_import_templates.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>

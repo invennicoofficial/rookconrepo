@@ -52,7 +52,7 @@ if (isset($_POST['add_manual'])) {
         $query_insert_config = "INSERT INTO `field_config_safety` (`pdf_header`, `pdf_footer`, `tab`, `form`, `fields`, `max_section`, `max_subsection`, `max_thirdsection`, `pdf_logo`) VALUES ('$pdf_header', '$pdf_footer', '$tab_field', '$form_name', '$fields', '$max_section', '$max_subsection', '$max_thirdsection', '$pdf_logo')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-	
+
     include ('save_form.php');
 }
 
@@ -128,7 +128,9 @@ if (isset($_POST['view_manual'])) {
 	}
     echo '<script type="text/javascript"> window.location.replace("'.$return_url.'"); </script>';
 }
+
 if (isset($_POST['field_level_hazard'])) {
+
     $field_level_hazard = $_POST['field_level_hazard'];
     $safetyid = $_POST['safetyid'];
 
@@ -273,6 +275,53 @@ if (isset($_POST['field_level_hazard'])) {
             mysqli_query($dbc, "UPDATE `$safety_db` SET `safety_projectid` = '$safety_projectid', `safety_siteid` = '$safety_siteid', `safety_ticketid` = '$safety_ticketid', `safety_clientid` = '$safety_clientid' WHERE `fieldlevelriskid` = '$fieldlevelriskid'");
         }
     }
+
+    if($form_name_save == 'Manual') {
+        $comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
+
+        $safetyid = $_POST['safetyid'];
+
+        $type = $_POST['type'];
+
+        $signature = sigJsonToImage($_POST['output']);
+        imagepng($signature, 'download/sign_'.$safetyid.'_'.$_SESSION['contactid'].'.png');
+
+        include_once('manual_pdf.php');
+
+        if($comment != '') {
+            $get_manual =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM	manuals WHERE	safetyid='$safetyid'"));
+
+            //Mail
+
+            $to = get_config($dbc, 'safety_manual_completed_email');
+            if(!empty($to)) {
+                $manual = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `category`, `heading`, `heading_number`, `sub_heading`, `sub_heading_number`, `third_heading`, `third_heading_number` FROM `manuals` WHERE safetyid='$safetyid'"));
+                $heading = $manual['third_heading'] != '' ? $manual['third_heading_number'].' '.$manual['third_heading'] : ($manual['sub_heading'] != '' ? $manual['sub_heading_number'].' '.$manual['sub_heading'] : $manual['heading_number'].' '.$manual['heading']);
+                $subject = get_config($dbc, 'safety_manual_subject_completed');
+                $body = html_entity_decode(str_replace(['[COMMENT]'],[($comment == '' ? '' : 'Comment: '.$comment)],get_config($dbc, 'safety_manual_body_completed')));
+                try {
+                    send_email('', $to, '', '', $subject, $body, $pdf_path);
+                } catch(Exception $e) { }
+            }
+            //Mail
+        }
+
+        $staffid = $_SESSION['contactid'];
+        $today_date = date('Y-m-d H:i:s');
+        // Insert a row if it isn't already there
+        $query_insert_row = "INSERT INTO `safety_staff` (`safetyid`, `staffid`) SELECT '$safetyid', '$staffid' FROM (SELECT COUNT(*) rows FROM `safety_staff` WHERE `safetyid`='$safetyid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
+        mysqli_query($dbc, $query_insert_row);
+        $query_update_ticket = "UPDATE `safety_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `safetyid` = '$safetyid' AND staffid='$staffid' AND done=0";
+        $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+
+        $return_url = 'index.php?tab=manuals';
+        if(!empty($_GET['return_url'])) {
+            $return_url = urldecode($_GET['return_url']);
+        }
+        echo '<script type="text/javascript"> window.location.replace("'.$return_url.'"); </script>';
+
+    }
+
 }
 ?>
 <script type="text/javascript">
@@ -403,13 +452,13 @@ function selectSubSection(sel) {
 </script>
 <script src="<?php echo WEBSITE_URL; ?>/js/jquery.simplecolorpicker.js"></script>
 			<link rel="stylesheet" href="<?php echo WEBSITE_URL; ?>/css/jquery.simplecolorpicker.css">
-<?php 
+<?php
 checkAuthorised('safety');
 if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM safety WHERE safetyid='".$_GET['safetyid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
-        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';   
+        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 }
 ?>
@@ -485,7 +534,7 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND (form='$form' OR ('$form' IN ('','Manual') AND `form` IN ('','Manual')))"));
             }
             $value_config = ','.$get_field_config['fields'].',';
-            
+
             if($value_config == ',,') {
                 $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Detail,Document,Staff,';
             }
@@ -663,7 +712,7 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
                         <?php include ('manual_video_field.php'); ?>
                     <?php } ?>
         			</ul>
-        			
+
                     <?php if (strpos($value_config, ','."Comments".',') !== FALSE) { ?>
                       <div class="form-group">
                         <label for="first_name[]" class="col-sm-4 control-label">Comments:</label>
@@ -1999,7 +2048,7 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
             <?php } ?>
         </div>
 
-        
+
 
 		<script type="text/javascript">
 

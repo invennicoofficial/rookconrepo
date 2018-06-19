@@ -51,6 +51,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Business', 'dropdown', 'business'),
 			array('Customer', 'dropdown', 'customer'),
 			array(TICKET_NOUN, 'dropdown', 'ticketid'),
+			array('Search by Staff', 'dropdown', 'search_staff'),
 			array('Search by Client', 'dropdown', 'search_client'),
 			array('Show Hours', 'hidden', 'show_hours'),
 			array('Scheduled Hours', 'hidden', 'scheduled'),

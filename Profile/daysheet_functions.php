@@ -42,6 +42,20 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
         $label .= '<br />Availability: '.$ticket['availability'];
     }
 
+    if(in_array('Site Address', $daysheet_ticket_fields) && $ticket['siteid'] > 0) {
+        $site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."'"));
+        if(!empty($site['address'])) {
+            $label .= '<br />Site Address: '.html_entity_decode($site['address']);
+        }
+    }
+
+    if(in_array('Site Notes', $daysheet_ticket_fields) && $ticket['siteid'] > 0) {
+        $site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$ticket['siteid']."'"));
+        if(!empty($site['notes'])) {
+            $label .= '<br />Site Notes: '.html_entity_decode($site['notes']);
+        }
+    }
+
     //Timer stuff
     $total_minutes = 0;
     $ticket_timer = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_timer` WHERE `ticketid` = '".$ticket['ticketid']."' AND `created_by` = '".$contactid."' AND `timer_type` != 'Break'"),MYSQLI_ASSOC);
@@ -104,6 +118,10 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 	
     if(in_array('Details with Confirm', $daysheet_ticket_fields)) {
     	$label .= '<label class="form-checkbox"><input type="checkbox" name="status" value="'.$status_complete.'">Mark '.$status_complete.'</label>';
+    }
+
+    if(in_array('Delivery Notes', $daysheet_ticket_fields) && strip_tags(html_entity_decode($ticket['delivery_notes'])) != '') {
+    	$label .= 'Notes: '.html_entity_decode($ticket['delivery_notes']);
     }
 
     return $label;

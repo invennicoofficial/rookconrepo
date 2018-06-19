@@ -37,3 +37,13 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('edit', $manifest_fields) ? 'checked' : '' ?> value="edit" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Edit Manifests</label>
 	</div>
 </div>
+<?php $manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_types')); ?>
+<div class="form-group">
+	<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> to include on Manifests:</label>
+	<div class="col-sm-8">
+		<?php foreach($ticket_tabs as $ticket_type) {
+			$type_id = config_safe_str($ticket_type); ?>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('type '.$type_id, $manifest_fields) || !in_array_starts('type ',$manifest_fields) ? 'checked' : '' ?> value="type <?= $type_id ?>" name="tickets_manifests[]"> <?= $ticket_type ?></label>
+		<?php } ?>
+	</div>
+</div>

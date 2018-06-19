@@ -557,6 +557,10 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Attached Contact Notes Add Note", $all_config) ? 'checked disabled' : (in_array("Attached Contact Notes Add Note", $value_config) ? "checked" : '') ?> value="Attached Contact Notes Add Note" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add notes to the attached <?= CONTACTS_NOUN ?> in the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= CONTACTS_NOUN ?> Notes - Add Note Button</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Attached Contact Notes Anyone Can Add') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Attached Contact Notes Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Attached Contact Notes Anyone Can Add", $value_config) ? "checked" : '') ?> value="Attached Contact Notes Anyone Can Add" name="tickets[]">
+									<?= CONTACTS_NOUN ?> Notes - Anyone Can Add</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 					</div>
@@ -1451,6 +1455,9 @@ if(!$action_mode && !$overview_mode) {
 								<?php if($field_sort_field == 'Service Staff Checklist Checked In Staff') { ?>
 									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Checked In Staff", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Checked In Staff", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Checked In Staff" name="tickets[]"> Checked In Staff Only</label>
 								<?php } ?>
+								<?php if($field_sort_field == 'Service Staff Checklist Default Customer Template') { ?>
+									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Default Customer Template", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Default Customer Template", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Default Customer Template" name="tickets[]"> Default Customer Template If Exists</label>
+								<?php } ?>
 							<?php } ?>
 							</div>
 						</div>
@@ -1724,6 +1731,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Material Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Category", $all_config) ? 'checked disabled' : (in_array("Material Category", $value_config) ? "checked" : '') ?> value="Material Category" name="tickets[]"> Material Category</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Material Subcategory') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Subcategory", $all_config) ? 'checked disabled' : (in_array("Material Subcategory", $value_config) ? "checked" : '') ?> value="Material Subcategory" name="tickets[]"> Material Sub-Category</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Material Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Type", $all_config) ? 'checked disabled' : (in_array("Material Type", $value_config) ? "checked" : '') ?> value="Material Type" name="tickets[]"> Material Type</label>
 							<?php } ?>
@@ -1745,6 +1755,14 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Auto Check Out Materials') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Auto Check Out Materials", $all_config) ? 'checked disabled' : (in_array("Auto Check Out Materials", $value_config) ? "checked" : '') ?> value="Auto Check Out Materials" name="tickets[]"> Auto Check Out Materials</label>
 							<?php } ?>
+						<?php } ?>
+						<?php if(!$action_mode && !$overview_mode) { ?>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Quantity Increment:</label>
+								<div class="col-sm-8">
+									<input type="number" name="ticket_material_increment" class="form-control" step="0.01" min="0" value="<?= get_config($dbc, 'ticket_material_increment') ?>">
+								</div>
+							</div>
 						<?php } ?>
 						</div>
 					</div>
@@ -2531,6 +2549,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Status", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Status", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Status" name="tickets[]"> Multi-Stop Status</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Notes') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Notes", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Notes", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Notes" name="tickets[]"> Multi-Stop Notes</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Calendar History') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Calendar History", $all_config) ? 'checked disabled' : (in_array("Delivery Calendar History", $value_config) ? "checked" : '')) ?> value="Delivery Calendar History" name="tickets[]"> Multi-Stop Calendar History</label>
 							<?php } ?>
@@ -3253,13 +3274,32 @@ if(!$action_mode && !$overview_mode) {
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add general notes to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<?php if(!$action_mode && !$overview_mode) { ?>
 						<div class="block-group">
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Notes Anyone Can Add", $value_config) ? "checked" : '') ?> value="Notes Anyone Can Add" name="tickets[]"> Anyone Can Add Notes</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Limit", $all_config) ? 'checked disabled' : (in_array("Notes Limit", $value_config) ? "checked" : '') ?> value="Notes Limit" name="tickets[]"> Limit Number of Visible Notes</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Alert", $all_config) ? 'checked disabled' : (in_array("Notes Alert", $value_config) ? "checked" : '') ?> value="Notes Alert" name="tickets[]"> Alert Security Levels</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Email Default On", $all_config) ? 'checked disabled' : (in_array("Notes Email Default On", $value_config) ? "checked" : '') ?> value="Notes Email Default On" name="tickets[]"> Send Email Default On</label>
 							<div class="form-group">
 								<h3>Limit Number of Notes</h3>
 								<label class="col-sm-4 control-label">Number of Notes:</label>
 								<div class="col-sm-8">
 									<?php $ticket_notes_limit = get_config($dbc, 'ticket_notes_limit'); ?>
 									<input type="number" name="ticket_notes_limit" class="form-control" value="<?= $ticket_notes_limit < 1 ? 1 : $ticket_notes_limit ?>" min="1" onchange="saveFields();">
+								</div>
+							</div>
+							<div class="form-group">
+								<h3>Default Security Level to Alert</h3>
+								<label class="col-sm-4 control-label">Security Level:</label>
+								<div class="col-sm-8">
+									<?php $ticket_notes_alert_role = get_config($dbc, 'ticket_notes_alert_role'); ?>
+									<select name="ticket_notes_alert_role" class="chosen-select-deselect form-control">
+										<option></option>
+										<?php $on_security = get_security_levels($dbc);
+										foreach($on_security as $category => $value) {
+											if($value != 'super') {
+												echo '<option value="'.$value.'" '.($ticket_notes_alert_role == $value ? 'selected' : '').'>'.$category.'</option>';
+											}
+										} ?>
+									</select>
 								</div>
 							</div>
 						</div>
@@ -3449,6 +3489,7 @@ if(!$action_mode && !$overview_mode) {
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Do Not Require Notes", $all_config) ? 'checked disabled' : (in_array("Complete Do Not Require Notes", $value_config) ? "checked" : '') ?> value="Complete Do Not Require Notes" name="tickets[]"> Do Not Require Notes To Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Default Session User", $all_config) ? 'checked disabled' : (in_array("Complete Default Session User", $value_config) ? "checked" : '') ?> value="Complete Default Session User" name="tickets[]"> Default Select Logged In User</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Email Users On Complete", $all_config) ? 'checked disabled' : (in_array("Complete Email Users On Complete", $value_config) ? "checked" : '') ?> value="Complete Email Users On Complete" name="tickets[]"> Email Users On Complete</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Combine Checkout Summary", $all_config) ? 'checked disabled' : (in_array("Complete Combine Checkout Summary", $value_config) ? "checked" : '') ?> value="Complete Combine Checkout Summary" name="tickets[]"> Combine Checkout, Staff Summary, and Complete</label>
 						</div>
 					<?php } ?>
 				</div>

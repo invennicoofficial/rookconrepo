@@ -29,7 +29,7 @@ $(document).ready(function() {
 			$('[name="daysheet_rightside_views[]"]:checked').each(function() {
 				daysheet_rightside_views += this.value + ',';
 			});
-            var daysheet_ticket_default_mode = $('[name="daysheet_ticket_default_mode"]:checked').val();;
+            var daysheet_ticket_default_mode = $('[name="daysheet_ticket_default_mode"]:checked').val();
 			$.ajax({
 				url: '../Profile/profile_ajax.php?fill=daysheet_config',
 				method: 'POST',
@@ -140,10 +140,13 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Time Estimate', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Time Estimate">Time Estimate</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Attachment Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Attachment Indicator">Attachment Indicator Icon</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Comment Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Comment Indicator">Comment Indicator Icon</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Delivery Notes', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Delivery Notes">Delivery Notes</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Combine Warehouse Stops', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Combine Warehouse Stops">Combine <?= TICKET_TILE ?></label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Combined Details with Confirm', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Combined Details with Confirm">Include Detail Checkbox with Confirmation when Combined</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Details with Confirm', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Details with Confirm">Include Detail Checkbox with Confirmation</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Sort Completed to End', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Sort Completed to End">Display Completed <?= TICKET_TILE ?> at End</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Address', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Address"> Site Address</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Notes', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Notes"> Site Notes</label>
             </div>
             <div class="clearfix"></div>
             <label class="col-sm-4 control-label"><?= CONTACTS_NOUN ?> for Combined <?= TICKET_TILE ?>:</label>

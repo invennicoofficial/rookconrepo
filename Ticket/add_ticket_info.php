@@ -23,6 +23,9 @@
 	}
 	$ticket_services = implode(',',array_unique(array_filter($ticket_services)));
 	mysqli_query($dbc, "UPDATE `tickets` SET `serviceid` = '$ticket_services', `service_templateid` = '".$_GET['customer_service_template']."' WHERE `ticketid` = '$ticketid'");
+	if($_GET['mark_loaded'] == 1) {
+		mysqli_query($dbc, "UPDATE `tickets` SET `service_templateid_loaded` = '1' WHERE `ticketid` = '$ticketid'");
+	}
 	if($_GET['replace_services'] == 1) {
 		foreach(array_filter(explode(',',$ticket_services)) as $ticket_service) {
 			$ticket_service_qty[] = 1;
@@ -33,6 +36,7 @@
 	} else {
 		echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
 	}
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 } else if(!empty($_GET['load_service_template']) && $ticketid > 0) {
 	if($_GET['replace_services'] == 1) {
 		$ticket_services = [];
@@ -52,6 +56,9 @@
 	}
 	$ticket_services = implode(',',array_unique(array_filter($ticket_services)));
 	mysqli_query($dbc, "UPDATE `tickets` SET `serviceid` = '$ticket_services', `service_templateid` = '".$_GET['load_service_template']."' WHERE `ticketid` = '$ticketid'");
+	if($_GET['mark_loaded'] == 1) {
+		mysqli_query($dbc, "UPDATE `tickets` SET `service_templateid_loaded` = '1' WHERE `ticketid` = '$ticketid'");
+	}
 	if($_GET['replace_services'] == 1) {
 		foreach(array_filter(explode(',',$ticket_services)) as $ticket_service) {
 			$ticket_service_qty[] = 1;
@@ -62,6 +69,7 @@
 	} else {
 		echo '<script type="text/javascript">reload_billing();$(\'[name="service_qty_group"]\').change();</script>';
 	}
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 } ?>
 <h3><?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : (strpos($value_config, ',Ticket Details,') !== FALSE ? TICKET_NOUN.' Details' : 'Services')) ?></h3>
 <script type="text/javascript">
@@ -157,19 +165,28 @@ function changeDesc(cb) {
     //}
 }
 function calculateTimeEstimate() {
-	var total_minutes = 0;
-	$('[name="service_estimated_hours"]').each(function() {
-		var minutes = $(this).val().split(':');
-		minutes = (parseInt(minutes[0])*60) + parseInt(minutes[1]);
-        total_minutes += minutes;
-	});
-	var new_hours = parseInt(total_minutes / 60);
-	var new_minutes = parseInt(total_minutes % 60);
-	new_hours = new_hours.toString().length > 1 ? new_hours : '0'+new_hours.toString();
-	new_minutes = new_minutes.toString().length > 1 ? new_minutes : '0'+new_minutes.toString();
+	// var total_minutes = 0;
+	// $('[name="service_estimated_hours"]').each(function() {
+	// 	var minutes = $(this).val().split(':');
+	// 	minutes = (parseInt(minutes[0])*60) + parseInt(minutes[1]);
+ //        total_minutes += minutes;
+	// });
+	// var new_hours = parseInt(total_minutes / 60);
+	// var new_minutes = parseInt(total_minutes % 60);
+	// new_hours = new_hours.toString().length > 1 ? new_hours : '0'+new_hours.toString();
+	// new_minutes = new_minutes.toString().length > 1 ? new_minutes : '0'+new_minutes.toString();
 
-	total_time_estimate = new_hours+':'+new_minutes;
-	$('.service_total_time_estimate').val(total_time_estimate);
+	// total_time_estimate = new_hours+':'+new_minutes;
+	// $('.service_total_time_estimate').val(total_time_estimate);
+	var ticketid = $('#ticketid').val();
+	$.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=get_service_time_estimate',
+		method: 'POST',
+		data: { ticketid: ticketid },
+		success:function(response) {
+			$('.service_total_time_estimate').val(response);
+		}
+	})
 }
 function limitServiceCategory() {
 	<?php if(strpos($value_config,',Service Limit Service Category,') !== FALSE) { ?>
@@ -229,10 +246,19 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 			type: 'GET',
 			dataType: 'html',
 			success: function(response) {
-				console.log(response);
 				$('[name="customer_service_template"]').html(response);
 				$('[name="customer_service_template"]').trigger('change.select2');
 				initSelectOnChanges();
+				<?php if(strpos($value_config, ',Service Staff Checklist Default Customer Template,') !== FALSE) { ?>
+					var templateid = '';
+					$('[name="customer_service_template"] option').each(function() {
+						if($(this).val() != undefined && $(this).val() != '') {
+							templateid = $(this).val();
+							return;
+						}
+					});
+					loadCustomerServiceTemplate(templateid, 1);
+				<?php } ?>
 			}
 		});
 	}
@@ -246,37 +272,35 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 				modal: true,
 				buttons: {
 					"Add Services": function() {
-						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
-							setSave();
-							initSelectOnChanges();
-							initInputs('#collapse_ticket_info');
-							initInputs('#tab_section_ticket_info');
-							setBilling();
-						});
+						loadCustomerServiceTemplate(templateid, 0, 1);
 						$(this).dialog('close');
 					},
 					"Replace Services": function() {
-						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&replace_services=1', function() {
-							setSave();
-							initSelectOnChanges();
-							initInputs('#collapse_ticket_info');
-							initInputs('#tab_section_ticket_info');
-							setBilling();
-						});
+						loadCustomerServiceTemplate(templateid, 1, 1);
 						$(this).dialog('close');
 					},
 			        Cancel: function() {
-			        	$('[name="customer_service_template"]').val('').trigger('change.select2');
 			        	$(this).dialog('close');
 			        }
 				}
 			});
 		}
 	}
+	function loadCustomerServiceTemplate(templateid, replace = 0, mark_loaded = 0) {
+		$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&customer_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&mark_loaded='+mark_loaded+'&replace_services='+replace, function() {
+			setSave();
+			initSelectOnChanges();
+			initInputs('#collapse_ticket_info');
+			initInputs('#tab_section_ticket_info');
+			setBilling();
+			window.parent.$('[name="customer_service_template"]').val(templateid).trigger('change.select2');
+			window.parent.$('[name="load_service_template"]').val(templateid).trigger('change.select2');
+		});
+	}
 	</script>
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Load Customer Template:</label>
-		<div class="col-sm-8 <?= (strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') === FALSE && strpos($value_config,',Service Group Cat Type All Services Combine Checklist,') !== FALSE) || !empty($_GET['add_service_iframe']) || !($get_ticket['service_templateid'] > 0) ? '' : 'readonly-block' ?>">
+		<div class="col-sm-8 <?= (strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') === FALSE && strpos($value_config,',Service Group Cat Type All Services Combine Checklist,') !== FALSE) || !empty($_GET['add_service_iframe']) || !($get_ticket['service_templateid_loaded'] > 0) ? '' : 'readonly-block' ?>">
 			<select name="customer_service_template" data-placeholder="Select a Customer Template" class="chosen-select-deselect form-control">
 				<option></option>
 				<?php $customer_templates = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".(!empty($get_ticket['clientid']) ? $get_ticket['clientid'] : $service_contact)."'"))['service_templates'];
@@ -284,7 +308,7 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 					foreach(explode(',',$customer_templates) as $customer_template) {
 						$customer_template = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `templateid` = '$customer_template'"));
 						if(!empty($customer_template)) { ?>
-							<option value="<?= $customer_template['templateid'] ?>" <?= strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') !== FALSE && $get_ticket['service_templateid'] == $service_template['templateid'] ? 'selected' : '' ?>><?= $customer_template['name'] ?></option>
+							<option value="<?= $customer_template['templateid'] ?>" <?= strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') !== FALSE && $get_ticket['service_templateid'] == $customer_template['templateid'] ? 'selected' : '' ?>><?= $customer_template['name'] ?></option>
 						<?php }
 					}
 				} ?>
@@ -305,22 +329,26 @@ if((strpos($value_config,',Service Load Template,') !== FALSE || strpos($value_c
 				modal: true,
 				buttons: {
 					"Add Services": function() {
-						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>', function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&mark_loaded=1', function() {
 							setSave();
 							initSelectOnChanges();
 							initInputs('#collapse_ticket_info');
 							initInputs('#tab_section_ticket_info');
 							setBilling();
+							window.parent.$('[name="customer_service_template"]').val(templateid).trigger('change.select2');
+							window.parent.$('[name="load_service_template"]').val(templateid).trigger('change.select2');
 						});
 						$(this).dialog('close');
 					},
 					"Replace Services": function() {
-						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&replace_services=1', function() {
+						$('#collapse_ticket_info,#tab_section_ticket_info').load('../Ticket/edit_ticket_tab.php?tab=ticket_info&load_service_template='+templateid+'&ticketid='+ticketid+'&add_service_iframe=<?= $_GET['add_service_iframe'] ?>&mark_loaded=1&replace_services=1', function() {
 							setSave();
 							initSelectOnChanges();
 							initInputs('#collapse_ticket_info');
 							initInputs('#tab_section_ticket_info');
 							setBilling();
+							window.parent.$('[name="customer_service_template"]').val(templateid).trigger('change.select2');
+							window.parent.$('[name="load_service_template"]').val(templateid).trigger('change.select2');
 						});
 						$(this).dialog('close');
 					},
@@ -335,7 +363,7 @@ if((strpos($value_config,',Service Load Template,') !== FALSE || strpos($value_c
 	</script>
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Load Service Template:</label>
-		<div class="col-sm-8 <?= (strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') === FALSE && strpos($value_config,',Service Group Cat Type All Services Combine Checklist,') !== FALSE) || !empty($_GET['add_service_iframe']) || !($get_ticket['service_templateid'] > 0) ? '' : 'readonly-block' ?>">
+		<div class="col-sm-8 <?= (strpos($value_config, ','."Service Staff Checklist One Service Template Only".',') === FALSE && strpos($value_config,',Service Group Cat Type All Services Combine Checklist,') !== FALSE) || !empty($_GET['add_service_iframe']) || !($get_ticket['service_templateid_loaded'] > 0) ? '' : 'readonly-block' ?>">
 			<select name="load_service_template" data-placeholder="Select a Service Template" class="chosen-select-deselect form-control">
 				<option></option>
 				<?php $client_service_category = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `service_category` FROM `contacts` WHERE `contactid` = '{$get_ticket['clientid']}'"))['service_category'];

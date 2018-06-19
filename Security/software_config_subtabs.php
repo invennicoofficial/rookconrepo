@@ -1281,6 +1281,9 @@ checkAuthorised('security');
 					/* Time Sheets subtab settings */
 					if ( $tile == 'timesheet' ) { ?>
 						<tr><td>Time Sheets</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Time_Sheets' ); ?></tr>
+						<?php if(in_array('search_staff', explode(',',get_field_config($dbc, 'time_cards')))) { ?>
+							<tr><td>Time Sheets - Search by Staff</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'search_staff' ); ?></tr>
+						<?php } ?>
 						<tr><td>Pay Period</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Pay_Period' ); ?></tr>
 						<tr><td>Holidays</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Holidays' ); ?></tr>
 						<tr><td>Coordinator Approvals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'Coordinator_Approvals' ); ?></tr>

@@ -199,6 +199,8 @@ function saveFields() {
 	});
 	var ticket_notes_limit = $('[name="ticket_notes_limit"]').val();
 	var ticket_recurring_status = $('[name="ticket_recurring_status"]').val();
+	var ticket_material_increment = $('[name="ticket_material_increment"]').val();
+	var ticket_notes_alert_role = $('[name="ticket_notes_alert_role"]').val();
 	$.post('ticket_ajax_all.php?action=ticket_fields', {
 		fields: ticket_fields,
 		field_name: '<?= empty($tab) ? 'tickets' : 'ticket_fields_'.$tab ?>',
@@ -258,7 +260,9 @@ function saveFields() {
 		ticket_summary_hide_positions: ticket_summary_hide_positions,
 		ticket_delivery_time_mintime: $('[name="ticket_delivery_time_mintime"]').val(),
 		ticket_delivery_time_maxtime: $('[name="ticket_delivery_time_maxtime"]').val(),
-		ticket_recurring_status: ticket_recurring_status
+		ticket_recurring_status: ticket_recurring_status,
+		ticket_material_increment: ticket_material_increment,
+		ticket_notes_alert_role: ticket_notes_alert_role
 	}).success(function() {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
