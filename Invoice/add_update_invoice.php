@@ -125,17 +125,17 @@ if($invoice_mode != 'Adjustment') {
 	foreach($_POST['serviceid'] as $i => $sid) {
 		if($sid > 0) {
 			$service_insurer[$i] = '';
-			$service = mysqli_fetch_array(mysqli_query($dbc, "SELECT s.category, s.heading, r.cust_price service_rate, r.admin_fee, r.editable FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')"));
+			$service = mysqli_fetch_array(mysqli_query($dbc, "SELECT s.category, s.heading, r.cust_price service_rate, r.admin_fee, r.editable FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00') AND r.deleted=0"));
 			$services[] = $sid;
 			$service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
 			$service_fee = ($service['editable'] > 0 ? $_POST['fee'][$i] : $service['service_rate']);
-			$service_fees[] = $fservice_feeee;
+			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service_fee * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
 			$service_admin_fees[] = $service['admin_fee'];
-			$fee = $fee + $gst;
+			$fee = $service_fee + $gst;
 			$fee_total_price += $fee;
 			$service_totals[] = $fee;
 			$row = $_POST['service_row_id'][$i];
@@ -811,11 +811,11 @@ if($invoice_mode != 'Adjustment') {
 			mysqli_query($dbc, "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')");
 
 			if($payment['paid'] == 'On Account') {
-				$on_account += $payment_price;
+				$on_account += $payment['price'];
 			} else if($payment['paid'] == 'Patient Account') {
-				$patient_account += $payment_price;
+				$patient_account += $payment['price'];
 			} else {
-				$credit += $payment_price;
+				$credit += $payment['price'];
 			}
 		}
 		$receipt_payments = array_merge($receipt_payments, $invoice_patient);
