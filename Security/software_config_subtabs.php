@@ -412,14 +412,18 @@ checkAuthorised('security');
 						<tr><td>Reminders</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reminders' ); ?></tr>
 						<tr><td>ID Card</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'id_card' ); ?></tr>
 						<tr><td>Staff Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_info' ); ?></tr>
+						<tr><td>Staff Bio</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_bio' ); ?></tr>
 						<tr><td>Staff Address</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_address' ); ?></tr>
 						<tr><td>Employee Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'employee' ); ?></tr>
 						<tr><td>Driver Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'driver' ); ?></tr>
 						<tr><td>Direct Deposit Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'direct_deposit' ); ?></tr>
-						<tr><td>Software ID</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_access' ); ?></tr>
+						<tr><td>Software ID</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_id' ); ?></tr>
+						<tr><td>Software Access</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_access' ); ?></tr>
 						<tr><td>Social Media</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'social' ); ?></tr>
 						<tr><td>Emergency</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'emergency' ); ?></tr>
-						<tr><td>Health & Safety</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health' ); ?></tr>
+						<tr><td>Health Care</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health' ); ?></tr>
+						<tr><td>Health Concerns</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health_concerns' ); ?></tr>
+						<tr><td>Company Benefits</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company_benefits' ); ?></tr>
 						<tr><td>Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'schedule' ); ?></tr>
 						<tr><td><?= PROJECT_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'projects' ); ?></tr>
 						<tr><td><?= TICKET_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'tickets' ); ?></tr>
@@ -994,16 +998,20 @@ checkAuthorised('security');
 					if ( $tile == 'profile' ) { ?>
 						<!-- <tr><td>Staff</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff' ); ?></tr>
 						<tr><td>Profile</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'profile' ); ?></tr> -->
-						<tr><td>Staff Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_information' ); ?></tr>
+						<tr><td>Profile</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_information' ); ?></tr>
+						<tr><td>Staff Bio</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_bio' ); ?></tr>
 						<tr><td>Staff Address</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'staff_address' ); ?></tr>
 						<tr><td>Employee Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'employee_information' ); ?></tr>
 						<tr><td>Driver Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'driver_information' ); ?></tr>
 						<tr><td>Direct Deposit Information</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'direct_deposit_information' ); ?></tr>
 						<tr><td>Social Media</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'social_media' ); ?></tr>
 						<tr><td>Emergency</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'emergency' ); ?></tr>
-						<tr><td>Health &amp; Safety</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health' ); ?></tr>
+						<tr><td>Health Care</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health' ); ?></tr>
+						<tr><td>Health Concerns</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'health_concerns' ); ?></tr>
+						<tr><td>Company Benefits</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company_benefits' ); ?></tr>
 						<tr><td>Staff Schedule</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'schedule' ); ?></tr>
 						<tr><td>HR Record</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'hr' ); ?></tr>
+						<tr><td>Software ID</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_id' ); ?></tr>
 						<tr><td>Software Access</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'software_access' ); ?></tr>
 						<tr><td>Accreditation &amp; Certificates</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'certificates' ); ?></tr>
 						<tr><td>Goals &amp; Objectives</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'goals' ); ?></tr><?php
