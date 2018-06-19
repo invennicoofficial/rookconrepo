@@ -2576,6 +2576,8 @@ function get_calendar_today_color($dbc) {
         return '6cb993';
     } else if ($software_config == 'blackpurple'){
         return '5f008b';
+    } else if ($software_config == 'blackred'){
+        return 'cc0000';
     } else if ($software_config == 'washt'){
         return '000000';
     } else if ($software_config == 'btb'){

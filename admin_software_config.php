@@ -1696,6 +1696,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'washt') { echo "selected"; } ?> value="washt">Black</option>
 							<option <?php if($get_style_file == 'blackorange') { echo "selected"; } ?> value="blackorange">Black & Orange</option>
 							<option <?php if($get_style_file == 'blackpurple') { echo "selected"; } ?> value="blackpurple">Black & Purple</option>
+							<option <?php if($get_style_file == 'blackred') { echo "selected"; } ?> value="blackpurple">Black & Red</option>
 							<option <?php if($get_style_file == 'blackneon') { echo "selected"; } ?> value="blackneon">Black Neon (Blue)</option>
 							<option <?php if($get_style_file == 'blackneonred') { echo "selected"; } ?> value="blackneonred">Black Neon (Red)</option>
 							<option <?php if($get_style_file == 'turq') { echo "selected"; } ?> value="turq">Black & Turquoise</option>
