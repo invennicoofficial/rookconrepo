@@ -1,5 +1,16 @@
 <?php $siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
 $manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
+$ticket_filter = '';
+if(in_array_starts('type ',$manifest_fields)) {
+	$type_filters = [];
+	foreach($manifest_fields as $config_field) {
+		$config_field = explode(' ',$config_field);
+		if($config_field[0] == 'type' && count($config_field) == 2) {
+			$type_filters[] = $config_field[1];
+		}
+	}
+	$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+}
 if($siteid == 'recent') {
 	if($_GET['siteid'] > 0) {
 		$manifest_filter = "AND `siteid`='".$_GET['siteid']."'";
@@ -187,8 +198,8 @@ if($siteid == 'recent') {
 	}
 	$rowsPerPage = $_GET['pagerows'] > 0 ? $_GET['pagerows'] : 25;
 	$offset = ($_GET['page'] > 0 ? $_GET['page'] - 1 : 0) * $rowsPerPage;
-	$ticket_list = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, `ticket_attached`.`qty`, `ticket_attached`.`po_num`, `ticket_attached`.`po_line`, `ticket_schedule`.`vendor` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table`='inventory' AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',') LIKE '%,$siteid,%' ORDER BY LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0) LIMIT $offset, $rowsPerPage");
-	$ticket_count = "SELECT COUNT(*) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table`='inventory' AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',') LIKE '%,$siteid,%'";
+	$ticket_list = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, `ticket_attached`.`qty`, `ticket_attached`.`po_num`, `ticket_attached`.`po_line`, `ticket_schedule`.`vendor` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table`='inventory' AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',') LIKE '%,$siteid,%' $ticket_filter ORDER BY LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0) LIMIT $offset, $rowsPerPage");
+	$ticket_count = "SELECT COUNT(*) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table`='inventory' AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',') LIKE '%,$siteid,%' $ticket_filter";
 	if($ticket_list->num_rows > 0) {
 		$site_list = sort_contacts_query($dbc->query("SELECT `contactid`,`site_name`,`display_name` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `deleted`=0 AND `status` > 0")); ?>
 		<form class="form-horizontal" action="" method="POST">
