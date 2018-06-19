@@ -549,7 +549,8 @@ $db_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets_dashboard` F
 if($db_config == '') {
 	$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
 }
-$db_config = explode(',',$db_config); ?>
+$db_config = explode(',',$db_config);
+$ticket_type = ''; ?>
 
 <form class="form-horizontal margin-vertical margin-horizontal" action="" method="POST" enctype="multipart/form-data">
 	<h2>Import / Export <?= TICKET_TILE ?></h2><?php
@@ -583,8 +584,18 @@ $db_config = explode(',',$db_config); ?>
 				  	<?php if(get_config($dbc, 'ticket_import_bus') == 'template_only') {
 						$business_filter = '`general_configuration`.`value` IS NOT NULL AND';
 					}
-					foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`contactid`, `contacts`.`name`, `projectid` FROM `contacts` LEFT JOIN `project` ON `contacts`.`contactid`=`project`.`businessid` LEFT JOIN `general_configuration` ON `general_configuration`.`name`=CONCAT('ticket_import_',`contacts`.`contactid`) WHERE $business_filter `contacts`.`deleted`=0 AND `contacts`.`status`>0 AND `contacts`.`category`='".BUSINESS_CAT."'")) as $row) {
-						echo "<option ".($row['projectid'] == $projectid && $projectid > 0 ? 'selected' : '')." value='".$row['contactid']."' data-project='".$row['projectid']."'>".$row['name'].'</option>';
+					foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`contactid`, `contacts`.`name`, `projectid`, `general_configuration`.`value` `config` FROM `contacts` LEFT JOIN `project` ON `contacts`.`contactid`=`project`.`businessid` LEFT JOIN `general_configuration` ON `general_configuration`.`name`=CONCAT('ticket_import_',`contacts`.`contactid`) WHERE $business_filter `contacts`.`deleted`=0 AND `contacts`.`status`>0 AND `contacts`.`category`='".BUSINESS_CAT."'")) as $row) {
+						$config_type = '';
+						foreach(explode('#*#',$row['config']) as $config) {
+							$config = explode('-*-',$config);
+							if($config[0] == 'ticket_type') {
+								$config_type = $config[1];
+								if($row['projectid'] == $projectid) {
+									$ticket_type = $config_type;
+								}
+							}
+						}
+						echo "<option ".($row['projectid'] == $projectid && $projectid > 0 ? 'selected' : '')." value='".$row['contactid']."' data-ticket-type='".$config_type."' data-project='".$row['projectid']."'>".$row['name'].'</option>';
 					} ?>
 				</select>
 			</div>
@@ -664,12 +675,20 @@ $db_config = explode(',',$db_config); ?>
 			}
 		});
 		$('[name=projectid]').trigger('change.select2');
+		setTicketType();
 	});
 	$('[name=projectid]').change(function() {
 		if($(this).find('option:selected').data('business') > 0) {
 			$('[name=businessid]').val($(this).find('option:selected').data('business')).trigger('change.select2');
+			setTicketType();
 		}
 	});
+	function setTicketType() {
+		var option = $('[name=businessid] option:selected');
+		if(option.data('ticket-type') != '' && option.data('ticket-type') != undefined) {
+			$('[name=ticket_type]').val(option.data('ticket-type')).trigger('change.select2');
+		}
+	}
 	</script>
 </form>
 <div class="clearfix"></div>
