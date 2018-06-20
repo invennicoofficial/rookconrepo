@@ -17,7 +17,7 @@ if(!empty($_GET['heading'])) {
 	$heading = '';
 	$headings = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND IFNULL(`heading`,'') != '' GROUP BY `heading`");
 	while($heading_row = $headings->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($heading_row)) == $_GET['heading']) {
+		if(preg_replace('/[^a-z]*/','',strtolower($heading_row)) == $_GET['heading'] || $heading_row == $_GET['heading']) {
 			$heading = $heading_row;
 		}
 	}
@@ -35,6 +35,7 @@ $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 if(isset($_POST['submit'])) {
 	$scope_name = filter_var($_POST['scope_name'],FILTER_SANITIZE_STRING);
 	$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
+	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1 WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
 	if($_GET['type'] == 'vpl') {
         foreach($_POST['inventoryid'] as $i => $value) {
         	$cost = $_POST['vpl_price'][$i];

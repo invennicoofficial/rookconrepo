@@ -244,10 +244,10 @@ if($_GET['action'] == 'save_template_field') {
 } else if($_GET['action'] == 'estimate_add_heading') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
 	$scope_name = filter_var($_POST['scope'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Details ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name'");
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Details ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0");
 } else if($_GET['action'] == 'estimate_add_scope') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT `scope_name`)+1),'Details' FROM `estimate_scope`,IFNULL(MAX(`sort_order`),0)+1 WHERE `estimateid`='$estimateid' GROUP BY `estimateid`");
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT `scope_name`)+1),'Details' FROM `estimate_scope`,IFNULL(MAX(`sort_order`),0)+1 WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `estimateid`");
 } else if($_GET['action'] == 'estimate_fields') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
