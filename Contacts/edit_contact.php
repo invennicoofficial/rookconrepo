@@ -166,6 +166,10 @@ function loadSite() {
 			tab_label: 'Site Address',
 			tab_name: 'ALL_FIELDS'
 		}, function(response) {
+			if($('[name="address_site_sync"]').is(':checked')) {
+				$('[data-tab-name="address"] .form-group').hide();
+				$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
+			}
 			$('.site_address').html(response);
 		});
 	}
