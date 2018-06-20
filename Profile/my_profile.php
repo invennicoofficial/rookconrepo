@@ -35,8 +35,6 @@ if (isset($_POST['contactid'])) {
 			} else {
 				if($_POST['subtab'] == 'certificates') {
 					echo 'window.location.replace("my_certificate.php?edit_contact='.$_GET['edit_contact'].'");';
-				} else if($_POST['subtab'] == 'software_access') {
-					echo 'window.location.replace("edit_software_access.php?edit_contact='.$_GET['edit_contact'].'");';
 				} else if($_POST['subtab'] == 'goals') {
 					echo 'window.location.replace("gao_goal.php?edit_contact='.$_GET['edit_contact'].'");';
 				} else if($_POST['subtab'] == 'daysheet') {
@@ -125,7 +123,7 @@ if($_GET['from_staff_tile'] == 'true') {
 									include('../Contacts/contact_profile.php');
 									echo '<input type="hidden" name="overview_page" value="1">';
 								} else {
-									$query_main = mysqli_query($dbc,"SELECT accordion, subtab FROM field_config_contacts WHERE tab='Staff' AND `accordion` IS NOT NULL AND `order` IS NOT NULL ORDER BY IFNULL(`subtab`,'') = '$subtab', `order`");
+									$query_main = mysqli_query($dbc,"SELECT accordion, subtab FROM field_config_contacts WHERE tab='Staff' AND `accordion` IS NOT NULL ORDER BY IFNULL(`subtab`,'') = '$subtab', IFNULL(`order`,`configcontactid`)");
 									$field_exists = [];
 
 									$j=0;
@@ -169,7 +167,7 @@ if($_GET['from_staff_tile'] == 'true') {
 										$j++;
 									}
 								}
-								if($subtab == 'software_id') {
+								if($subtab == 'software_access') {
 									include('../Profile/my_software_access.php');
 								} else if($subtab == 'time_off') {
 									$tab = '%';

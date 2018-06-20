@@ -2332,7 +2332,7 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Location", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Location", $value_config) ? "checked" : '') ?> value="Inventory Detail Location" name="tickets[]"> Location</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Detail Manual Add') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Manual Add", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Manual Add", $value_config) ? "checked" : '') ?> value="Inventory Detail Manual" name="tickets[]"> Manually Add Items</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Manual Add", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Manual Add", $value_config) ? "checked" : '') ?> value="Inventory Detail Manual Add" name="tickets[]"> Manually Add Items</label>
 							<?php } ?>
 						<?php } ?>
 						</div>

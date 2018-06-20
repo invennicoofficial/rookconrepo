@@ -358,6 +358,7 @@ function loadPanel() {
 			<a href="?settings=forms"><li class="<?= $_GET['settings'] == 'forms' ? 'active blue' : '' ?>">PDF Forms</li></a>
 			<a href="?settings=ticket_log"><li class="<?= $_GET['settings'] == 'ticket_log' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Log</li></a>
 			<a href="?settings=importing"><li class="<?= $_GET['settings'] == 'importing' ? 'active blue' : '' ?>">Import Templates</li></a>
+			<a href="?settings=field_security"><li class="<?= $_GET['settings'] == 'field_security' ? 'active blue' : '' ?>">Security Settings</li></a>
 		<?php } else { ?>
 			<a href="?settings=fields&tile_name=<?= $_GET['tile_name'] ?>"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= $ticket_tabs[$_GET['tile_name']] ?> Fields</li></a>
 		<?php } ?>
@@ -423,6 +424,9 @@ function loadPanel() {
 				break;
 			case 'manifests':
 				include('field_config_manifests.php');
+				break;
+			case 'field_security':
+				include('field_config_field_security.php');
 				break;
 			default:
 				include('field_config_fields.php');
