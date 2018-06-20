@@ -131,6 +131,13 @@ $(document).ready(function() {
     });
 
     $('input[name="vpl_quantity[]"]').change(function() { calculateTotals(); });
+    $('select#productpricing option').each(function() {
+        if($(this).val() != '') {
+            $(this).prop('selected', true);
+            return;
+        }
+    });
+    $('select#productpricing').change();
 });
 $(document).on('change', 'select#productpricing', function() { loadPricingDetails(); });
 function loadPricingDetails() {
