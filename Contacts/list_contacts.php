@@ -278,6 +278,8 @@ $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
                 if(!empty($_GET['vpl']) && FOLDER_NAME == 'vendors') {
                     if(isset($_GET['inventoryid'])) {
                         include('../Vendor Price List/edit_vpl.php');
+                    } else if($_GET['impexp'] == 1) {
+                        include('../Vendor Price List/import_export_vpl.php');
                     } else {
                         include('../Vendor Price List/vpl_dashboard.php');
                     }
