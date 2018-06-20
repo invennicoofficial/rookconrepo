@@ -121,14 +121,16 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
 	</div>
 	<?php $statuses = $set_status = [];
 	foreach($status as $status_name) {
-		$statuses[$status_name] = preg_replace('/[^a-z]/','',strtolower($status_name));
-		$set_status[] = "'".$statuses[$status_name]."'";
+		$name = preg_replace('/[^a-z]/','',strtolower($status_name));
+		$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` IN ('$name') AND `deleted`=0 GROUP BY `status`"))['estimates'];
+		$statuses[$name] = $status_name.'<span class="pull-right">'.($sqlstatuses > 0 ? $sqlstatuses : 0).'</span>';
+		$set_status[] = "'".$name."'";
 	}
-	$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0 GROUP BY `status`"))['estimates'];
+	$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0"))['estimates'];
 	if($sqlstatuses > 0) {
-		$statuses['Uncategorized'] = "misc";
+		$statuses['misc'] = 'Uncategorized<span class="pull-right">'.$sqlstatuses.'</span>';
 	}
-	foreach($statuses as $status_name => $status_id) { ?>
+	foreach($statuses as $status_id => $status_name) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -157,7 +159,7 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
         <a href="?status="><li class="<?= $_GET['status'] == '' && $_GET['status'] != 'summary_view' ? 'active blue' : '' ?>">Dashboard</li></a>
         <li class="sidebar-higher-level highest-level"><a class="cursor-hand <?= $_GET['status'] != '' && $_GET['status'] != 'summary_view' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#collapse_status_list">Status<span class="arrow"></a>
 			<ul id="collapse_status_list" class="collapse <?= $_GET['status'] != '' && $_GET['status'] != 'summary_view' ? 'in' : '' ?>">
-				<?php foreach($statuses as $status_name => $status_id) { ?>
+				<?php foreach($statuses as $status_id => $status_name) { ?>
 					<a href="?status=<?= $status_id ?>"><li class="<?= $_GET['status'] == $status_id || $_GET['status'] == 'all' ? 'active blue' : '' ?>"><?= $status_name ?></li></a>
 				<?php } ?>
 			</ul>

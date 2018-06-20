@@ -10,7 +10,7 @@ if(!($estimateid > 0)) {
 <div class="blue tile-navbar">
 	<a href="?edit=<?= $_GET['edit'] ?>"><span class="block-clear <?= $_GET['tab'] == '' ? 'active' : '' ?>">Details</span></a><?php
     
-    $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+    $query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
     $scope_count = $query->num_rows;
     
     if ( $scope_count > 0 ) {
