@@ -55,7 +55,7 @@
 	'Contract Vehicles' => ['contract_vehicles', ['Contract Vehicles Make','Contract Vehicles Licence Plate','Contract Vehicles Registration','Contract Vehicles Reminders']],
 	'COR' => ['cor_fields', ['COR Certified','COR Number']],
 	'Reminders' => ['reminders', ['Reminders']],
-	'Site Information' => ['site_information', ['siteclientid'=>'Customer(Client/Customer/Business)','site_name'=>'Site Name (Location)','display_name'=>'Display Name','siteid'=>'Business Sites','lsd'=>'Site LSD','bottom_hole'=>'Site Bottom Hole','site_alias'=>'Site Alias','website'=>'Site Website']],
+	'Site Information' => ['site_information', ['siteclientid'=>'Customer(Client/Customer/Business)','businessid'=>'Attached Contact','site_name'=>'Site Name (Location)','display_name'=>'Display Name','siteid'=>'Business Sites','lsd'=>'Site LSD','bottom_hole'=>'Site Bottom Hole','site_alias'=>'Site Alias','website'=>'Site Website']],
 	'Strategies' => ['strategies', ['strategies_communication'=>'Strategies Levels of Communication','strategies_supports'=>'Strategies Types of Supports','strategies_likes'=>'Strategies Likes','strategies_dislikes'=>'Strategies Dislikes','strategies_required_accommodations'=>'Strategies Required Accommodations']],
 	'Individual Service Plan (ISP)' => ['individual_service_plan', ['Client Support Plan']],
 	'Medication Details' => ['medications', ['Medication Details']],

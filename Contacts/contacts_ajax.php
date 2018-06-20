@@ -284,7 +284,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	
 	// Create or Sync Site if selected
 	if(in_array($field_name, ['business_address','business_street','business_city','business_state','business_zip','business_country','business_site_sync'])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`business_address`=`c`.`business_address`, `s`.`business_street`=`c`.`business_street`, `s`.`business_city`=`c`.`business_city`, `s`.`business_state`=`c`.`business_state`, `s`.`business_zip`=`c`.`business_zip`, `s`.`business_country`=`c`.`business_country` WHERE `s`.`contactid`='$site_id' AND `c`.`business_site_sync` > 0");
 		} else {
@@ -293,7 +293,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['mailing_address','ship_to_address','ship_city','ship_state','ship_zip','ship_country','mailing_site_sync',])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`mailing_address`=`c`.`mailing_address`, `s`.`ship_to_address`=`c`.`ship_to_address`, `s`.`ship_city`=`c`.`ship_city`, `s`.`ship_state`=`c`.`ship_state`, `s`.`ship_zip`=`c`.`ship_zip`, `s`.`ship_country`=`c`.`ship_country` WHERE `s`.`contactid`='$site_id' AND `c`.`mailing_site_sync` > 0");
 		} else {
@@ -302,7 +302,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['address','city','postal_code','state','country','address_site_sync'])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`address`=`c`.`address`, `s`.`city`=`c`.`city`, `s`.`state`=`c`.`state`, `s`.`postal_code`=`c`.`postal_code`, `s`.`country`=`c`.`country`, `s`.`key_number` = `c`.`key_number`, `s`.`door_code_number` = `c`.`door_code_number`, `s`.`alarm_code_number` = `c`.`alarm_code_number` WHERE `s`.`contactid`='$site_id' AND `c`.`address_site_sync` > 0");
 		} else {
@@ -952,6 +952,20 @@ if($_GET['action'] == 'copy_contact') {
 	copy_data($dbc, $contactid, $other_contactid);
 
 	echo $other_contactid;
+}
+
+if($_GET['action'] == 'add_another_site') {
+	$contactid = $_POST['contactid'];
+	$another_site_id = $_POST['another_site_id'];
+
+	mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '$contactid' WHERE `contactid` = '$another_site_id'");
+}
+
+if($_GET['action'] == 'set_main_site') {
+	$contactid = $_POST['contactid'];
+	$site_id = $_POST['site_id'];
+
+	mysqli_query($dbc, "UPDATE `contacts` SET `main_siteid` = '$site_id' WHERE `contactid` = '$contactid'");
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {
