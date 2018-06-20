@@ -228,7 +228,8 @@ $col_spanned = $columns; ?>
 					<th data-columns='<?= $columns ?>' data-width='1'></th>
 				</tr>
 				<?php $lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `deleted`=0 ORDER BY `sort_order`");
-				while($line = mysqli_fetch_array($lines)) {
+				$line = mysqli_fetch_array($lines);
+				do {
 					if(empty($line['src_table'])) { ?>
 						<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 						<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
@@ -327,7 +328,7 @@ $col_spanned = $columns; ?>
 							</td>
 						</tr>
 					<?php } ?>
-				<?php } ?>
+				<?php } while($line = mysqli_fetch_array($lines)); ?>
 			</table>
 			<?php } while($heading = $heading_list->fetch_assoc()); ?>
 		</div>
