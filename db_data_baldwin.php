@@ -99,5 +99,11 @@
     }
     //2018-06-19 - Ticket #7952 - Staff Subtabs & Fields
 
+    //2018-06-20 - TIcket #7967 - Multiple Sites
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `main_siteid` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-20 - TIcket #7967 - Multiple Sites
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
