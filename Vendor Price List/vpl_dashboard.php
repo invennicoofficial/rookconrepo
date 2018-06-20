@@ -505,17 +505,19 @@ if(!empty($_GET['vpl_name'])) {
 	            echo '<th><span class="popover-examples" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Edit or archive a Price List."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span> Function</th>';
 	            echo "</tr>";
 
-				if($inventory != '') {
-					$query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted=0 AND `category` = '".$vpl_cat['category']."' AND (name LIKE '%" . $inventory . "%' OR code LIKE '%" . $inventory . "%' OR part_no LIKE '%" . $inventory . "%' OR category = '$inventory' OR sub_category LIKE '%" . $inventory . "%' OR description LIKE '%" . $inventory . "%' OR purchase_cost LIKE '%" . $inventory . "%' OR min_bin LIKE '%" . $inventory . "%' OR date_of_purchase LIKE '%" . $inventory . "%') ".$filter_query;
-				} else {
-			        if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
-			            $query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted = 0 AND `category` = '".$vpl_cat['category']."' $filter_query ORDER BY inventoryid DESC";
-			        } else {
-			            $category = $_GET['category'];
-			            $query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted = 0 AND `category` = '".$vpl_cat['category']."' $filter_query AND category='$category'";
-			        }
+	            if($sort_accordions == 1) {
+					if($inventory != '') {
+						$query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted=0 AND `category` = '".$vpl_cat['category']."' AND (name LIKE '%" . $inventory . "%' OR code LIKE '%" . $inventory . "%' OR part_no LIKE '%" . $inventory . "%' OR category = '$inventory' OR sub_category LIKE '%" . $inventory . "%' OR description LIKE '%" . $inventory . "%' OR purchase_cost LIKE '%" . $inventory . "%' OR min_bin LIKE '%" . $inventory . "%' OR date_of_purchase LIKE '%" . $inventory . "%') ".$filter_query;
+					} else {
+				        if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
+				            $query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted = 0 AND `category` = '".$vpl_cat['category']."' $filter_query ORDER BY inventoryid DESC";
+				        } else {
+				            $category = $_GET['category'];
+				            $query_check_credentials = "SELECT * FROM vendor_price_list WHERE deleted = 0 AND `category` = '".$vpl_cat['category']."' $filter_query AND category='$category'";
+				        }
+					}
+					$result = mysqli_query($dbc, $query_check_credentials);
 				}
-				$result = mysqli_query($dbc, $query_check_credentials);
 				while($row = mysqli_fetch_array( $result ))
 				{
 			        $color = '';
