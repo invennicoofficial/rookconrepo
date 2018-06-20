@@ -32,7 +32,7 @@ $(document).ready(function(){
 
 function resizeScreen() {
     var view_height = $(window).height() > 500 ? $(window).height() : 500;
-    $('#services_div .scale-to-fill,#services_div .scale-to-fill .main-screen,#services_div .tile-sidebar').height($('#services_div .tile-container').height());
+    $('#services_div .tile-sidebar, #services_div .scale-to-fill').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
 }
 </script>
 </head>

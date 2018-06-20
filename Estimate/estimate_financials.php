@@ -5,7 +5,14 @@ $estimateid = filter_var($_GET['financials'],FILTER_SANITIZE_STRING);
 $estimate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 ORDER BY `sort_order`");
 $total_cost = $total_price = 0; ?>
-<div id="no-more-tables" class="col-sm-12 fit-to-screen-full">
+<script>
+$(document).ready(function(){
+    //$('.financials').height($('#estimates_main').height() - $('.tile-header').height() - $('.tile-navbar').height() );
+    var financialsHeight = $('#estimates_main').height() - $('.tile-header').height() - 25;
+    $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+financialsHeight+'px !important;'); })
+});
+</script>
+<div id="no-more-tables" class="col-sm-12 fit-to-screen-full financials">
 	<div class='by-item'>
 		<h4>Profit & Loss by Item for <a href="?view=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a>
 			<button class="btn brand-btn pull-right" onclick="$('.by-item,.by-heading').toggle(); return false;">View by Heading</button></h4>

@@ -76,7 +76,7 @@ include ('../include.php');
 
     function resizeScreen() {
         var view_height = $(window).height() > 500 ? $(window).height() : 500;
-        $('#sales_div .scale-to-fill,#sales_div .scale-to-fill .main-screen,#sales_div .tile-sidebar').height($('#sales_div .tile-container').height());
+        $('#sales_div .scale-to-fill,#sales_div .scale-to-fill .main-screen,#sales_div .tile-sidebar').height($('#sales_div').height() - $('.tile-header').height() + 15);
     }
 </script>
 </head>

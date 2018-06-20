@@ -89,7 +89,10 @@ include ('../include.php'); ?>
     
     function resizeScreen() {
         var view_height = $(window).height() > 800 ? $(window).height() : 800;
-        $('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
+        //$('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
+        $('#services_div .tile-sidebar, #services_div .tile-content').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
+        $('.standard-body .standard-body-content').css('height', 'auto');
+        $('.standard-body.preview .standard-body-content').height($('#services_div .tile-content').height() - $('.standard-body .standard-body-title').height() + 20);
     }
 </script>
 </head>
@@ -193,7 +196,7 @@ if (isset($_POST['add_service'])) {
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `field_config`"));
 $value_config = ','.$get_field_config['services'].','; ?>
 
-<div class="container">
+<div id="services_div" class="container">
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php');

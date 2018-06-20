@@ -43,7 +43,7 @@ $(document).ready(function() {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height);
+                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
 			}
             var sidebar_height = $('.tile-sidebar').outerHeight(true);
             $('.has-main-screen .main-screen').css('min-height', sidebar_height);

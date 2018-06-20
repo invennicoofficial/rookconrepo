@@ -6,9 +6,19 @@ error_reporting(0);
 include ('../include.php');
 ?>
 <script type="text/javascript">
-$(document).ready(function() {
-
+$(document).ready(function(){
+    if($(window).width() > 767) {
+        resizeScreen();
+        $(window).resize(function() {
+            resizeScreen();
+        });
+    }
 });
+
+function resizeScreen() {
+    $('#services_div .tile-sidebar, #services_div .scale-to-fill').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
+    $('#services_div .main-screen-white').height($('#services_div .tile-content').height() - 10);
+}
 </script>
 </head>
 

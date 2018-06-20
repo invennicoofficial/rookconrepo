@@ -278,6 +278,10 @@ $(document).ready(function() {
             resizeScreen();
         });
     }
+    $('.main-screen').height($('#sales_div').height());
+    $('.tile-sidebar, .tile-content').height($('#sales_div').height() - $('.tile-header').height() + 15);
+    $('.main-screen-white').height($('.tile-sidebar').height() - 5);
+    $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
     $('.main-screen-white').on('scroll', function(){
         var currentScroll = $('.main-screen .tile-container').offset().top + $('.main-screen-white').find('.preview-block-header').height();

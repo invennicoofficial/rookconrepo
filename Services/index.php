@@ -47,7 +47,18 @@ $(document).ready(function() {
 	});
     
     $('#accordions .panel-heading').on('touchstart',loadPanel).click(loadPanel);
+    
+    if($(window).width() > 767) {
+		resizeScreen();
+		$(window).resize(function() {
+			resizeScreen();
+		});
+	}
 });
+
+function resizeScreen() {
+    $('#services_div .tile-sidebar, #services_div .tile-content, #services_div .tile-content .main-screen').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
+}
 
 /* function loadPanel() {
     if(!$(this).find('.panel-collapse').hasClass('in')) {
@@ -98,7 +109,7 @@ function searchServices(string) {
     checkAuthorised('services');
 ?>
 
-<div class="container">
+<div id="services_div" class="container">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>

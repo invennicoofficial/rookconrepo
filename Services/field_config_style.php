@@ -132,9 +132,20 @@ $(document).ready(function(){
 	// Fix links
 	$('a[href="#"]').attr('href', 'javascript:void(0)');
 
-	
-
+	$(document).ready(function(){
+        if($(window).width() > 767) {
+            resizeScreen();
+            $(window).resize(function() {
+                resizeScreen();
+            });
+        }
+    });
 });
+
+function resizeScreen() {
+    $('#services_div .tile-sidebar, #services_div .tile-sidebar .sidebar, #services_div .tile-content').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
+    $('#services_div .main-screen-white').height($('#services_div .tile-content').height() - 10);
+}
 </script>
 
 <script>
@@ -166,7 +177,7 @@ if(empty($_GET['style_settings'])) {
 
 ?>
 
-<div class="container">
+<div id="services_div" class="container">
     <div class="row hide_on_iframe">
         <div class="main-screen"><?php
             include('tile_header.php'); ?>

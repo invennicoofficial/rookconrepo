@@ -145,7 +145,7 @@ if(isset($_POST['copy_order'])) {
 
     function resizeScreen() {
         var view_height = $(window).height() > 800 ? $(window).height() : 800;
-        $('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div .tile-container').height());
+        $('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div').height() - $('.tile-header').height() + 15);
     }
 </script>
 </head>

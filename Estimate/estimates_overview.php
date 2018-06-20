@@ -6,6 +6,8 @@ $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_field
 <script>
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
+    var overviewHeight = $('#estimates_main').height() - $('.tile-header').height() + 18;
+    $('.main-screen .fit-to-screen-full').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+overviewHeight+'px !important;'); })
 });
 function saveField() {
 	syncUnsaved(this.name);
