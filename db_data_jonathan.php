@@ -26,6 +26,11 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_manifests` ADD `history` TEXT AFTER `signature`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+    
+		// June 20, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `estimate_scope` ADD `pricing` VARCHAR(20) AFTER `price`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 6);
 	}
