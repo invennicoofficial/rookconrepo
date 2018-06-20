@@ -1045,7 +1045,7 @@ function setTotalPrice() {
 	if(total_count_cost > final_price_cost && $('[name=add_credit]').is(':checked')) {
 		credit_balance = total_count_cost - final_price_cost;
 	}
-	final_price_cost += credit_balance;
+	// final_price_cost += credit_balance;
 	$(".detail_gst_amt").html('$' + (+tax_rate_value).toFixed(2));
 	$(".detail_gratuity_amt").html('$'+ (+gratuity).toFixed(2));
 	$(".detail_total_amt").html('$' + (total_after_gst + +gratuity + credit_balance).toFixed(2));
@@ -1082,9 +1082,9 @@ function setTotalPrice() {
     if ( sum_adjustment > 0 ) {
         $('[name="payment_price[]"]').last().val(round2Fixed(sum_adjustment));
     } else {
-        $('[name="payment_price[]"]').last().val(round2Fixed(patient_owes + credit_balance - +payment_price + +last_payment));
+        $('[name="payment_price[]"]').last().val(round2Fixed(patient_owes - +payment_price + +last_payment));
 	}
-    if(patient_owes + credit_balance - +payment_price + +last_payment != 0) {
+    if(patient_owes - +payment_price + +last_payment != 0) {
 		$('.payment_option').show();
 	} else {
 		$('.payment_option').hide();
