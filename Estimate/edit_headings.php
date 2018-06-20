@@ -199,7 +199,7 @@ $col_spanned = $columns; ?>
 			<?php $heading_list = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 			$heading = $heading_list->fetch_assoc();
 			do {
-				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'USD Cost Per Unit' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
+				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'usd_cpu' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
 			<table class="table table-bordered">
 				<tr>
 					<td colspan="<?= $col_spanned ?>">
@@ -299,10 +299,10 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'USD Cost Per Unit' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2) ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2) ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php if($us_pricing > 0) { ?>
 												</td><td data-title="US Pricing">
-												<?php if($line['pricing'] == 'USD Cost Per Unit') { ?>
+												<?php if($line['pricing'] == 'usd_cpu') { ?>
 													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2) ?> CAD)
 													<?php if(!($line['price'] > 0)) {
 														$line['price'] = $line['cost'] * $us_rate;

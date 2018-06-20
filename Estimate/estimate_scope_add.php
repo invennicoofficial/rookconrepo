@@ -42,7 +42,7 @@ if(isset($_POST['submit'])) {
         	$cost = $_POST['vpl_price'][$i];
         	$qty = $_POST['vpl_quantity'][$i];
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'USD Cost Per Unit' ? 0 : $cost)."','$pricing','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'usd_cpu' ? 0 : $cost)."','$pricing','$qty','$price','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'inventory') {
