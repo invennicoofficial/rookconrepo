@@ -232,7 +232,7 @@ function viewTicket(a) {
             </div>
         </form>
 
-    <form id="form1" name="form1" action="add_time_card_approvals.php" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
+    <form id="form1" name="form1" action="add_time_card_approvals.php?pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
 
     <div id="no-more-tables">
 

@@ -77,7 +77,7 @@
 		<?php if($field_sort_field == 'Staff Subsistence Options') { ?>
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Subsistence,') === FALSE ? 'display: none;' : '' ?>">Subsistence Pay</label>
 		<?php } ?>
-		<?php if($field_sort_field == 'Staff Check In') { ?>
+		<?php if($field_sort_field == 'Staff Check In' && strpos($value_config,',Staff Check In,') !== FALSE) { ?>
 			<label class="col-sm-2 text-center" style="<?= strpos($value_config,',Staff Check In,') === FALSE ? 'display: none;' : '' ?>">Check In</label>
 		<?php } ?>
 	<?php } ?>
@@ -108,7 +108,7 @@ do {
 	$positions_allowed = [];
 	$position_rate = 0; ?>
 	<div class="multi-block">
-		<?php if($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) {
+		<?php if(($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) && !($strict_view > 0)) {
         if($staff['item_id'] == '') { $staff['item_id'] = $_SESSION['contactid']; }
         ?>
 			<div class="col-sm-4">
@@ -226,7 +226,7 @@ do {
 						</select>
 					</div>
 				<?php } ?>
-				<?php if($field_sort_field == 'Staff Check In') { ?>
+				<?php if($field_sort_field == 'Staff Check In' && strpos($value_config,',Staff Check In,') !== FALSE) { ?>
 					<div class="col-sm-2" style="<?= strpos($value_config,',Staff Check In,') === FALSE ? 'display: none;' : '' ?>">
 						<div class="<?= $access_staff_checkin == TRUE || $staff['item_id'] == $_SESSION['contactid'] ? 'toggleSwitch staffSwitch mobile-lg' : '' ?>" style="margin-top: -1em;">
 							<input type="hidden" name="checkin_id[]" value="<?= $staff['item_id'] ?>">
@@ -242,8 +242,8 @@ do {
 				<img class="inline-img pull-left black-color counterclockwise small" onclick="showStaff(this);" src="../img/icons/dropdown-arrow.png">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="0">
 				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
-				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-				<?php if(strpos($value_config, ',Staff Anyone Can Add,') === FALSE || $access_staff === TRUE) { ?>
+				<img class="inline-img pull-right" onclick="addMulti(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
+				<?php if($access_staff === TRUE) { ?>
 					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 				<?php } ?>
 			</div>

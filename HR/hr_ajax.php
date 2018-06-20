@@ -169,7 +169,7 @@ if($_GET['action'] == 'settings_tabs') {
 	if($subsection == '') {
 		echo "#*#<option></option>";
 	} else {
-		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `hr` WHERE `sub_heading_number`='$section' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
+		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `hr` WHERE `sub_heading_number`='$subsection' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
 		echo $sub_heading.'#*#<option></option>';
 		$heading_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `third_heading_number`, `sub_heading_number` FROM (SELECT `third_heading_number`, `sub_heading_number` FROM `hr` UNION SELECT `third_heading_number`, `sub_heading_number` FROM `manuals`) `hr_manuals` WHERE LPAD(`third_heading_number`, 100, 0) IN (SELECT MAX(LPAD(`third_heading_number`, 100, 0)) FROM (SELECT `third_heading_number` FROM `hr` WHERE `deleted`=0 AND `category`='".$category."' AND `heading_number`='$subsection' UNION SELECT `third_heading_number` FROM `manuals` WHERE `deleted`=0 AND `category`='".$category."' AND `sub_heading_number`='$subsection') `numbers`) GROUP BY `third_heading_number`"));
 		$heading_count = substr($heading_count['third_heading_number'],strlen($heading_count['sub_heading_number']) + 1) + 5;
@@ -199,12 +199,13 @@ if($_GET['action'] == 'settings_tabs') {
 	<?php }
 } else if($_GET['action'] == 'set_manual_subsection') {
 	$subsection = filter_var($_POST['subsection'],FILTER_SANITIZE_STRING);
+	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	if($subsection == '') {
 		echo "#*#<option></option>";
 	} else {
-		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `manuals` WHERE `sub_heading_number`='$section' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
+		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `manuals` WHERE `sub_heading_number`='$subsection' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
 		echo $sub_heading.'#*#<option></option>';
-		$heading_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading_number`, `third_heading_number` FROM (SELECT `third_heading_number`, `sub_heading_number` FROM `hr` UNION SELECT `third_heading_number`, `sub_heading_number` FROM `manuals`) `hr_manuals` WHERE LPAD(`third_heading_number`, 100, 0) IN (SELECT MAX(LPAD(`third_heading_number`, 100, 0)) FROM `manuals` WHERE `heading_number`='$subsection') GROUP BY `third_heading_number`"));
+		$heading_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `third_heading_number`, `sub_heading_number` FROM (SELECT `third_heading_number`, `sub_heading_number` FROM `hr` UNION SELECT `third_heading_number`, `sub_heading_number` FROM `manuals`) `hr_manuals` WHERE LPAD(`third_heading_number`, 100, 0) IN (SELECT MAX(LPAD(`third_heading_number`, 100, 0)) FROM (SELECT `third_heading_number` FROM `hr` WHERE `deleted`=0 AND `category`='".$category."' AND `heading_number`='$heading_number' UNION SELECT `third_heading_number` FROM `manuals` WHERE `deleted`=0 AND `category`='".$category."' AND `sub_heading_number`='$subsection') `numbers`) GROUP BY `third_heading_number`"));
 		$heading_count = substr($heading_count['third_heading_number'],strlen($heading_count['sub_heading_number']) + 1) + 5;
 		for($i = 1; $i <= $heading_count; $i++) {
 			$heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `third_heading` FROM `manuals` WHERE `third_heading_number`='".$subsection.'.'.$i."' AND `category`='".$category."' AND `deleted`=0"))['sub_heading']; ?>

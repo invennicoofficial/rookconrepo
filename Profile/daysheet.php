@@ -40,9 +40,7 @@ if(empty($daysheet_button_config)) {
 
 if(!empty($_POST['subtab']) && !isset($_GET['mobile_view'])) {
     $action_page = 'my_profile.php';
-    if($_POST['subtab'] == 'software_access') {
-        $action_page = 'edit_software_access.php';
-    } else if($_POST['subtab'] == 'certificates') {
+    if($_POST['subtab'] == 'certificates') {
         $action_page = 'my_certificate.php';
     } else if($_POST['subtab'] == 'goals') {
         $action_page = 'gao_goal.php';

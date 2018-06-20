@@ -110,11 +110,11 @@ function loadPanel() {
 		response: 'html',
 		success: function(response) {
 			$(body).html(response);
-			$('input,select').off('change', saveField).change(saveField).keyup(syncUnsaved);
+			$('input,select,textarea').not('.chosen-container input').off('change', saveField).change(saveField).keyup(syncUnsaved);
 		}
 	});
 }
-function saveField() {
+/*function saveField() {
 	syncUnsaved(this.name);
 	if(this.value == 'CUSTOM') {
 		$(this).closest('.form-group').find('div[class^=col-sm-]').show().removeAttr('disabled');
@@ -179,7 +179,7 @@ function saveField() {
 			}
 		});
 	}
-}
+}*/
 </script>
 <div id='estimate_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
 	<div class="panel panel-default">

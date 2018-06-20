@@ -13,6 +13,22 @@ if($_GET['fill'] == 'project_path_milestone') {
         echo "<option value='". $cat_tab."'>".$cat_tab.'</option>';
     }
 }
+
+if($_GET['fill'] == 'ticket_security_settings') {
+	$security_level = $_POST['security_level'];
+	$subtabs_hidden = implode(',', $_POST['subtabs_hidden']);
+	$subtabs_viewonly = implode(',', $_POST['subtabs_viewonly']);
+	$fields_hidden = implode(',', $_POST['fields_hidden']);
+	$fields_viewonly = implode(',', $_POST['fields_viewonly']);
+
+	$num_rows = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) as num_rows FROM `field_config_ticket_security` WHERE `security_level` = '$security_level'"))['num_rows'];
+	if($num_rows > 0) {
+		mysqli_query($dbc, "UPDATE `field_config_ticket_security` SET `subtabs_hidden` = '$subtabs_hidden', `subtabs_viewonly` = '$subtabs_viewonly', `fields_hidden` = '$fields_hidden', `fields_viewonly` = '$fields_viewonly' WHERE `security_level` = '$security_level'");
+	} else {
+		mysqli_query($dbc, "INSERT INTO `field_config_ticket_security` (`security_level`, `subtabs_hidden`, `subtabs_viewonly`, `fields_hidden`, `fields_viewonly`) VALUES ('$security_level', '$subtabs_hidden', '$subtabs_viewonly', '$fields_hidden', '$fields_viewonly')");
+	}
+}
+
 if($_GET['fill'] == 'project_paths') {
 	echo '<option value=""></option>';
 	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
@@ -1306,6 +1322,8 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_delivery_time_mintime', filter_var($_POST['ticket_delivery_time_mintime'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_delivery_time_maxtime', filter_var($_POST['ticket_delivery_time_maxtime'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_action_fields') {
@@ -2180,5 +2198,29 @@ if($_GET['action'] == 'update_fields') {
 	if(!empty($value)) {
 		echo '<a href="download/'.$value.'" target="_blank"><img src="download/'.$value.'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>';
 	}
+} else if($_GET['action'] == 'get_service_time_estimate') {
+	$ticketid = $_POST['ticketid'];
+
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$serviceids = explode(',', $ticket['serviceid']);
+	$service_qtys = explode(',', $ticket['service_qty']);
+
+	$time_est = 0;
+	foreach($serviceids as $i => $serviceid) {
+		$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$serviceid'"));
+		$estimated_hours = empty($service['estimated_hours']) ? '00:00' : $service['estimated_hours'];
+		$qty = empty($service_qtys[$i]) ? 1 : $service_qtys[$i];
+		$minutes = explode(':', $estimated_hours);
+		$minutes = ($minutes[0]*60) + $minutes[1];
+		$minutes = $qty * $minutes;
+		$time_est += $minutes;
+	}
+	$new_hours = $time_est / 60;
+	$new_minutes = $time_est % 60;
+	$new_hours = sprintf('%02d', $new_hours);
+	$new_minutes = sprintf('%02d', $new_minutes);
+	$time_est = $new_hours.':'.$new_minutes;
+
+	echo $time_est;
 }
 ?>

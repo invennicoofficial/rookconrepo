@@ -388,6 +388,10 @@ $access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summ
 $access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 $access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 $config_access = config_visible_function($dbc, 'ticket');
+$uneditable_statuses = ','.get_config($dbc, 'ticket_uneditable_status').',';
+if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
+	$strict_view = 1;
+}
 if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
 	$access_project = false;
 	$access_staff = false;
@@ -482,6 +486,34 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 	$access_services = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
 	$access_all = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'all_access');
 }
+
+
+$security_levels = explode(',',trim(ROLE,','));
+$subtabs_hidden = [];
+$subtabs_viewonly = [];
+$fields_hidden = [];
+$fields_viewonly = [];
+$i = 0;
+foreach($security_levels as $security_level) {
+	if(tile_visible($dbc, $security_folder, $security_level)) {
+		$security_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_security` WHERE `security_level`='$security_level'"));
+		if(!empty($security_config)) {
+			if($i == 0) {
+				$subtabs_hidden = explode(',',$security_config['subtabs_hidden']);
+				$subtabs_viewonly = explode(',',$security_config['subtabs_viewonly']);
+				$fields_hidden = explode(',',$security_config['fields_hidden']);
+				$fields_viewonly = explode(',',$security_config['fields_viewonly']);
+			} else {
+				$subtabs_hidden = array_intersect(explode(',',$security_config['subtabs_hidden']), $subtabs_hidden);
+				$subtabs_viewonly = array_intersect(explode(',',$security_config['subtabs_viewonly']), $subtabs_viewonly);
+				$fields_hidden = array_intersect(explode(',',$security_config['fields_hidden']), $fields_hidden);
+				$fields_viewonly = array_intersect(explode(',',$security_config['fields_viewonly']), $fields_viewonly);
+			}
+			$i++;
+		}
+	}
+}
+
 
 $global_value_config = $value_config; ?>
 
@@ -731,7 +763,7 @@ var setHeading = function() {
 		</div>
 		<div class="clearfix"></div>
 	<?php }
-	if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0) { ?>
+	if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
 			<div class="col-sm-8">
@@ -2164,7 +2196,7 @@ var setHeading = function() {
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid ?>" target="_blank" class="pull-right btn brand-btn gap-top gap-bottom">Export <?= TICKET_NOUN ?> Log</a>
 				<div class="clearfix"></div>
 			<?php } ?>
-			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0) { ?>
+			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
 					<h3><?= TICKET_NOUN ?> Type</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Type:</label>

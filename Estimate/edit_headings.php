@@ -21,7 +21,9 @@ if(!isset($estimate)) {
 	}
 	$scope_id = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 	$scope = $scope_list[$scope_id];
+	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 }
+$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
 $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 	$heading_order[] = 'Detail***Scope Detail';
@@ -188,15 +190,16 @@ $col_spanned = $columns; ?>
 		</script>
 		<hr>
 		<div class="sort_table">
-			<h3 class="col-sm-11 no-margin pad-bottom"><input type="text" placeholder="Scope Description" name="scope_name" value="<?= $scope ?>" onchange="set_scopes(this);" data-placeholder="Scope Name" data-init="<?= $scope ?>" class="form-control"></h3>
-			<div class="col-sm-1">
+			<div class="pull-right">
 				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_scope();">
 				<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_scope(this);">
 			</div>
+			<h3 class="scale-to-fill no-margin pad-bottom"><input type="text" placeholder="Scope Description" name="scope_name" value="<?= $scope ?>" onchange="set_scopes(this);" data-placeholder="Scope Name" data-init="<?= $scope ?>" class="form-control"></h3>
 			<?php $heading_list = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 			$heading = $heading_list->fetch_assoc();
-			do { ?>
+			do {
+				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'USD Cost Per Unit' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
 			<table class="table table-bordered">
 				<tr>
 					<td colspan="<?= $col_spanned ?>">
@@ -218,6 +221,9 @@ $col_spanned = $columns; ?>
 							continue;
 						}
 						echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
+            if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+              echo "<th>USD Price</th>";
+            }
 					} ?>
 					<th data-columns='<?= $columns ?>' data-width='1'></th>
 				</tr>
@@ -293,10 +299,21 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['price'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
-											<?php break;
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'USD Cost Per Unit' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2) ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<?php if($us_pricing > 0) { ?>
+												</td><td data-title="US Pricing">
+												<?php if($line['pricing'] == 'USD Cost Per Unit') { ?>
+													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2) ?> CAD)
+													<?php if(!($line['price'] > 0)) {
+														$line['price'] = $line['cost'] * $us_rate;
+													}
+												} else {
+													echo '';
+												}
+											}
+											break;
 										case 'Total': ?>
-											<input type="text" name="retail" class="form-control" value="<?= $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="retail" class="form-control" value="<?= round($line['retail']) != round($line['qty'] * $line['price']) ? number_format($line['qty'] * $line['price'],2) : $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;
 									}
 									echo "</td>";

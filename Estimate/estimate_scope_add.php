@@ -37,11 +37,12 @@ if(isset($_POST['submit'])) {
 	$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1 WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
 	if($_GET['type'] == 'vpl') {
+		$pricing = filter_var($_POST['productpricing'],FILTER_SANITIZE_STRING);
         foreach($_POST['inventoryid'] as $i => $value) {
         	$cost = $_POST['vpl_price'][$i];
         	$qty = $_POST['vpl_quantity'][$i];
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'USD Cost Per Unit' ? 0 : $cost)."','$pricing','$qty','$price','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'inventory') {
