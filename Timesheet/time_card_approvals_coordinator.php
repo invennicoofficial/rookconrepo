@@ -380,13 +380,13 @@ function viewTicket(a) {
 							SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
 							SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 							GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `ticket_attached_id`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time`
-							FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `approv`='N' AND `deleted`=0 GROUP BY `date` ORDER BY `date`, `start_time`, `end_time` ASC";
+							FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `approv`='N' AND `deleted`=0 GROUP BY `date`";
 						$post_i = '';
 						if($layout == 'multi_line') {
 							$sql .= ", `time_cards_id`";
 							$post_i = 0;
 						}
-						$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);

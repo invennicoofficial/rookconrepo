@@ -375,7 +375,7 @@ function viewTicket(a) {
                         $sql .= ", `time_cards_id`";
                         $post_i = 0;
                     }
-                    $sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+                    $sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
                     $result = mysqli_query($dbc, $sql);
                     $date = $search_start_date;
                     $row = mysqli_fetch_array($result);
@@ -673,14 +673,15 @@ function viewTicket(a) {
                         <table class='table table-bordered'>
                             <tr class='hidden-xs hidden-sm'>
                                 <th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
-                                <?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
-                                <?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-                                <?php if(in_array('start_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-                                <?php if(in_array('end_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
+                                <?php $total_colspan = 2; ?>
+                                <?php if(in_array('schedule',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
+                                <?php if(in_array('scheduled',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
+                                <?php if(in_array('start_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
+                                <?php if(in_array('end_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
                                 <?php if(in_array('end_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_day_tile',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-                                <?php if($layout == 'ticket_task') { ?>
+                                <?php if($layout == 'ticket_task') { $total_colspan++ ?>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
                                 <?php } else { ?>
@@ -771,16 +772,15 @@ function viewTicket(a) {
                                     <input type="hidden" name="time_cards_id[]" value="<?= $row['id'] ?>">
                                     <input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
                                     <input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-                                    <?php $total_colspan = 2; ?>
                                     <td data-title="Date"><?= $date ?></td>
-                                    <?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
-                                    <?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><td data-title="Scheduled Hours"></td><?php } ?>
-                                    <?php if(in_array('start_time',$value_config)) { $total_colspan++; ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
-                                    <?php if(in_array('end_time',$value_config)) { $total_colspan++; ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
+                                    <?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
+                                    <?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours"></td><?php } ?>
+                                    <?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
+                                    <?php if(in_array('end_time',$value_config)) { ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
                                     <?php if(in_array('start_time_editable',$value_config)) { ?><td data-title="Start Time"><input type="text" name="start_time[]" class="form-control datetimepicker" value="<?= $row['start_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="start_time[]" value="<?= $row['start_time'] ?>"><?php } ?>
                                     <?php if(in_array('end_time_editable',$value_config)) { ?><td data-title="End Time"><input type="text" name="end_time[]" class="form-control datetimepicker" value="<?= $row['end_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="end_time[]" value="<?= $row['end_time'] ?>"><?php } ?>
                                     <?php if(in_array('start_day_tile',$value_config)) { ?><td data-title="<?= $timesheet_start_tile ?>" style="text-align: center;"><label><input type="checkbox" value="Driving Time" <?= $driving_time == 'Driving Time' ? 'checked' : '' ?> class="driving_time" onchange="checkDrivingTime(this);"></label></span></td><?php } ?>
-                                    <?php if($layout == 'ticket_task') { $total_colspan++; ?>
+                                    <?php if($layout == 'ticket_task') { ?>
                                         <td data-title="<?= TICKET_NOUN ?>" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a <?= TICKET_NOUN ?>"" onchange="getTasks(this);"><option></option>
                                             <?php foreach($ticket_list as $ticket) { ?>
                                                 <option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $row['ticketid'] ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>

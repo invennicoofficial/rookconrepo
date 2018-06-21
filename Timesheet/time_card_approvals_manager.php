@@ -387,7 +387,7 @@ function send_csv(a) {
 							$sql .= ", `time_cards_id`";
 							$post_i = 0;
 						}
-						$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
@@ -751,7 +751,7 @@ function send_csv(a) {
 							<table class='table table-bordered'>
 								<tr class='hidden-xs hidden-sm'>
 									<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
-									<?php $total_colspan = 0; ?>
+									<?php $total_colspan = 2; ?>
 									<?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
 									<?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
 									<?php if(in_array('start_time',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>

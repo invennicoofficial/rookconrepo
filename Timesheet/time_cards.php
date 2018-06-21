@@ -79,7 +79,7 @@ if(!empty($_GET['export'])) {
 		if($layout == 'multi_line') {
 			$sql .= ", `time_cards_id`";
 		}
-		$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+		$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 		$date = $search_start_date;
 		$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
 		
@@ -1059,7 +1059,7 @@ function addSignature(chk) {
 						if($layout == 'multi_line') {
 							$sql .= ", `time_cards_id`";
 						}
-						$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
