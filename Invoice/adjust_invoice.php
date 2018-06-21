@@ -1356,7 +1356,7 @@ if (isset($_POST['submit_btn'])) {
 
                         <?php
                         $cust_payments = mysqli_query($dbc, "SELECT SUM(`patient_price`) amt, `paid` FROM `invoice_patient` WHERE `invoiceid` IN (SELECT `invoiceid` FROM `invoice` WHERE '$invoiceid' IN (`invoiceid`,`invoiceid_src`)) GROUP BY `paid`");
-                        while($cust_payment = mysqli_fetch_array($cust_payments)) { ?>
+                        /*while($cust_payment = mysqli_fetch_array($cust_payments)) { ?>
                             <div class="clearfix"></div>
                             <div class="additional_payment form-group clearfix ">
                                 <div class="col-sm-6"><label class="show-on-mob">Payment Type:</label>
@@ -1384,7 +1384,7 @@ if (isset($_POST['submit_btn'])) {
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_patient_payment_row(this);">
                                 </div>
                             </div>
-                        <?php }
+                        <?php }*/
                         //$pt1 = explode('#*#',$payment_type);
                         //$pt_type = $pt1[0];
                         //$pt_amount = $pt1[1];
@@ -1536,7 +1536,7 @@ $(window).scroll(function() {
 $(document).ready(function() {
 	$('.adjust_block').hide();
 	$('.return_block').hide();
-	previous_payment += <?= array_sum($patient_paid_amt) ?>;
+	previous_payment += <?= array_sum($patient_paid_amt) > $get_invoice['final_price'] ? $get_invoice['final_price'] : array_sum($patient_paid_amt) ?>;
 	$('.form-control').change(function() {
 		<?php if($patient != '') { ?>
 			$('.detail_patient_name').html('<?= $patient ?>');

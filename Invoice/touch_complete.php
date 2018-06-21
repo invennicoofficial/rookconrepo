@@ -99,13 +99,13 @@ if ( $complete===TRUE ) {
 		if($row['serviceid'] > 0) {
 			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='".$row['serviceid']."' AND `services`.`deleted`=0 AND IFNULL(NULLIF(`include_in_pos`,''),1) > 0 AND `company_rate_card`.`deleted`=0 AND (`company_rate_card`.`end_date` >= NOW() OR `company_rate_card`.`end_date` = '0000-00-00')"));
 			$service_ids[] = $service['serviceid'];
-			$service_fees[] = $row['total'] / $row['quantity'];
+			$service_fees[] = $row['total'];
 			$service_admin[] = $service['admin_fee'];
-			$service_paid[] = $row['total'] / $row['quantity'];
+			$service_paid[] = $row['total'];
 			$gst = ($service['gst_exempt'] > 0 ? 0 : ($row['total'] - ($discount_amount / $items)) * $gst_rate / 100);
 			$pst = ($service['gst_exempt'] > 0 ? 0 : ($row['total'] - ($discount_amount / $items)) * $pst_rate / 100);
 			$total = $row['total'] + $gst + $pst;
-			mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `type`, `description`, `category`, `heading`, `compensation`, `quantity`, `unit_price`, `admin_fee`, `tax_exempt`, `sub_total`, `pst`, `gst`, `total`) VALUES ('$invoiceid', '".$service['serviceid']."', 'General', '".$service['heading']."', 'service', '', '".($staffid > 0 ? 1 : 0)."', '1', '$unit_price', '".$service['admin_fee']."', '".$service['gst_exempt']."', '".$row['total']."', '$pst', '$gst', '$total')");
+			mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `type`, `description`, `category`, `heading`, `compensation`, `quantity`, `unit_price`, `admin_fee`, `tax_exempt`, `sub_total`, `pst`, `gst`, `total`) VALUES ('$invoiceid', '".$service['serviceid']."', 'General', '".$service['heading']."', 'service', '', '".($staffid > 0 ? 1 : 0)."', '".$row['quantity']."', '$unit_price', '".$service['admin_fee']."', '".$service['gst_exempt']."', '".$row['total']."', '$pst', '$gst', '$total')");
 			$line_id = mysqli_insert_id($dbc);
 			foreach($payments as $i => $payment) {
 				if($payment[1] > 0 && $total > 0) {
