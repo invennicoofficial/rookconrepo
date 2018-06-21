@@ -446,7 +446,10 @@ if (isset($_POST['submit'])) {
     <div class="panel-group" id="accordion2">
 
     <?php
-    $query = mysqli_query($dbc,"SELECT accordion FROM field_config_vpl WHERE	tab='$category' AND accordion IS NOT NULL AND `order` IS NOT NULL ORDER BY `order`");
+    $query = mysqli_query($dbc,"SELECT accordion FROM field_config_vpl WHERE	tab='$category' AND IFNULL(accordion,'') != '' AND `order` IS NOT NULL ORDER BY `order`");
+    if(mysqli_num_rows($query) == 0) {
+        $query = mysqli_query($dbc,"SELECT accordion FROM field_config_vpl WHERE    tab='' AND AND IFNULL(accordion,'') != '' AND `order` IS NOT NULL ORDER BY `order`");
+    }
 
     $j=0;
     while($row = mysqli_fetch_array($query)) {
@@ -467,6 +470,9 @@ if (isset($_POST['submit'])) {
                 $accordion = $row['accordion'];
 
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT inventory FROM field_config_vpl WHERE tab='$category' AND accordion='$accordion'"));
+                if(empty($get_field_config)) {
+                    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT inventory FROM field_config_vpl WHERE tab='' AND accordion='$accordion'"));
+                }
                 $value_config = ','.$get_field_config['inventory'].',';
 
                 ?>
