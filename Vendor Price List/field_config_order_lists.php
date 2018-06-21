@@ -8,7 +8,8 @@ error_reporting(0);
 
 if(isset($_GET['deleteid'])) {
 	$deleteid = $_GET['deleteid'];
-	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1' WHERE `order_id` = '$deleteid'";
+    $date_of_archival = date('Y-m-d');
+	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1', `date_of_archival` = '$date_of_archival' WHERE `order_id` = '$deleteid'";
     $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 	 echo '<script type="text/javascript"> window.location.replace("field_config_order_lists.php"); </script>';
 }

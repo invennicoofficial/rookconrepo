@@ -56,16 +56,21 @@ $(document).ready(function() {
 <h3>Staff Tabs</h3>
 <?php $staff_field_subtabs = ','.get_config($dbc, 'staff_field_subtabs').','; ?>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',ID Card,') !== false ? 'checked' : '' ?> value="ID Card">ID Card</label>
-<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Staff Information,') !== false ? 'checked' : '' ?> value="Staff Information">Staff Information</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Staff Information,') !== false ? 'checked' : '' ?> value="Staff Information">Profile</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Staff Bio,') !== false ? 'checked' : '' ?> value="Staff Bio">Staff Bio</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Staff Address,') !== false ? 'checked' : '' ?> value="Staff Address">Staff Address</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Position,') !== false ? 'checked' : '' ?> value="Position">Position</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Employee Information,') !== false ? 'checked' : '' ?> value="Employee Information">Employee Information</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Driver Information,') !== false ? 'checked' : '' ?> value="Driver Information">Driver Information</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Direct Deposit Information,') !== false ? 'checked' : '' ?> value="Direct Deposit Information">Direct Deposit Information</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" checked disabled value="Software ID">Software ID</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" checked disabled value="Software Access">Software Access</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Social Media,') !== false ? 'checked' : '' ?> value="Social Media">Social Media</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Emergency,') !== false ? 'checked' : '' ?> value="Emergency">Emergency</label>
-<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Health,') !== false ? 'checked' : '' ?> value="Health">Health & Safety</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Health,') !== false ? 'checked' : '' ?> value="Health">Health Care</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Health Concerns,') !== false ? 'checked' : '' ?> value="Health Concerns">Health Concerns</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Allergies,') !== false ? 'checked' : '' ?> value="Allergies">Allergies</label>
+<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Company Benefits,') !== false ? 'checked' : '' ?> value="Company Benefits">Company Benefits</label>
 <label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Schedule,') !== false ? 'checked' : '' ?> value="Schedule">Staff Schedule</label>
 <?php if(tile_enabled($dbc, 'project')['user_enabled'] > 0) { ?>
 	<label class="form-checkbox"><input type="checkbox" name="staff_tabs" <?= strpos($staff_field_subtabs, ',Project,') !== false ? 'checked' : '' ?> value="Project"><?= PROJECT_TILE ?></label>

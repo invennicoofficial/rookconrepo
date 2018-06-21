@@ -5,8 +5,9 @@ Dashboard
 
 if(!empty($_GET['archiveid'])) {
 	$id = $_GET['archiveid'];
+    $date_of_archival = date('Y-m-d');
 	$rate_card = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE `companyrcid`='$id'"));
-	$sql = "UPDATE `company_rate_card` SET `deleted`=1 WHERE `rate_card_name`='".$rate_card['rate_card_name']."' AND IFNULL(`rate_categories`,'')='".$rate_card['rate_categories']."'";
+	$sql = "UPDATE `company_rate_card` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `rate_card_name`='".$rate_card['rate_card_name']."' AND IFNULL(`rate_categories`,'')='".$rate_card['rate_categories']."'";
 	mysqli_query($dbc, $sql);
 }
 if (!empty($_GET['action'])) :
@@ -142,7 +143,7 @@ if($num_rows > 0 || $universal_categories) {
 		'.(strpos($db_config,',total_cost,')!==false?'<th>Total Cost</th>':'').'
 		<th>Function</th>
 		</tr>';
-	
+
 	/*if($universal_categories) {
 		echo '<tr>';
 		if(strpos($db_config,',card,')!==false) {

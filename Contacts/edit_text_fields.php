@@ -395,6 +395,19 @@
 			<?php } ?>
 		</select>
 	</div>
+<?php } else if($field_option == 'Attached Contact') { ?>
+	<label class="col-sm-4 control-label">Attached Contact:</label>
+	<div class="col-sm-8">
+		<select name="businessid" value="<?= $contact['businessid'] ?>" data-field="businessid" data-table="contacts" class="form-control chosen-select-deselect">
+			<option></option>
+			<?php $customer_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted`=0 AND `status`>0"));
+			foreach($customer_list as $customer) {
+				if(!empty($customer['full_name']) && $customer['full_name'] != '-') { ?>
+					<option <?= $customer['contactid'] == $contact['businessid'] ? 'selected' : '' ?> value="<?= $customer['contactid'] ?>"><?= $customer['full_name'] ?></option>
+				<?php }
+			} ?>
+		</select>
+	</div>
 <?php } else if($field_option == 'Site Number') { ?>
 	<label class="col-sm-4 control-label">Site #:</label>
 	<div class="col-sm-8">

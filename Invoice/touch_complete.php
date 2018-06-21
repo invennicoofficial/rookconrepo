@@ -105,7 +105,7 @@ if ( $complete===TRUE ) {
 			$gst = ($service['gst_exempt'] > 0 ? 0 : ($row['total'] - ($discount_amount / $items)) * $gst_rate / 100);
 			$pst = ($service['gst_exempt'] > 0 ? 0 : ($row['total'] - ($discount_amount / $items)) * $pst_rate / 100);
 			$total = $row['total'] + $gst + $pst;
-			mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `type`, `description`, `category`, `heading`, `compensation`, `quantity`, `unit_price`, `admin_fee`, `tax_exempt`, `sub_total`, `pst`, `gst`, `total`) VALUES ('$invoiceid', '".$service['serviceid']."', 'General', '".$service['heading']."', 'service', '', '".($staffid > 0 ? 1 : 0)."', '".$row['quantity']."', '$unit_price', '".$service['admin_fee']."', '".$service['gst_exempt']."', '".$row['total']."', '$pst', '$gst', '$total')");
+			mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `type`, `description`, `category`, `heading`, `compensation`, `quantity`, `unit_price`, `admin_fee`, `tax_exempt`, `sub_total`, `pst`, `gst`, `total`) VALUES ('$invoiceid', '".$service['serviceid']."', 'General', '".$service['heading']."', 'service', '', '".($staffid > 0 ? 1 : 0)."', '1', '$unit_price', '".$service['admin_fee']."', '".$service['gst_exempt']."', '".$row['total']."', '$pst', '$gst', '$total')");
 			$line_id = mysqli_insert_id($dbc);
 			foreach($payments as $i => $payment) {
 				if($payment[1] > 0 && $total > 0) {

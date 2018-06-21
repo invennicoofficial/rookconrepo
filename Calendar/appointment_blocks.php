@@ -23,7 +23,7 @@ if(!isset($day_of_week)) {
 
 if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid'])) {
 	// Contact Blocks - Universal
-	
+
 	//Populate the text for the column header
 	$calendar_table[$calendar_date][$contact_id]['title'] = get_contact($dbc, $contact_id);
 
@@ -427,17 +427,17 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']))
 		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] .= '<a href="" class="pull-right" onclick="get_addresses(\''.$calendar_date.'\', \''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img" title="Sort '.TICKET_TILE.'" src="../img/sort-icon.png"></a>';
 	}
 	$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] .= '<a href="" class="pull-right" onclick="get_day_map(\''.$calendar_date.'\', \''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img" title="View Schedule Map" src="../img/icons/navigation.png"></a>';
-	
+
 	//Populate the text for the column header
 	$equipment_notes[$equipment['equipmentid']] = html_entity_decode($equip_assign['notes']);
-	
+
 	if($calendar_type == 'ticket') {
 		//Pull all tickets for the current equipment
 		// $all_tickets_sql = "SELECT * FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND `to_do_end_date` AND `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
 		$allowed_regions_query = " AND IFNULL(`tickets`.`region`,'') IN ('".implode("','", array_merge($allowed_regions,['']))."')";
 		$allowed_locations_query = " AND IFNULL(`tickets`.`con_location`,'') IN ('".implode("','", array_merge($allowed_locations,['']))."')";
 		$allowed_classifications_query = " AND IFNULL(`tickets`.`classification`,'') IN ('".implode("','", array_merge($allowed_classifications,['']))."')";
-		
+
 		$all_tickets_sql = "SELECT `tickets`.*, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`) `to_do_start_time`, IFNULL(`ticket_schedule`.`scheduled_lock`,0) `scheduled_lock`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`equipment_assignmentid`,`tickets`.`equipment_assignmentid`) `equipment_assignmentid`, IFNULL(`ticket_schedule`.`teamid`,`tickets`.`teamid`) `teamid`, IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`) `contactid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND `ticket_schedule`.`to_do_end_date`) AND (`tickets`.`equipmentid` = '".$equipment['equipmentid']."' OR `ticket_schedule`.`equipmentid`='".$equipment['equipmentid']."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$allowed_regions_query.$allowed_locations_query.$allowed_classifications_query;
 		$tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
 
@@ -572,7 +572,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']))
 		$teams_query = '';
 	}
 	$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT ea.* FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_date' AND DATE(ea.`end_date`) >= '$calendar_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_date,%' AND ((eas.`contactid` = '$contact_id' AND eas.`deleted` = 0) $teams_query) ORDER BY ea.`start_date` DESC, ea.`end_date` ASC"));
-	
+
 	//Populate the text for the column header
 	$calendar_table[$calendar_date][$contact_id]['title'] = get_contact($dbc, $contact_id);
 	$equipassign_data[$calendar_date][$contact_id] = $equip_assign['equipment_assignmentid'];
@@ -654,12 +654,12 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']))
 	//Pull all shifts for the current contact from the contacts_shifts table
 	if($_GET['mode'] == 'client') {
 		$shifts = checkShiftIntervals($dbc, '', $day_of_week, $calendar_date, 'shifts', $contact_id);
-		$daysoff = checkShiftIntervals($dbc, '', $day_of_week, $calendar_date, 'daysoff', $contact_id);	
+		$daysoff = checkShiftIntervals($dbc, '', $day_of_week, $calendar_date, 'daysoff', $contact_id);
 		$all_conflicts = getShiftConflicts($dbc, '', $calendar_date, '', '', '', $contact_id);
 	} else {
 		$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'shifts');
 		$daysoff = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'daysoff');
-		$all_conflicts = getShiftConflicts($dbc, $contact_id, $calendar_date);	
+		$all_conflicts = getShiftConflicts($dbc, $contact_id, $calendar_date);
 	}
 
 	$shift_conflicts = [];
@@ -753,7 +753,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']))
 	}
 } else if ($calendar_type == 'ticket') {
 	// Contact Blocks - Tickets
-	
+
 	//Populate the text for the column header
 	$calendar_table[$calendar_date][$contact_id]['title'] = get_contact($dbc, $contact_id);
 	$calendar_table[$calendar_date][$contact_id]['calendar_type'] = $calendar_type;
@@ -1035,10 +1035,10 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']))
 	}
 } else {
 	// Contact Blocks - Appointments
-	
+
 	//Populate the text for the column header
 	$calendar_table[$calendar_date][$contact_id]['title'] = get_contact($dbc, $contact_id);
-	
+
 	//Pull all appointments for the current contact from the booking table
 	$all_booking_sql = "SELECT * FROM `booking` WHERE ('$contact_id' IN (`therapistsid`,`patientid`) OR CONCAT('*#*',`therapistsid`,'*#*') LIKE '%*#*$contact_id*#*%') AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` LIKE '%".$calendar_date."%') OR '".date('Y-m-d H:i:s', strtotime($calendar_date.' '.$day_start))."' BETWEEN `appoint_date` AND `end_appoint_date` OR '".date('Y-m-d H:i:s', strtotime($calendar_date.' '.$day_end))."' BETWEEN `appoint_date` AND `end_appoint_date`) AND `deleted` = 0";
 	$appointments = mysqli_fetch_all(mysqli_query($dbc, $all_booking_sql),MYSQLI_ASSOC);
@@ -1209,7 +1209,8 @@ if(!isset($equipment)) {
 
     //If reminders not found, mark it as deleted
     $reminderids = "'".implode("','",$reminderids)."'";
-    mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1 WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$calendar_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contact_id."' AND `done` = 0 AND `deleted` = 0");
+        $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$calendar_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contact_id."' AND `done` = 0 AND `deleted` = 0");
 
     //Display Reminders
 	$reminders_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 AND `done` = 0");

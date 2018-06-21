@@ -133,8 +133,9 @@ $edit_config = json_decode($edit_result['field_list'],true);
 			$result_update_wt = mysqli_query($dbc, $query_update_wt);
 
             $f_fsid= rtrim ($fsid, ',');
+            $date_of_archival = date('Y-m-d');
 
-			$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1 WHERE `fsid` IN ($f_fsid)";
+			$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `fsid` IN ($f_fsid)";
 			$result_update_wt = mysqli_query($dbc, $query_update_wt);
             ?>
 

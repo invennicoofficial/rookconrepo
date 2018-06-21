@@ -38,7 +38,7 @@ $value_config = ','.get_config($dbc, 'hr_fields').','; ?>
 			<h2>
 				<?= $get_manual['category'] != '' ? '<b>'.$get_manual['category'].'</b><br />' : '' ?>
 				<?= $get_manual['third_heading'] != '' ? $get_manual['third_heading_number'].' '.$get_manual['third_heading'] : ($get_manual['sub_heading'] != '' ? $get_manual['sub_heading_number'].' '.$get_manual['sub_heading'] : $get_manual['heading_number'].' '.$get_manual['heading']) ?>
-				<a href="?manualid_pdf=<?= $manual ?>" class="pull-right">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
+				<a href="?manualid_pdf=<?= $manual ?>" class="pull-right" target="_blank">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
 			</h2>
 			<div class="block-group pad-horiz-2 pad-vertical">
 				<div class="pull-right full-width"><?= html_entity_decode(get_config($dbc, "manual_header")) ?></div>
