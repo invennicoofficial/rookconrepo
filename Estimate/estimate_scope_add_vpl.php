@@ -6,9 +6,9 @@ function filterOrderForms() {
 	var vendorid = $('[name="vendorid"]').val();
 	if(vendorid != '') {
 		$('.order_form').show();
-		$('[name="order_forms"] option').hide();
-		$('[name="order_forms"] option[data-vendorid='+vendorid+']').show();
-		$('[name="order_forms"]').trigger('change.select2');
+		$('[name="vpl_name"] option').hide();
+		$('[name="vpl_name"] option[data-vendorid='+vendorid+']').show();
+		$('[name="vpl_name"]').trigger('change.select2');
 	} else {
 		$('.order_form').hide();
 	}

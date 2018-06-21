@@ -7,28 +7,30 @@ $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_field
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
 });
-function saveField() {
-	syncUnsaved(this.name);
-	syncSaving();
-	name = this.name;
-	if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
-		$.ajax({
-			url: 'estimates_ajax.php?action=estimate_fields',
-			method: 'POST',
-			data: {
-				id: $(this).data('id'),
-				id_field: $(this).data('id-field'),
-				table: $(this).data('table'),
-				field: this.name,
-				value: this.value,
-				estimate: '<?= $estimateid ?>'
-			},
-			success: function(response) {
-				syncDone(name);
-			}
-		});
+<?php if(empty($_GET['view'])) { ?>
+	function saveField() {
+		syncUnsaved(this.name);
+		syncSaving();
+		name = this.name;
+		if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
+			$.ajax({
+				url: 'estimates_ajax.php?action=estimate_fields',
+				method: 'POST',
+				data: {
+					id: $(this).data('id'),
+					id_field: $(this).data('id-field'),
+					table: $(this).data('table'),
+					field: this.name,
+					value: this.value,
+					estimate: '<?= $estimateid ?>'
+				},
+				success: function(response) {
+					syncDone(name);
+				}
+			});
+		}
 	}
-}
+<?php } ?>
 function add_follow_up() {
 	$.ajax({
 		url: 'estimates_ajax.php?action=estimate_fields',
@@ -45,6 +47,26 @@ function add_follow_up() {
 			window.location.reload();
 		}
 	});
+}
+function remove_follow_up(elem) {
+	var result = confirm("Are you sure you want to delete this follow up?");
+	if (result) {
+		$.ajax({
+            url: 'estimates_ajax.php?action=estimate_fields',
+            method: 'POST',
+            data: {
+                table: 'estimate_actions',
+                id: $(elem).data('id'),
+                id_field: 'id',
+                estimate: '<?= $estimateid ?>',
+                value: '',
+                field: 'delete'
+            },
+            success: function(response) {
+                window.location.reload();
+            }
+        });
+	}
 }
 </script>
 <div class="form-horizontal main-screen fit-to-screen-full full-grey-screen" style="padding:0;">
@@ -81,12 +103,10 @@ function add_follow_up() {
                         <?php } ?>
                     </div>
                 </div>
-                <div class="row form-group">
-                    <label class="col-sm-4">Follow Up:</label>
-                    <div class="col-sm-8"><a href="javascript:void(0);" onclick="add_follow_up(); return false;"><img src="../img/icons/ROOK-add-icon.png" alt="Add Folow Up" width="25" /></a></div>
-                </div>
+                
                 <?php $action_list = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='$estimateid' AND `deleted`=0 AND `completed`=0 ORDER BY `due_date` ASC");
                 while($action = mysqli_fetch_array($action_list)) { ?>
+                    <hr />
                     <div class="action-group">
                         <div class="row form-group">
                             <label class="col-sm-4">Next Action:</label>
@@ -105,15 +125,21 @@ function add_follow_up() {
                             </div>
                         </div>
                         <div class="row form-group">
-                            <label class="col-sm-4">Completed:</label>
+                            <label class="col-sm-4">Mark Completed:</label>
                             <div class="col-sm-8">
                                 <input type="checkbox" name="check_completed" class="form-checkbox" value="1" onchange="$(this).closest('div').find('[name=completed]').focus();" style="margin-left:0;" />
                                 <input type="text" name="completed" class="checkbox-text form-control" data-table="estimate_actions" data-id="<?= $action['id'] ?>" data-estimate="<?= $estimateid ?>" data-id-field="id" placeholder="Follow Up Details" onblur="if(this.value == '') { $(this).closest('.form-group').find('[name=check_completed]').removeAttr('checked'); alert('You must provide details about the follow up.'); }">
                             </div>
                         </div>
+                        <div class="row form-group">
+                            <label class="pull-right"><a href="javascript:void(0);" data-id="<?= $action['id'] ?>" onclick="remove_follow_up(this); return false;"><img src="../img/remove.png" class="inline-img" alt="Remove Folow Up" width="25" /></a>
+                            <label class="pull-right"><a href="javascript:void(0);" onclick="add_follow_up(); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img" alt="Add Folow Up" width="25" /></a>
+                        </div>
                     </div>
                 <?php } ?>
-                <div class="clearfix"></div>
+                
+                <hr />
+                
                 <div class="row form-group">
                     <label class="col-sm-4">Business:</label>
                     <div class="col-sm-8">
