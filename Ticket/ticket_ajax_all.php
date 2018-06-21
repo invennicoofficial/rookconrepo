@@ -13,6 +13,22 @@ if($_GET['fill'] == 'project_path_milestone') {
         echo "<option value='". $cat_tab."'>".$cat_tab.'</option>';
     }
 }
+
+if($_GET['fill'] == 'ticket_security_settings') {
+	$security_level = $_POST['security_level'];
+	$subtabs_hidden = implode(',', $_POST['subtabs_hidden']);
+	$subtabs_viewonly = implode(',', $_POST['subtabs_viewonly']);
+	$fields_hidden = implode(',', $_POST['fields_hidden']);
+	$fields_viewonly = implode(',', $_POST['fields_viewonly']);
+
+	$num_rows = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) as num_rows FROM `field_config_ticket_security` WHERE `security_level` = '$security_level'"))['num_rows'];
+	if($num_rows > 0) {
+		mysqli_query($dbc, "UPDATE `field_config_ticket_security` SET `subtabs_hidden` = '$subtabs_hidden', `subtabs_viewonly` = '$subtabs_viewonly', `fields_hidden` = '$fields_hidden', `fields_viewonly` = '$fields_viewonly' WHERE `security_level` = '$security_level'");
+	} else {
+		mysqli_query($dbc, "INSERT INTO `field_config_ticket_security` (`security_level`, `subtabs_hidden`, `subtabs_viewonly`, `fields_hidden`, `fields_viewonly`) VALUES ('$security_level', '$subtabs_hidden', '$subtabs_viewonly', '$fields_hidden', '$fields_viewonly')");
+	}
+}
+
 if($_GET['fill'] == 'project_paths') {
 	echo '<option value=""></option>';
 	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
