@@ -676,7 +676,7 @@ switch($archive) {
 						if(strpos($sites_db,',fax,') !== false)
 							$sites_info .= "'Fax Number: ',FS.`fax_number`,'<br />\n',";
 						$sites_info .= "'')";
-						$sql = "SELECT 'Sites' job_tab, FS.`siteid` job_id, $sites_info info, C.`name` `encrypted`, FS.`deleted` FROM `field_sites` FS LEFT JOIN `contacts` C ON FS.`clientid`=C.`contactid`
+						$sql = "SELECT 'Sites' job_tab, FS.`siteid` job_id, $sites_info info, C.`name` `encrypted`, FS.`deleted`, FS.date_of_archival FROM `field_sites` FS LEFT JOIN `contacts` C ON FS.`clientid`=C.`contactid`
 							WHERE FS.deleted = 1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -698,9 +698,9 @@ switch($archive) {
 							while($row_num++ < $rowsPerPage && $row = mysqli_fetch_array( $result ))
 							{
 								echo '<tr>';
-								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+								//echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['site_name'] . '</td>';
                             echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
-
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
