@@ -676,7 +676,7 @@ switch($archive) {
 						if(strpos($sites_db,',fax,') !== false)
 							$sites_info .= "'Fax Number: ',FS.`fax_number`,'<br />\n',";
 						$sites_info .= "'')";
-						$sql = "SELECT 'Sites' job_tab, FS.`siteid` job_id, $sites_info info, C.`name` `encrypted`, FS.`deleted`, FS.date_of_archival FROM `field_sites` FS LEFT JOIN `contacts` C ON FS.`clientid`=C.`contactid`
+						$sql = "SELECT 'Sites' job_tab, FS.`siteid` job_id, $sites_info info, C.`name` `encrypted`, FS.`deleted`, FS.date_of_archival, FS.site_name FROM `field_sites` FS LEFT JOIN `contacts` C ON FS.`clientid`=C.`contactid`
 							WHERE FS.deleted = 1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -742,7 +742,7 @@ switch($archive) {
 						if(strpos($jobs_db,',site,') !== false)
 							$jobs_info .= "'Site: ',FS.`site_name`,'<br />\n',";
 						$jobs_info .= "'')";
-						$sql = "SELECT 'Jobs' job_tab, FJ.`jobid` job_id, $jobs_info info, '' `encrypted`, FJ.`deleted` FROM `field_jobs` FJ LEFT JOIN `field_sites` FS ON FJ.`siteid` = FS.`siteid`
+						$sql = "SELECT 'Jobs' job_tab, FJ.`jobid` job_id, $jobs_info info, '' `encrypted`, FJ.`deleted`, FJ.date_of_archival FROM `field_jobs` FJ LEFT JOIN `field_sites` FS ON FJ.`siteid` = FS.`siteid`
 							WHERE FJ.deleted = 1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -808,7 +808,7 @@ switch($archive) {
 						if(strpos($foreman_db,',date,') !== false)
 							$foreman_info .= "'Sheet Date: ',FS.`today_date`,'<br />\n',";
 						$foreman_info .= "'')";
-						$sql = "SELECT 'Foreman Sheet' job_tab, `fsid` job_id, $foreman_info info, '' `encrypted`, FS.`deleted` FROM `field_foreman_sheet` FS LEFT JOIN field_jobs FJ ON FS.jobid=FJ.jobid
+						$sql = "SELECT 'Foreman Sheet' job_tab, `fsid` job_id, $foreman_info info, '' `encrypted`, FS.`deleted`, FS.date_of_archival FROM `field_foreman_sheet` FS LEFT JOIN field_jobs FJ ON FS.jobid=FJ.jobid
 							WHERE FS.deleted = 1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -876,7 +876,7 @@ switch($archive) {
 						if(strpos($po_db,',vendor,') !== false)
 							$po_info .= "'Vendor: [ENCRYPTED]<br />\n',";
 						$po_info .= "'')";
-						$sql = "SELECT IF(PO.`deleted`=1, 'Archived', 'Attached to Work Ticket') job_tab, PO.`fieldpoid` job_id, $po_info info, C.`name` `encrypted`, PO.`deleted` FROM `field_po` PO LEFT JOIN field_jobs FJ ON PO.jobid=FJ.jobid LEFT JOIN `contacts` C ON PO.`vendorid`=C.`contactid`
+						$sql = "SELECT IF(PO.`deleted`=1, 'Archived', 'Attached to Work Ticket') job_tab, PO.`fieldpoid` job_id, $po_info info, C.`name` `encrypted`, PO.`deleted`, PO.date_of_archival FROM `field_po` PO LEFT JOIN field_jobs FJ ON PO.jobid=FJ.jobid LEFT JOIN `contacts` C ON PO.`vendorid`=C.`contactid`
 							WHERE PO.deleted = 1 OR PO.`attach_workticket`=1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -947,7 +947,7 @@ switch($archive) {
 						if(strpos($work_db,',job,') !== false)
 							$work_info .= "'Job #: ',FJ.`job_number`,'<br />\n',";
 						$work_info .= "'')";
-						$sql = "SELECT 'Work Ticket' job_tab, FW.`workticketid` job_id, $work_info info, '' `encrypted`, FW.`attach_invoice`, FW.`jobid` job_num, FW.`fsid`, FW.`deleted` FROM `field_work_ticket` FW LEFT JOIN field_jobs FJ ON FW.jobid=FJ.jobid
+						$sql = "SELECT 'Work Ticket' job_tab, FW.`workticketid` job_id, $work_info info, '' `encrypted`, FW.`attach_invoice`, FW.`jobid` job_num, FW.`fsid`, FW.`deleted`, FW.date_of_archival FROM `field_work_ticket` FW LEFT JOIN field_jobs FJ ON FW.jobid=FJ.jobid
 							WHERE FW.deleted = 1 OR FW.attach_invoice > 0 ORDER BY job_tab, job_id DESC";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
@@ -1019,7 +1019,7 @@ switch($archive) {
 						if(strpos($invoice_db,',date,') !== false)
 							$invoice_info .= "'Invoice Date: ',FI.`invoice_date`,'<br />\n',";
 						$invoice_info .= "'')";
-						$sql = "SELECT 'Invoice' job_tab, FI.`invoiceid` job_id, $invoice_info info, '' `encrypted`, FI.`deleted` FROM `field_invoice` FI LEFT JOIN field_jobs FJ ON FI.jobid=FJ.jobid
+						$sql = "SELECT 'Invoice' job_tab, FI.`invoiceid` job_id, $invoice_info info, '' `encrypted`, FI.`deleted`, FI.date_of_archival FROM `field_invoice` FI LEFT JOIN field_jobs FJ ON FI.jobid=FJ.jobid
 							WHERE FI.deleted = 1 ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
