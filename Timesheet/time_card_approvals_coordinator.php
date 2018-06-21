@@ -649,8 +649,10 @@ function viewTicket(a) {
 						echo '<button type="submit" name="approve_position" value="update_btn" class="btn brand-btn pull-right">Update Hours</button>'; ?>
 						<script>
 						$(document).ready(function() {
+							checkTimeOverlaps();
 							initLines();
 						});
+						$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
 						function getTasks(sel) {
 							var tasks = $(sel).find('option:selected').data('tasks');
 							var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -712,6 +714,47 @@ function viewTicket(a) {
 								var line = $(this).closest('tr');
 								line.find('[name^=comment_box]').show().focus();
 							});
+						}
+						function checkTimeOverlaps() {
+							<?php if(in_array('time_overlaps',$value_config)) { ?>
+								$('.timesheet_div table tr').css('background-color', '');
+								var time_list = [];
+								var date_list = [];
+								$('.timesheet_div table').each(function() {
+									$(this).find('tr').each(function() {
+										var date = $(this).find('[name="date[]"]').val();
+										if(time_list[date] == undefined) {
+											time_list[date] = [];
+										}
+										if(date_list.indexOf(date) == -1) {
+											date_list.push(date);
+										}
+
+										var start_time = '';
+										var end_time = '';
+										if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+											time_list[date].push($(this));
+										}
+									});
+								});
+								date_list.forEach(function(date) {
+									time_list[date].forEach(function(tr) {
+										$(tr).data('current_row', 1);
+										start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+										end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+										time_list[date].forEach(function(tr2) {
+											if($(tr2).data('current_row') != 1) {
+												start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+												end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+												if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+													$(tr).css('background-color', 'red');
+												}
+											}
+										});
+										$(tr).data('current_row', 0);
+									});
+								});
+							<?php } ?>
 						}
 						</script>
 						<div id="no-more-tables">
@@ -802,9 +845,11 @@ function viewTicket(a) {
 												$comments = 'Waiting for Approval<br />'.$comments;
 											}
 										}
+		                                $show_separator = 0;
 									} else {
 										$row = '';
 										$comments = '';
+		                                $show_separator = 1;
 									}
 									$day_of_week = date('l', strtotime($date));
 									$shifts = checkShiftIntervals($dbc, $search_staff, $day_of_week, $date, 'all');
@@ -824,7 +869,7 @@ function viewTicket(a) {
 									if($date < $last_period) {
 										$mod = 'readonly';
 									} ?>
-									<tr style="<?= $hl_colour ?>">
+									<tr style="<?= $hl_colour ?>" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>">
 										<input type="hidden" name="time_cards_id[]" value="<?= $row['id'] ?>">
 										<input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
 										<input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">

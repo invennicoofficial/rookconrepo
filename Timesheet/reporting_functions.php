@@ -401,9 +401,11 @@
 							if(empty($row['ticketid'])) {
 								$driving_time = 'Driving Time';
 							}
+							$show_separator = 0;
 						} else {
 							$row = '';
 							$comments = '';
+							$show_separator = 1;
 						}
 						$day_of_week = date('l', strtotime($date));
 						$shifts = checkShiftIntervals($dbc, $search_staff, $day_of_week, $date, 'all');
@@ -423,7 +425,7 @@
 						if($date < $last_period) {
 							$mod = 'readonly';
 						}
-						$report .= '<tr style="'.$hl_colour.'">
+						$report .= '<tr style="'.$hl_colour.'" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">
 							<td data-title="Date">'.$date.'</td>
 							'.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
 							'.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
