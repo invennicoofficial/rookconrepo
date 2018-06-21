@@ -164,16 +164,13 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 				}
 				if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
 					$scope_line['price'] = $scope_line['cost'] * $us_rate;
-					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
-				} else if(!($scope_line['retail'] > 0)) {
-					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
 				}
 				if($scope_line['pricing'] == 'usd_cpu') {
 					$scope_line['cost'] = $scope_line['cost'] * $us_rate;
 				}
 				if(!($scope_line['profit'] > 0)) {
-					$scope_line['profit'] = ($scope_line['price'] - $scope_line['cost']) * $scope_line['qty'];
-					$scope_line['margin'] = ($scope_line['price'] - $scope_line['cost']) / $scope_line['cost'] * 100;
+					$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
+					$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
 				} ?>
 				<tr>
                     <td data-title="Heading"><?= $scope_line['scope_name'] ?></td>
@@ -296,16 +293,13 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
                     }
 					if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
 						$scope_line['price'] = $scope_line['cost'] * $us_rate;
-						$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
-					} else if(!($scope_line['retail'] > 0)) {
-						$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
 					}
 					if($scope_line['pricing'] == 'usd_cpu') {
 						$scope_line['cost'] = $scope_line['cost'] * $us_rate;
 					}
 					if(!($scope_line['profit'] > 0)) {
-						$scope_line['profit'] = ($scope_line['price'] - $scope_line['cost']) * $scope_line['qty'];
-						$scope_line['margin'] = ($scope_line['price'] - $scope_line['cost']) / $scope_line['cost'] * 100;
+						$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
+						$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
 					} ?>
             
                     <tr>
@@ -395,16 +389,13 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
                 }
 				if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
 					$scope_line['price'] = $scope_line['cost'] * $us_rate;
-					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
-				} else if(!($scope_line['retail'] > 0)) {
-					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
 				}
 				if($scope_line['pricing'] == 'usd_cpu') {
 					$scope_line['cost'] = $scope_line['cost'] * $us_rate;
 				}
 				if(!($scope_line['profit'] > 0)) {
-					$scope_line['profit'] = ($scope_line['price'] - $scope_line['cost']) * $scope_line['qty'];
-					$scope_line['margin'] = ($scope_line['price'] - $scope_line['cost']) / $scope_line['cost'] * 100;
+					$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
+					$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
 				} ?>
                 <tr>
                     <td data-title="Heading"><?= $scope_line['heading'] ?></td>
