@@ -307,7 +307,7 @@ $(document).on('change', 'select[name="security_level"]', function() { change_ty
                             </div>
 
                             <div class="form-group subtab_block">
-                                <label class="col-sm-4 control-label">deliverable:</label>
+                                <label class="col-sm-4 control-label">Deliverable:</label>
                                 <div class="col-sm-8">
                                     <label><input type="radio" name="subtab_deliverable" data-option="edit" value="deliverable" <?= (!in_array('deliverable', $subtabs_hidden) && !in_array('deliverable', $subtabs_viewonly) ? 'checked' : '') ?> onchange="save_options(this);" class="contact_subtabs">Editable</label>&nbsp;&nbsp;
                                     <label><input type="radio" name="subtab_deliverable" data-option="disable" value="deliverable" <?= (in_array('deliverable', $subtabs_hidden) ? 'checked' : '') ?> onchange="save_options(this);" class="contact_subtabs">Disabled</label>&nbsp;&nbsp;
