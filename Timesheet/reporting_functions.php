@@ -173,7 +173,7 @@
 				if($layout == 'multi_line') {
 					$sql .= ", `time_cards_id`";
 				}
-				$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+				$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 				$result = mysqli_query($dbc, $sql);
 				$date = $search_start_date;
 				$row = mysqli_fetch_array($result);
