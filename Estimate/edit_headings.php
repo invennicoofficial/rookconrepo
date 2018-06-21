@@ -202,7 +202,7 @@ $col_spanned = $columns; ?>
 				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'usd_cpu' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
 			<table class="table table-bordered">
 				<tr>
-					<td colspan="<?= $col_spanned ?>">
+					<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
 						<h3 class="no-margin"><input type="text" name="heading" value="<?= $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
 					</td>
 					<td>
@@ -231,23 +231,25 @@ $col_spanned = $columns; ?>
 				$line = mysqli_fetch_array($lines);
 				do {
 					if(empty($line['src_table'])) { ?>
-						<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
-						<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
-						<input type="hidden" name="sort_order" value="<?= $line['sort_order'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
-						<input type="hidden" name="deleted" value="<?= $line['deleted'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
-						<td colspan="<?= $col_spanned ?>">
-							<em>Please add details</em>
-						</td>
-						<td data-title="Function" align="center">
-							<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="overlayIFrameSlider('estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>', '75%', true, false, 'auto', true);" width="20">
-						</td>
+						<tr>
+							<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="sort_order" value="<?= $line['sort_order'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="deleted" value="<?= $line['deleted'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
+								<em>Please add details</em>
+							</td>
+							<td data-title="Function" align="center">
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
+							</td>
+						</tr>
 					<?php } else { ?>
 						<tr>
 							<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<input type="hidden" name="sort_order" value="<?= $line['sort_order'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<?php if($line['src_table'] == 'notes') { ?>
-								<td colspan="<?= $col_spanned ?>">
+								<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
 									<?= html_entity_decode($line['description']) ?>
 								</td>
 							<?php } else {
@@ -323,7 +325,7 @@ $col_spanned = $columns; ?>
 							<td data-title="Function" align="center">
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
-								<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="overlayIFrameSlider('estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>', '75%', true, false, 'auto', true);" width="20">
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
 								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
 							</td>
 						</tr>
