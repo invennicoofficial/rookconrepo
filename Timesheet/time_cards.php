@@ -1272,8 +1272,10 @@ function addSignature(chk) {
 			<?php elseif($layout == 'position_dropdown' || $layout == 'ticket_task'): ?>
 				<script>
 				$(document).ready(function() {
+					checkTimeOverlaps();
 					initLines();
 				});
+				$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
 				function getTasks(sel) {
 					var tasks = $(sel).find('option:selected').data('tasks');
 					var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -1325,9 +1327,50 @@ function addSignature(chk) {
 						line.find('[name^=comment_box]').show().focus();
 					});
 				}
+				function checkTimeOverlaps() {
+					<?php if(in_array('time_overlaps',$value_config)) { ?>
+						$('.timesheet_div table tr').css('background-color', '');
+						var time_list = [];
+						var date_list = [];
+						$('.timesheet_div table').each(function() {
+							$(this).find('tr').each(function() {
+								var date = $(this).find('[name="date[]"]').val();
+								if(time_list[date] == undefined) {
+									time_list[date] = [];
+								}
+								if(date_list.indexOf(date) == -1) {
+									date_list.push(date);
+								}
+
+								var start_time = '';
+								var end_time = '';
+								if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+									time_list[date].push($(this));
+								}
+							});
+						});
+						date_list.forEach(function(date) {
+							time_list[date].forEach(function(tr) {
+								$(tr).data('current_row', 1);
+								start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+								end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+								time_list[date].forEach(function(tr2) {
+									if($(tr2).data('current_row') != 1) {
+										start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+										end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+										if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+											$(tr).css('background-color', 'red');
+										}
+									}
+								});
+								$(tr).data('current_row', 0);
+							});
+						});
+					<?php } ?>
+				}
 				</script>
 				<div id="no-more-tables">
-					<table class='table table-bordered'>
+					<table class='table table-bordered timesheet_table'>
 						<tr class='hidden-xs hidden-sm'>
 							<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
 							<?php $total_colspan = 2; ?>
