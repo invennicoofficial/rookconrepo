@@ -1852,7 +1852,7 @@ h1 .id-circle { font-size:18px; height:40px; line-height:22px; margin:0 0.5em; w
                 .no-scroll div[class*='col-'] { white-space:normal; }
             .info-block-container { display:inline-block; float:none; height:100%; }
                 .info-block { height:100%; }
-                    .info-block-header { background-color:#b0e1f0; border-bottom:4px solid #43bce3; display: block; height: auto; padding:5px 10px; }
+                    .info-block-header { background-color:#b0e1f0; border-bottom:4px solid #43bce3; display: block; height: 65px; padding:5px 10px; }
                         .info-block-header h3, .info-block-header h4 { color:#333; margin:4px 0 8px 0; }
                         .info-block-small { color:#666; font-size:0.85em; font-weight:bold; }
                     .info-block-details { background-color:#ececec;  height:100%; overflow-y:auto; }
