@@ -202,7 +202,7 @@ $col_spanned = $columns; ?>
 				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'USD Cost Per Unit' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
 				<table class="table table-bordered">
 					<tr>
-						<td colspan="<?= $col_spanned ?>">
+						<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
 							<h3 class="no-margin"><input type="text" name="heading" value="<?= empty($heading['heading']) ? 'Scope Details' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
 						</td>
 						<td>
@@ -315,7 +315,7 @@ $col_spanned = $columns; ?>
 							<td data-title="Function" align="center">
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
-								<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="overlayIFrameSlider('estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>', '75%', true, false, 'auto', true);" width="20">
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;" width="20"></a>
 								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
 								</td>
 						</tr>

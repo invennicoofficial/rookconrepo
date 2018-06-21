@@ -250,6 +250,18 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 				$total_packages += explode(',', $invoice_row['package_cost'])[$this_row];
 			}
 		}
+		foreach(explode(',',$invoice_row['productid']) as $this_row => $this_id) {
+			if($this_id > 0) {
+				$services_inventory += explode(',', $invoice_row['product_price'])[$this_row];
+				$total_packages += explode(',', $invoice_row['product_price'])[$this_row];
+			}
+		}
+		foreach(explode(',',$invoice_row['misc_item']) as $this_row => $this_id) {
+			if(!empty($this_id)) {
+				$services_inventory += explode(',', $invoice_row['misc_price'])[$this_row];
+				$total_packages += explode(',', $invoice_row['misc_price'])[$this_row];
+			}
+		}
 		if($invoice_row['total_price'] != $services_inventory) {
 			$report_data .= '<tr nobr="true">';
 			$report_data .= '<td><a href=\''.WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoice_row['invoiceid'].'&patientid='.$invoice_row['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$invoice_row['invoiceid'].'</a>';
