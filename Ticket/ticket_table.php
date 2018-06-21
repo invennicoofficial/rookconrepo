@@ -158,7 +158,7 @@ while($row = mysqli_fetch_array( $result )) {
 			} else {
 				echo $row['status'];
                 if($row['status'] == 'Archive' || $row['status'] == 'Archived' || $row['deleted'] == 1) {
-                    echo $row['date_of_archival'];
+                    echo '<br>'.$row['date_of_archival'];
                 }
 			}
 		echo '</td>';
