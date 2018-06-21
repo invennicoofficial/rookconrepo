@@ -105,5 +105,19 @@
     }
     //2018-06-20 - TIcket #7967 - Multiple Sites
 
+    //2018-06-21 - Ticket #8000 - HR Default Email
+    $updated_already = get_config($dbc, 'updated_ticket8000_emails');
+    if(empty($updated_already)) {
+        $manual_emails = mysqli_query($dbc, "SELECT * FROM `general_configuration` WHERE `name` LIKE 'manual_%_email'");
+        while($manual_email = mysqli_fetch_assoc($manual_emails)) {
+            if($manual_email['value'] == 'dayanasanjay@yahoo.com') {
+                set_config($dbc, $manual_email['name'], '');
+            }
+        }
+        set_config($dbc, 'updated_ticket8000_emails', 1);
+    }
+
+    //2018-06-21 - Ticket #8000 - HR Default Email
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
