@@ -7,8 +7,7 @@ if($strict_view > 0) {
 }
 if(isset($_GET['deleteid'])) {
 	$deleteid = $_GET['deleteid'];
-    $date_of_archival = date('Y-m-d');
-	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1', `date_of_archival` = '$date_of_archival' WHERE `order_id` = '$deleteid'";
+	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1' WHERE `order_id` = '$deleteid'";
     $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 	 echo '<script type="text/javascript"> window.location.replace("order_lists.php"); </script>';
 }
@@ -146,7 +145,7 @@ if(!empty($_GET['order_id'])) {
     <?php if ( isset ( $_GET['order_id'] ) ) { ?>
         <a href="order_lists.php"><span class="btn brand-btn mobile-block"><-- Back</span></a>
     <?php } ?>
-
+    
     <div class="create_list_form" style="<?php echo ( isset($_GET['order_id']) ) ? '' : 'display:none;'; ?> border:10px outset darkgrey; background-color:lightgrey; border-radius:10px; padding:10px; margin:15px;">
         <form id="" name="x" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="order_id" value="<?php echo ( isset($_GET['order_id']) ) ? $_GET['order_id'] : ''; ?>" />
@@ -211,7 +210,7 @@ if(!empty($_GET['order_id'])) {
                     </div>
                 <?php } ?>
             </div>
-
+            
             <?php if($tile_security['edit'] > 0) { ?>
                 <div class="form-group">
                     <div class="col-sm-8 pull-right">
@@ -227,7 +226,7 @@ if(!empty($_GET['order_id'])) {
             <?php } ?>
         </form>
     </div>
-
+    
     <div id="no-more-tables" class="list_dashboard" <?php echo ( isset ($_GET['order_id']) ) ? 'style="display:none;"' : ''; ?>><?php
         //Search -- NOT YET DEVELOPED
         $vendor = '';
@@ -248,7 +247,7 @@ if(!empty($_GET['order_id'])) {
 
         $result     = mysqli_query($dbc, $query_check_credentials);
         $num_rows   = mysqli_num_rows($result);
-
+        
         if ( $num_rows > 0 ) {
             echo '<table class="table table-bordered">';
             echo '<tr class="hidden-xs hidden-sm">';
@@ -299,7 +298,7 @@ if(!empty($_GET['order_id'])) {
                 }
             echo "</tr>";
         }
-
+        
         echo '</table></div>'; ?>
     </div>
 </form>

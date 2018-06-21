@@ -4,8 +4,7 @@ checkAuthorised('contracts');
 error_reporting(0);
 if(!empty($_GET['unassign'])) {
 	$assignid = $_GET['assignid'];
-    $date_of_archival = date('Y-m-d');
-	$query = mysqli_query($dbc, "UPDATE `contracts_staff` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `contractstaffid`='$assignid'");
+	$query = mysqli_query($dbc, "UPDATE `contracts_staff` SET `deleted`=1 WHERE `contractstaffid`='$assignid'");
 	echo "<script> window.location.replace('follow_up.php'); </script>";
 }
 else if(!empty($_POST['assign_contract'])) {
@@ -23,14 +22,14 @@ else if(!empty($_POST['assign_contract'])) {
 		$query = "UPDATE `contracts_staff` SET `contractid`='$contractid', `recipient`='$recipient', `contactid`='$contactid', `businessid`='$businessid', `due_date`='$due_date' WHERE `contractstaffid`='$assignid'";
 	}
 	$result = mysqli_query($dbc, $query);
-
+	
 	$subject = $_POST['email_subject'];
 	$body = str_replace(['[SIGN_OFF]','[ASSIGNID]'], [$due_date,$assignid], $_POST['email_body']);
-
+	
 	try {
 		send_email([$_POST['email_sender']=>$_POST['email_name']], array_filter(explode(',',$recipient)), '', '', $subject, $body, '');
 	} catch(Exception $e) { }
-
+		
 	$reminder_date = filter_var($_POST['reminder_date'],FILTER_SANITIZE_STRING);
 	$remind_recipient = filter_var($_POST['reminder_recipient'],FILTER_SANITIZE_STRING);
 	$subject = filter_var($_POST['reminder_subject'],FILTER_SANITIZE_STRING);
@@ -40,7 +39,7 @@ else if(!empty($_POST['assign_contract'])) {
 	$verify = "contracts_staff#*#done#*#contractstaffid#*#".$assignid."#*#1";
 	$reminder_sql = mysqli_query($dbc, "INSERT INTO `reminders` (`recipient`, `reminder_date`, `reminder_type`, `verify`, `subject`, `body`, `sender`, `sender_name`)
 		VALUES ('$remind_recipient', '$reminder_date', 'Contract', '$verify', '$subject', '$body', '$sender', '$sender_name')");
-
+	
 	echo "<script> window.location.replace('contracts.php?tab=$category'); </script>";
 } ?>
 <script>

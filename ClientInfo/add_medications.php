@@ -21,8 +21,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 
 if(isset($_GET['action']) && $_GET['action'] == 'archive') {
     $medicationid = $_GET['medicationid'];
-    $date_of_archival = date('Y-m-d');
-    $query = mysqli_query($dbc,"UPDATE medication SET deleted = 1, `date_of_archival` = '$date_of_archival' WHERE medicationid='$medicationid'");
+    $query = mysqli_query($dbc,"UPDATE medication SET deleted = 1 WHERE medicationid='$medicationid'");
     history($dbc, 'Archive', $medicationid);
     echo '<script type="text/javascript"> window.location.replace("'.$from_url.'"); </script>';
 }
@@ -208,7 +207,7 @@ function deleteMedicationUpload(list, meduploadid) {
 
     <div id="collapse1" class="panel-collapse collapse">
         <div class="panel-body">
-
+       
         <?php if (strpos($value_config, ','."Staff".',') !== FALSE) { ?>
         <div class="form-group">
           <label for="site_name" class="col-sm-4 control-label">Staff:</label>

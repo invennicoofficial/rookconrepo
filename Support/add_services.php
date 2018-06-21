@@ -7,7 +7,7 @@ if(!empty($_POST['submit'])) {
 	$image = filter_var($_POST['image'],FILTER_SANITIZE_STRING);
 	$link = filter_var($_POST['link'],FILTER_SANITIZE_STRING);
 	$description = filter_var(htmlentities($_POST['description']),FILTER_SANITIZE_STRING);
-
+	
 	if(!empty($_GET['serviceid'])) {
 		$query = "UPDATE `support_services` SET `type`='$type', `priority`='$priority', `heading`='$heading', `image`='$image', `link`='$link', `description`='$description' WHERE `serviceid`='".$_GET['serviceid']."'";
 	} else {
@@ -17,8 +17,7 @@ if(!empty($_POST['submit'])) {
 	echo "<script> window.location.replace('customer_support.php?tab=services'); </script>";
 } else if(!empty($_GET['delete'])) {
 	$serviceid = $_GET['serviceid'];
-    $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `support_services` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `serviceid`='$serviceid'");
+	mysqli_query($dbc, "UPDATE `support_services` SET `deleted`=1 WHERE `serviceid`='$serviceid'");
 	echo "<script> window.location.replace('customer_support.php?tab=services'); </script>";
 } ?>
 <script>

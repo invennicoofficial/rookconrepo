@@ -7,8 +7,7 @@ if(isset($_POST['load_template'])) {
     if (!empty($formid)) {
     	mysqli_query($dbc, "UPDATE `user_forms` u, `user_forms` t SET u.`contents` = t.`contents`, u.`header` = t.`header`, u.`header_logo` = t.`header_logo`, u.`header_align` = t.`header_align`, u.`header_font` = t.`header_font`, u.`header_size` = t.`header_size`, u.`header_color` = t.`header_color`, u.`footer` = t.`footer`, u.`footer_logo` = t.`footer_logo`, u.`footer_align` = t.`footer_align`, u.`footer_font` = t.`footer_font`, u.`footer_size` = t.`footer_size`, u.`footer_color` = t.`footer_color`, u.`body_heading_font` = t.`body_heading_font`, u.`body_heading_size` = t.`body_heading_size`, u.`body_heading_color` = t.`body_heading_color`, u.`section_heading_font` = t.`section_heading_font`, u.`section_heading_size` = t.`section_heading_size`, u.`section_heading_color` = t.`section_heading_color`, u.`font` = t.`font`, u.`body_size` = t.`body_size`, u.`body_color` = t.`body_color`, u.`display_form` = t.`display_form`, u.`advanced_styling` = t.`advanced_styling`, u.`intake_field` = t.`intake_field`, u.`page_by_page` = t.`page_by_page`, u.`hide_labels` = t.`hide_labels`, u.`header_styling` = t.`header_styling`, u.`footer_styling` = t.`footer_styling`, u.`section_heading_styling` = t.`section_heading_styling`, u.`body_heading_styling` = t.`body_heading_styling`, u.`body_styling` = t.`body_styling` WHERE u.`form_id` = '$formid' AND t.`form_id` = '$templateid'");
     }
-        $date_of_archival = date('Y-m-d');
-    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid'");
+    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$formid'");
 
     $template_fields = mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `form_id` = '$templateid' AND `deleted` = 0");
     while ($row = mysqli_fetch_array($template_fields)) {
@@ -22,9 +21,8 @@ if(isset($_POST['load_template'])) {
 	        }
     	}
     }
-        $date_of_archival = date('Y-m-d');
 
-    mysqli_query($dbc, "UPDATE `user_form_page` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid'");
+    mysqli_query($dbc, "UPDATE `user_form_page` SET `deleted` = 1 WHERE `form_id` = '$formid'");
     $template_pages = mysqli_query($dbc, "SELECT * FROM `user_form_page` WHERE `form_id` = '$templateid' AND `deleted` = 0");
     while ($row = mysqli_fetch_array($template_pages)) {
         $page_id = $row['page_id'];

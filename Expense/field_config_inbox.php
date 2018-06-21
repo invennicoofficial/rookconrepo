@@ -5,7 +5,7 @@ if (isset($_POST['submit'])) {
     $expense_defaults = implode(',',$_POST['expense_defaults']);
 	mysqli_query($dbc, "INSERT INTO `field_config_expense` (`tab`) SELECT 'current_month' FROM (SELECT COUNT(*) rows FROM `field_config_expense` WHERE `tab`='current_month') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config_expense` SET `expense_dashboard`='$expense_defaults' WHERE `tab`='current_month'");
-
+	
     $expense_category_field = implode(',',$_POST['expense_category_field']);
 	$tab_category = $_POST['expense_category_field_name'];
 	if($tab_category != '') {
@@ -23,7 +23,7 @@ if (isset($_POST['submit'])) {
     $gst_amt = filter_var($_POST['gst_amt'],FILTER_SANITIZE_STRING);
     $expense_rows = filter_var($_POST['expense_rows'],FILTER_SANITIZE_STRING);
 	$exchange_buffer = filter_var($_POST['exchange_buffer'] / 100,FILTER_SANITIZE_STRING);
-
+	
     $expense_tabs = implode(',',$_POST['expense_tabs']);
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config_expense WHERE `tab` LIKE '$tab'"));
     if($get_field_config['fieldconfigid'] > 0) {
@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
     }
 
 	set_config($dbc, 'expense_default_staff', $_POST['default_staff']);
-
+	
 	$default_country = filter_var($_POST['default_country'],FILTER_SANITIZE_STRING);
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='default_country'"));
     if($get_config['configid'] > 0) {
@@ -177,16 +177,15 @@ if (isset($_POST['submit'])) {
 
 	// Categories
 	$all_ids = implode(',',array_filter($_POST['cat_id']));
-    $date_of_archival = date('Y-m-d');
-	$delete_rows = mysqli_query($dbc, "UPDATE `expense_categories` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `expense_tab` LIKE '$tab' AND `categoryid` NOT IN ($all_ids)");
-
+	$delete_rows = mysqli_query($dbc, "UPDATE `expense_categories` SET `deleted`=1 WHERE `expense_tab` LIKE '$tab' AND `categoryid` NOT IN ($all_ids)");
+	
 	foreach($_POST['cat_id'] as $row => $id) {
 		$category = $_POST['category'][$row];
 		$heading = $_POST['cat_heading'][$row];
 		$amount = $_POST['cat_amount'][$row];
 		$gl = $_POST['heading_code'][$row];
 		$ec = floor($gl / 1000) * 1000;
-
+		
 		if($heading != '' && $category != '') {
 			if($id == '') {
 				//$ec = mysqli_fetch_array(mysqli_query($dbc, "SELECT `EC` FROM `expense_categories` WHERE `category`='$category' AND `deleted`=0 AND `expense_tab` LIKE '$tab' UNION SELECT IFNULL(MAX(`EC`),0) + 1000 FROM `expense_categories` WHERE `expense_tab` LIKE '$tab' AND `deleted`=0"))['EC'];

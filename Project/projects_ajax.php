@@ -779,8 +779,7 @@ if($_GET['action'] == 'mark_favourite') {
 	}
 } else if($_GET['action'] == 'archive_project_form') {
 	$projectform = $_POST['projectform'];
-        $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$projectform'");
+	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1 WHERE `id` = '$projectform'");
 } else if($_GET['action'] == 'get_category_list') {
 	$category = filter_var(($_POST['category'] ?: $_GET['category']),FILTER_SANITIZE_STRING);
 	echo '<option></option>';
@@ -845,8 +844,7 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'remove_custom_field') {
 	$id = $_POST['id'];
 	if($id > 0) {
-	        $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$id'");
+		mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1 WHERE `id` = '$id'");
 	}
 } else if($_GET['action'] == 'add_custom_field_upload') {
 	$id = $_POST['id'];

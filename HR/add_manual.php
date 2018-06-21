@@ -20,10 +20,9 @@ if((!empty($_GET['hrid'])) && (!empty($_GET['action'])) && ($_GET['action'] == '
     $hrid = $_GET['hrid'];
     $category = get_hr($dbc, $hrid, 'category');
     $tab = get_hr($dbc, $hrid, 'tab');
-        $date_of_archival = date('Y-m-d');
 
     // $query = mysqli_query($dbc,"DELETE FROM hr WHERE hrid='$hrid'");
-    $query = mysqli_query($dbc,"UPDATE hr SET deleted=1, `date_of_archival` = '$date_of_archival' WHERE hrid='$hrid'");
+    $query = mysqli_query($dbc,"UPDATE hr SET deleted=1 WHERE hrid='$hrid'");
     echo '<script type="text/javascript"> window.location.replace("hr.php?tab='.$tab.'&category='.$category.'"); </script>';
 }
 
@@ -100,7 +99,7 @@ if (isset($_POST['view_manual'])) {
 if (isset($_POST['field_level_hazard'])) {
     $field_level_hazard = $_POST['field_level_hazard'];
     $hrid = $_POST['hrid'];
-
+	
     $staffid = $_SESSION['contactid'];
     $today_date = date('Y-m-d H:i:s');
 	// Insert a row if it isn't already there
@@ -1032,7 +1031,7 @@ checkAuthorised('hr');
             </div>
         <?php } ?>
 
-
+        
 
     </form>
 

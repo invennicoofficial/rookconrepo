@@ -80,7 +80,7 @@ foreach($security_levels as $security_level) {
 ?>
 <script>
 $(document).ready(function() {
-	$('[data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
+	$('input,select,textarea').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 	$('.viewonly_fields').each(function() { viewOnlyFields(this); });
 });
 function viewOnlyFields(div) {
@@ -178,7 +178,6 @@ function viewOnlyFields(div) {
 		}
 		if(in_array('Address Sync To Site',$tab_data[1]) && in_array('Address Sync To Site',$field_config)) {
 			echo '<div class="site_address" style="'.($contact['address_site_sync'] > 0 ? '' : 'display:none;').'"></div><div class="clearfix"></div>';
-			echo '<div class="add_another_site pull-right" style="display:none;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" title="Add Another Site" onclick="addAnotherSite();"></div><div class="clearfix"></div>';
 		}
 		echo $div_end;
 	}

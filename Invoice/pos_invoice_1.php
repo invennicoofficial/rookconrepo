@@ -204,8 +204,9 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		}
 	}
 
-	while($row = mysqli_fetch_array( $result2 )) {
-		$misc_product = $row['description'];
+	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
+	while($row = mysqli_fetch_array( $result )) {
+		$misc_product = $row['misc_product'];
 		$price = $row['unit_price'];
 
 		if($misc_product != '') {
@@ -443,7 +444,7 @@ $html .= '
 	$html .= '
 	</tr>
 <tr style="background-color:lightgrey; color:black;">
-	<td>'.explode('#*#',$point_of_sell['payment_type'])[0].'</td>';
+	<td>'.$point_of_sell['payment_type'].'</td>';
 	if ( !empty($couponid) || $coupon_value!=0 ) {
 		$html .= '<td>$'.number_format($point_of_sell['coupon_value'], 2).'</td>';
 	}

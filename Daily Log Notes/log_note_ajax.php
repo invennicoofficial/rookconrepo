@@ -6,17 +6,16 @@ if($_GET['fill'] == 'add_note') {
 	$user = $_POST['user'];
 	$note = $_POST['notes'];
 	$date = date('Y-m-d g:i A');
-
+	
 	$note .= "<br />\n<small><em>Note added by ".get_contact($dbc, $user)." at $date</em></small>";
 	$note = filter_var(htmlentities($note), FILTER_SANITIZE_STRING);
-
+	
 	$result = mysqli_query($dbc, "INSERT INTO `client_daily_log_notes` (`client_id`, `note`, `created_by`) VALUES ('$client', '$note', '".$_SESSION['contactid']."')");
 	echo "<li class='ui-state-default no-sort'>".html_entity_decode($note)."</li>";
 }
 if($_GET['fill'] == 'delete') {
 	$id = $_GET['id'];
-    $date_of_archival = date('Y-m-d');
-	$query = "UPDATE `client_daily_log_notes` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `note_id`='$id'";
+	$query = "UPDATE `client_daily_log_notes` SET `deleted`=1 WHERE `note_id`='$id'";
 	$result = mysqli_query($dbc,$query);
 }
 if($_GET['fill'] == 'reply') {

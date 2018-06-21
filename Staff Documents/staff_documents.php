@@ -13,16 +13,15 @@ checkAuthorised('staff_documents');
 $query = mysqli_query($dbc, "SELECT * FROM staff_documents");
 while ($row = mysqli_fetch_array($query)) {
 	$date_7_years = strtotime('+7 years', strtotime($row['upload_date']));
-    $date_of_archival = date('Y-m-d');
 	if (strtotime("now") >= $date_7_years) {
-		$query_archive = mysqli_query($dbc, "UPDATE staff_documents SET deleted = 1, `date_of_archival` = '$date_of_archival' WHERE staff_documentsid = '" . $row['staff_documentsid'] . "'");
+		$query_archive = mysqli_query($dbc, "UPDATE staff_documents SET deleted = 1 WHERE staff_documentsid = '" . $row['staff_documentsid'] . "'");
 	}
 }
 ?>
 
 <div class="container triple-pad-bottom">
     <div class="row">
-
+	
 		<div class="col-sm-10">
 			<h1>Staff Documents Dashboard</h1>
 		</div>
@@ -35,7 +34,7 @@ while ($row = mysqli_fetch_array($query)) {
 			?>
 		</div>
 		<div class="clearfix double-gap-bottom"></div>
-
+		
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -62,7 +61,7 @@ while ($row = mysqli_fetch_array($query)) {
 					$search_category = '';
 				}
             ?>
-
+            
 			<div class="row padded">
                 <div class="col-sm-3">
 					<div class="col-sm-5 pad-5">
@@ -77,7 +76,7 @@ while ($row = mysqli_fetch_array($query)) {
 						<?php } ?>
 					</div>
 				</div>
-
+				
 				<div class="col-sm-3">
 					<div class="col-sm-5 pad-5">
 						<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Select from the drop down menu to search by staff within your Staff Documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -102,7 +101,7 @@ while ($row = mysqli_fetch_array($query)) {
 						</select>
 					</div>
 				</div>
-
+				
 				<div class="col-sm-3">
 					<div class="col-sm-5 pad-5">
 						<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Select from the drop down menu to search by type within your Staff Documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -118,7 +117,7 @@ while ($row = mysqli_fetch_array($query)) {
 						</select>
 					</div>
 				</div>
-
+				
 				<div class="col-sm-3">
 					<div class="col-sm-6 pad-5">
 						<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Select from the drop down menu to search by category within your Staff Documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -135,19 +134,19 @@ while ($row = mysqli_fetch_array($query)) {
 					</div>
 				</div>
 			</div>
-
+			
 			<div class="clearfix"></div>
 
             <div class="row gap-right">
 				<div class="pull-right">
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click this once you have selected the above."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					<button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-
+					
 					<span class="popover-examples list-inline gap-left"><a data-toggle="tooltip" data-placement="top" title="This refreshes the page to view all Staff Documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					<button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
 				</div>
 			</div>
-
+			
 			<div class="clearfix triple-gap-bottom"></div>
 
             <?php if(vuaed_visible_function($dbc, 'staff_documents') == 1) { ?>
@@ -156,13 +155,13 @@ while ($row = mysqli_fetch_array($query)) {
 					<a href="add_staff_documents.php" class="btn brand-btn mobile-block pull-right">Add Staff Documents</a>
 					<span class="popover-examples pad-5 pull-right"><a data-toggle="tooltip" data-placement="top" title="Click here to add documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				</div>
-
+			
 				<div class="clearfix triple-gap-bottom"></div>
 			<?php } ?>
 
             <div id="no-more-tables">
 				<?php
-
+				
 				/* Pagination Counting */
 				$rowsPerPage = 25;
 				$pageNum = 1;
@@ -200,16 +199,16 @@ while ($row = mysqli_fetch_array($query)) {
 				$result = mysqli_query($dbc, $query_check_credentials);
 
 				$num_rows = mysqli_num_rows($result);
-
-
+				
+				
 				if($num_rows > 0) {
 					$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT staff_documents_dashboard FROM field_config"));
 					$value_config = ','.$get_field_config['staff_documents_dashboard'].',';
-
+					
 					// Add Pagintion //
 					echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 					// Complete Pagination //
-
+					
 					echo "<table class='table table-bordered'>";
 					echo "<tr class='hidden-sm hidden-xs'>";
 						if (strpos($value_config, ','."Staff".',') !== FALSE) {
@@ -409,23 +408,23 @@ while ($row = mysqli_fetch_array($query)) {
 				}
 
 				echo '</table>';
-
+			
 			echo '</div>';
-
+			
             // Add Pagintion //
 			echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 			// Complete Pagination //
-
+            
 			if(vuaed_visible_function($dbc, 'staff_documents') == 1) {
 				echo '<div class="clearfix pull-right">'; ?>
 					<span class="popover-examples pad-5"><a data-toggle="tooltip" data-placement="top" title="Click here to add documents."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
 					echo '<a href="add_staff_documents.php" class="btn brand-btn mobile-block">Add Staff Documents</a>';
 				echo '</div>';
-
+				
 				echo '<div class="clearfix"></div>';
 			} ?>
         </form>
-
+		
     </div>
 </div>
 

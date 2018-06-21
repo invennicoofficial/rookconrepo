@@ -341,10 +341,9 @@ $ticket_security = get_security($dbc, 'ticket');
 $ticket_field_config = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets_dashboard` FROM field_config"))['tickets_dashboard']));
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
-        $date_of_archival = date('Y-m-d');
 	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
+	$query = "update tasklist set deleted=1 where projectid=$editid and status='".$status_complete."'";
 	$update_clear_completed = mysqli_query($dbc, $query);
 	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
 }
@@ -487,7 +486,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 				});
 			}
 		});
-
+		
 		// Dragging to other Milestones
 		$('.dashboard-list').sortable({
 			connectWith: '.dashboard-list',

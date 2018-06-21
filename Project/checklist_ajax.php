@@ -172,8 +172,7 @@ if($_GET['fill'] == 'checklistflag') {
 }
 if($_GET['fill'] == 'delete_checklist') {
     $id = $_GET['checklistid'];
-    $date_of_archival = date('Y-m-d');
-    $query = "UPDATE `tickets` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `ticketid`=$id";
+    $query = "UPDATE `tickets` SET `deleted`=1 WHERE `ticketid`=$id";
     $result = mysqli_query($dbc,$query);
 }
 

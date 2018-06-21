@@ -14,8 +14,7 @@ if($_GET['fill'] == 'rate_card_config') {
 
     if($action == 'archive') {
         $ratecardid = $_GET['id'];
-          $date_of_archival = date('Y-m-d');
-      $query_rate_card = "UPDATE `rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ratecardid` = '$ratecardid'";
+        $query_rate_card = "UPDATE `rate_card` SET `deleted` = 1 WHERE `ratecardid` = '$ratecardid'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
     }
     if($action == 'on_off') {
@@ -438,7 +437,7 @@ if($_GET['fill'] == 'staff_rate_update') {
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
 	}
 	$history = filter_var('Staff rate card Edited by '.get_contact($dbc, $_SESSION['contactid']).' on '.date('Y-m-d h:i:s')." (`$field` set to '$value')",FILTER_SANITIZE_STRING);
-
+	
 	if(!mysqli_query($dbc, "UPDATE `staff_rate_table` SET `$field`='$value', `history`=IFNULL(CONCAT(HISTORY,'<br />\n','$history'),'$history') WHERE `rate_id`='$id'")) {
 		echo "Error: ".mysqli_error($dbc);
 	}
@@ -464,7 +463,6 @@ if($_GET['fill'] == 'staff_rate_order') {
 
 if($_GET['fill'] == 'delete_rate_card') {
     $ratecardid = $_POST['ratecardid'];
-         $date_of_archival = date('Y-m-d');
-     mysqli_query($dbc, "UPDATE `tile_rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ratecardid` = '$ratecardid'");
+    mysqli_query($dbc, "UPDATE `tile_rate_card` SET `deleted` = 1 WHERE `ratecardid` = '$ratecardid'");
 }
 ?>

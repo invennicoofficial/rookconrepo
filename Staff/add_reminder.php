@@ -42,8 +42,7 @@ $sender = get_email($dbc, $_SESSION['contactid']);
 if(!empty($_GET['reminderid'])) {
 	$reminderid = $_GET['reminderid'];
 	if(isset($_GET['status']) && $_GET['status'] == 'archive') {
-        $date_of_archival = date('Y-m-d');
-		$reminder = mysqli_fetch_array(mysqli_query($dbc, "UPDATE `reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `reminderid` = $reminderid"));
+		$reminder = mysqli_fetch_array(mysqli_query($dbc, "UPDATE `reminders` SET `deleted` = 1 WHERE `reminderid` = $reminderid"));
 
 		echo "<script>alert('Reminder has been archived'); window.location = 'staff.php?tab=reminders';</script>";
 	} else {

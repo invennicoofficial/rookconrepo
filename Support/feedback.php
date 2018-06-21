@@ -26,7 +26,7 @@
 			VALUES ('$customer', '$contactid', '$business', '$businessid', '$software_url', '$date', '$email', '$cc', '$heading', '$details', 'Feedback')")) {
 			$errors .= "Error Saving Feedback: ".mysqli_error($dbc_support)."\n";
 		}
-
+		
 		$supportid = mysqli_insert_id($dbc_support);
 		$email_attachments = '';
 		foreach($_FILES['documents']['name'] as $row => $filename) {
@@ -73,7 +73,7 @@
 					send_email('info@rookconnect',$address,'','',$subject,$body,$email_attachments);
 				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			}
-
+			
 			// Thank you Email to sender and CC email.
 			if($email != '') {
 				$subject = 'Confirmation of Your Feedback';
@@ -86,13 +86,13 @@
 					<p>Heading: $heading<br />
 					Details<hr>
 					".html_entity_decode($details);
-
+			
 				try {
 					send_email('info@rookconnect.com', $email, '', '', $subject, $body, $email_attachments);
 				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			}
 		}
-
+		
 		if($errors != '') {
 			echo "<script> alert('$errors'); </script>";
 		}
@@ -126,7 +126,7 @@
             <a href="https://www.google.ca/maps/place/7220+Fairmount+Dr+SE+%23200,+Calgary,+AB+T2H+0X7/@50.9885147,-114.0645471,17z/data=!4m5!3m4!1s0x537170e35467ff8b:0xed9a38d0eea428d5!8m2!3d50.9885755!4d-114.063324">Suite 200, 7220 Fairmount Dr<br />SE Calgary, AB T2H 0X7</a></h4>
 		</center>
 		<h1 class="triple-pad-bottom">Submit Feedback</h1>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="customer">Customer:</label>
 			<div class="col-sm-8">
@@ -134,14 +134,14 @@
 				<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="date">Date:</label>
 			<div class="col-sm-8">
 				<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d') ?>" class="form-control">
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="business">Business:</label>
 			<div class="col-sm-8">
@@ -150,21 +150,21 @@
 				<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
 			<div class="col-sm-8">
 				<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
 			<div class="col-sm-8">
 				<input type="text" name="ccemail" id="ccemail" value="" class="form-control">
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="heading">Feedback Heading:</label>
 			<div class="col-sm-8">
@@ -182,14 +182,14 @@
 				</select>
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label" for="details">Details<span class="text-red">*</span>:</label>
 			<div class="col-sm-8">
 				<textarea name="details" id="details" class="form-control"></textarea>
 			</div>
 		</div>
-
+		
 		<div class="form-group clearfix">
 			<label class="col-sm-4 control-label">Upload Documents:</label>
 			<div class="col-sm-8">
@@ -197,13 +197,12 @@
 				<button onclick="add_uploader(this); return false;" class="btn brand-btn pull-right">Add More Documents</button>
 			</div>
 		</div>
-
+		
 		<button type="submit" name="new_request" value="new" class="btn brand-btn pull-right">Submit Request</button>
 	</form>
 <?php elseif($request_tab == 'closed'): ?>
 	<?php $date = date('Y-m-d',strtotime('-2month'));
-    $date_of_archival = date('Y-m-d');
-	$support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE `businessid`='$user' AND `support_type`='Feedback' AND `deleted`=1, `date_of_archival` = '$date_of_archival' AND `archived_date` > '$date'");
+	$support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE `businessid`='$user' AND `support_type`='Feedback' AND `deleted`=1 AND `archived_date` > '$date'");
 	if(mysqli_num_rows($support_list) > 0) { ?>
 		<ul class="connectedChecklist">
 			<li class="ui-state-default ui-state-disabled no-sort">Feedback</li>

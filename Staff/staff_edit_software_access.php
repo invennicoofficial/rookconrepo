@@ -3,10 +3,9 @@ $role = '';
 $user_name = '';
 $password = '';
 $show_hide_user = 0;
+$subtab = 'software_access';
 if (!empty($_POST['subtab'])) {
     $subtab = $_POST['subtab'];
-} else {
-	$subtab = 'software_access';
 }
 
 if(!empty($_GET['contactid']))	{

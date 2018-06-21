@@ -39,8 +39,7 @@ if($_GET['fill'] == 'add_checklist') {
 
 if($_GET['fill'] == 'delete_checklist') {
 	$id = $_GET['checklistid'];
-    $date_of_archival = date('Y-m-d');
-	$query = "UPDATE `item_checklist_line` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistlineid`='$id'";
+	$query = "UPDATE `item_checklist_line` SET `deleted`=1 WHERE `checklistlineid`='$id'";
 	$result = mysqli_query($dbc,$query);
 }
 if($_GET['fill'] == 'checklistreply') {
@@ -178,8 +177,7 @@ else if($_GET['fill'] == 'wo_add_checklist') {
 	echo mysqli_insert_id($dbc);
 }
 else if($_GET['fill'] == 'wo_delete_checklist') {
-    $date_of_archival = date('Y-m-d');
-	$query = mysqli_query($dbc, "UPDATE `equipment_wo_checklist` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistid`='".$_GET['id']."'");
+	$query = mysqli_query($dbc, "UPDATE `equipment_wo_checklist` SET `deleted`=1 WHERE `checklistid`='".$_GET['id']."'");
 }
 else if($_GET['fill'] == 'wo_checklist_flag') {
 	$item_id = $_POST['id'];
@@ -261,8 +259,7 @@ else if($_GET['fill'] == 'equipment_status') {
 }
 else if($_GET['fill'] == 'archive_equipment_assignment') {
 	if($_GET['equipment_assignmentid'] > 0) {
-	        $date_of_archival = date('Y-m-d');
-    	mysqli_query($dbc, "UPDATE `equipment_assignment` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `equipment_assignmentid` = '".$_GET['equipment_assignmentid']."'");
+		mysqli_query($dbc, "UPDATE `equipment_assignment` SET `deleted` = 1 WHERE `equipment_assignmentid` = '".$_GET['equipment_assignmentid']."'");
 	}
 }
 ?>

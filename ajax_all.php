@@ -469,8 +469,8 @@ if($_GET['fill'] == 'invoice') {
             $invoice_date = get_all_from_invoice($dbc, $invoiceid, 'invoice_date');
         }
 
-        $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.cust_price, s.gst_exempt, s.service_code, r.editable FROM services s, company_rate_card r WHERE r.deleted=0 AND s.serviceid='$serviceid' AND s.serviceid = r.item_id AND r.tile_name='Services' AND '$invoice_date' >= r.start_date AND (IFNULL(r.end_date,'0000-00-00') = '0000-00-00' OR r.end_date >= '$invoice_date')"));
-        echo $result['cust_price'].'**'.$result['gst_exempt'];
+        $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.cust_price, s.gst_exempt, s.service_code, r.editable FROM services s, company_rate_card r WHERE r.deleted=0 AND s.serviceid='$serviceid' AND s.serviceid = r.item_id AND '$invoice_date' >= r.start_date AND (IFNULL(r.end_date,'0000-00-00') = '0000-00-00' OR r.end_date >= '$invoice_date')"));
+        echo $result['service_rate'].'**'.$result['gst_exempt'];
         echo '**';
         if (strpos($result['service_code'],'WCB') !== false) {
             echo '

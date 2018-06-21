@@ -3,6 +3,9 @@ include_once ('../include.php');
 $rookconnect = get_software_name();
 if(!empty($_POST['subtab']) && $_POST['subtab'] != 'schedule') {
 	$action_page = 'my_profile.php?edit_contact='.$_GET['edit_contact'];
+	if($_POST['subtab'] == 'software_access') {
+		$action_page = 'edit_software_access.php?edit_contact='.$_GET['edit_contact'];
+	}
 	if($_POST['subtab'] == 'certificates') {
 		$action_page = 'my_certificate.php?edit_contact='.$_GET['edit_contact'];
 	}

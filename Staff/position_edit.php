@@ -28,10 +28,10 @@ if(isset($_POST['submit'])) {
 if(!empty($_GET['target'])) {
 	if($_GET['target'] == 'pdf') {
 		ob_clean();
-
+		
 		class MYPDF extends TCPDF {
 			public function Header() {
-
+				
 				$this->SetFont('helvetica', '', 30);
 				$this->MultiCell(180, 0, 'Positions', 0, 'C', 0, 0, 15, 15);
 			}
@@ -79,8 +79,7 @@ if(isset($_GET['id'])) {
 	if(isset($_GET['delete'])) {
 		$user = mysqli_fetch_array(mysqli_query($dbc, "select concat(first_name,' ',last_name) name from contacts where contactid='{$_SESSION['contactid']}'"));
 		$time = date('Y-m-d H:i:s');
-        $date_of_archival = date('Y-m-d');
-		$sql = "update positions set deleted=1, `date_of_archival` = '$date_of_archival', history=concat(ifnull(history,''),'Deleted by {$user['name']} at $time.') where position_id='$id'";
+		$sql = "update positions set deleted=1, history=concat(ifnull(history,''),'Deleted by {$user['name']} at $time.') where position_id='$id'";
 		$result = mysqli_query($dbc, $sql);
 		$result = mysqli_fetch_array(mysqli_query($dbc, "select name from positions where position_id='$id'"));
 		echo "<script>alert('The {$result['name']} position has been deleted'); window.location = 'staff.php?tab=positions';</script>";

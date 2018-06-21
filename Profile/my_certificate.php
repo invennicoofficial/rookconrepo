@@ -50,6 +50,9 @@ if (isset($_POST['profile_info']) && $_GET['edit_contact'] == 'true') {
 }
 if(!empty($_POST['subtab']) && $_POST['subtab'] != 'certificates') {
 	$action_page = 'my_profile.php?edit_contact='.$_GET['edit_contact'];
+	if($_POST['subtab'] == 'software_access') {
+		$action_page = 'edit_software_access.php?edit_contact='.$_GET['edit_contact'];
+	}
 	if($_POST['subtab'] == 'goals') {
 		$action_page = 'gao_goal.php?edit_contact='.$_GET['edit_contact'];
 	}

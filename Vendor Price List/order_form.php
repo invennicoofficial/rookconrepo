@@ -116,7 +116,6 @@ if(!empty($_GET['vpl_name'])) {
 }
 ?>
 <script type="text/javascript">
-$(document).on('change', 'select#productpricing', function() { loadPricingDetails(); });
 $(document).ready(function() {
     $("#default_tax").show();
     $("#enter_tax").hide();
@@ -132,14 +131,8 @@ $(document).ready(function() {
     });
 
     $('input[name="vpl_quantity[]"]').change(function() { calculateTotals(); });
-    $('select#productpricing option').each(function() {
-        if($(this).val() != '') {
-            $(this).prop('selected', true);
-            return;
-        }
-    });
-    $('select#productpricing').change();
 });
+$(document).on('change', 'select#productpricing', function() { loadPricingDetails(); });
 function loadPricingDetails() {
     var pricing = $('#productpricing').val();
     var vendorid = $('[name="vendorid"]').val();

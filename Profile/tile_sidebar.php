@@ -11,22 +11,18 @@
 <?php } else {
     $field_tabs = ','.get_config($dbc, 'staff_field_subtabs').',';
     if(strpos($field_tabs,',Software ID,') === FALSE) {
-        $field_tabs .= ',Software ID,Software Access';
+        $field_tabs .= ',Software ID';
     }
     $sidebar_fields = [
-        'staff_information' => ['Staff Information','Profile','staff_information'],
-        'staff_bio' => ['Staff Bio','Staff Bio','staff_bio'],
+        'staff_information' => ['Staff Information','Staff Information','staff_information'],
         'staff_address' => ['Staff Address','Staff Address','staff_address'],
         'employee_information' => ['Employee Information','Employee Information','employee_information'],
         'driver_information' => ['Driver Information','Driver Information','driver_information'],
         'direct_deposit_information' => ['Direct Deposit Information','Direct Deposit Information','direct_deposit_information'],
         'software_id' => ['','Software ID'],
-        'software_access' => ['','Software Access'],
         'social_media' => ['Social Media','Social Media','social_media'],
         'emergency' => ['Emergency','Emergency','emergency'],
-        'health' => ['Health','Health Care','health'],
-        'health_concerns' => ['Health Concerns','Health Concerns','health_concerns'],
-        'company_benefits' => ['Company Benefits','Company Benefits','company_benefits'],
+        'health' => ['Health','Health & Safety','health'],
         'schedule' => ['Schedule','Staff Schedule','schedule'],
         'hr' => ['HR','HR Record','hr'],
         'staff_docs' => ['Staff Documents','Staff Documents','staff_docs'],

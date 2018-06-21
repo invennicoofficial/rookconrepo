@@ -40,8 +40,7 @@ if(isset($_GET['fill'])) {
 
 	if($_GET['fill'] == 'delete_checklist') {
 		$id = $_GET['checklistid'];
-    $date_of_archival = date('Y-m-d');
-		$query = "UPDATE `item_checklist_line` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistlineid`='$id'";
+		$query = "UPDATE `item_checklist_line` SET `deleted`=1 WHERE `checklistlineid`='$id'";
 		$result = mysqli_query($dbc,$query);
 	}
 	if($_GET['fill'] == 'checklistreply') {
@@ -180,7 +179,7 @@ if(isset($_GET['fill'])) {
 		$template_id = filter_var($_POST['template_id'],FILTER_SANITIZE_STRING);
 		$field_name = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-
+		
 		$sql = "";
 		if($table == 'inventory_templates') {
 			if(!is_numeric($template_id)) {

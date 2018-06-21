@@ -20,8 +20,7 @@ if($_GET['action'] == 'settings_tabs') {
 	mysqli_query($dbc, "UPDATE `contracts` SET `pinned`=',$users,' WHERE `contractid`='$id'");
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
-        $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `contracts` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `contractid`='$id'");
+	mysqli_query($dbc, "UPDATE `contracts` SET `deleted` = 1 WHERE `contractid`='$id'");
 } else if($_GET['action'] == 'set_category') {
 	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	echo '<option></option>';

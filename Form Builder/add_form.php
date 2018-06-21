@@ -33,15 +33,14 @@
 		move_uploaded_file($_FILES['footer_logo']['tmp_name'], 'download/'.$footer_logo);
 		mysqli_query($dbc, "UPDATE `user_forms` SET `footer_logo` = '$footer_logo' WHERE `form_id`='$id'");
 	}
-
+	
 	// mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted`=1 WHERE `form_id`='$id'");
 	foreach($_POST['delete_id'] as $i => $delete_id) {
 		$field_id = filter_var($_POST['delete_id'][$i]);
 		$field_name = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '$field_id'"))['name'];
-    $date_of_archival = date('Y-m-d');
-		$query = "UPDATE `user_form_fields` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `field_id` = '$field_id' AND `form_id` = '$id'";
+		$query = "UPDATE `user_form_fields` SET `deleted`=1 WHERE `field_id` = '$field_id' AND `form_id` = '$id'";
 		mysqli_query($dbc, $query);
-		$query = "UPDATE `user_form_fields` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$id' AND `name` = '$field_name' AND `type` = 'OPTION'";
+		$query = "UPDATE `user_form_fields` SET `deleted`=1 WHERE `form_id` = '$id' AND `name` = '$field_name' AND `type` = 'OPTION'";
 		mysqli_query($dbc, $query);
 	}
 	foreach($_POST['field_id'] as $i => $field_id) {
@@ -82,12 +81,11 @@
 					$type = 'SELECT';
 					if($field_id > 0) {
 						$field_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '$field_id'"))['name'];
-	        $date_of_archival = date('Y-m-d');
-					mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `type` = 'OPTION' AND `name` = '$name' AND `form_id` = '$id'");
+						mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `type` = 'OPTION' AND `name` = '$name' AND `form_id` = '$id'");
 					}
 				}
 			}
-
+			
 			if ($name != '') {
 				if($field_id > 0) {
 					$query = "UPDATE `user_form_fields` SET `deleted`=0, `form_id`='$id', `label`='$label', `name`='$name', `type`='$type', `default`='$default', `references`='$references', `totaled`='$totaled', `source_table`='$source_table', `source_conditions`='$source_conditions', `sort_order` = '$sort_order', `content` = '$field_content', `styling` = '$table_styling', `mandatory` = '$mandatory' WHERE `field_id`='$field_id'";
@@ -142,7 +140,7 @@
 			}
 		}
 	}
-
+	
 	echo "<script> location.replace('?tab=add_form&id=$id'); </script>";
 } else {
 	$formid = 0;
@@ -532,7 +530,7 @@
 										group.find('.default_value').show();
 										group.find('.text_content').hide();
 										group.find('.tableadv_fields').hide();
-
+										
 								}
 							});
 						}
@@ -863,7 +861,7 @@
 										<div class="col-sm-8">
 											<table class="table table-bordered">
 											<?php $option_list = mysqli_query($dbc, "SELECT `field_id`, `label`, `totaled` FROM `user_form_fields` WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '".$field_info['name']."' AND '".$field_info['type']."' IN ('TABLEADV') AND `deleted` = 0 ORDER BY `sort_order`");
-											$option_list = mysqli_fetch_all($option_list, MYSQLI_ASSOC);
+											$option_list = mysqli_fetch_all($option_list, MYSQLI_ASSOC); 
 
 											if (count($option_list) < 2) {
 												echo '<tr class="hidden-sm hidden-xs">';
@@ -947,7 +945,7 @@
 				</div>
 			</div>
 		</div>
-
+		
 		<span class="popover-examples list-inline pull-left"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 		<a href="?" class="btn brand-btn pull-left">Back</a>
 		<button class="btn brand-btn btn-lg pull-right" type="submit" name="submit" value="submit">Submit</button>

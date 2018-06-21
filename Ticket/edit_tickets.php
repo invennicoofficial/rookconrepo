@@ -487,34 +487,6 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 	$access_all = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'all_access');
 }
 
-
-$security_levels = explode(',',trim(ROLE,','));
-$subtabs_hidden = [];
-$subtabs_viewonly = [];
-$fields_hidden = [];
-$fields_viewonly = [];
-$i = 0;
-foreach($security_levels as $security_level) {
-	if(tile_visible($dbc, $security_folder, $security_level)) {
-		$security_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_security` WHERE `security_level`='$security_level'"));
-		if(!empty($security_config)) {
-			if($i == 0) {
-				$subtabs_hidden = explode(',',$security_config['subtabs_hidden']);
-				$subtabs_viewonly = explode(',',$security_config['subtabs_viewonly']);
-				$fields_hidden = explode(',',$security_config['fields_hidden']);
-				$fields_viewonly = explode(',',$security_config['fields_viewonly']);
-			} else {
-				$subtabs_hidden = array_intersect(explode(',',$security_config['subtabs_hidden']), $subtabs_hidden);
-				$subtabs_viewonly = array_intersect(explode(',',$security_config['subtabs_viewonly']), $subtabs_viewonly);
-				$fields_hidden = array_intersect(explode(',',$security_config['fields_hidden']), $fields_hidden);
-				$fields_viewonly = array_intersect(explode(',',$security_config['fields_viewonly']), $fields_viewonly);
-			}
-			$i++;
-		}
-	}
-}
-
-
 $global_value_config = $value_config; ?>
 
 <script src="ticket.js"></script>

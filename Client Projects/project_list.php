@@ -8,9 +8,8 @@ if((!empty($_GET['projectid'])) && (!empty($_GET['type']))) {
 
     if($type == 'reject') {
         echo insert_day_overview($dbc, $contactid, 'Client Project', date('Y-m-d'), '', 'Rejected Client Project '.$project_name);
-        $date_of_archival = date('Y-m-d');
 
-        $query_update_report = "UPDATE `client_project` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `projectid` = '$projectid'";
+        $query_update_report = "UPDATE `client_project` SET `deleted` = 1 WHERE `projectid` = '$projectid'";
         $result_update_report = mysqli_query($dbc, $query_update_report);
         $message = 'Client Project Rejected and Removed.';
 		$url = 'project.php?tab='.$nav_tabs[0];

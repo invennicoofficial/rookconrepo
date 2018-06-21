@@ -55,7 +55,7 @@ if ( $_GET['fill']=='changeNextActionDate' ) {
 //     } else {
 //         mysqli_query($dbc, "UPDATE `sales_order_temp` SET `inventory_pricing` = '$pricing' WHERE `sotid` = '$sotid'");
 //     }
-
+    
 //     $result = mysqli_query($dbc, "SELECT * FROM `sales_order_product_temp` WHERE `parentsotid`='$sotid' AND `item_type`='inventory' AND `contact_category` = '$contact_category'");
 //     if ( $result->num_rows > 0 ) {
 //         while ( $row=mysqli_fetch_assoc($result) ) {
@@ -81,7 +81,7 @@ if ( $_GET['fill']=='changeNextActionDate' ) {
 //     } else {
 //         mysqli_query($dbc, "UPDATE `sales_order_temp` SET `vendor_pricing` = '$pricing' WHERE `sotid` = '$sotid'");
 //     }
-
+    
 //     $result = mysqli_query($dbc, "SELECT * FROM `sales_order_product_temp` WHERE `parentsotid`='$sotid' AND `item_type`='vendor' AND `contact_category` = '$contact_category'");
 //     if ( $result->num_rows > 0 ) {
 //         while ( $row=mysqli_fetch_assoc($result) ) {
@@ -130,9 +130,8 @@ if ( $_GET['fill']=='changeCustomer') {
 
 if ( $_GET['fill']=='deleteContactId') {
     $contactid = $_GET['contactid'];
-        $date_of_archival = date('Y-m-d');
 
-    mysqli_query($dbc, "UPDATE `contacts` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `contactid` = '$contactid'");
+    mysqli_query($dbc, "UPDATE `contacts` SET `deleted` = 1 WHERE `contactid` = '$contactid'");
 }
 
 /* Iframe */
@@ -140,7 +139,7 @@ if ( $_GET['fill']=='changeCategory' ) {
     $category  = $_GET['category'];
     $item_type = $_GET['item_type'];
     $table = ($category == 'vendor') ? 'vendor_price_list' : $category;
-
+	
     if($category == 'services') {
         $result = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `$table` WHERE `category`='$category' AND `deleted`=0");
         echo '<option value=""></option>';
@@ -161,33 +160,33 @@ if ( $_GET['fill']=='changeCategory' ) {
 //     $pricing   = $_GET['pricing'];
 //     $item_type = $_GET['item_type'];
 //     $table = ($category == 'vendor') ? 'vendor_price_list' : $category;
-
+    
 //     if($category == 'services') {
 //         $result   = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `$table` WHERE `deleted`=0 ORDER BY `category`");
 //         $category = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `category` FROM `$table` WHERE `serviceid`='$invid'"));
-
+        
 //         echo '<option value=""></option>';
 //         while ( $row=mysqli_fetch_assoc($result) ) {
 //             $selected = ( $row['category']==$category['category'] ) ? 'selected="selected"' : '';
 //             echo '<option value="'. $row['category'] .'" '. $selected .'>'. $row['category'] .'</option>';
 //         }
-
+        
 //         echo '*#*';
-
+        
 //         $price = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `serviceid`, `$pricing` AS `pricing` FROM `$table` WHERE `serviceid`='$invid' AND `deleted`=0"));
 //         echo ( !empty($price['pricing']) ) ? $price['pricing'] : '0';
 //     } else {
 //         $result   = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `$table` WHERE `deleted`=0 ORDER BY `category`");
 //         $category = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `category` FROM `$table` WHERE `inventoryid`='$invid'"));
-
+        
 //         echo '<option value=""></option>';
 //         while ( $row=mysqli_fetch_assoc($result) ) {
 //             $selected = ( $row['category']==$category['category'] ) ? 'selected="selected"' : '';
 //             echo '<option value="'. $row['category'] .'" '. $selected .'>'. $row['category'] .'</option>';
 //         }
-
+        
 //         echo '*#*';
-
+        
 //         $price = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `inventoryid`, `$pricing` AS `pricing` FROM `$table` WHERE `inventoryid`='$invid' AND `deleted`=0"));
 //         echo ( !empty($price['pricing']) ) ? $price['pricing'] : '0';
 //     }
@@ -320,7 +319,7 @@ if ($_GET['fill']=='previewDetails') {
             $sotid = $_POST['sotid'];
             $logo = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_temp` WHERE `sotid` = '$sotid'"))['logo'];
             if (empty($logo)) {
-                $logo = get_config($dbc, 'sales_order_logo');
+                $logo = get_config($dbc, 'sales_order_logo');    
             }
 
             if (!empty($logo)) {
@@ -332,9 +331,8 @@ if ($_GET['fill']=='previewDetails') {
 
 if ($_GET['fill']=='deleteSalesOrderForm') {
     $sotid = $_GET['sotid'];
-        $date_of_archival = date('Y-m-d');
 
-    mysqli_query($dbc, "UPDATE `sales_order_temp` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `sotid` = '$sotid'");
+    mysqli_query($dbc, "UPDATE `sales_order_temp` SET `deleted` = 1 WHERE `sotid` = '$sotid'");
     $history = 'Deleted '.SALES_ORDER_NOUN.' Form<br />';
 
     //History
@@ -350,9 +348,8 @@ if ($_GET['fill']=='deleteSalesOrderForm') {
 
 if ($_GET['fill']=='deleteSalesOrderTemplate') {
     $templateid = $_GET['templateid'];
-        $date_of_archival = date('Y-m-d');
 
-    mysqli_query($dbc, "UPDATE `sales_order_template` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$templateid'");
+    mysqli_query($dbc, "UPDATE `sales_order_template` SET `deleted` = 1 WHERE `id` = '$templateid'");
 }
 
 if ($_GET['fill']=='loadItems') {
@@ -624,7 +621,7 @@ if ($_GET['fill'] == 'updateProductPrice') {
 
         mysqli_query($dbc, "UPDATE `sales_order_product_temp` SET `item_price` = '$price' WHERE `sotid` = '$sotid'");
         if ($price != $product['price']) {
-            $history = 'Updated Price of '.$product['item_category'].': '.$product['item_name'].' from '.$product['item_price'].' to '.$price.'<br />';
+            $history = 'Updated Price of '.$product['item_category'].': '.$product['item_name'].' from '.$product['item_price'].' to '.$price.'<br />';   
         }
 
         //History
@@ -656,7 +653,7 @@ if ($_GET['fill'] == 'updateProductTime') {
 
         mysqli_query($dbc, "UPDATE `sales_order_product_temp` SET `time_estimate` = '$time_estimate' WHERE `sotid` = '$sotid'");
         if ($time_estimate != $product['time_estimate']) {
-            $history = 'Updated Time Estimate of '.$product['item_category'].': '.$product['item_name'].' from '.$product['time_estimate'].' to '.$time_estimate.'<br />';
+            $history = 'Updated Time Estimate of '.$product['item_category'].': '.$product['item_name'].' from '.$product['time_estimate'].' to '.$time_estimate.'<br />';   
         }
 
         //History

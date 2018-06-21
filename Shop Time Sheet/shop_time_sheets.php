@@ -14,8 +14,7 @@ if(isset($_GET['pending'])) {
     mysqli_query($dbc,"UPDATE `project_manage_assign_to_timer` SET `status` = 0 WHERE `assigntotimerid`=" . $_GET['timerid']);
 }
 if(isset($_GET['delete'])) {
-    $date_of_archival = date('Y-m-d');
-    mysqli_query($dbc,"UPDATE `project_manage_assign_to_timer` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `assigntotimerid`=" . $_GET['timerid']);
+    mysqli_query($dbc,"UPDATE `project_manage_assign_to_timer` SET `deleted`=1 WHERE `assigntotimerid`=" . $_GET['timerid']);
 }
 
 $rowsPerPage = 25;

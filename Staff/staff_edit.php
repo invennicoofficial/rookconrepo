@@ -70,7 +70,7 @@ $rookconnect = get_software_name(); ?>
 <body>
 <?php if(!isset($_GET['mobile_view']) && $_GET['view_only'] != 'id_card') { include_once ('../navigation.php'); }
 include('../Contacts/contact_field_arrays.php');
-
+	
 if (isset($_POST['contactid'])) {
 	$category = 'Staff';
 	if (!isset($_POST['overview_page'])) {
@@ -89,6 +89,8 @@ if (isset($_POST['contactid'])) {
 				echo 'window.location.replace("staff_history.php?contactid='.$_GET['contactid'].'");';
 			} else if($_POST['subtab'] == 'reminders') {
 				echo 'window.location.replace("staff_reminder.php?contactid='.$_GET['contactid'].'");';
+			} else if($_POST['subtab'] == 'software_access') {
+				echo 'window.location.replace("edit_software_access.php?contactid='.$_GET['contactid'].'");';
 			} else if($_POST['subtab'] == 'schedule') {
 				echo 'window.location.replace("staff_schedule.php?contactid='.$_GET['contactid'].'");';
 			}
@@ -110,12 +112,11 @@ if (isset($_POST['contactid'])) {
 	<?php
 }
 else if(isset($_GET['status'])) {
-    $date_of_archival = date('Y-m-d');
 	$id = intval($_GET['contactid']);
 	switch($_GET['status']) {
 		case 'suspend': $status = "status=0, deleted=0"; $action = "suspended"; break;
 		case 'activate': $status = "status=1, deleted=0"; $action = "activated"; break;
-		case 'archive': $status = "status=0, deleted=1, `date_of_archival` = '$date_of_archival' "; $action = "archived"; break;
+		case 'archive': $status = "status=0, deleted=1"; $action = "archived"; break;
 	}
 	$sql = "update contacts set $status where contactid='$id'";
 	$result = mysqli_query($dbc, $sql);
@@ -135,7 +136,9 @@ else if(isset($_GET['unfavourite'])) {
 }
 else if(!empty($_GET['subtab'])) {
 	$action_page = 'staff_edit.php?contactid='.$_GET['contactid'];
-	if($_GET['subtab'] == 'certificates') {
+	if($_GET['subtab'] == 'software_access') {
+		$action_page = 'edit_software_access.php?contactid='.$_GET['contactid'];
+	} else if($_GET['subtab'] == 'certificates') {
 		$action_page = 'certificate.php?contactid='.$_GET['contactid'];
 	} else if($_GET['subtab'] == 'ratecard') {
 		$action_page = 'edit_staff_rate_card.php?contactid='.$_GET['contactid'];
@@ -335,10 +338,10 @@ foreach($security_levels as $security_level) {
 											</div>
 										</div>
 									<?php }
-									$j++;
+									$j++; 
 								}
 							}
-							if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							if($subtab == 'software_id' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
 								include('../Staff/staff_edit_software_access.php');
 							} else if($subtab == 'project') {
 								$value_config = ',Project,';

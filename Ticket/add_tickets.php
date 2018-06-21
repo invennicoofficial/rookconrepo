@@ -8,8 +8,7 @@ error_reporting(0);
 
 if($_GET['archive'] == 1) {
 	$ticketid = $_GET['ticketid'];
-        $date_of_archival = date('Y-m-d');
-	$archive_query = "update tickets set deleted=1, `date_of_archival` = '$date_of_archival' where ticketid='$ticketid'";
+	$archive_query = "update tickets set deleted=1 where ticketid='$ticketid'";
 	$delete_result = mysqli_query($dbc, $archive_query);
 	header("Location: tickets.php");
 }

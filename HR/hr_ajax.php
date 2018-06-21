@@ -250,15 +250,14 @@ if($_GET['action'] == 'settings_tabs') {
 	set_config($dbc, 'performance_review_forms', filter_var(implode(',', $_POST['pr_forms'])),FILTER_SANITIZE_STRING);
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
-    $date_of_archival = date('Y-m-d');
 	switch($_POST['type']) {
 		case 'hr':
-			mysqli_query($dbc, "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'");
-			echo "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'";
+			mysqli_query($dbc, "UPDATE `hr` SET `deleted`=1 WHERE `hrid`='$id'");
+			echo "UPDATE `hr` SET `deleted`=1 WHERE `hrid`='$id'";
 			break;
 		case 'manual':
-			mysqli_query($dbc, "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'");
-			echo "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'";
+			mysqli_query($dbc, "UPDATE `manuals` SET `deleted`=1 WHERE `manualtypeid`='$id'");
+			echo "UPDATE `manuals` SET `deleted`=1 WHERE `manualtypeid`='$id'";
 			break;
 	}
 }

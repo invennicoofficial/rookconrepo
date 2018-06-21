@@ -675,9 +675,8 @@ if($_GET['fill'] == 'delete_milestone_item') {
 	$item = $_GET['tasklistid'];
 	$updated_date = date('Y-m-d');
 	$updated_by = $_SESSION['contactid'];
-    $date_of_archival = date('Y-m-d');
 
-	$query = "UPDATE `tasklist` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `tasklistid`='$item'";
+	$query = "UPDATE `tasklist` SET `deleted`=1, `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `tasklistid`='$item'";
 	$result = mysqli_query($dbc, $query);
 }
 

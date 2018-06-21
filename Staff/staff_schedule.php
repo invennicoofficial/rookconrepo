@@ -13,7 +13,9 @@ checkAuthorised('staff');
 $rookconnect = get_software_name();
 if(!empty($_POST['subtab']) && $_POST['subtab'] != 'schedule') {
     $action_page = 'staff_edit.php?contactid='.$_GET['contactid'];
-    if($_POST['subtab'] == 'certificates') {
+    if($_POST['subtab'] == 'software_access') {
+        $action_page = 'edit_software_access.php?contactid='.$_GET['contactid'];
+    } else if($_POST['subtab'] == 'certificates') {
         $action_page = 'certificate.php?contactid='.$_GET['contactid'];
     } else if($_POST['subtab'] == 'history') {
         $action_page = 'staff_history.php?contactid='.$_GET['contactid'];

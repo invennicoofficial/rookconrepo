@@ -220,7 +220,7 @@ if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) 
 		<?php $pdf_contents[] = ['Total Shipment Count & Total Weight', $general_shipment['qty]'].'<br>'.$general_shipment['weight]'].' '.$general_shipment['weight_units']]; ?>
 	<?php }
 } ?>
-<?php $general_inventory_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`siteid`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_num`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info`, `ticket_attached`.`completed`, `inventory`.`category`, `inventory`.`sub_category` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `ticket_attached`.`src_table`='inventory_general' AND (IFNULL(`ticket_attached`.`description`,'') != 'import' OR IFNULL(`ticket_attached`.`piece_type`,'') != '') AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
+<?php $general_inventory_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`siteid`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info`, `ticket_attached`.`completed`, `inventory`.`category`, `inventory`.`sub_category` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `ticket_attached`.`src_table`='inventory_general' AND (IFNULL(`ticket_attached`.`description`,'') != 'import' OR IFNULL(`ticket_attached`.`piece_type`,'') != '') AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
 $general_inventory = mysqli_fetch_assoc($general_inventory_list);
 $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $general_line_item = 0;
@@ -335,15 +335,6 @@ do {
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE && $field_sort_field == 'Inventory General PO Number') { ?>
-					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4">Purchase Order #:</label>
-						<div class="col-sm-8"><div class="col-sm-12">
-							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $inventory['po_num'] ?>">
-						</div></div>
-					</div>
-					<div class="clearfix"></div>
-				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE && $field_sort_field == 'Inventory General PO Line Read') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
@@ -365,19 +356,6 @@ do {
 						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
 							<input type="text" name="po_line" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $general_inventory['po_line'] ?>">
-						</div></div>
-					</div>
-					<div class="clearfix"></div>
-				<?php } else if(strpos($value_config,',Inventory General PO Dropdown,') !== FALSE && $field_sort_field == 'Inventory General PO Dropdown') { ?>
-					<div class="form-group">
-						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
-						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="po_line" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option />
-								<?php $line_num = $dbc->query("SELECT MAX(`po_line`) FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory_general'")->fetch_array(MYSQLI_NUM)[0]; ?>
-								<?php for($i = 10; $i <= $line_num + 20; $i += 10) { ?>
-									<option <?= $general_inventory['po_line'] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
-								<?php } ?>
-							</select>
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
@@ -494,15 +472,6 @@ do {
 						</div>
 					</div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Inventory General Notes,') !== FALSE && $field_sort_field == 'Inventory General Notes') { ?>
-					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4">Notes:</label>
-						<div class="col-sm-8"><div class="col-sm-12">
-							<textarea name="notes" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table"><?= html_entity_decode($general_inventory['notes']) ?></textarea>
-						</div></div>
-					</div>
-					<div class="clearfix"></div>
-				<?php } ?>
 			<?php } ?>
 			<input type="hidden" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" name="deleted" value="0">
 			<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE) { ?>
@@ -563,16 +532,6 @@ do {
 			<div class="clearfix"></div>
 			<?php $pdf_contents[] = ['Piece Type', $general_inventory['piece_type']]; ?>
 		<?php } ?>
-		<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE) { ?>
-			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
-				<label class="control-label col-sm-4">Purchase Order Item:</label>
-				<div class="col-sm-8">
-					<?= $general_inventory['po_num'] ?>
-				</div>
-			</div>
-			<div class="clearfix"></div>
-			<?php $pdf_contents[] = ['Purchase Order Number', $general_inventory['po_num']]; ?>
-		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General PO Item,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Item:</label>
@@ -591,7 +550,7 @@ do {
 			</div>
 			<div class="clearfix"></div>
 			<?php $pdf_contents[] = ['Purchase Order Line Item', $general_inventory['po_line']]; ?>
-		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown,') !== FALSE) { ?>
+		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Line Item:</label>
 				<div class="col-sm-8">
@@ -625,14 +584,6 @@ do {
 			</div>
 			<div class="clearfix"></div>
 			<?php $pdf_contents[] = ['Piece Dimension (LxWxH)', (1 === preg_match('~[0-9]~', $echo_dimensions) ? $echo_dimensions : '')]; ?>
-		<?php } ?>
-		<?php if(strpos($value_config,',Inventory General Notes,') !== FALSE) { ?>
-			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['notes'] != '' ? '' : 'style="display:none;"' ?>>
-				<label class="control-label col-sm-4">Notes:</label>
-				<?= html_entity_decode($general_inventory['notes']) ?>
-			</div>
-			<div class="clearfix"></div>
-			<?php $pdf_contents[] = ['Piece Notes', html_entity_decode($general_inventory['notes'])]; ?>
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General Complete,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['complete'] != '' ? '' : 'style="display:none;"' ?>>
@@ -672,7 +623,7 @@ do {
 	<hr />
 	<?php if($access_all > 0) { ?>
 		<div class="form-group">
-			<label class="control-label col-sm-4">Total Shipment Count &amp; Total Weight: <a href="" class="small" onclick="$(this).closest('label').next('div').find('input:visible').removeAttr('readonly').first().focus(); return false;"><img class="inline-img" title="Edit" src="../img/icons/ROOK-edit-icon.png"></a></label>
+			<label class="control-label col-sm-4">Total Shipment Count &amp; Total Weight: <a href="" class="small" onclick="$(this).closest('label').next('div').find('input:visible').removeAttr('readonly').first().focus(); return false;"><img class="inline-img" title="Edit" src="../img/icons/ROOK-edit-icon.png"></a><?= html_entity_decode($general_inventory['notes']) ?></label>
 			<div class="col-sm-8" data-append-note="Edited By <?= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']) ?>">
 				<div class="col-sm-4">
 					<input type="number" min="0" step="any" name="total_shipment_count" placeholder="Total Shipment Count" readonly class="form-control" value="<?= $total_shipment_count ?>">

@@ -10,7 +10,7 @@ error_reporting(0);
 if (isset($_POST['add_tab'])) {
     $board_security = filter_var($_POST['board_security'],FILTER_SANITIZE_STRING);
     $board_security = ($board_security=='Shared') ? 'Company' : $board_security;
-
+    
     if($board_security == 'Private') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
@@ -22,14 +22,14 @@ if (isset($_POST['add_tab'])) {
     $businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
 	$contactid = implode(',',$_POST['contactid']);
     $first_contact = current(explode(',', $contactid));
-
+    
     if($board_security == 'Client') {
         $contact_cat = mysqli_fetch_array(mysqli_query($dbc, "SELECT category, name, first_name, last_name FROM contacts WHERE contactid='$first_contact'"));
         $board_name = $contact_cat['category'] .': '. ( !empty($contact_cat['name']) ? decryptIt($contact_cat['name']) .': ' : '' ) . ( !empty($contact_cat['first_name']) ? decryptIt($contact_cat['first_name']).' ' : '' ) .  ( !empty($contact_cat['last_name']) ? decryptIt($contact_cat['last_name']) : '' );
     } else {
         $board_name = filter_var($_POST['board_name'],FILTER_SANITIZE_STRING);
     }
-
+    
     $task_path = filter_var($_POST['task_path'],FILTER_SANITIZE_STRING);
     $milestone_timeline = filter_var($_POST['milestone_timeline'],FILTER_SANITIZE_STRING);
     $software_url = filter_var($_POST['software_url'],FILTER_SANITIZE_STRING);
@@ -82,13 +82,12 @@ if (isset($_POST['add_tab'])) {
 	}
 
     $taskboardid = ( !empty($new_taskboardid) ) ? $new_taskboardid : $taskboardid;
-
+    
     echo '<script type="text/javascript">window.location.replace("?category='.$taskboardid.'&tab='.$board_security.'");</script>';
 }
 else if(isset($_GET['deleteid']) && $_GET['deleteid'] != '') {
 	$id = $_GET['deleteid'];
-    $date_of_archival = date('Y-m-d');
-	$query = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `taskboardid`='$id'";
+	$query = "UPDATE `task_board` SET `deleted`=1 WHERE `taskboardid`='$id'";
 	mysqli_query($dbc, $query);
 	echo "<script>alert('Task board deleted successfully!');</script>";
 }
@@ -160,7 +159,7 @@ $(document).ready(function() {
             $('#company_staff_sharing').hide();
             $('.task-board-name').show();
         }
-
+        
         /* if($("#board_security option:selected").val() == 'Client') {
             $( "#businessid_show").show();
             $( "#contactid_show").show();
@@ -168,13 +167,13 @@ $(document).ready(function() {
             $('.task-board-name').hide();
         } */
     });
-
+    
     $('.edit_btn').on('click', function(){
         var url = $(this).attr('href');
         window.parent.$('[name=edit_board]').off('load');
         window.parent.$('[name=edit_board]').attr('src', url);
     });
-
+    
     $("#businessid").change(function() {
 		var businessid = this.value;
         $.ajax({    //create an ajax request to load_page.php
@@ -241,10 +240,10 @@ function changeLevel(sel) {
                 <input type="hidden" id="taskboard" name="taskboard" value="<?php echo $board_security ?>" />
                 <input type="hidden" id="taskboardid" name="taskboardid" value="<?php echo $taskboardid ?>" /><?php
             } ?>
-
+            
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
-
+            
             <h3>Add Task Board</h3>
             <div class="form-group">
                 <label for="fax_number"	class="col-sm-4	control-label">Task Board Type:</label>
@@ -275,7 +274,7 @@ function changeLevel(sel) {
                   <input name="board_name" value="<?= $get_board['board_name'] ?>" type="text" class="form-control"/>
                 </div>
             </div>
-
+            
             <div class="form-group" id="company_staff_sharing" style="display:none;">
                 <label for="fax_number"	class="col-sm-4	control-label">Share With Staff:</label>
                 <div class="col-sm-8">
@@ -291,7 +290,7 @@ function changeLevel(sel) {
                     </select>
                 </div>
             </div>
-
+            
             <div class="form-group" id="businessid_show" style="display: none;">
                 <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>
                 <div class="col-sm-8">
@@ -327,7 +326,7 @@ function changeLevel(sel) {
                     </select>
                 </div>
             </div>
-
+            
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label">Path Name:</label>
                 <div class="col-sm-8">
@@ -422,9 +421,9 @@ function changeLevel(sel) {
             </div>
             <button class="btn brand-btn pull-right" onclick="$('[name=new_path]').show();addLine('add_path_');$(this).hide();return false;">Add New Path</button>
             <!--<button class="btn brand-btn pull-right" onclick="$('[name=path_name]').change();$(this).hide();return false;">Edit Current Path</button>-->
-
+            
             <div class="clearfix"></div>
-
+            
             <div class="form-group pull-right double-gap-top">
                 <a href="<?= $back_url ?>" class="btn brand-btn pull-left">Cancel</a>
                 <button	type="submit" name="add_tab" value="add_tab" class="btn brand-btn pull-right">Submit</button>

@@ -2166,17 +2166,11 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Inventory General Piece Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Type" name="tickets[]"> Piece Type</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Inventory General PO Number') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number", $value_config) ? "checked" : '') ?> value="Inventory General PO Number" name="tickets[]"> Purchase Order Number</label>
-							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Line Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Line Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Line Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Line Item" name="tickets[]"> Purchase Order Line Item</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Inventory General PO Dropdown') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Dropdown" name="tickets[]"> Dropdown PO Line Item</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Line Read') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Line Read", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Line Read", $value_config) ? "checked" : '') ?> value="Inventory General PO Line Read" name="tickets[]"> Read Only PO Line Item</label>
@@ -2207,9 +2201,6 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Shipment Count Weight') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Shipment Count Weight", $all_config) ? 'checked disabled' : (in_array("Inventory General Shipment Count Weight", $value_config) ? "checked" : '') ?> value="Inventory General Shipment Count Weight" name="tickets[]"> Shipment Count & Weight</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Inventory General Notes') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Notes", $all_config) ? 'checked disabled' : (in_array("Inventory General Notes", $value_config) ? "checked" : '') ?> value="Inventory General Notes" name="tickets[]"> Piece Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Total Count Weight') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Total Count Weight", $all_config) ? 'checked disabled' : (in_array("Inventory General Total Count Weight", $value_config) ? "checked" : '') ?> value="Inventory General Total Count Weight" name="tickets[]"> Total Shipment Count & Weight</label>

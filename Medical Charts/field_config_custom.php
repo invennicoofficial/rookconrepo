@@ -38,13 +38,11 @@ if (isset($_POST['submit'])) {
                 }
             }
             $fields_keep = "'".implode("','", $fields_keep)."'";
-           $date_of_archival = date('Y-m-d');
-         mysqli_query($dbc, "UPDATE `field_config_custom_charts_lines` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `headingid` = '$fieldconfigid' AND `fieldconfigid` NOT IN ($fields_keep)");
+            mysqli_query($dbc, "UPDATE `field_config_custom_charts_lines` SET `deleted` = 1 WHERE `headingid` = '$fieldconfigid' AND `fieldconfigid` NOT IN ($fields_keep)");
         }
     }
     $headings_keep = "'".implode("','", $headings_keep)."'";
-         $date_of_archival = date('Y-m-d');
-   mysqli_query($dbc, "UPDATE `field_config_custom_charts` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `name` = '$chart_name' AND `fieldconfigid` NOT IN ($headings_keep)");
+    mysqli_query($dbc, "UPDATE `field_config_custom_charts` SET `deleted` = 1 WHERE `name` = '$chart_name' AND `fieldconfigid` NOT IN ($headings_keep)");
 }
 ?>
 </head>

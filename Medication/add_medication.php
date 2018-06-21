@@ -22,8 +22,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 
 if(isset($_GET['action']) && $_GET['action'] == 'archive') {
     $medicationid = $_GET['medicationid'];
-    $date_of_archival = date('Y-m-d');
-    $query = mysqli_query($dbc,"UPDATE medication SET deleted = 1, `date_of_archival` = '$date_of_archival' WHERE medicationid='$medicationid'");
+    $query = mysqli_query($dbc,"UPDATE medication SET deleted = 1 WHERE medicationid='$medicationid'");
     history($dbc, 'Archive', $medicationid);
     echo '<script type="text/javascript"> window.location.replace("'.$from_url.'"); </script>';
 }
@@ -936,7 +935,7 @@ checkAuthorised('medication');
 			<div class="clearfix"></div>
         </div>
 
-
+        
 
     </form>
 

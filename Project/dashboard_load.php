@@ -183,24 +183,6 @@ foreach($_POST['projectids'] as $projectid) {
 				</div>
 			<?php } ?>
 
-
-			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
-				<div class="col-sm-6">
-					<div class="form-group">
-						<label class="col-sm-4">Total Tickets:</label>
-						<div class="col-sm-8">
-                        <?php
-                                    $projectid = $project['projectid'];
-								    $active_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"));
-                                    echo 'Active - '.$active_ticket['total_id'].' : ';
-								    $inactive_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` IN ('Archive','Archived','Done')"));
-                                    echo 'Archived/Done - '.$inactive_ticket['total_id'];
-                         ?>
-						</div>
-					</div>
-				</div>
-			<?php } ?>
-
 			<?php if(in_array('DB Milestones',$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">

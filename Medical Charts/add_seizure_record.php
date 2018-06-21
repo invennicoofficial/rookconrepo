@@ -6,8 +6,7 @@ $from_url = (!empty($_GET['from_url']) ? $_GET['from_url'] : 'seizure_record.php
 $value = $config['settings']['Choose Fields for Seizure Record'];
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
-    $date_of_archival = date('Y-m-d');
-    mysqli_query($dbc, "UPDATE seizure_record set deleted = 1, `date_of_archival` = '$date_of_archival' WHERE seizure_record_id=".$_GET['seizure_record_id']);
+    mysqli_query($dbc, "UPDATE seizure_record set deleted = 1 WHERE seizure_record_id=".$_GET['seizure_record_id']);
 
     echo '<script type="text/javascript"> window.location.replace("'.$from_url.'"); </script>';
 }
@@ -124,7 +123,7 @@ if(isset($value['config_field'])) {
 			<div class="clearfix"></div>
         </div>
 
-
+        
 
     </form>
 

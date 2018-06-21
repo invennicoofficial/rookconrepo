@@ -76,8 +76,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`='$fields' WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab`='additions'");
 } else if($_GET['action'] == 'archive') {
 	$contactid = $_GET['contactid'];
-    $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `contacts` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `contactid`='$contactid'");
+	mysqli_query($dbc, "UPDATE `contacts` SET `deleted`='1' WHERE `contactid`='$contactid'");
 	add_history($dbc, "This contact has been archived.", $contactid);
 } else if($_GET['action'] == 'status_change') {
 	$contactid = $_GET['contactid'];
@@ -108,7 +107,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$field_value .= $_POST['append_last'];
 	}
 	$history_value = $field_value;
-
+	
 	//Create a record if it does not yet exist
 	if($_POST['contactid'] > 0) {
 		$contactid = $_POST['contactid'];
@@ -143,7 +142,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$row_sql = " AND `$row_field`='$row_id'";
 		$row_history = "(In row $row_id.)";
 	}
-
+	
 	//Encrypt fields that need to be encrypted
 	if(in_array($field_name, ['name', 'first_name', 'last_name', 'prefer_name', 'password', 'office_phone', 'cell_phone', 'home_phone', 'email_address', 'second_email_address', 'office_email','company_email', 'business_street', 'business_city', 'business_state', 'business_country', 'business_zip', 'health_care_no'])) {
 		$field_value = encryptIt($field_value);
@@ -156,7 +155,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
         $new_contactid = mysqli_insert_id($dbc);
         mysqli_query($dbc, "UPDATE `$table_name` SET `$replicating_fieldname`='$new_contactid' WHERE `contactid`='$contactid'");
     }
-
+    
     /* Common */
     $folder_name = filter_var($_POST['tile_name'],FILTER_SANITIZE_STRING);
     $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid`, `name`, `site_name` FROM `contacts` WHERE `contactid`='$contactid'"));
@@ -166,13 +165,13 @@ else if($_GET['action'] == 'contacts_dashboards') {
     } elseif ( !empty($row['site_name']) ) {
         $id_field = 'siteid';
     }
-
+    
     /* Assign selected contact to Business or Site */
     if (isset($_POST['contact_id'])) {
         $contact_id = filter_var($_POST['contact_id'],FILTER_SANITIZE_STRING);
         mysqli_query($dbc, "UPDATE `$table_name` SET `$id_field`='$contactid' WHERE `contactid`='$contact_id'");
     }
-
+    
     /* Add new contact */
     if(isset($_SESSION['new_contactid'])) {
         if (isset($_POST['new_category'])) {
@@ -226,7 +225,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
         $_SESSION['new_contactid'] = mysqli_insert_id($dbc);
 		session_write_close();
     }
-
+    
 	if($field_value == 'upload') {
 		if (!file_exists('../'.$_POST['tile_name'].'/download')) {
 			mkdir('../'.$_POST['tile_name'].'/download', 0777, true);
@@ -242,7 +241,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	} else if($field_name == 'billable_hours') {
 		$field_value = time_time2decimal($field_value);
 	}
-
+	
 	//Store the value and record the history
 	if(isset($_POST['contactid_field'])) {
 		$contactid_field = $_POST['contactid_field'];
@@ -282,10 +281,10 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	}
 	$history .= $_POST['label']." set to '$history_value' for contact record [$contactid] by $user_name. $row_history<br />\n";
 	add_history($dbc, $history, $contactid);
-
+	
 	// Create or Sync Site if selected
 	if(in_array($field_name, ['business_address','business_street','business_city','business_state','business_zip','business_country','business_site_sync'])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`business_address`=`c`.`business_address`, `s`.`business_street`=`c`.`business_street`, `s`.`business_city`=`c`.`business_city`, `s`.`business_state`=`c`.`business_state`, `s`.`business_zip`=`c`.`business_zip`, `s`.`business_country`=`c`.`business_country` WHERE `s`.`contactid`='$site_id' AND `c`.`business_site_sync` > 0");
 		} else {
@@ -294,7 +293,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['mailing_address','ship_to_address','ship_city','ship_state','ship_zip','ship_country','mailing_site_sync',])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`mailing_address`=`c`.`mailing_address`, `s`.`ship_to_address`=`c`.`ship_to_address`, `s`.`ship_city`=`c`.`ship_city`, `s`.`ship_state`=`c`.`ship_state`, `s`.`ship_zip`=`c`.`ship_zip`, `s`.`ship_country`=`c`.`ship_country` WHERE `s`.`contactid`='$site_id' AND `c`.`mailing_site_sync` > 0");
 		} else {
@@ -303,7 +302,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['address','city','postal_code','state','country','address_site_sync'])) {
-		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".$SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc();
 		if($site_id > 0) {
 			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`address`=`c`.`address`, `s`.`city`=`c`.`city`, `s`.`state`=`c`.`state`, `s`.`postal_code`=`c`.`postal_code`, `s`.`country`=`c`.`country`, `s`.`key_number` = `c`.`key_number`, `s`.`door_code_number` = `c`.`door_code_number`, `s`.`alarm_code_number` = `c`.`alarm_code_number` WHERE `s`.`contactid`='$site_id' AND `c`.`address_site_sync` > 0");
 		} else {
@@ -315,7 +314,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 } else if($_GET['action'] == 'table_locks') {
 	$user_id = filter_var($_POST['session_id'],FILTER_SANITIZE_STRING);
 	$table_row = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
-
+	
 	//Check if anybody is using the currently requested section
 	$locked = [];
 	$messages = [];
@@ -354,7 +353,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	// }
 	// echo $regionid;
 } else if($_GET['action'] == 'contacts_regions_remove') {
-
+	
 }
 
 if($_GET['action'] == 'send_alert') {
@@ -367,7 +366,7 @@ if($_GET['action'] == 'send_alert') {
     $errors        = '';
     $error_send    = '';
     $error_noemail = '';
-
+	
     foreach( $to as $user ) {
 		if($user > 0) {
 			$contact = get_contact($dbc, $user);
@@ -403,7 +402,7 @@ if($_GET['action'] == 'send_alert') {
 			}
 		}
     }
-
+    
     if ( empty($result) ) {
         echo 'No User Selected.';
     } else {
@@ -421,9 +420,9 @@ function add_history($dbc, $history, $contactid) {
 if($_GET['action'] == 'save_guardian_tabs') {
     $tab = filter_var($_POST['tab'], FILTER_SANITIZE_STRING);
     $tab_updated = '#*#' . $tab;
-
+    
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configid`) AS `configid`, `value` FROM `general_configuration` WHERE `name`='guardian_type_tabs'"));
-
+    
     if($get_config['configid'] > 0) {
         if ( strpos($get_config['value'], $tab ) === false ) {
             $tabs = $get_config['value'] . $tab_updated;
@@ -445,9 +444,8 @@ if($_GET['action'] == 'add_marsheet_row') {
 	echo $marsheetrowid;
 } else if($_GET['action'] == 'delete_marsheet_row') {
 	$marsheetrowid = $_GET['marsheetrowid'];
-        $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `marsheet_row` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `marsheetrowid` = '$marsheetrowid'");
+	mysqli_query($dbc, "UPDATE `marsheet_row` SET `deleted` = 1 WHERE `marsheetrowid` = '$marsheetrowid'");
 } else if($_GET['action'] == 'add_marsheet') {
 	$medicationid = $_POST['medicationid'];
 	if(!is_array($medicationid)) {
@@ -474,8 +472,7 @@ if($_GET['action'] == 'add_marsheet_row') {
     }
 } else if($_GET['action'] == 'delete_marsheet') {
 	$marsheetid = $_GET['marsheetid'];
-        $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `marsheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `marsheetid` = '$marsheetid'");
+	mysqli_query($dbc, "UPDATE `marsheet` SET `deleted` = 1 WHERE `marsheetid` = '$marsheetid'");
 } else if($_GET['action'] == 'delete_marsheet_medication') {
 	$marsheetid = $_GET['marsheetid'];
 	$medicationid = $_GET['medicationid'];
@@ -529,9 +526,8 @@ if($_GET['action'] == 'seizure_record_chart') {
 	echo $id;
 } else if($_GET['action'] == 'seizure_record_chart_delete') {
 	$id = $_POST['id'];
-        $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `seizure_record` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `seizure_record_id` = '$id'");
+	mysqli_query($dbc, "UPDATE `seizure_record` SET `deleted` = 1 WHERE `seizure_record_id` = '$id'");
 }
 
 if($_GET['action'] == 'bowel_movement_chart') {
@@ -558,9 +554,8 @@ if($_GET['action'] == 'bowel_movement_chart') {
 	echo $id;
 } else if($_GET['action'] == 'bowel_movement_chart_delete') {
 	$id = $_POST['id'];
-        $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `bowel_movement` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `bowel_movement_id` = '$id'");
+	mysqli_query($dbc, "UPDATE `bowel_movement` SET `deleted` = 1 WHERE `bowel_movement_id` = '$id'");
 }
 
 if($_GET['action'] == 'water_temp_chart') {
@@ -585,9 +580,8 @@ if($_GET['action'] == 'water_temp_chart') {
 	echo $id;
 } else if($_GET['action'] == 'water_temp_chart_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `daily_water_temp` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `daily_water_temp_id`='$id'");
+	mysqli_query($dbc, "UPDATE `daily_water_temp` SET `deleted`=1 WHERE `daily_water_temp_id`='$id'");
 }
 
 if($_GET['action'] == 'blood_glucose_chart') {
@@ -612,9 +606,8 @@ if($_GET['action'] == 'blood_glucose_chart') {
 	echo $id;
 } else if($_GET['action'] == 'blood_glucose_chart_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `blood_glucose` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `blood_glucose_id`='$id'");
+	mysqli_query($dbc, "UPDATE `blood_glucose` SET `deleted`=1 WHERE `blood_glucose_id`='$id'");
 }
 
 if($_GET['action'] == 'water_temp_chart_bus') {
@@ -641,9 +634,8 @@ if($_GET['action'] == 'water_temp_chart_bus') {
 	echo $id;
 } else if($_GET['action'] == 'water_temp_chart_bus_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `daily_water_temp_bus` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `daily_water_temp_bus_id`='$id'");
+	mysqli_query($dbc, "UPDATE `daily_water_temp_bus` SET `deleted`=1 WHERE `daily_water_temp_bus_id`='$id'");
 }
 
 if($_GET['action'] == 'daily_fridge_temp') {
@@ -669,9 +661,8 @@ if($_GET['action'] == 'daily_fridge_temp') {
 	echo $id;
 } else if($_GET['action'] == 'daily_fridge_temp_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `daily_fridge_temp` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `daily_fridge_temp_id`='$id'");
+	mysqli_query($dbc, "UPDATE `daily_fridge_temp` SET `deleted`=1 WHERE `daily_fridge_temp_id`='$id'");
 }
 
 if($_GET['action'] == 'daily_freezer_temp') {
@@ -697,9 +688,8 @@ if($_GET['action'] == 'daily_freezer_temp') {
 	echo $id;
 } else if($_GET['action'] == 'daily_freezer_temp_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `daily_freezer_temp` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `daily_freezer_temp_id`='$id'");
+	mysqli_query($dbc, "UPDATE `daily_freezer_temp` SET `deleted`=1 WHERE `daily_freezer_temp_id`='$id'");
 }
 
 if($_GET['action'] == 'daily_dishwasher_temp') {
@@ -724,9 +714,8 @@ if($_GET['action'] == 'daily_dishwasher_temp') {
 	echo $id;
 } else if($_GET['action'] == 'daily_dishwasher_temp_delete') {
 	$id = $_POST['id'];
-    $date_of_archival = date('Y-m-d');
 
-	mysqli_query($dbc, "UPDATE `daily_dishwasher_temp` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `date_of_archival` = '$date_of_archival' WHERE `daily_dishwasher_temp_id`='$id'");
+	mysqli_query($dbc, "UPDATE `daily_dishwasher_temp` SET `deleted`=1 WHERE `daily_dishwasher_temp_id`='$id'");
 }
 
 if($_GET['action'] == 'contacts_security_settings') {
@@ -840,7 +829,7 @@ if($_GET['action'] == 'add_contact_reminder') {
 	$reminder_subject = filter_var($_POST['reminder_subject'], FILTER_SANITIZE_STRING);
 	$reminder_date = $_POST['reminder_date'];
     $reminder_folder = $_POST['reminder_folder'];
-
+    
     mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `src_table`, `src_tableid`) VALUES ('$staffid', '$reminder_date', '$reminder_folder', '$reminder_subject', 'contacts', '$contactid')");
 } else if($_GET['action'] == 'loadServices') {
 	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
@@ -950,8 +939,7 @@ if($_GET['action'] == 'remove_multiple_categories') {
 
 	$delete_contact = $_POST['delete_contact'];
 	if($delete_contact == 1) {
-        $date_of_archival = date('Y-m-d');
-		mysqli_query($dbc, "UPDATE `contacts` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `contactid` = '$other_contactid'");
+		mysqli_query($dbc, "UPDATE `contacts` SET `deleted` = 1 WHERE `contactid` = '$other_contactid'");
 	}
 }
 
@@ -964,20 +952,6 @@ if($_GET['action'] == 'copy_contact') {
 	copy_data($dbc, $contactid, $other_contactid);
 
 	echo $other_contactid;
-}
-
-if($_GET['action'] == 'add_another_site') {
-	$contactid = $_POST['contactid'];
-	$another_site_id = $_POST['another_site_id'];
-
-	mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '$contactid' WHERE `contactid` = '$another_site_id'");
-}
-
-if($_GET['action'] == 'set_main_site') {
-	$contactid = $_POST['contactid'];
-	$site_id = $_POST['site_id'];
-
-	mysqli_query($dbc, "UPDATE `contacts` SET `main_siteid` = '$site_id' WHERE `contactid` = '$contactid'");
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {

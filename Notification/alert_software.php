@@ -90,8 +90,7 @@ for($today_date; strtotime($today_date) <= strtotime(date('Y-m-d')); $today_date
 
     //If reminders not found, mark it as deleted
     $reminderids = "'".implode("','",$reminderids)."'";
-          $date_of_archival = date('Y-m-d');
-  mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$today_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$search_user."' AND `done` = 0 AND `deleted` = 0");
+    mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1 WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$today_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$search_user."' AND `done` = 0 AND `deleted` = 0");
 }
 
 $today_date = date('Y-m-d');

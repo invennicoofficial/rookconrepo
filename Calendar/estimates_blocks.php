@@ -64,11 +64,11 @@ if(isset($_GET['shiftid'])) {
 
 } else {
 	// Contact Blocks - Estimates
-
+	
 	//Populate the text for the column header
 	$calendar_table[$calendar_date][$contact_id]['title'] = get_contact($dbc, $contact_id);
 	$calendar_table[$calendar_date][$contact_id]['notes'] = '';
-
+    
     //pull all next actions from estimate_actions table
     $query_next_actions = "SELECT `ea`.* FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE FIND_IN_SET ('$contact_id', `e`.`assign_staffid`) AND `e`.`deleted`=0 AND FIND_IN_SET('$contact_id', `ea`.`contactid`) AND `ea`.`deleted`=0 AND `ea`.`due_date`='". date('Y-m-d', strtotime($calendar_date)) ."'";
     $next_actions = mysqli_fetch_all(mysqli_query($dbc, $query_next_actions),MYSQLI_ASSOC);
@@ -174,8 +174,7 @@ foreach ($alerts_reminders_result as $reminder) {
 
 //If reminders not found, mark it as deleted
 $reminderids = "'".implode("','",$reminderids)."'";
-        $date_of_archival = date('Y-m-d');
-mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$calendar_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contact_id."' AND `done` = 0 AND `deleted` = 0");
+mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1 WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$calendar_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contact_id."' AND `done` = 0 AND `deleted` = 0");
 
 //Display Reminders
 $reminders_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 AND `done` = 0");

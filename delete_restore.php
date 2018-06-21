@@ -12,10 +12,9 @@ error_reporting(0);
 <h3>Archiving record...</h3>
 
 <?php
-$date_of_archival = date('Y-m-d');
+
     if($_GET['action'] == 'delete') {
         $deleted = 1;
-        $date_of_archival = date('Y-m-d');
     }
     if($_GET['action'] == 'restore') {
         $deleted = 0;
@@ -23,13 +22,13 @@ $date_of_archival = date('Y-m-d');
 	if($_GET['action'] == 'delete_2') {
         $deleted = 2;
     }
-    $date_of_archival = date('Y-m-d');
+
 	//Contract Archived
 	if(!empty($_GET['contractid'])) {
 		$id = $_GET['contractid'];
 		$date = date('Y-m-d h:i:s');
 		$category = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category` FROM `contracts` WHERE `contractid`='$id'"))['category'];
-		$sql = "UPDATE `contracts` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `contractid`='$id'";
+		$sql = "UPDATE `contracts` SET `deleted`='$deleted' WHERE `contractid`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		echo '<script type="text/javascript"> window.location.replace("Contracts/contracts.php?tab='.$category.'"); </script>';
 	}
@@ -38,28 +37,28 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['category_rate_id'])) {
 		$id = $_GET['category_rate_id'];
 		$date = date('Y-m-d h:i:s');
-		$sql = "UPDATE `category_rate_table` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival', HISTORY=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
+		$sql = "UPDATE `category_rate_table` SET `deleted`='$deleted', HISTORY=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		echo '<script type="text/javascript"> window.location.replace("Rate Card/rate_card.php?card=category"); </script>';
 	}
 	else if(!empty($_GET['staff_rate_id'])) {
 		$id = $_GET['staff_rate_id'];
 		$date = date('Y-m-d h:i:s');
-		$sql = "UPDATE `staff_rate_table` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival', `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
+		$sql = "UPDATE `staff_rate_table` SET `deleted`='$deleted', `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		echo '<script type="text/javascript"> window.location.replace("Rate Card/rate_card.php?card=staff"); </script>';
 	}
 	else if(!empty($_GET['equipment_rate_id'])) {
 		$id = $_GET['equipment_rate_id'];
 		$date = date('Y-m-d h:i:s');
-		$sql = "UPDATE `equipment_rate_table` SET `deleted`=1, `date_of_archival` = '$date_of_archival', HISTORY=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
+		$sql = "UPDATE `equipment_rate_table` SET `deleted`=1, HISTORY=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		echo '<script type="text/javascript"> window.location.replace("Rate Card/rate_card.php?card=equipment"); </script>';
 	}
 	else if(!empty($_GET['position_rate_id'])) {
 		$id = $_GET['position_rate_id'];
 		$date = date('Y-m-d h:i:s');
-		$sql = "UPDATE `position_rate_table` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
+		$sql = "UPDATE `position_rate_table` SET `deleted`=1, `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'','Rate card deleted by ".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])." on ','$date') WHERE `rate_id`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		echo '<script type="text/javascript"> window.location.replace("Rate Card/rate_card.php?card=position"); </script>';
 	}
@@ -82,7 +81,7 @@ $date_of_archival = date('Y-m-d');
 		else if($deleted == 2) {
 			$new_status = 'Hidden';
 		}
-		$sql = "UPDATE `project_manage` SET `status`='$new_status', `date_of_archival` = '$date_of_archival' WHERE `projectmanageid`='$id'";
+		$sql = "UPDATE `project_manage` SET `status`='$new_status' WHERE `projectmanageid`='$id'";
 		$result = mysqli_query($dbc, $sql);
 		if($current['tile'] == 'Shop Work Orders' && ($current['status'] == 'Approved' || $current['status'] == 'Deleted')) {
 			header('Location: Project Workflow/project_workflow_dashboard.php?tile=Shop Work Orders&tab=Shop Work Order');
@@ -102,7 +101,7 @@ $date_of_archival = date('Y-m-d');
 			$invoices = implode('##FFM##', $invoices);
 			mysqli_query($dbc, "UPDATE `site_work_po` SET `invoice`='$invoices' WHERE `poid`='$poid'");
 		} else {
-			mysqli_query($dbc, "UPDATE `site_work_po` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `poid`='$poid'");
+			mysqli_query($dbc, "UPDATE `site_work_po` SET `deleted`=1 WHERE `poid`='$poid'");
 		}
 		header('Location: Site Work Orders/site_work_orders.php?tab=po');
 	}
@@ -136,7 +135,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['siteid'])) {
 		$siteid = $_GET['siteid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_sites` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `siteid`='$siteid'";
+        $query_update = "UPDATE `field_sites` SET `deleted`='$deleted' WHERE `siteid`='$siteid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_sites.php?category='.$category.'&filter=Top');
@@ -145,7 +144,7 @@ $date_of_archival = date('Y-m-d');
 
 	if(!empty($_GET['agendameetingid'])) {
 		$agendameetingid = $_GET['agendameetingid'];
-        $query_update = "UPDATE `agenda_meeting` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `agendameetingid`='$agendameetingid'";
+        $query_update = "UPDATE `agenda_meeting` SET `deleted`='$deleted' WHERE `agendameetingid`='$agendameetingid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Agenda Meetings/'.$_GET['page'].'.php');
@@ -153,14 +152,14 @@ $date_of_archival = date('Y-m-d');
 	}
 	if(!empty($_GET['fieldpoid'])) {
 		$id = $_GET['fieldpoid'];
-		$query_update = "UPDATE `field_po` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `fieldpoid`='$id'";
+		$query_update = "UPDATE `field_po` SET `deleted`='$deleted' WHERE `fieldpoid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Field Jobs/field_po.php');
 	}
 
 	if(!empty($_GET['propertyid'])) {
 		$id = $_GET['propertyid'];
-		$query_update = "UPDATE `properties` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `propertyid`='$id'";
+		$query_update = "UPDATE `properties` SET `deleted`='$deleted' WHERE `propertyid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Properties/properties.php');
 	}
@@ -168,7 +167,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['jobid'])) {
 		$jobid = $_GET['jobid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_po` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `fieldpoid`='$fieldpoid'";
+        $query_update = "UPDATE `field_po` SET `deleted`='$deleted' WHERE `fieldpoid`='$fieldpoid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_jobs.php?category='.$category.'&filter=Top');
@@ -178,7 +177,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['seizure_record_id'])) {
 		$seizure_record_id = $_GET['seizure_record_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE seizure_record SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE seizure_record_id='$seizure_record_id'";
+        $query_update = "UPDATE seizure_record SET `deleted`='$deleted' WHERE seizure_record_id='$seizure_record_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/seizure_record.php?category='.$category.'&filter=Top');
@@ -188,7 +187,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['blood_glucose'])) {
 		$blood_glucose_id = $_GET['blood_glucose_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE blood_glucose SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE blood_glucose_id='$blood_glucose_id'";
+        $query_update = "UPDATE blood_glucose SET `deleted`='$deleted' WHERE blood_glucose_id='$blood_glucose_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/blood_glucose.php?category='.$category.'&filter=Top');
@@ -198,7 +197,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['bowel_movement_id'])) {
 		$bowel_movement_id = $_GET['bowel_movement_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE bowel_movement SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE bowel_movement_id='$bowel_movement_id'";
+        $query_update = "UPDATE bowel_movement SET `deleted`='$deleted' WHERE bowel_movement_id='$bowel_movement_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/bowel_movement.php?category='.$category.'&filter=Top');
@@ -208,7 +207,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['daily_water_temp_id'])) {
 		$daily_water_temp_id = $_GET['daily_water_temp_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE daily_water_temp SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE daily_water_temp_id='$daily_water_temp_id'";
+        $query_update = "UPDATE daily_water_temp SET `deleted`='$deleted' WHERE daily_water_temp_id='$daily_water_temp_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/daily_water_temp.php?category='.$category.'&filter=Top');
@@ -218,7 +217,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['daily_water_temp_bus_id'])) {
 		$daily_water_temp_bus_id = $_GET['daily_water_temp_bus_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE daily_water_temp_bus SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE daily_water_temp_bus_id='$daily_water_temp_bus_id'";
+        $query_update = "UPDATE daily_water_temp_bus SET `deleted`='$deleted' WHERE daily_water_temp_bus_id='$daily_water_temp_bus_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/daily_water_temp_bus.php?category='.$category.'&filter=Top');
@@ -228,7 +227,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['daily_fridge_temp_id'])) {
 		$daily_fridge_temp_id = $_GET['daily_fridge_temp_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE daily_fridge_temp SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE daily_fridge_temp_id='$daily_fridge_temp_id'";
+        $query_update = "UPDATE daily_fridge_temp SET `deleted`='$deleted' WHERE daily_fridge_temp_id='$daily_fridge_temp_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/daily_fridge_temp.php?category='.$category.'&filter=Top');
@@ -238,7 +237,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['daily_freezer_temp_id'])) {
 		$daily_freezer_temp_id = $_GET['daily_freezer_temp_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE daily_freezer_temp SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE daily_freezer_temp_id='$daily_freezer_temp_id'";
+        $query_update = "UPDATE daily_freezer_temp SET `deleted`='$deleted' WHERE daily_freezer_temp_id='$daily_freezer_temp_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/daily_freezer_temp.php?category='.$category.'&filter=Top');
@@ -248,7 +247,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['daily_dishwasher_temp_id'])) {
 		$daily_dishwasher_temp_id = $_GET['daily_dishwasher_temp_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE daily_dishwasher_temp SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE daily_dishwasher_temp_id='$daily_dishwasher_temp_id'";
+        $query_update = "UPDATE daily_dishwasher_temp SET `deleted`='$deleted' WHERE daily_dishwasher_temp_id='$daily_dishwasher_temp_id'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Medical Charts/daily_dishwasher_temp.php?category='.$category.'&filter=Top');
@@ -258,7 +257,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['patientformid'])) {
 		$patientformid = $_GET['patientformid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `patientform` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `patientformid`='$patientformid'";
+        $query_update = "UPDATE `patientform` SET `deleted`='$deleted' WHERE `patientformid`='$patientformid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Treatment/index.php?category='.$category.'&filter=Top');
@@ -268,7 +267,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['fsid'])) {
 		$fsid = $_GET['fsid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_foreman_sheet` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `fsid`='$fsid'";
+        $query_update = "UPDATE `field_foreman_sheet` SET `deleted`='$deleted' WHERE `fsid`='$fsid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_foreman_sheet.php?category='.$category.'&filter=Top');
@@ -278,7 +277,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['reminderid'])) {
 		$reminderid = $_GET['reminderid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `reminders` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `reminderid`='$reminderid'";
+        $query_update = "UPDATE `reminders` SET `deleted`='$deleted' WHERE `reminderid`='$reminderid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Staff/staff.php?tab=reminders&category='.$category.'&filter=Top');
@@ -291,7 +290,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['infogatheringid'])) {
 		$infogatheringid = $_GET['infogatheringid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `infogathering` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `infogatheringid`='$infogatheringid'";
+        $query_update = "UPDATE `infogathering` SET `deleted`='$deleted' WHERE `infogatheringid`='$infogatheringid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Information Gathering/infogathering.php?category='.$category.'&filter=Top');
@@ -301,7 +300,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['workticketid'])) {
 		$workticketid = $_GET['workticketid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_work_ticket` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `workticketid`='$workticketid'";
+        $query_update = "UPDATE `field_work_ticket` SET `deleted`='$deleted' WHERE `workticketid`='$workticketid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_work_ticket.php?category='.$category.'&filter=Top');
@@ -310,7 +309,7 @@ $date_of_archival = date('Y-m-d');
 
 	if(!empty($_GET['goalid'])) {
 		$goalid = $_GET['goalid'];
-        $query_update = "UPDATE `goal` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `goalid`='$goalid'";
+        $query_update = "UPDATE `goal` SET `deleted`='$deleted' WHERE `goalid`='$goalid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Compensation/goals.php');
@@ -318,7 +317,7 @@ $date_of_archival = date('Y-m-d');
 	}
 	if(!empty($_GET['compensationid'])) {
 		$compensationid = $_GET['compensationid'];
-        $query_update = "UPDATE `compensation` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `compensationid`='$compensationid'";
+        $query_update = "UPDATE `compensation` SET `deleted`='$deleted' WHERE `compensationid`='$compensationid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Compensation/compensation.php');
@@ -326,7 +325,7 @@ $date_of_archival = date('Y-m-d');
 	}
 	if(!empty($_GET['hourlypayid'])) {
 		$hourlypayid = $_GET['hourlypayid'];
-        $query_update = "UPDATE `hourly_pay` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `hourlypayid`='$hourlypayid'";
+        $query_update = "UPDATE `hourly_pay` SET `deleted`='$deleted' WHERE `hourlypayid`='$hourlypayid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Compensation/goals.php');
@@ -336,7 +335,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['invoiceid'])) {
 		$invoiceid = $_GET['invoiceid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_invoice` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `invoiceid`='$invoiceid'";
+        $query_update = "UPDATE `field_invoice` SET `deleted`='$deleted' WHERE `invoiceid`='$invoiceid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			$subtab = $_GET['subtab'];
@@ -350,7 +349,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['payrollid'])) {
 		$payrollid = $_GET['payrollid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_payroll` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `payrollid`='$payrollid'";
+        $query_update = "UPDATE `field_payroll` SET `deleted`='$deleted' WHERE `payrollid`='$payrollid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_payroll.php?paytype=Unpaid&category='.$category.'&filter=Top');
@@ -360,7 +359,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['fieldsiteid'])) {
 		$fieldsiteid = $_GET['fieldsiteid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `field_sites` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `siteid`='$fieldsiteid'";
+        $query_update = "UPDATE `field_sites` SET `deleted`='$deleted' WHERE `siteid`='$fieldsiteid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
 			header('Location: Field Jobs/field_sites.php?category='.$category.'&filter=Top');
@@ -369,32 +368,32 @@ $date_of_archival = date('Y-m-d');
 
 	if(!empty($_GET['contact_fieldsiteid'])) {
 		$id = $_GET['contact_fieldsiteid'];
-		$query_update = "UPDATE `field_sites` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `siteid`='$id'";
+		$query_update = "UPDATE `field_sites` SET `deleted`='$deleted' WHERE `siteid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Contacts/contacts.php?category=Sites');
 	}
 
 	if(!empty($_GET['fieldjobid'])) {
 		$id = $_GET['fieldjobid'];
-		$query_update = "UPDATE `field_jobs` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `jobid`='$id'";
+		$query_update = "UPDATE `field_jobs` SET `deleted`='$deleted' WHERE `jobid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Field Jobs/field_jobs.php');
 	}
 	if(!empty($_GET['fieldforemanid'])) {
 		$id = $_GET['fieldforemanid'];
-		$query_update = "UPDATE `field_foreman_sheet` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `fsid`='$id'";
+		$query_update = "UPDATE `field_foreman_sheet` SET `deleted`='$deleted' WHERE `fsid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Field Jobs/field_foreman_sheet.php');
 	}
 	if(!empty($_GET['fieldwtid'])) {
 		$id = $_GET['fieldwtid'];
-		$query_update = "UPDATE `field_work_ticket` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `workticketid`='$id'";
+		$query_update = "UPDATE `field_work_ticket` SET `deleted`='$deleted' WHERE `workticketid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Field Jobs/field_work_ticket.php');
 	}
 	if(!empty($_GET['fieldinvoiceid'])) {
 		$id = $_GET['fieldinvoiceid'];
-		$query_update = "UPDATE `field_invoice` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `invoiceid`='$id'";
+		$query_update = "UPDATE `field_invoice` SET `deleted`='$deleted' WHERE `invoiceid`='$id'";
 		mysqli_query($dbc, $query_update);
 		header('Location: Field Jobs/field_invoice.php?paytype=Unpaid');
 	}
@@ -411,7 +410,7 @@ $date_of_archival = date('Y-m-d');
 			default: exit("<script>alert('Something went wrong.');window.location.replace('/Field Jobs/field_sites.php');"); break;
 		}
 
-		$sql_update = "UPDATE `$table` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `$id_field`='$id'";
+		$sql_update = "UPDATE `$table` SET `deleted`='$deleted' WHERE `$id_field`='$id'";
 		$result = mysqli_query($dbc, $sql_update);
 		header('Location: Archived/archived_data.php?archive_type=field_jobs&category='.$category);
 	}
@@ -428,7 +427,7 @@ $date_of_archival = date('Y-m-d');
 		}
         $contactid = $_GET['contactid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `contacts` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE contactid='$contactid'";
+        $query_update = "UPDATE `contacts` SET deleted='$deleted' WHERE contactid='$contactid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: '.$url_return);
@@ -437,7 +436,7 @@ $date_of_archival = date('Y-m-d');
 
 	if(!empty($_GET['serviceratecardid'])) {
 		$serviceratecardid = $_GET['serviceratecardid'];
-        $query_update = "UPDATE `service_rate_card` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `serviceratecardid`='$serviceratecardid'";
+        $query_update = "UPDATE `service_rate_card` SET `deleted`='$deleted' WHERE `serviceratecardid`='$serviceratecardid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['action'] == 'delete') {
 			header('Location: Rate Card/rate_card.php?card=services');
@@ -447,7 +446,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['supportid'])) {
         $supportid = $_GET['supportid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `support` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE supportid='$supportid'";
+        $query_update = "UPDATE `support` SET deleted='$deleted' WHERE supportid='$supportid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Helpdesk/helpdesk.php?category='.$category.'&filter=Top');
@@ -464,7 +463,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['sales_lead_number'])) {
         $sales_lead_number = $_GET['sales_lead_number'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `sales_lead` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE sales_lead_number='$sales_lead_number'";
+        $query_update = "UPDATE `sales_lead` SET deleted='$deleted' WHERE sales_lead_number='$sales_lead_number'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
            //DELETE HAS NOT BEEN BUILT FOR SALES YET // header('Location: Contacts/contacts.php?category='.$category.'&filter=Top');
@@ -497,7 +496,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['materialid'])) {
 		$materialid = $_GET['materialid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `material` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE materialid='$materialid'";
+        $query_update = "UPDATE `material` SET deleted='$deleted' WHERE materialid='$materialid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Material/material.php?category='.$category.'&filter=Top');
@@ -508,7 +507,7 @@ $date_of_archival = date('Y-m-d');
 		$safetyid = $_GET['safetyid'];
         $category = $_GET['category'];
 		$tab = $_GET['tab'];
-        $query_update = "UPDATE `safety` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE safetyid='$safetyid'";
+        $query_update = "UPDATE `safety` SET deleted='$deleted' WHERE safetyid='$safetyid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Safety/safety.php?tab='.$tab.'&category='.$category.'&filter=Top');
@@ -526,7 +525,7 @@ $date_of_archival = date('Y-m-d');
 		} else {
 			$contactid = $_GET['inventoryid'];
 			$category = $_GET['category'];
-			$query_update = "UPDATE `inventory` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE inventoryid='$contactid'";
+			$query_update = "UPDATE `inventory` SET deleted='$deleted' WHERE inventoryid='$contactid'";
 			$result_update = mysqli_query($dbc, $query_update);
 		}
     }
@@ -535,7 +534,7 @@ $date_of_archival = date('Y-m-d');
 		$vplid = $_GET['vplid'];
         $category = $_GET['category'];
         $contactid = $_GET['contactid'];
-        $query_update = "UPDATE `vendor_price_list` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE inventoryid='$vplid'";
+        $query_update = "UPDATE `vendor_price_list` SET deleted='$deleted' WHERE inventoryid='$vplid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             if ( !empty($_GET['back_url']) ) {
@@ -551,7 +550,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['order_list_id'])) {
 		$order_list_id = $_GET['order_list_id'];
         $contactid = $_GET['contactid'];
-        $query_update = "UPDATE `order_lists` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE order_id='$order_list_id'";
+        $query_update = "UPDATE `order_lists` SET deleted='$deleted' WHERE order_id='$order_list_id'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Vendors/contacts_inbox.php?category=Vendors&edit='.$contactid);
@@ -561,7 +560,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['assetid'])) {
         $assetid = $_GET['assetid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `asset` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE assetid='$assetid'";
+        $query_update = "UPDATE `asset` SET deleted='$deleted' WHERE assetid='$assetid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Asset/asset.php?type=active&category='.$category.'&filter=Top');
@@ -582,7 +581,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['exerciseid'])) {
 		$exerciseid = $_GET['exerciseid'];
         $type = mysqli_fetch_array(mysqli_query($dbc, "SELECT `type` FROM `exercise_config` WHERE `exerciseid`='$exerciseid'"))['type'];
-        $result_update = mysqli_query($dbc, "UPDATE `exercise_config` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `exerciseid`='$exerciseid'");
+        $result_update = mysqli_query($dbc, "UPDATE `exercise_config` SET `deleted`='$deleted' WHERE `exerciseid`='$exerciseid'");
 		if($_GET['action'] == 'delete') {
 			header('Location: Exercise Plan/exercise_config.php?view='.($type == 'Common' ? 'master' : 'private'));
 		}
@@ -591,7 +590,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['timetrackingid'])) {
 		$timetrackingid = $_GET['timetrackingid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `time_tracking` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE timetrackingid='$timetrackingid'";
+        $query_update = "UPDATE `time_tracking` SET deleted='$deleted' WHERE timetrackingid='$timetrackingid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Time Tracking/time_tracking.php?type=TimeSheet&category='.$category.'&filter=Top');
@@ -601,7 +600,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['packageid'])) {
 		$packageid = $_GET['packageid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE package SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE packageid='$packageid'";
+        $query_update = "UPDATE package SET deleted='$deleted' WHERE packageid='$packageid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Package/package.php?category='.$category.'&filter=Top');
@@ -614,7 +613,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['promotionid'])) {
 		$promotionid = $_GET['promotionid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE promotion SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE promotionid='$promotionid'";
+        $query_update = "UPDATE promotion SET deleted='$deleted' WHERE promotionid='$promotionid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Promotion/promotion.php?type=active&category='.$category.'&filter=Top');
@@ -625,7 +624,7 @@ $date_of_archival = date('Y-m-d');
 		$serviceid = $_GET['serviceid'];
         //$category = $_GET['category'];
         $category = bin2hex($_GET['c']);
-        $query_update = "UPDATE services SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE serviceid='$serviceid'";
+        $query_update = "UPDATE services SET deleted='$deleted' WHERE serviceid='$serviceid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             //header('Location: Services/services.php?type=active&category='.$category.'&filter=Top');
@@ -636,7 +635,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['passwordid'])) {
 		$passwordid = $_GET['passwordid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `passwords` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE passwordid='$passwordid'";
+        $query_update = "UPDATE `passwords` SET deleted='$deleted' WHERE passwordid='$passwordid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Passwords/passwords.php?category='.$category.'&filter=Top');
@@ -646,7 +645,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['project_workflow_id'])) {
 		$project_workflow_id = $_GET['project_workflow_id'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `project_workflow` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE project_workflow_id='$project_workflow_id'";
+        $query_update = "UPDATE `project_workflow` SET deleted='$deleted' WHERE project_workflow_id='$project_workflow_id'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Project Workflow/project_workflow.php?type=active&category='.$category.'&filter=Top');
@@ -656,7 +655,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['labourid'])) {
         $labourid = $_GET['labourid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE labour SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE labourid='$labourid'";
+        $query_update = "UPDATE labour SET deleted='$deleted' WHERE labourid='$labourid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Labour/index.php?category='.$category.'&filter=Top');
@@ -666,7 +665,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['equipmentid'])) {
         $equipmentid = $_GET['equipmentid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `equipment` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE equipmentid='$equipmentid'";
+        $query_update = "UPDATE `equipment` SET deleted='$deleted' WHERE equipmentid='$equipmentid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Equipment/equipment.php?type=active&category='.$category.'&filter=Top');
@@ -676,7 +675,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['customid'])) {
 		$customid = $_GET['customid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE custom SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE customid='$customid'";
+        $query_update = "UPDATE custom SET deleted='$deleted' WHERE customid='$customid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Custom/custom.php?category='.$category.'&filter=Top');
@@ -687,7 +686,7 @@ $date_of_archival = date('Y-m-d');
         $certificateid = $_GET['certificateid'];
         $category = $_GET['category'];
         $search_params = $_GET['s'];
-        $query_update = "UPDATE `certificate` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE certificateid='$certificateid'";
+        $query_update = "UPDATE `certificate` SET deleted='$deleted' WHERE certificateid='$certificateid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Certificate/index.php');
@@ -696,7 +695,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['hrid'])) {
         $hrid = $_GET['hrid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `hr` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE hrid='$hrid'";
+        $query_update = "UPDATE `hr` SET deleted='$deleted' WHERE hrid='$hrid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: HR/hr.php?tab='.$_GET['tab'].'&category='.$category.'&filter=Top');
@@ -705,7 +704,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['ticketid'])) {
         $ticketid = $_GET['ticketid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `tickets` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE ticketid='$ticketid'";
+        $query_update = "UPDATE `tickets` SET deleted='$deleted' WHERE ticketid='$ticketid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
 			if($_GET['tab'] == 'daysheet') {
@@ -719,7 +718,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['remove_checklist']) && !empty($_GET['checklistid'])) {
         $checklistid = $_GET['checklistid'];
 		$checklist_type = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
-        $query_update = "UPDATE `checklist` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE checklistid='$checklistid'";
+        $query_update = "UPDATE `checklist` SET deleted='$deleted' WHERE checklistid='$checklistid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
 			header('Location: Checklist/checklist.php?subtabid='.$checklist_type['subtabid']);
@@ -727,7 +726,7 @@ $date_of_archival = date('Y-m-d');
     }
 	if(!empty($_GET['remove_item_checklist']) && !empty($_GET['checklistid'])) {
         $checklistid = $_GET['checklistid'];
-        $query_update = "UPDATE `item_checklist` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE checklistid='$checklistid'";
+        $query_update = "UPDATE `item_checklist` SET deleted='$deleted' WHERE checklistid='$checklistid'";
 		$type = mysqli_fetch_array(mysqli_query($dbc, "SELECT `checklist_item` FROM `item_checklist` WHERE `checklistid`='$checklistid'"))[0];
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete' && $type == 'equipment') {
@@ -739,7 +738,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['manualtypeid'])) {
         $manualtypeid = $_GET['manualtypeid'];
         $category = $_GET['category'];
-		$query_update = "UPDATE `manuals` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE manualtypeid='$manualtypeid'";
+		$query_update = "UPDATE `manuals` SET deleted='$deleted' WHERE manualtypeid='$manualtypeid'";
         $result_update = mysqli_query($dbc, $query_update);
 		if($_GET['type'] == 'operations_manual') {
 			if($_GET['action'] == 'delete') {
@@ -761,7 +760,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['marketing_materialid'])) {
 		$marketing_materialid = $_GET['marketing_materialid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE marketing_material SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE marketing_materialid='$marketing_materialid'";
+        $query_update = "UPDATE marketing_material SET deleted='$deleted' WHERE marketing_materialid='$marketing_materialid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
         	if($_GET['from_tile'] == 'documents_all') {
@@ -774,7 +773,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['internal_documentsid'])) {
 		$internal_documentsid = $_GET['internal_documentsid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `internal_documents` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE internal_documentsid='$internal_documentsid'";
+        $query_update = "UPDATE `internal_documents` SET deleted='$deleted' WHERE internal_documentsid='$internal_documentsid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
         	if($_GET['from_tile'] == 'documents_all') {
@@ -787,7 +786,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['documentid'])) {
 		$documentid = $_GET['documentid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `documents` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE documentid='$documentid'";
+        $query_update = "UPDATE `documents` SET deleted='$deleted' WHERE documentid='$documentid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Document/documents.php?type='.$_GET['type'].'&tile_name='.$_GET['tile_name'].'&tab='.$_GET['tab'].'&sub_tile_name='.$_GET['sub_tile_name'].'&category='.$category.'&filter=Top');
@@ -796,7 +795,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['client_documentsid'])) {
 		$client_documentsid = $_GET['client_documentsid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `client_documents` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE client_documentsid='$client_documentsid'";
+        $query_update = "UPDATE `client_documents` SET deleted='$deleted' WHERE client_documentsid='$client_documentsid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
         	if($_GET['from_tile'] == 'documents_all') {
@@ -809,7 +808,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['newsboardid'])) {
 		$newsboardid = $_GET['newsboardid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `newsboard` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE newsboardid='$newsboardid'";
+        $query_update = "UPDATE `newsboard` SET deleted='$deleted' WHERE newsboardid='$newsboardid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: News Board/newsboard.php?type='.$_GET['type'].'&category='.$category.'&filter=Top');
@@ -822,7 +821,7 @@ $date_of_archival = date('Y-m-d');
         include ('How To Guide/db_conn_htg.php');
         $guideid = trim($_GET['guideid']);
         $page = trim($_GET['page']);
-        $query_update = "UPDATE `how_to_guide` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `guideid`='$guideid'";
+        $query_update = "UPDATE `how_to_guide` SET `deleted`='$deleted' WHERE `guideid`='$guideid'";
         $result_update = mysqli_query($dbc_htg, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: How To Guide/guides_dashboard.php?page='.$page);
@@ -832,7 +831,7 @@ $date_of_archival = date('Y-m-d');
         include ('How To Guide/db_conn_htg.php');
         $noteid = trim($_GET['noteid']);
         $page = trim($_GET['page']);
-        $query_update = "UPDATE `notes` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `noteid`='$noteid'";
+        $query_update = "UPDATE `notes` SET `deleted`='$deleted' WHERE `noteid`='$noteid'";
         $result_update = mysqli_query($dbc_htg, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: How To Guide/notes.php?page='.$page);
@@ -842,7 +841,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['email_communicationid'])) {
         $email_communicationid = $_GET['email_communicationid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `email_communication` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE email_communicationid='$email_communicationid'";
+        $query_update = "UPDATE `email_communication` SET deleted='$deleted' WHERE email_communicationid='$email_communicationid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Email Communication/email_communication.php?type='.$_GET['type'].'&category='.$category.'&filter=Top');
@@ -852,14 +851,14 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['estimateid'])) {
         $estimateid = $_GET['estimateid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `estimate` SET deleted='$deleted', status='', `date_of_archival` = '$date_of_archival' WHERE estimateid='$estimateid'";
+        $query_update = "UPDATE `estimate` SET deleted='$deleted', status='' WHERE estimateid='$estimateid'";
         $result_update = mysqli_query($dbc, $query_update);
 	}
 
 	if(!empty($_GET['quoteid'])) {
         $quoteid = $_GET['quoteid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `quote` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE quoteid='$quoteid'";
+        $query_update = "UPDATE `quote` SET deleted='$deleted' WHERE quoteid='$quoteid'";
         $result_update = mysqli_query($dbc, $query_update);
 	}
 
@@ -877,7 +876,7 @@ $date_of_archival = date('Y-m-d');
         echo archive_content($dbc, 'products', 'productid', $_GET['productid'], 'Products/products.php');
 		$productid = $_GET['productid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `products` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE productid='$productid'";
+        $query_update = "UPDATE `products` SET deleted='$deleted' WHERE productid='$productid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Products/products.php?&category='.$category.'&filter=Top');
@@ -887,7 +886,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['matchid'])) {
         $matchid = $_GET['matchid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `match_contact` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `matchid`=$matchid";
+        $query_update = "UPDATE `match_contact` SET `deleted`='$deleted' WHERE `matchid`=$matchid";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Match/index.php');
@@ -897,7 +896,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['individualsupportplanid'])) {
 		$individualsupportplanid = $_GET['individualsupportplanid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE individual_support_plan SET deleted='$deleted' , `date_of_archival` = '$date_of_archival' WHERE individualsupportplanid='$individualsupportplanid'";
+        $query_update = "UPDATE individual_support_plan SET deleted='$deleted' WHERE individualsupportplanid='$individualsupportplanid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Individual Support Plan/individual_support_plan.php?&category='.$category.'&filter=Top');
@@ -907,14 +906,14 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['keymethodologiesid'])) {
         $keymethodologiesid = $_GET['keymethodologiesid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE key_methodologies SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE keymethodologiesid=$keymethodologiesid";
+        $query_update = "UPDATE key_methodologies SET `deleted`='$deleted' WHERE keymethodologiesid=$keymethodologiesid";
         $result_update = mysqli_query($dbc, $query_update);
     }
 
 	if(!empty($_GET['medicationid'])) {
         $medicationid = $_GET['medicationid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `medication` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `medicationid`=$medicationid";
+        $query_update = "UPDATE `medication` SET `deleted`='$deleted' WHERE `medicationid`=$medicationid";
         $result_update = mysqli_query($dbc, $query_update);
     }
 
@@ -922,7 +921,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['fundingid'])) {
         $fundingid = $_GET['fundingid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE fund_development_funding SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE fundingid=$fundingid";
+        $query_update = "UPDATE fund_development_funding SET `deleted`='$deleted' WHERE fundingid=$fundingid";
         $result_update = mysqli_query($dbc, $query_update);
     }
 
@@ -930,7 +929,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['staff_documentsid'])) {
         $staff_documentsid = $_GET['staff_documentsid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `staff_documents` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE staff_documentsid='$staff_documentsid'";
+        $query_update = "UPDATE `staff_documents` SET deleted='$deleted' WHERE staff_documentsid='$staff_documentsid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
         	if($_GET['from_tile'] == 'documents_all') {
@@ -944,7 +943,7 @@ $date_of_archival = date('Y-m-d');
     if(!empty($_GET['custom_documentsid'])) {
         $custom_documentsid = $_GET['custom_documentsid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `custom_documents` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE custom_documentsid='$custom_documentsid'";
+        $query_update = "UPDATE `custom_documents` SET deleted='$deleted' WHERE custom_documentsid='$custom_documentsid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
     		header('Location: Documents/index.php?tile_name='.$_GET['tile_name'].'&tab='.$_GET['tab_name']);
@@ -954,7 +953,7 @@ $date_of_archival = date('Y-m-d');
     // Website Promotions
     if ( !empty($_GET['webpromoid']) ) {
         $webpromoidid   = $_GET['webpromoid'];
-        $query_update   = "UPDATE `website_promotions` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `promoid`=$webpromoidid";
+        $query_update   = "UPDATE `website_promotions` SET `deleted`='$deleted' WHERE `promoid`=$webpromoidid";
         $result_update  = mysqli_query ( $dbc, $query_update );
 
         if ( $_GET['action']=='delete' ) {
@@ -967,7 +966,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['newsboardid'])) {
 		$newsboardid = $_GET['newsboardid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `newsboard` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE newsboardid='$newsboardid'";
+        $query_update = "UPDATE `newsboard` SET deleted='$deleted' WHERE newsboardid='$newsboardid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: News Board/newsboard.php?category='.$category.'&filter=Top');
@@ -977,7 +976,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['expenseid'])) {
 		$expenseid = $_GET['expenseid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `expense` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE expenseid='$expenseid'";
+        $query_update = "UPDATE `expense` SET deleted='$deleted' WHERE expenseid='$expenseid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Expense/expenses.php?category='.$category.'&filter=Top');
@@ -987,7 +986,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['posid'])) {
 		$posid = $_GET['posid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `point_of_sell` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE posid='$posid'";
+        $query_update = "UPDATE `point_of_sell` SET deleted='$deleted' WHERE posid='$posid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Point of Sale/point_of_sell.php?category='.$category.'&filter=Top');
@@ -997,7 +996,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['sales_orderid'])) {
 		$sales_orderid = $_GET['sales_orderid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `sales_order` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE posid='$sales_orderid'";
+        $query_update = "UPDATE `sales_order` SET deleted='$deleted' WHERE posid='$sales_orderid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Sales Order/pending.php?category='.$category.'&filter=Top');
@@ -1007,7 +1006,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['poid'])) {
 		$poid = $_GET['poid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `purchase_orders` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE posid='$poid'";
+        $query_update = "UPDATE `purchase_orders` SET deleted='$deleted' WHERE posid='$poid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Purchase Order/complete.php?category='.$category.'&filter=Top');
@@ -1017,7 +1016,7 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['assigntotimerid'])) {
 		$assigntotimerid = $_GET['assigntotimerid'];
         $category = $_GET['category'];
-        $query_update = "UPDATE `project_manage_assign_to_timer` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE assigntotimerid='$assigntotimerid'";
+        $query_update = "UPDATE `project_manage_assign_to_timer` SET deleted='$deleted' WHERE assigntotimerid='$assigntotimerid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: Time Tracking/time_tracking.php?tab=shop_time_sheets&category='.$category.'&filter=Top');
@@ -1026,7 +1025,7 @@ $date_of_archival = date('Y-m-d');
 
     if(!empty($_GET['posgiftcardsid'])) {
     	$posgiftcardsid = $_GET['posgiftcardsid'];
-    	$query_update = "UPDATE `pos_giftcards` SET `deleted` = '$deleted', `date_of_archival` = '$date_of_archival' WHERE `posgiftcardsid` = '$posgiftcardsid'";
+    	$query_update = "UPDATE `pos_giftcards` SET `deleted` = '$deleted' WHERE `posgiftcardsid` = '$posgiftcardsid'";
     	$result_update = mysqli_query($dbc, $query_update);
     	if($_GET['action'] == 'delete') {
     		header('Location: POSAdvanced/giftcards.php');
@@ -1035,7 +1034,7 @@ $date_of_archival = date('Y-m-d');
 
     if(!empty($_GET['intakeformid'])) {
     	$intakeformid = $_GET['intakeformid'];
-    	$query_update = "UPDATE `intake_forms` SET `deleted` = '$deleted', `date_of_archival` = '$date_of_archival' WHERE `intakeformid` = '$intakeformid'";
+    	$query_update = "UPDATE `intake_forms` SET `deleted` = '$deleted' WHERE `intakeformid` = '$intakeformid'";
     	$result_update = mysqli_query($dbc, $query_update);
     	if($_GET['action'] == 'delete') {
     		header('Location: Intake/intake.php?tab=softwareforms');
@@ -1044,7 +1043,7 @@ $date_of_archival = date('Y-m-d');
 
     if(!empty($_GET['reviewid'])) {
     	$reviewid = $_GET['reviewid'];
-    	$query_update = "UPDATE `performance_review` SET `deleted` = '$deleted', `date_of_archival` = '$date_of_archival' WHERE `reviewid` = '$reviewid'";
+    	$query_update = "UPDATE `performance_review` SET `deleted` = '$deleted' WHERE `reviewid` = '$reviewid'";
     	$result_update = mysqli_query($dbc, $query_update);
     	if($_GET['action'] == 'delete') {
     		header('Location: HR/index.php?performance_review=list');
@@ -1053,7 +1052,7 @@ $date_of_archival = date('Y-m-d');
 
     if(!empty($_GET['incidentreportid'])) {
     	$incidentreportid = $_GET['incidentreportid'];
-    	$query_update = "UPDATE `incident_report` SET `deleted` = '$deleted', `date_of_archival` = '$date_of_archival' WHERE `incidentreportid` = '$incidentreportid'";
+    	$query_update = "UPDATE `incident_report` SET `deleted` = '$deleted' WHERE `incidentreportid` = '$incidentreportid'";
     	$result_update = mysqli_query($dbc, $query_update);
     	if($_GET['action'] == 'delete') {
     		header('Location: Incident Report/incident_report.php');
@@ -1085,8 +1084,7 @@ $date_of_archival = date('Y-m-d');
 <?php include ('footer.php'); ?>
 <?php
 function archive_content($dbc, $table, $change_id, $change_value, $url) {
-    $date_of_archival = date('Y-m-d');
-    $result_update = mysqli_query($dbc, "UPDATE `$table` SET deleted='1', `date_of_archival` = '$date_of_archival' WHERE `$change_id` = '$change_value'");
+    $result_update = mysqli_query($dbc, "UPDATE `$table` SET deleted='1' WHERE `$change_id` = '$change_value'");
     header('Location: '.$url.'');
 }
 

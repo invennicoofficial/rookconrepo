@@ -188,7 +188,7 @@ if($_GET['fill'] == 'sales_reminder') {
 	$query_update_project = "UPDATE `sales` SET  new_reminder='$reminder' WHERE `salesid` = '$salesid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
 	$sales = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='$salesid'"));
-
+	
 	if($reminder != '' && $reminder != '0000-00-00') {
 		$body = filter_var(htmlentities('This is a reminder about a sales lead that needs to be followed up with.<br />
 			The scheduled next action is: '.$sales['next_action'].'<br />
@@ -204,10 +204,10 @@ if ( $_GET['fill']=='changeLeadStatus' ) {
     $salesid = $_GET['salesid'];
     $status  = $_GET['status'];
     $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `status`='{$status}' WHERE `salesid`='{$salesid}'" );
-
+    
     //Convert Sales Lead to a Customer
     $status_won = get_config($dbc, 'lead_status_won');
-
+    
     if ( $status_won==$status ) {
         $lead_convert_to = get_config($dbc, 'lead_convert_to');
         if ( empty($lead_convert_to) ) {
@@ -223,14 +223,14 @@ if ( $_GET['fill']=='changeLeadStatus' ) {
 if ( $_GET['fill']=='changeCustCat' ) {
     $salesid = $_GET['salesid'];
     $html = '';
-
+    
     //Convert Sales Lead to a Customer
     $lead_convert_to = get_config($dbc, 'lead_convert_to');
     if ( empty($lead_convert_to) ) {
         $lead_convert_to = 'Customers';
     }
     $contactid = get_field_value('contactid', 'sales', 'salesid', $salesid);
-
+    
     foreach ( array_filter(explode(',',$contactid)) as $cid ) {
         //mysqli_query($dbc, "UPDATE contacts SET category='$lead_convert_to' WHERE contactid='$cid'");
     }
@@ -249,9 +249,8 @@ if ( $_GET['fill']=='changeLeadFollowUpDate' ) {
 }
 
 if ( $_GET['fill']=='archive_sales_lead' ) {
-    $date_of_archival = date('Y-m-d');
     $salesid       = $_GET['salesid'];
-    $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `salesid`='{$salesid}'" );
+    $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `deleted`=1 WHERE `salesid`='{$salesid}'" );
 }
 
 if ( $_GET['fill']=='saveNote' ) {
@@ -340,8 +339,7 @@ if ( $_GET['fill']=='intakeReminder') {
 }
 if ( $_GET['fill']=='intakeArchive' ) {
 	$intakeid = $_POST['id'];
-        $date_of_archival = date('Y-m-d');
-	echo "UPDATE `intake` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeid` = '$intakeid'";
-	mysqli_query($dbc, "UPDATE `intake` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeid` = '$intakeid'");
+	echo "UPDATE `intake` SET `deleted` = 1 WHERE `intakeid` = '$intakeid'";
+	mysqli_query($dbc, "UPDATE `intake` SET `deleted` = 1 WHERE `intakeid` = '$intakeid'");
 }
 ?>

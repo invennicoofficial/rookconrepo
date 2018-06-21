@@ -135,13 +135,12 @@ if (isset($_POST['submit'])) {
             $fee = get_id_from_servicetype($dbc, 'Late Cancellation/No Show');
             $query_update_patient = "UPDATE `patients` SET `account_balance` = account_balance - '$fee' WHERE `contactid` = '$patientid'";
             $result_update_patient = mysqli_query($dbc, $query_update_patient);
-        $date_of_archival = date('Y-m-d');
-            $query_update_booking = "UPDATE `booking` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `bookingid` = '$bookingid'";
+
+            $query_update_booking = "UPDATE `booking` SET `deleted` = 1 WHERE `bookingid` = '$bookingid'";
             $result_update_booking = mysqli_query($dbc, $query_update_booking);
         }
         if($follow_up_call_status == 'Cancelled') {
-        $date_of_archival = date('Y-m-d');
-            $query_update_booking = "UPDATE `booking` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `bookingid` = '$bookingid'";
+            $query_update_booking = "UPDATE `booking` SET `deleted` = 1 WHERE `bookingid` = '$bookingid'";
             $result_update_booking = mysqli_query($dbc, $query_update_booking);
         }
         $url = 'Updated';
@@ -709,7 +708,7 @@ if (isset($_POST['submit'])) {
             </div>
           </div>
 
-
+        
 
         </form>
     </div>
