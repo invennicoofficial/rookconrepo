@@ -227,7 +227,7 @@ function dispatchNewWorkOrder(data) {
 	var current_time = $(data).data('currenttime') != undefined ? $(data).data('currenttime') : '';
 	var end_time = $(data).data('endtime') != undefined ? $(data).data('endtime') : '';
 	var current_date = $(data).data('currentdate') != undefined ? $(data).data('currentdate') : '';
-	overlayIFrameSlider("<?= WEBSITE_URL ?>/Ticket/index.php?calendar_view=true&equipmentid="+equipmentid+"&equipment_assignmentid="+equipment_assignmentid+"&current_time="+current_time+"&current_date="+current_date+"&calendar_region="+region+"&calendar_location="+location+"&calendar_classification="+classification+"&end_time="+end_time+"&new_ticket_calendar=true&edit=");
+	overlayIFrameSlider("<?= WEBSITE_URL ?>/Ticket/index.php?calendar_view=true&equipmentid="+equipmentid+"&equipment_assignmentid="+equipment_assignmentid+"&current_time="+current_time+"&current_date="+current_date+"&calendar_region="+region+"&calendar_location="+location+"&calendar_classification="+classification+"&end_time="+end_time+"&new_ticket_calendar=true&edit=0");
 }
 function retrieveClassificationUsers(class_block) {
 	var classification = $(class_block).data('classification');
