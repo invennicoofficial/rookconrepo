@@ -9,7 +9,8 @@ error_reporting(0);
 
 if(isset($_GET['action'])) {
 	if($_GET['action'] == 'archive') {
-		mysqli_query($dbc, "UPDATE `treatment_exercise_plan` SET `deleted`=1, `updated_at`='".date('Y-m-d')."' WHERE `treatmentexerciseid`='".$_GET['treatmentexerciseid']."'");
+    $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `treatment_exercise_plan` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `updated_at`='".date('Y-m-d')."' WHERE `treatmentexerciseid`='".$_GET['treatmentexerciseid']."'");
 		echo '<script type="text/javascript"> window.location.replace("exercise_config.php?view=exercise"); </script>';
 	}
 }

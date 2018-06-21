@@ -69,7 +69,8 @@ if (isset($_POST['add_tab'])) {
 }
 else if(isset($_GET['deleteid']) && $_GET['deleteid'] != '') {
 	$id = $_GET['deleteid'];
-	$query = "UPDATE `task_board` SET `deleted`=1 WHERE `taskboardid`='$id'";
+	    $date_of_archival = date('Y-m-d');
+$query = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `taskboardid`='$id'";
 	mysqli_query($dbc, $query);
 	echo "<script>alert('Task board deleted successfully!');</script>";
 }

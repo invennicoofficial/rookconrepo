@@ -171,7 +171,8 @@ if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'approve')) {
 
 if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
     $estimateid = $_GET['estimateid'];
-    $query_update_report = "UPDATE `bid` SET `deleted` = 1 WHERE `estimateid` = '$estimateid'";
+        $date_of_archival = date('Y-m-d');
+    $query_update_report = "UPDATE `bid` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
 
     $estimate_name = get_estimate($dbc, $estimateid, 'estimate_name');
@@ -242,13 +243,13 @@ $('.close_iframer').click(function(){
 			?>
 		</div>
 		<div class="clearfix"></div>
-		
+
         <?php if ( check_subtab_persmission($dbc, 'field_ticket_estimates', ROLE, 'bid') === TRUE ) { ?>
             <a href="estimate.php"><button type="button" class="btn brand-btn mobile-block active_tab mobile-100">Bid</button></a>&nbsp;&nbsp;
         <?php } else { ?>
             <button type="button" class="btn disabled-btn mobile-block">Bid</button></a>&nbsp;&nbsp;
         <?php } ?>
-        
+
         <?php if ( check_subtab_persmission($dbc, 'field_ticket_estimates', ROLE, 'cost_estimate') === TRUE ) { ?>
             <a href="quotes.php"><button type="button" class="btn brand-btn mobile-100 mobile-block">Cost Estimate</button></a>&nbsp;&nbsp;
         <?php } else { ?>

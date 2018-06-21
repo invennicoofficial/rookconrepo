@@ -4,6 +4,7 @@ $src_card = '';
 if(isset($_POST['submit'])) {
     $who_added = $_SESSION['contactid'];
     $when_added = date('Y-m-d');
+    $date_of_archival = date('Y-m-d');
 
     $rate_card_name = filter_var($_POST['rate_card_name'],FILTER_SANITIZE_STRING);
     $ref_card = filter_var($_POST['ref_card'],FILTER_SANITIZE_STRING);
@@ -38,21 +39,22 @@ if(isset($_POST['submit'])) {
 				$query = "INSERT INTO `company_rate_card` (`rate_card_name`, `ref_card`, `rate_categories`, `tile_name`, `rate_card_types`, `heading`, `description`, `item_id`, `daily`, `hourly`, `uom`, `cost`, `cust_price`, `profit`, `margin`, `sort_order`, `deleted`) VALUES ('$rate_card_name', '$ref_card', '$rate_categories', '$tile_name', '$rate_card_types', '$heading' , '$description', '$item_id', '$daily', '$hourly', '$uom', '$cost', '$cust_price', '$profit', '$margin', '$sort_order', '$deleted')";
 			}
 			$result = mysqli_query($dbc, $query);
-			
+
 			if(strpos($id, 'NEW_') !== FALSE) {
 				$rc_id = mysqli_insert_id($dbc);
 			} else {
 				$rc_id = $id;
 			}
-			
-			$breakdown_result = mysqli_query($dbc, "UPDATE `rate_card_breakdown` SET `deleted`=1 WHERE `rate_card_type`='".$_GET['card']."' AND `rate_card_id`='$rc_id' AND `rcbid` NOT IN (".implode(',',$_POST['bd_'.$id]).")");
+			    $date_of_archival = date('Y-m-d');
+
+			$breakdown_result = mysqli_query($dbc, "UPDATE `rate_card_breakdown` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `rate_card_type`='".$_GET['card']."' AND `rate_card_id`='$rc_id' AND `rcbid` NOT IN (".implode(',',$_POST['bd_'.$id]).")");
 			foreach($_POST['bd_'.$id] as $row => $bd_id) {
 				$description = filter_var($_POST['bd_description_'.$id][$row],FILTER_SANITIZE_STRING);
 				$quantity = filter_var($_POST['bd_quantity_'.$id][$row],FILTER_SANITIZE_STRING);
 				$uom = filter_var($_POST['bd_uom_'.$id][$row],FILTER_SANITIZE_STRING);
 				$cost = filter_var($_POST['bd_cost_'.$id][$row],FILTER_SANITIZE_STRING);
 				$total = filter_var($_POST['bd_total_'.$id][$row],FILTER_SANITIZE_STRING);
-				
+
 				if($bd_id > 0) {
 					$query = "UPDATE `rate_card_breakdown` SET `description`='$description', `quantity`='$quantity', `uom`='$uom', `cost`='$cost', `total`='$total' WHERE `rcbid`='$bd_id'";
 				} else {
@@ -240,7 +242,7 @@ function calcBreakdowns() {
 		}
 		totals[$(this).data('id')] += +this.value;
 	});
-	
+
 	for(var id in totals) {
 		if(typeof(totals[id]) !== 'function' && totals[id] != 0) {
 			$('[name="entry_id[]"][value='+id+']').closest('tr').find('[name="cost[]"]').val(totals[id]);
@@ -267,7 +269,7 @@ function syncDetails(input) {
 			}
 		});
 	}
-	
+
 	highlightSync();
 	calcBreakdowns();
 }
@@ -291,7 +293,7 @@ function addBreakdownRow(button) {
 	if(details.find('.collapse.in').length == 0) {
 		details.find('div a[data-toggle=collapse]').click();
 	}
-	
+
 	var breakdown = '<tr><input type="hidden" name="bd_'+id+'[]" value="">';
 	breakdown += '<td data-title="Description"><input type="text" name="bd_description_'+id+'[]" value="" onchange="syncDetails(this);" placeholder="Description" class="form-control"></td>';
 	breakdown += '<td data-title="Quantity"><input type="number" onchange="calcBreakdowns();" name="bd_quantity_'+id+'[]" value="" placeholder="Quantity" class="form-control" min="0" step="any"></td>';
@@ -388,13 +390,13 @@ function remove_row(span) {
 function removeDetail(span) {
 	var panel = $(span).closest('.panel-body');
 	$(span).closest('tr').remove();
-	
+
 	if(panel.find('td').length == 0) {
 		var details = panel.closest('tr');
 		details.find('td').hide();
 		details.find('.panel').hide();
 	}
-	
+
 	calcBreakdowns();
 }
 
@@ -420,7 +422,7 @@ function get_types_tiles() {
 		$('[name=filter_tile]').append("<option"+selected+" value='"+tiles[tile]+"'>"+tiles[tile]+"</option>");
 	}
 	$('[name=filter_tile]').trigger('change.select2');
-	
+
 	var selectedType = $('[name=filter_type]').val();
 	var types = new Array();
 	$('[name="rate_card_types[]"]').each(function() {
@@ -547,7 +549,7 @@ function loadRates(select) {
 		<label class="col-sm-4"><h4>Rate Card: <?= $tile_name ?></h4></label>
 		<?php if($tile_name == 'Material') {
 			$company_cats = $dbc->query("SELECT `material`.`category` FROM `company_rate_card` LEFT JOIN `material` ON `company_rate_card`.`description`=`material`.`name` WHERE `tile_name` LIKE 'Material' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `material`.`category`");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">
@@ -575,7 +577,7 @@ function loadRates(select) {
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Services') {
 			$company_cats = $dbc->query("SELECT `services`.`category` FROM `company_rate_card` LEFT JOIN `services` ON `company_rate_card`.`description`=`services`.`heading` WHERE `tile_name` LIKE 'Services' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `services`.`category`");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">
@@ -603,7 +605,7 @@ function loadRates(select) {
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Products') {
 			$company_cats = $dbc->query("SELECT `products`.`product_type` FROM `company_rate_card` LEFT JOIN `products` ON `company_rate_card`.`description`=`products`.`heading` WHERE `tile_name` LIKE 'Product' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `products`.`product_type`");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">
@@ -659,7 +661,7 @@ function loadRates(select) {
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Inventory') {
 			$company_cats = $dbc->query("SELECT `inventory`.`category` FROM `company_rate_card` LEFT JOIN `inventory` ON `company_rate_card`.`description`=`inventory`.`name` WHERE `tile_name` LIKE 'Inventory' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `inventory`.`category`");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">
@@ -688,7 +690,7 @@ function loadRates(select) {
 		} else if($tile_name == 'Equipment') {
 			// $company_cats = $dbc->query("SELECT `equipment`.`category` FROM `company_rate_card` LEFT JOIN `equipment` ON `company_rate_card`.`item_id`=`equipment`.`equipmentid` WHERE `tile_name` LIKE 'Equipment' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `equipment`.`category` UNION SELECT 'type_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `type` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name' UNION SELECT 'category_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `category` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND `rate_card_name`='$rate_name'");
 			$company_cats = $dbc->query("SELECT 'type_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `type` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND (`rate_card_name`='$rate_name' OR `rate_card_name`='$ref_card') AND `rate_card_name` != '' UNION SELECT 'category_rates' `category` FROM `company_rate_card` WHERE `item_id`=0 AND `description` IN (SELECT `category` FROM `equipment` WHERE `deleted`=0) AND `tile_name` LIKE 'Equipment' AND `deleted`=0 AND (`rate_card_name`='$rate_name' OR `rate_card_name`='$ref_card') AND `rate_card_name` != ''");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">
@@ -718,7 +720,7 @@ function loadRates(select) {
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Labour') {
 			$company_cats = $dbc->query("SELECT `labour`.`labour_type` FROM `company_rate_card` LEFT JOIN `labour` ON `company_rate_card`.`description`=`labour`.`heading` OR `company_rate_card`.`item_id`=`labour`.`labourid` WHERE `tile_name` LIKE 'Labour' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `labour`.`labour_type`");
-			$cat = $company_cats->fetch_assoc(); 
+			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
 					<input type="hidden" name="tile" value="<?= $tile_name ?>">

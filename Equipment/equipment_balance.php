@@ -20,10 +20,10 @@ if(isset($_POST['submit'])) {
 		}
 		move_uploaded_file($_FILES['bill_of_sale']['tmp_name'], "download/".$bill_of_sale);
 	}
-	
+
 	$sql = "UPDATE `equipment` SET `purchase_date`='$purchase_date', `purchase_amt`='$purchase_amt', `purchase_km`='$purchase_km', `sale_date`='$sale_date', `sale_amt`='$sale_amt', `bill_of_sale`='$bill_of_sale' WHERE `equipmentid`='$equipmentid'";
 	mysqli_query($dbc, $sql);
-	
+
 	echo "<script> window.location.replace(''); </script>";
 } ?>
 </head>
@@ -33,7 +33,8 @@ if(isset($_POST['submit'])) {
 checkAuthorised('equipment');
 if(!empty($_GET['archive']) && $_GET['archive'] == 'true') {
 	$archiveid = $_GET['archiveid'];
-	mysqli_query($dbc, "UPDATE `equipment` SET `deleted`=1 WHERE `equipmentid`='$archiveid'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `equipment` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `equipmentid`='$archiveid'");
 	echo "<script> window.location.replace('balance.php'); </script>";
 }
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
@@ -84,7 +85,7 @@ $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - 
                 <a href="equipment_assignment.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Equipment Assignment</a>
             <?php } ?>
 		</div>
-		
+
 		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<div class="panel-group" id="accordion2">
 				<div class="panel panel-default">
@@ -184,7 +185,7 @@ $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - 
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="form-group">
 				<div class="col-sm-6">
 					<a href="equipment.php?category=<?php echo $category; ?>"	class="btn brand-btn btn-lg">Back</a>

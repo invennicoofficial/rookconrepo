@@ -35,7 +35,8 @@ $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 if(isset($_POST['submit'])) {
 	$scope_name = filter_var($_POST['scope_name'],FILTER_SANITIZE_STRING);
 	$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1 WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
+    $date_of_archival = date('Y-m-d');
+	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
 	if($_GET['type'] == 'vpl') {
 		$pricing = filter_var($_POST['productpricing'],FILTER_SANITIZE_STRING);
         foreach($_POST['inventoryid'] as $i => $value) {
@@ -357,12 +358,12 @@ function setIncluded(input) {
             <?= $heading ?>
         </div>
     </div>
-	
+
 	<input type="hidden" name="estimateid" value="<?= $estimateid ?>">
 	<input type="hidden" name="scope_name" value="<?= $scope_name ?>">
 	<input type="hidden" name="heading" value="<?= $heading ?>">
 	<input type="hidden" name="type" value="<?= $$_GET['type'] ?>">
-	
+
 	<?php $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 	if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 		$heading_order[] = 'Detail***Scope Detail';

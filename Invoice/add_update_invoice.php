@@ -24,9 +24,9 @@ if($invoice_mode != 'Adjustment') {
 	$misc_total_price = 0;
 	$misc_patient_price = 0;
 	$misc_insurer_price = [];
-	
+
 	$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
-	
+
 	$pricing = $_POST['pricing'];
 	$delivery_type =$_POST['delivery_type'];
 	$contractorid = $_POST['contractorid'];
@@ -73,7 +73,7 @@ if($invoice_mode != 'Adjustment') {
 	$misc_promo = '';
 	$pro_bono = 0;
     $credit_balance = 0;
-	
+
     $invoice_lines_delete = [];
 	$invoice_lines = [];
 
@@ -91,12 +91,12 @@ if($invoice_mode != 'Adjustment') {
 			$payment_amts[] = $_POST['payment_price'][$i];
 			$payment_used[] = $_POST['payment_price'][$i];
 		}
-        
+
         if ( $type=='On Account' ) {
             $credit_balance += $_POST['payment_price'][$i];
         }
 	}
-    
+
 	if($giftcardid != '') {
 		$payment_types[] = 'Gift Card';
 		$payment_amts[] = filter_var($_POST['set_gf'],FILTER_SANITIZE_STRING);
@@ -145,7 +145,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($fee == $applied ? $gst : 0);//round($applied / $service['service_rate'] * $gst,2);
 					//$applied += $gst_insurer;
@@ -157,7 +157,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $service['heading'],
 						'product_name' => '',
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$fee -= $applied;
 					$list_service_insurer[$_POST['insurerid'][$j]] .= $service['category'].' : '.$service['heading'].'<br>';
@@ -186,7 +186,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $fee;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $fee * $gst,2);
 					if($gst < $gst_patient) {
@@ -200,12 +200,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $service['heading'],
 						'product_name' => '',
 						'paid' => $payment_types[$j] ];
-						
+
 					$fee -= $applied;
 					$gst -= $gst_patient;
 					$fee_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$service_pro_bono .= $applied.',';
 				} else {
@@ -246,7 +246,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['package_cost'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -258,7 +258,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $details['heading'],
 						'product_name' => '',
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_package_insures[$_POST['insurerid'][$j]] .= $details['category'].' : '.$details['heading'].'<br>';
@@ -287,7 +287,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -301,12 +301,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $details['heading'],
 						'product_name' => '',
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$package_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$package_pro_bono .= $applied.',';
 				} else {
@@ -315,7 +315,7 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 	}
-    
+
 	$inv_ids = [];
 	$inv_types = [];
 	$inv_names = [];
@@ -351,7 +351,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -363,7 +363,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => $inventory['name'],
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_inventory_insures[$_POST['insurerid'][$j]] .= $inventory['name'].'<br>';
@@ -372,13 +372,13 @@ if($invoice_mode != 'Adjustment') {
 					$inv_insurer[$i] .= $_POST['insurerid'][$j].':'.$applied.'#*#';
 				}
 			}
-            
+
             //Update Inventory quantity
             if ( $invoice_mode != 'Saved' ) {
                 $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
                 mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
             }
-            
+
 			$promo_applied = 0;
 			if($promo_value > 0 && $total > 0) {
 				if($promo_value > $total) {
@@ -399,7 +399,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -413,12 +413,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => $inventory['name'],
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$inv_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$product_pro_bono .= $applied.',';
 				} else {
@@ -427,7 +427,7 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 	}
-	
+
 	$misc_names = [];
 	$misc_unit_prices = [];
 	$misc_qtys = [];
@@ -459,7 +459,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -471,7 +471,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_misc_insures[$_POST['insurerid'][$j]] .= 'Miscellaneous: '.$misc.'<br>';
@@ -500,7 +500,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -514,12 +514,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$misc_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$misc_pro_bono .= $applied.',';
 				} else {
@@ -594,7 +594,7 @@ if($invoice_mode != 'Adjustment') {
 	$total_price = $_POST['total_price'];
 	$credit_balance = $_POST['credit_balance'];
 	$final_price = $_POST['final_price'];
-    
+
     $discount_amt = 0;
     $discount_type = filter_var($_POST['discount_type'],FILTER_SANITIZE_STRING);
     $discount_value = filter_var($_POST['discount_value'],FILTER_SANITIZE_STRING);
@@ -606,7 +606,7 @@ if($invoice_mode != 'Adjustment') {
         }
     }
     $discount = number_format($discount_amt, 2);
-	
+
 	if($credit_balance > 0) {
 		$invoice_patient[] = [ 'sub_total' => 0,
 			'gst_amt' => 0,
@@ -722,7 +722,7 @@ if($invoice_mode != 'Adjustment') {
 		$n = 0;
 
 		$calid = get_calid_from_bookingid($dbc, $bookingid);
-		
+
 		foreach($_POST['payment_type'] as $type) {
 			$label = preg_replace('/[^a-z0-9\[\]]/', '_', strtolower($type));
 			if($label == 'pro_bono') {
@@ -758,15 +758,15 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
 		$patientid = $_POST['patientid'];
 	}
-	
+
 	$query = mysqli_query($dbc,"DELETE FROM invoice_compensation WHERE `invoiceid`='$invoiceid'");
 	$n = 0;
-    
+
 	//Delete any records before proceeding to insertion
     foreach ( $invoice_lines_delete as $query ) {
         mysqli_query($dbc, str_replace('INVOICEID',$invoiceid,$query));
     }
-        
+
     if($invoice_type != 'Saved') {
 		foreach($invoice_lines as $query) {
 			mysqli_query($dbc, str_replace('INVOICEID',$invoiceid,$query));
@@ -791,7 +791,7 @@ if($invoice_mode != 'Adjustment') {
 				$n++;
 			}
 		}
-		
+
 		if($treatment_plan != '') {
 			$query_update_invoice = "UPDATE `patient_injury` SET `treatment_plan` = '$treatment_plan' WHERE `injuryid` = '$injuryid'";
 			$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
@@ -871,7 +871,7 @@ if($invoice_mode != 'Adjustment') {
 
 			include ('patient_payment_receipt_pdf.php');
 		}
-        
+
 		if($credit_balance > 0) {
 			$query_update_invoice = "UPDATE `contacts` SET `amount_credit` = amount_credit + '$credit_balance' WHERE `contactid` = '$patientid'";
 			$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
@@ -892,7 +892,7 @@ if($invoice_mode != 'Adjustment') {
 			$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
 		}
 	}
-    
+
 } else {
 	// Adjustment
     $refund_categories = [];
@@ -912,9 +912,9 @@ if($invoice_mode != 'Adjustment') {
 	$invoice_type = $_POST['invoice_type'];
 	$on_account = 0;
 	$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
-	
+
 	$invoice_lines = [];
-	
+
 	if($paid == 'Yes') {
 		$follow_up_call_status = 'Paid';
 	} else {
@@ -922,7 +922,7 @@ if($invoice_mode != 'Adjustment') {
 	}
 	$appt_type = $_POST['app_type'];
 	$bookingid = get_all_from_invoice($dbc, $src_invoiceid, 'bookingid');
-	
+
 	//Adjust the booking`
 	$booking = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `bookingid`='$bookingid'"));
 	if($appt_type != $booking['type']) {
@@ -930,7 +930,7 @@ if($invoice_mode != 'Adjustment') {
 		mysqli_query($dbc, "INSERT INTO `booking` (`today_date`, `patientid`, `injuryid`, `treatment_type`, `upload_document`, `upload_document_md5`, `therapistsid`, `appoint_date`, `end_appoint_date`, `notes`, `type`, `follow_up_call_date`, `follow_up_call_status`, `call_today`, `appoint_time`, `calid`, `block_booking`, `confirmation_email_date`, `confirmation_email_reply_date`, `reminder_email_date`, `reminder_email_reply_date`, `reactive_email_date`, `create_by`, `modified_by`)
 			VALUES ('".date('Y-m-d')."', '".$booking['patientid']."', '".$booking['injuryid']."', '".$booking['treatment_type']."', '".$booking['upload_document']."', '".$booking['upload_document_md5']."', '".$booking['therapistsid']."', '".$booking['appoint_date']."', '".$booking['end_appoint_date']."', '".$booking['notes']."', '".$appt_type."', '".$booking['follow_up_call_date']."', '".$booking['follow_up_call_status']."', '".$booking['call_today']."', '".$booking['appoint_time']."', '".$booking['calid']."', '".$booking['block_booking']."', '".$booking['confirmation_email_date']."', '".$booking['confirmation_email_reply_date']."', '".$booking['reminder_email_date']."', '".$booking['reminder_email_reply_date']."', '".$booking['reactive_email_date']."', '".$booking['create_by']."', '".$_SESSION['contactid']."')");
 	}
-	
+
 	//Refund Information
 	$final_amount = 0;
 	$total_amount = 0;
@@ -943,7 +943,7 @@ if($invoice_mode != 'Adjustment') {
 	$package_total_price = 0;
 	$package_patient_price = 0;
 	$package_insurer_price = [];
-	
+
 	$payment_types = [];
 	$payment_amts = [];
 	$payment_used = [];
@@ -1039,7 +1039,7 @@ if($invoice_mode != 'Adjustment') {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
                         $applied = $_POST['insurer_payment_amt'][$j];
-                        
+
                         //Invoice Insurer Portion
                         $gst_insurer = ($applied == $fee ? $gst : 0);//round($applied / (-$service['service_rate']) * $gst,2);
                         //$applied += $gst_insurer;
@@ -1051,7 +1051,7 @@ if($invoice_mode != 'Adjustment') {
                             'service_name' => $service['heading'],
                             'product_name' => '',
                             'paid' => $paid ];
-                            
+
                         $gst -= $gst_insurer;
                         $fee -= $applied;
                         $list_service_insurer[$_POST['insurerid'][$j]] .= $service['category'].' : '.$service['heading'].'<br>';
@@ -1069,7 +1069,7 @@ if($invoice_mode != 'Adjustment') {
                             $applied = $fee;
                         }
                         $payment_used[$j] += $applied;
-                        
+
                         //Invoice Patient Portion
                         $gst_patient = round($applied / $fee * $gst,2);
                         if($gst > $gst_patient) {
@@ -1083,12 +1083,12 @@ if($invoice_mode != 'Adjustment') {
                             'service_name' => $service['heading'],
                             'product_name' => '',
                             'paid' => $payment_types[$j] ];
-                            
+
                         $fee -= $applied;
                         $gst -= $gst_patient;
                         $fee_patient_price += $applied;
                     }
-                    
+
                     if($payment_types[$j] == 'Pro-Bono') {
                         $service_pro_bono .= $applied.',';
                     } else if($payment_types[$j] == 'On Account') {
@@ -1101,7 +1101,7 @@ if($invoice_mode != 'Adjustment') {
                     $applied = 0;
                     $applied = $fee;
                     //$on_account -= $applied;
-                    
+
                     //Invoice Patient Portion
                     $gst_patient = round($applied / $fee * $gst,2);
                     if($gst < $gst_patient) {
@@ -1162,7 +1162,7 @@ if($invoice_mode != 'Adjustment') {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
                         $applied = $_POST['insurer_payment_amt'][$j];
-                        
+
                         //Invoice Insurer Portion
                         $gst_insurer = ($applied == $total ? $gst : 0);//round($applied / (-$_POST['package_cost'][$i]) * $gst,2);
                         //$applied += $gst_insurer;
@@ -1174,7 +1174,7 @@ if($invoice_mode != 'Adjustment') {
                             'service_name' => $details['heading'],
                             'product_name' => '',
                             'paid' => $paid ];
-                            
+
                         $gst -= $gst_insurer;
                         $total -= $applied;
                         $list_package_insures[$_POST['insurerid'][$j]] .= $details['category'].' : '.$details['heading'].'<br>';
@@ -1192,7 +1192,7 @@ if($invoice_mode != 'Adjustment') {
                             $applied = $total;
                         }
                         $payment_used[$j] += $applied;
-                        
+
                         //Invoice Patient Portion
                         $gst_patient = round($applied / $total * $gst,2);
                         if($gst > $gst_patient) {
@@ -1206,12 +1206,12 @@ if($invoice_mode != 'Adjustment') {
                             'service_name' => $details['heading'],
                             'product_name' => '',
                             'paid' => $payment_types[$j] ];
-                            
+
                         $total -= $applied;
                         $gst -= $gst_patient;
                         $package_total_price += $applied;
                     }
-                    
+
                     if($payment_types[$j] == 'Pro-Bono') {
                         $service_pro_bono .= $applied.',';
                     } else if($payment_types[$j] == 'On Account') {
@@ -1224,7 +1224,7 @@ if($invoice_mode != 'Adjustment') {
                     $applied = 0;
                     $applied = $total;
                     //$on_account -= $total;
-                    
+
                     //Invoice Patient Portion
                     $gst_patient = round($applied / $total * $gst,2);
                     if($gst < $gst_patient) {
@@ -1291,7 +1291,7 @@ if($invoice_mode != 'Adjustment') {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
                         $applied = $_POST['insurer_payment_amt'][$j];
-                        
+
                         //Invoice Insurer Portion
                         $gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
                         //$applied += $gst_insurer;
@@ -1303,7 +1303,7 @@ if($invoice_mode != 'Adjustment') {
                             'service_name' => '',
                             'product_name' => $inventory['name'],
                             'paid' => $paid ];
-                            
+
                         $gst -= $gst_insurer;
                         $total -= $applied;
                         $list_inventory_insures[$_POST['insurerid'][$j]] .= $inventory['name'].'<br>';
@@ -1322,7 +1322,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] += $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst > $gst_patient) {
@@ -1336,12 +1336,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => $inventory['name'],
 						'paid' => $payment_types[$j] ];
-						
+
 					$total -= $applied;
 					$gst -= $gst_patient;
 					$inv_total_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$service_pro_bono .= $applied.',';
 				} else if($payment_types[$j] == 'On Account') {
@@ -1354,7 +1354,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				$applied = $total;
 				//$on_account -= $applied;
-				
+
 				//Invoice Patient Portion
 				$gst_patient = round($applied / $total * $gst,2);
 				if($gst < $gst_patient) {
@@ -1382,14 +1382,14 @@ if($invoice_mode != 'Adjustment') {
 				'service_name' => '',
 				'product_name' => $inventory['name'] ];
 		}
-        
+
         //Update Inventory quantity
         if ( $invoice_mode!='Saved' && $inv > 0 ) {
             $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
             mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
         }
 	}
-	
+
 	$misc_names = [];
 	$misc_unit_prices = [];
 	$misc_qtys = [];
@@ -1420,7 +1420,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -1432,7 +1432,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_misc_insures[$_POST['insurerid'][$j]] .= 'Miscellaneous: '.$misc.'<br>';
@@ -1461,7 +1461,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -1475,12 +1475,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$misc_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$misc_pro_bono .= $applied.',';
 				} else {
@@ -1491,7 +1491,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				$applied = $total;
 				//$on_account -= $applied;
-				
+
 				//Invoice Patient Portion
 				$gst_patient = round($applied / $total * $gst,2);
 				if($gst < $gst_patient) {
@@ -1519,7 +1519,7 @@ if($invoice_mode != 'Adjustment') {
 				'product_name' => 'Miscellaneous: '.$misc ];
 		}
 	}
-	
+
 	//Apply further refunds to the non-refunded items
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
@@ -1546,12 +1546,12 @@ if($invoice_mode != 'Adjustment') {
 				}
 			}
 		}
-		
+
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
 		}
 	}
-	
+
 	//Record further payments as Refunds
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
@@ -1570,7 +1570,7 @@ if($invoice_mode != 'Adjustment') {
 				'product_name' => '',
 				'paid' => $payment_types[$j] ];
 		}
-		
+
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
 		}
@@ -1618,7 +1618,7 @@ if($invoice_mode != 'Adjustment') {
 		$payment_type_amts .= $final_refunded + $final_amount;
 	}
 	$payment_type = trim($payment_type_names,',').'#*#'.trim($payment_type_amts,',');
-	
+
 	//Save Refund Information
 	$refund_amount = $final_amount;
 	if($refund_amount != 0) {
@@ -1666,6 +1666,8 @@ if($invoice_mode != 'Adjustment') {
 				$package_detail = explode('#', $package_detail);
 				for($i = 0; $i < $package_detail[1]; $i++) {
 					$sold_package = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contact_package_sold` WHERE `invoiceid`='$src_invoiceid' AND `package_item_type`='Service' AND `item_id`='".$package_detail[0]."' AND `deleted`=0"))['package_sold_id'];
+                        $date_of_archival = date('Y-m-d');
+
 					mysqli_query($dbc, "UPDATE `contact_package_sold` SET `deleted`=1 WHERE `package_sold_id`='$sold_package'");
 				}
 			}
@@ -1673,7 +1675,8 @@ if($invoice_mode != 'Adjustment') {
 				$package_detail = explode('#', $package_detail);
 				for($i = 0; $i < $package_detail[1]; $i++) {
 					$sold_package = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contact_package_sold` WHERE `invoiceid`='$src_invoiceid' AND `package_item_type`='Inventory' AND `item_id`='".$package_detail[0]."' AND `deleted`=0"))['package_sold_id'];
-					mysqli_query($dbc, "UPDATE `contact_package_sold` SET `deleted`=1 WHERE `package_sold_id`='$sold_package'");
+                    $date_of_archival = date('Y-m-d');
+					mysqli_query($dbc, "UPDATE `contact_package_sold` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `package_sold_id`='$sold_package'");
 				}
 			}
 		}
@@ -1735,7 +1738,7 @@ if($invoice_mode != 'Adjustment') {
 			include('pos_invoice_1.php');
 			break;
 	}
-	
+
 	//Adjustment Information
 	$receipt_payments = [];
 	$adjust_amount = 0;
@@ -1750,9 +1753,9 @@ if($invoice_mode != 'Adjustment') {
 
 	$promotionid = $_POST['promotionid'];
 	$promotion = '';
-	
+
 	$invoice_lines = [];
-	
+
 	if($promotionid != '') {
 		$promotion .= 'Promotion : '.get_promotion($dbc, $promotionid, 'heading').' : $'.get_promotion($dbc, $promotionid, 'cost');
 	}
@@ -1846,7 +1849,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $service['service_rate'] * $gst,2);
 					//$applied += $gst_insurer;
@@ -1858,7 +1861,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $service['heading'],
 						'product_name' => '',
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$fee -= $applied;
 					$list_service_insurer[$_POST['insurerid'][$j]] .= $service['category'].' : '.$service['heading'].'<br>';
@@ -1883,7 +1886,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $fee;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $fee * $gst,2);
 					if($gst < $gst_patient) {
@@ -1897,12 +1900,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $service['heading'],
 						'product_name' => '',
 						'paid' => $payment_types[$j] ];
-						
+
 					$fee -= $applied;
 					$gst -= $gst_patient;
 					$fee_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$service_pro_bono .= $applied.',';
 				} else if($payment_types[$j] == 'On Account') {
@@ -1944,7 +1947,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['package_cost'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -1956,7 +1959,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $details['heading'],
 						'product_name' => '',
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_package_insures[$_POST['insurerid'][$j]] .= $details['category'].' : '.$details['heading'].'<br>';
@@ -1981,7 +1984,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -1995,12 +1998,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => $details['heading'],
 						'product_name' => '',
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$package_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$package_pro_bono .= $applied.',';
 				} else if($payment_types[$j] == 'On Account') {
@@ -2046,7 +2049,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -2058,7 +2061,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => $inventory['name'],
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_inventory_insures[$_POST['insurerid'][$j]] .= $inventory['name'].'<br>';
@@ -2083,7 +2086,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -2097,12 +2100,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => $inventory['name'],
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$inv_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$product_pro_bono .= $applied.',';
 				} else if($payment_types[$j] == 'On Account') {
@@ -2113,7 +2116,7 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 	}
-	
+
 	$misc_names = [];
 	$misc_unit_prices = [];
 	$misc_qtys = [];
@@ -2145,7 +2148,7 @@ if($invoice_mode != 'Adjustment') {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
 					$applied = $_POST['insurer_payment_amt'][$j];
-					
+
 					//Invoice Insurer Portion
 					$gst_insurer = ($applied == $total ? $gst : 0);//round($applied / $_POST['sell_price'][$i] * $gst,2);
 					//$applied += $gst_insurer;
@@ -2157,7 +2160,7 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $paid ];
-						
+
 					$gst -= $gst_insurer;
 					$total -= $applied;
 					$list_misc_insures[$_POST['insurerid'][$j]] .= 'Miscellaneous: '.$misc.'<br>';
@@ -2186,7 +2189,7 @@ if($invoice_mode != 'Adjustment') {
 						$applied = $total;
 					}
 					$payment_used[$j] -= $applied;
-					
+
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
 					if($gst < $gst_patient) {
@@ -2200,12 +2203,12 @@ if($invoice_mode != 'Adjustment') {
 						'service_name' => '',
 						'product_name' => 'Miscellaneous: '.$misc,
 						'paid' => $payment_types[$j] ];
-						
+
 					$gst -= $gst_patient;
 					$total -= $applied;
 					$misc_patient_price += $applied;
 				}
-				
+
 				if($payment_types[$j] == 'Pro-Bono') {
 					$misc_pro_bono .= $applied.',';
 				} else {
@@ -2236,7 +2239,7 @@ if($invoice_mode != 'Adjustment') {
 			'product_name' => 'Delivery: '.$delivery_type,
 			'paid' => $payment_types[$j] ];
 	}
-	
+
 	//Apply further refunds to the the items used for excess refunds
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
@@ -2264,12 +2267,12 @@ if($invoice_mode != 'Adjustment') {
 				}
 			}
 		}
-		
+
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
 		}
 	}
-	
+
 	//Record further payments as Adjustments
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
@@ -2289,7 +2292,7 @@ if($invoice_mode != 'Adjustment') {
 				'product_name' => '',
 				'paid' => $payment_types[$j] ];
 		}
-		
+
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
 		}
@@ -2324,7 +2327,7 @@ if($invoice_mode != 'Adjustment') {
 		$insurerid .= $ins_id.',';
 		$insurance_payment .= $ins_amt.',';
 	}
-	
+
 	//Save Adjustment Information
 	if($adjust_amount != 0) {
 		$patientid = $src_invoice['patientid'];

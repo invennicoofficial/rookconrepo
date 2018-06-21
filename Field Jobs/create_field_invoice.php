@@ -95,7 +95,7 @@ if (isset($_POST['submit'])) {
 		for ( $i=0; $i<count($_POST['workticketid']); $i++ ) {
             $update_comments = mysqli_query($dbc, "UPDATE `field_work_ticket` SET `comments`='{$_POST['comments'][$i]}' WHERE `workticketid`='{$_POST['workticketid'][$i]}'");
         }
-        
+
         $html = '
             <table style="border:1px solid black" cellpadding="2">
                 <tr>
@@ -117,7 +117,7 @@ if (isset($_POST['submit'])) {
 		}
 		$html .= '</table>';
 	}
-    
+
 	$discount = '';
 	if($dis_perc != '') {
 		$discount = $dis_perc.'%';
@@ -134,7 +134,7 @@ if (isset($_POST['submit'])) {
 				<tr><td style="text-align:right;" width="75%"><strong>Total</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format((float)$pdf_total, 2, '.', '').'</td></tr>
 				<tr><td style="text-align:right;" width="75%">&nbsp;</td><td border="1" width="25%" style="text-align:right; font-weight:bold;">GST 83356 9379 RT0001</td></tr>
 			</table>';
-            
+
     if ( !empty($invoice_comments) ) {
         $html .= '<br><br><br>Comments:<br>'. $invoice_comments;
     }
@@ -148,8 +148,9 @@ if (isset($_POST['submit'])) {
 		$result_update_wt = mysqli_query($dbc, $query_update_wt);
 
 		$f_fsid= rtrim ($fsid, ',');
+        $date_of_archival = date('Y-m-d');
 
-		$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1 WHERE `fsid` IN ($f_fsid)";
+		$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `fsid` IN ($f_fsid)";
 		$result_update_wt = mysqli_query($dbc, $query_update_wt);echo $html;
 		?>
 

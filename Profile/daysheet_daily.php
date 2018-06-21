@@ -88,7 +88,8 @@ foreach ($inc_rep_reminders_result as $reminder) {
 
 //If reminders not found, mark it as deleted
 $reminderids = "'".implode("','",$reminderids)."'";
-mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1 WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$daily_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `done` = 0 AND `deleted` = 0");
+        $date_of_archival = date('Y-m-d');
+mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$daily_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `done` = 0 AND `deleted` = 0");
 
 //Tickets
 $equipment = [];

@@ -15,14 +15,15 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) ) {
 		}
 		$existing_forms[] = $intakeformid;
 	}
+        $date_of_archival = date('Y-m-d');
 
 	$existing_forms = implode(',', $existing_forms);
-	mysqli_query($dbc, "UPDATE `intake_forms` SET `deleted` = 1 WHERE `intakeformid` NOT IN ($existing_forms)");
+	mysqli_query($dbc, "UPDATE `intake_forms` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeformid` NOT IN ($existing_forms)");
 
 	echo '<script type="text/javascript"> window.location.replace("field_config.php?tab=software_forms");</script>';
 }
 ?>
-	
+
 <script>
 	function add_form() {
 		destroyInputs('.intake_form_block');

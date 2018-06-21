@@ -57,7 +57,8 @@ else if($_GET['fill'] == 'priorities') {
 else if($_GET['fill'] == 'archive') {
 	$id = $_GET['supportid'];
 	$date = date('Y-m-d');
-	mysqli_query($dbc_support, "UPDATE `support` SET `deleted`=1, `archived_date`='$date' WHERE `supportid`='$id'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc_support, "UPDATE `support` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `archived_date`='$date' WHERE `supportid`='$id'");
 }
 else if($_GET['fill'] == 'flag') {
 	$item_id = $_POST['id'];
@@ -189,7 +190,7 @@ else if($_GET['fill'] == 'checklistflag') {
 	$colour_key = array_search($colour, $colour_list);
 	$new_colour = ($colour_key === FALSE ? $colour_list[0] : ($colour_key + 1 < count($colour_list) ? $colour_list[$colour_key + 1] : ''));
 	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$new_colour' WHERE `tasklistid` = '$item_id'");
-	echo $new_colour;	
+	echo $new_colour;
 }
 else if($_GET['fill'] == 'checklistreply') {
 	$id = $_POST['id'];

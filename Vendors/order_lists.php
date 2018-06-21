@@ -2,7 +2,8 @@
 
 if(isset($_GET['deleteid'])) {
 	$deleteid = $_GET['deleteid'];
-	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1' WHERE `order_id` = '$deleteid'";
+    $date_of_archival = date('Y-m-d');
+	$query_update_vendor = "UPDATE `order_lists` SET `deleted` = '1', `date_of_archival` = '$date_of_archival' WHERE `order_id` = '$deleteid'";
     $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 	 echo '<script type="text/javascript"> window.location.replace("order_lists.php"); </script>';
 }
@@ -134,7 +135,7 @@ function changeInv(sel) {
 <div><?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `receive_shipment` FROM `field_config_inventory` WHERE tab='receive_shipment' AND accordion='receive_shipment'"));
     $inventory_dashboard_config = ','.$get_field_config['receive_shipment'].',';
-    
+
     if(isset($_GET['order_id'])) { ?>
         <a href='order_lists.php'><span class='btn brand-btn mobile-block'><-- Back</span></a><?php
     } else { ?>
@@ -183,7 +184,7 @@ function changeInv(sel) {
                 $vendor = $_POST['search_vendor'];
             }
         }
-        
+
         if (isset($_POST['display_all_vendor'])) {
             $vendor = '';
         }
@@ -196,7 +197,7 @@ function changeInv(sel) {
 
         $result = mysqli_query($dbc, $query_check_credentials);
         $num_rows = mysqli_num_rows($result);
-        
+
         if($num_rows > 0) {
             echo "<table class='table table-bordered '>";
                 echo "<tr class='hidden-xs hidden-sm'>";
@@ -239,9 +240,9 @@ function changeInv(sel) {
                     echo '</td>';
                 echo "</tr>";
             }
-            
+
             echo '</table>';
-        
+
         } else {
             echo "<h2 class='list_dashboard'>No Record Found.</h2>";
         } ?>

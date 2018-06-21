@@ -94,16 +94,17 @@ if((!empty($_GET['wtsend'])) && (!empty($_GET['contactid']))) {
 
 if((!empty($_GET['jobid'])) && (!empty($_GET['action']))) {
 	$jobid = $_GET['jobid'];
-	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+        $date_of_archival = date('Y-m-d');
+	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_job	= mysqli_query($dbc, $query_update_job);
 
-	$query_update_po = "UPDATE `field_po` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_po = "UPDATE `field_po` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_po	= mysqli_query($dbc, $query_update_po);
 
-	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_fs	= mysqli_query($dbc, $query_update_fs);
 
-	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_in	= mysqli_query($dbc, $query_update_in);
 
 	header('Location: field_jobs.php');

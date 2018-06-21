@@ -60,5 +60,6 @@ if($staff_id > 0 && isset($_POST['ratecardid'])) {
 		}
 	}
 	$rate_cards_keep = "'".implode("','", $rate_cards_keep)."'";
-	mysqli_query($dbc, "UPDATE `staff_rate_table` SET `deleted`=1 WHERE `staff_id`='$staff_id' AND `rate_id` NOT IN ($rate_cards_keep)");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `staff_rate_table` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `staff_id`='$staff_id' AND `rate_id` NOT IN ($rate_cards_keep)");
 }

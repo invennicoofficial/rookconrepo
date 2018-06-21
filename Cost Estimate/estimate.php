@@ -15,11 +15,11 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
     $html_split = $get_estimate_data['estimate_data_split'];
 	$html_quote = $get_estimate_data['quote_html'];
 	$html_arr = [];
-	
+
 	$cost_estimate_pdf_colours = explode('#*#',get_config($dbc,"cost_estimate_pdf_colours"));
 	$cost_estimate_pdf_colours[0] = ($cost_estimate_pdf_colours[0] == '' ? '#FFFFFF' : $cost_estimate_pdf_colours[0]);
 	$cost_estimate_pdf_colours[1] = ($cost_estimate_pdf_colours[1] == '' ? $cost_estimate_pdf_colours[0] : $cost_estimate_pdf_colours[1]);
-	
+
 	//Create a gradient-image from these colours
 	//$img = imagecreatetruecolor(100,5);
 	//$s = [ hexdec(substr($cost_estimate_pdf_colours[0],1,2)), hexdec(substr($cost_estimate_pdf_colours[0],3,2)), hexdec(substr($cost_estimate_pdf_colours[0],5,2)) ];
@@ -32,7 +32,7 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 	//	imagefilledrectangle($img,$i,0,$i,5,$color);
 	//}
 	//imagepng($img, 'download/gradient-image.png');
-	
+
 	if($action == 'approve' && $html_quote != '') {
 		$html_arr = explode('**#**',$html_quote);
 		foreach($html_arr as $i => $html) {
@@ -207,10 +207,10 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 			$pdf->writeHTML($pdf_html, true, false, true, false, '');
 		}
 	}
-		
+
 	if($action == 'approve') {
 		echo insert_day_overview($dbc, $contactid, 'Cost Estimate', date('Y-m-d'), '', 'Approved Cost Estimate '.$estimate_name);
-	
+
 		$history = decryptIt(decryptIt($_SESSION['first_name'])).' '.decryptIt($_SESSION['last_name']).' Approved on '.date('Y-m-d H:i:s').'<br>';
 		$query_update_report = "UPDATE `cost_estimate` SET `status` = 'Pending Quote', `history` = CONCAT(history,'$history') WHERE `estimateid` = '$estimateid'";
 		$result_update_report = mysqli_query($dbc, $query_update_report);
@@ -230,14 +230,14 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 			$pdf->SetAlpha(0.2);
 			$x_point = $pdf->getPageWidth() / 3;
 			$y_point = $pdf->getPageHeight() / 2;
-			
+
 			$pdf->StartTransform();
 			$pdf->Rotate(45, $x_point, $y_point);
 			$pdf->SetFont("helveticaB", "", 72);
 			$pdf->Text($x_point, $y_point, trim($text));
 			$pdf->StopTransform();
 		}
-		
+
 		$pdf->Output('download/draft_'.$estimateid.'.pdf', 'F');
 
 		echo '<script type="text/javascript"> window.location.replace("download/draft_'.$estimateid.'.pdf"); </script>';
@@ -246,7 +246,8 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 
 if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
     $estimateid = $_GET['estimateid'];
-    $query_update_report = "UPDATE `cost_estimate` SET `deleted` = 1 WHERE `estimateid` = '$estimateid'";
+        $date_of_archival = date('Y-m-d');
+    $query_update_report = "UPDATE `cost_estimate` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
 
     $estimate_name = get_estimate($dbc, $estimateid, 'estimate_name');
@@ -331,7 +332,7 @@ $('.close_iframer').click(function(){
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Customer Cost Estimates</button>
             <?php } ?>
 		</div>
-		
+
 		<div class='mobile-100-container'>
         <?php
         if(vuaed_visible_function($dbc, 'cost_estimate') == 1) {

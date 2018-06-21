@@ -22,6 +22,7 @@ if($_GET['fill'] == 'check_chart_field') {
 	if($checked == 1) {
 		mysqli_query($dbc, "INSERT INTO `custom_charts` (`chart_name`, `clientid`, `headingid`, `fieldid`, `year`, `month`, `day`, `staffid`, `checked_date`, `no_client`) VALUES ('$chart_name', '$clientid', '$headingid', '$fieldid', '$year', '$month', '$day', '$staffid', '$checked_date', '$no_client')");
 	} else {
-		mysqli_query($dbc, "UPDATE `custom_charts` SET `deleted` = 1 WHERE `chart_name` = '$chart_name' AND `clientid` = '$clientid' AND `no_client` = '$no_client' AND `headingid` = '$headingid' AND `fieldid` = '$fieldid' AND `year` = '$year' AND `month` = '$month' AND `day` = '$day'");
+        $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `custom_charts` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `chart_name` = '$chart_name' AND `clientid` = '$clientid' AND `no_client` = '$no_client' AND `headingid` = '$headingid' AND `fieldid` = '$fieldid' AND `year` = '$year' AND `month` = '$month' AND `day` = '$day'");
 	}
 }
