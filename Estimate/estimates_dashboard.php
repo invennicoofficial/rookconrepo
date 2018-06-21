@@ -34,11 +34,13 @@ $(document).ready(function() {
 	$('[data-table]').change(saveField);
 	$(window).resize(function() {
 	}).resize();
+    
+	$('input[name=completed]').change(saveField);
 });
 var keep_scrolling = '';
 function saveField() {
-	if($(this).data('table') != '') {
-		var field = this;
+	if($(this).data('table') != '') { 
+		var field = this;alert($(this).data('estimate'));
 		$.ajax({
 			url: 'estimates_ajax.php?action=estimate_fields',
 			method: 'POST',
@@ -110,7 +112,7 @@ function clearEstimates() {
 							<a href="?view=<?= $estimate['estimateid'] ?>"><h4><span class="text-blue"><?= ($estimate['estimate_name'] != '' ? $estimate['estimate_name'] : '[UNTITLED '.$estimate['estimatetype'].']') ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></span><span class="pull-right">$<?= number_format($estimate['total_retail'],2) ?></span></h4></a>
 							<img class="pull-right est_handle inline-img" src="../img/icons/drag_handle.png">
 							<?= get_client($dbc, $estimate['businessid']) ?> <?= get_contact($dbc, $estimate['clientid']) ?> | <?= $estimate['status_days'] ?> days
-							<div class="form-group">
+							<div class="form-group double-gap-top">
 								<label class="col-sm-4">Status:</label>
 								<div class="col-sm-8">
 									<?php if($approvals > 0 || ($estimate['status'] != 'Saved' && $estimate['status'] != 'Pending')) { ?>
@@ -133,23 +135,34 @@ function clearEstimates() {
 										echo $estimate['status'];
 									} ?>
 								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4">Next Action:</label>
-								<div class="col-sm-8">
-									<select name="action" data-table="estimate_actions" data-identifier="id" data-id="<?= $action['id'] ?>" data-estimate="<?= $estimate['estimateid'] ?>" class="chosen-select-deselect">
-										<option></option>
-										<option <?= $action['action'] == 'phone' ? 'selected' : '' ?> value="phone">Phone Call</option>
-										<option <?= $action['action'] == 'email' ? 'selected' : '' ?> value="email">Email</option>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4">Follow Up:</label>
-								<div class="col-sm-8">
-									<input type="text" name="due_date" class="form-control datepicker" value="<?= $action['due_date'] ?>" data-table="estimate_actions" data-identifier="id" data-id="<?= $action['id'] ?>" data-estimate="<?= $estimate['estimateid'] ?>">
-								</div>
-							</div>
+							</div><?php
+                            $action_list = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='{$estimate['estimateid']}' AND `deleted`=0 AND `completed`=0 ORDER BY `due_date` ASC");
+                            while($action_item = mysqli_fetch_array($action_list)) { ?>
+                                <hr />
+                                <div class="form-group">
+                                    <label class="col-sm-4">Next Action:</label>
+                                    <div class="col-sm-8">
+                                        <select name="action" data-table="estimate_actions" data-identifier="id" data-id="<?= $action_item['id'] ?>" data-estimate="<?= $estimate['estimateid'] ?>" class="chosen-select-deselect">
+                                            <option></option>
+                                            <option <?= $action_item['action'] == 'phone' ? 'selected' : '' ?> value="phone">Phone Call</option>
+                                            <option <?= $action_item['action'] == 'email' ? 'selected' : '' ?> value="email">Email</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4">Follow Up:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="due_date" class="form-control datepicker" value="<?= $action_item['due_date'] ?>" data-table="estimate_actions" data-identifier="id" data-id="<?= $action_item['id'] ?>" data-estimate="<?= $estimate['estimateid'] ?>">
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <label class="col-sm-4">Mark Completed:</label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" name="check_completed" class="form-checkbox" value="1" onchange="$(this).closest('div').find('[name=completed]').focus();" style="margin-left:0;" />
+                                        <input type="text" name="completed" class="checkbox-text form-control" data-table="estimate_actions" data-id="<?= $action_item['id'] ?>" data-identifier="id" data-estimate="<?= $estimate['estimateid'] ?>" data-id-field="id" placeholder="Follow Up Details" onblur="if(this.value == '') { $(this).closest('.form-group').find('[name=check_completed]').removeAttr('checked'); alert('You must provide details about the follow up.'); }">
+                                    </div>
+                                </div><?php
+                            } ?>
 							<div class="clearfix"></div>
 							<input type="text" class="form-control" name="notes" value="" style="display:none;" data-table="estimate_notes" data-identifier="id" data-id="" data-estimate="<?= $estimate['estimateid'] ?>" onblur="$(this).val('').hide();">
 							<div class="action-icons">

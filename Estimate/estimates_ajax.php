@@ -277,6 +277,9 @@ if($_GET['action'] == 'save_template_field') {
 			mysqli_query($dbc, "INSERT INTO `estimate_notes` (`estimateid`, `heading`, `notes`, `created_by`) VALUES ('$estimate', 'Follow Up Completed', '$value', '{$_SESSION['contactid']}')");
 			$value = 1;
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a'));
+        } else if($field == 'delete') {
+            mysqli_query($dbc, "UPDATE `estimate_actions` SET `deleted`=1 WHERE `id`='$id'");
+            $history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." deleted follow up action $id on ".date('Y-m-d h:i a'));
 		} else if($field == '') {
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a'));
 		} else {
@@ -453,4 +456,24 @@ if($_GET['action'] == 'save_template_field') {
 			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
 		</div>';
 	}
+} else if($_GET['action'] == 'cost_analysis') {
+	$id = filter_var($_GET['id'],FILTER_VALIDATE_INT);
+    $estimateid = filter_var($_GET['estimateid'],FILTER_VALIDATE_INT);
+    $qty = filter_var($_GET['qty'],FILTER_VALIDATE_INT);
+    $profit = filter_var($_GET['profit'],FILTER_SANITIZE_STRING);
+    $margin = filter_var($_GET['margin'],FILTER_SANITIZE_STRING);
+    $retail = filter_var($_GET['retail'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `retail`='$retail' WHERE `id`='$id'");
+    
+    $total_price = 0;
+    $total_cost = 0;
+    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+    while( $row=mysqli_fetch_assoc($query) ) {
+        $total_price += $row['retail'];
+        $total_cost += $row['qty'] * $row['cost'];
+    }
+    $margin = number_format(($total_cost > 0 ? ($total_price - $total_cost) / $total_cost * 100 : 0),2, '.', '');
+    $profit = number_format($total_price - $total_cost,2, '.', '');
+    $total = number_format($total_price,2, '.', '');
+    echo $margin.'%' .'*#*'. '$'.$profit .'*#*'. '$'.$total;
 }
