@@ -66,7 +66,7 @@ function saveFieldMethod(field) {
 <?php if(IFRAME_PAGE) { ?>
 	<h3>Payment Schedule<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a></h3>
 <?php } ?>
-<?php $query = $dbc->query("SELECT * FROM (SELECT '' `heading`, `invoice`.`tile_name`, `invoice`.`invoiceid`, `invoice`.`invoiceid` `id`, 'invoice' `table`, `invoice`.`total_price`, `invoice`.`due_date`, `invoice_payment`.`date_paid` FROM `invoice` LEFT JOIN `invoice_payment` ON `invoice`.`invoiceid`=`invoice_payment`.`invoiceid` WHERE `invoice`.`projectid`='$projectid' AND `invoice`.`status` NOT IN ('Void','Archived') UNION SELECT `heading`, '' `tile_name`, 0 `invoiceid`, `id`, 'project_payments' `table`, `amount` `total_price`, `due_date`, `date_paid` FROM `project_payments` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status` != 'Void') `payments` ORDER BY `due_date`"); ?>
+<?php $query = $dbc->query("SELECT * FROM (SELECT '' `heading`, `invoice`.`tile_name`, `invoice`.`invoiceid`, `invoice`.`invoiceid` `id`, 'invoice' `table`, `invoice`.`total_price`, `invoice`.`due_date`, `invoice_payment`.`date_paid` FROM `invoice` LEFT JOIN `invoice_payment` ON `invoice`.`invoiceid`=`invoice_payment`.`invoiceid` WHERE `invoice`.`projectid`='$projectid' AND `invoice`.`status` NOT IN ('Void','Archived') UNION SELECT `heading`, '' `tile_name`, 0 `invoiceid`, `id`, 'project_payments' `table`, `amount` `total_price`, `due_date`, `date_paid` FROM `project_payments` WHERE `deleted`=0 AND `projectid`='$projectid') `payments` ORDER BY `due_date`"); ?>
 <div class="form-horizontal">
 	<div class="hide-titles-mob text-center">
 		<span class="col-sm-2"></span>
