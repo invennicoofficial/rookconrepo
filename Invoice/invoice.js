@@ -1064,14 +1064,14 @@ function setTotalPrice() {
 	$("#final_price").val(round2Fixed(final_price_cost));
 	$("[name=credit_balance]").val(round2Fixed(credit_balance));
 
-	var patient_owes = +total_after_gst + +gratuity - +promo_price - +insurer_portions - previous_payment + credit_balance;
+	var patient_owes = Math.round((+total_after_gst + +gratuity - +promo_price - +insurer_portions - previous_payment + credit_balance) * 100) / 100;
 	var refund_owes = patient_owes * -1;
     //var refund_owes = Math.round((patient_owes + 0.00001) * 100) / 100;
 	$('[name="refund_type_amount[]"]').each(function() {
 		var applied = (refund_owes > this.max ? this.max : (refund_owes < this.min ? this.min : refund_owes));
 		if($(this).data('status') == 'auto') {
 			refund_owes -= applied;
-			$(this).val(applied);
+			$(this).val(round2Fixed(applied));
 		}
 	});
 
@@ -1079,12 +1079,8 @@ function setTotalPrice() {
 		patient_owes += +$(this).val() || 0;
 	});
     
-    if ( sum_adjustment > 0 ) {
-        $('[name="payment_price[]"]').last().val(round2Fixed(sum_adjustment));
-    } else {
-        $('[name="payment_price[]"]').last().val(round2Fixed(patient_owes - +payment_price + +last_payment));
-	}
-    if(patient_owes - +payment_price + +last_payment != 0) {
+	$('[name="payment_price[]"]').last().val(round2Fixed(patient_owes - payment_price + last_payment));
+    if(patient_owes != 0) {
 		$('.payment_option').show();
 	} else {
 		$('.payment_option').hide();
