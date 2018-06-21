@@ -6,7 +6,8 @@ include ('../include.php');
 error_reporting(0);
 if($_GET['archivetab'] > 0) {
 	$tabid = $_GET['archivetab'];
-	mysqli_query($dbc, "UPDATE `checklist_subtab` SET `deleted`=1 WHERE `subtabid`='$tabid'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `checklist_subtab` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `subtabid`='$tabid'");
 	unset($_GET['archivetab']);
 }
 $security = get_security($dbc, 'checklist'); ?>
@@ -114,12 +115,12 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<label class="filter_box" style="display:none;">Type to Filter Checklists by Name, User, <?= $_GET['subtabid'] == 'project' ? 'Project, ' : '' ?>or Category:</label>
 					<input type="text" class="filter_box form-control pull-right" style="display:none;" onkeyup="filter_checklists(this.value);" />
 					<div class="clearfix"></div>
-				
+
 				</h1><?php
-                
+
                 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='checklist_checklist'"));
                 $note = $notes['note'];
-                    
+
                 if ( !empty($note) && !$_GET['reports'] ) { ?>
                     <div class="notice double-gap-bottom popover-examples">
                         <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -130,7 +131,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
                         <div class="clearfix"></div>
                     </div><?php
                 } ?>
-                
+
                 <!--
 				<div class="notice double-gap-bottom popover-examples">
 					<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>

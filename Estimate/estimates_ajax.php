@@ -289,7 +289,8 @@ if($_GET['action'] == 'save_template_field') {
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a'));
 	}
 	if($table == 'estimate' && $field == 'status' && $value == 'archived') {
-		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1 WHERE `estimateid`='$id'");
+    $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$id'");
 	} else if($table == 'estimate' && $field == 'status') {
 		mysqli_query($dbc, "UPDATE `estimate` SET `status_date`=DATE(NOW())");
 	}
@@ -355,7 +356,8 @@ if($_GET['action'] == 'save_template_field') {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$alerts' WHERE `name`='estimate_report_alerts'");
 } else if($_GET['action'] == 'deleteStyle') {
 	$id = filter_var($_GET['styleid'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1 WHERE `pdfsettingid`='$id'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `pdfsettingid`='$id'");
 } else if($_GET['action'] == 'clearEstimates') {
 	set_user_settings($dbc, 'estimate_closed', date('Y-m-d'));
 } else if($_GET['action'] == 'addContentPage') {

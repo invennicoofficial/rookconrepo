@@ -22,7 +22,8 @@ else if($_GET['action'] == 'setting_sites') {
 	mysqli_query($dbc, "UPDATE `safety` SET `pinned`=',$users,' WHERE `safetyid`='$id'");
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "UPDATE `safety` SET `deleted`=1 WHERE `safetyid`='$id'");
+	    $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE `safety` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `safetyid`='$id'");
 } else if($_GET['action'] == 'form_layout') {
 	$safetyid = filter_var($_POST['safetyid'],FILTER_SANITIZE_STRING);
 	$form = filter_var($_POST['form'],FILTER_SANITIZE_STRING);

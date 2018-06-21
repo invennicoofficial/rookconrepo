@@ -10,14 +10,15 @@ if (isset($_POST['manual_btn'])) {
 
     $query_update_inventory = "UPDATE `patient_injury` SET `discharge_comment` = '$discharge_comment', `discharge_date` = '$discharge_date' WHERE `injuryid` = '$injuryid'";
     $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
+        $date_of_archival = date('Y-m-d');
 
-    $query_update_inventory = "UPDATE `assessment` SET `deleted` = 1 WHERE `injuryid` = '$injuryid'";
+    $query_update_inventory = "UPDATE `assessment` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `injuryid` = '$injuryid'";
     $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
-    $query_update_inventory = "UPDATE `treatment` SET `deleted` = 1 WHERE `injuryid` = '$injuryid'";
+    $query_update_inventory = "UPDATE `treatment` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `injuryid` = '$injuryid'";
     $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
-    $query_update_inventory = "UPDATE `treatment_exercise_plan` SET `deleted` = 1 WHERE `injuryid` = '$injuryid'";
+    $query_update_inventory = "UPDATE `treatment_exercise_plan` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `injuryid` = '$injuryid'";
     $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
-    $query_update_inventory = "UPDATE `treatment_plan` SET `deleted` = 1 WHERE `injuryid` = '$injuryid'";
+    $query_update_inventory = "UPDATE `treatment_plan` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `injuryid` = '$injuryid'";
     $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
 
     $patientid = get_all_from_injury($dbc, $injuryid, 'contactid');

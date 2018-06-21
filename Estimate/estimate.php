@@ -215,7 +215,8 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 
 if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
     $estimateid = $_GET['estimateid'];
-    $query_update_report = "UPDATE `estimate` SET `deleted` = 1 WHERE `estimateid` = '$estimateid'";
+        $date_of_archival = date('Y-m-d');
+    $query_update_report = "UPDATE `estimate` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
 
     $estimate_name = get_estimate($dbc, $estimateid, 'estimate_name');

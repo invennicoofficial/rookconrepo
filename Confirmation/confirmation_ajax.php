@@ -18,7 +18,8 @@ if($_GET['fill'] == 'update_status') {
 	mysqli_query($dbc, "UPDATE `ticket_notifications` SET `follow_up_date` = '$follow_up_date' WHERE `ticketnotificationid` = '$ticketnotificationid'");
 } else if($_GET['fill'] == 'delete_notification') {
 	$ticketnotificationid = $_POST['ticketnotificationid'];
-	mysqli_query($dbc, "UPDATE `ticket_notifications` SET `deleted` = 1 WHERE `ticketnotificationid` = '$ticketnotificationid'");
+        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `ticket_notifications` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ticketnotificationid` = '$ticketnotificationid'");
 } else if($_GET['fill'] == 'send_notification') {
 	$ticketnotificationid = $_POST['ticketnotificationid'];
 	$noti = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `ticket_notifications` WHERE `ticketnotificationid` = '$ticketnotificationid'"));

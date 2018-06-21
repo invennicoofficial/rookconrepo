@@ -329,7 +329,8 @@ switch($archive) {
                         echo "<tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
-                                <th>Name</th>";
+                                <th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -347,6 +348,7 @@ switch($archive) {
                             echo '<td data-title="Contact ID">' . $row['contactid'] . '</td>';
 							echo '<td data-title="Category">' . $row['category'] . '</td>';
                             echo '<td data-title="Name">' . $name . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 	                        if($edit_access > 0) {
 							echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&contactid='.$row['contactid'].'&category=contacts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&contactid='.$row['contactid'].'&category=contacts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 							}
@@ -383,7 +385,8 @@ switch($archive) {
                         echo "<tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
-                                <th>Name</th>";
+                                <th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -401,6 +404,7 @@ switch($archive) {
                             echo '<td data-title="Contact ID">' . $row['contactid'] . '</td>';
 							echo '<td data-title="Category">' . $row['category'] . '</td>';
                             echo '<td data-title="Name">' . $name . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
 							echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&contactid='.$row['contactid'].'&category=staff\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&contactid='.$row['contactid'].'&category=staff\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 							}
@@ -446,7 +450,8 @@ switch($archive) {
                     <th>Lead Stage</th>
                     <th>Next Action</th>
                     <th>Reminder</th>
-                    <th>Status</th>";
+                    <th>Status</th>
+                    <th>Date of Archival</th>";
                     if($edit_access > 0) {
                         echo "<th>Restore</th>";
                     }
@@ -475,6 +480,7 @@ switch($archive) {
 					echo '<td data-title="Product / Services">' . $row['action'] . '</td>';
 					echo '<td data-title="Action">' . $row['action_date'] . '</td>';
 					echo '<td data-title="Est. Approx ROI">' . $row['status'] . '</td>';
+                     echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
 		            if($edit_access > 0) {
                     echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&sales_lead_number='.$row['sales_lead_number'].'&category=sales\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&sales_lead_number='.$row['sales_lead_number'].'&category=sales\' onclick="return confirm(\'By deleting this item, you may never be able to gain access this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -510,7 +516,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Inventory ID</th>
                                 <th>Category</th>
-                                <th>Name</th>";
+                                <th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
@@ -524,6 +531,8 @@ switch($archive) {
 							echo '<td data-title="Inventory ID">' . $row['inventoryid'] . '</td>';
                             echo '<td data-title="Category">' . $row['category'] . '</td>';
                             echo '<td data-title="Name"><a href=\'../Inventory/add_inventory.php?inventoryid='.$row['inventoryid'].'\'>' . $row['name'] . '</a></td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&inventoryid='.$row['inventoryid'].'&category=inventory\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&inventoryid='.$row['inventoryid'].'&category=inventory\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -556,7 +565,8 @@ switch($archive) {
                                 <th>Model</th>
                                 <th>Model Year</th>
                                 <th>Year Purchased</th>
-                                <th>Next Service</th>";
+                                <th>Next Service</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
@@ -575,6 +585,8 @@ switch($archive) {
                             echo '<td data-title="Model Year">' . $row['model_year'] . '</td>';
                             echo '<td data-title="Year Purchased">' . $row['year_purchased'] . '</td>';
                             echo '<td data-title="Next Service">' . $row['next_service'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=equipment&equipmentid='.$row['equipmentid'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 								<a href=\'../delete_restore.php?action=delete_2&category=equipment&equipmentid='.$row['equipmentid'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -603,7 +615,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Bid#</th>
 								<th>Client</th>
-								<th>Created Date</th>";
+								<th>Created Date</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
@@ -617,6 +630,8 @@ switch($archive) {
 							echo '<td data-title="Category">#' . $row['sectionid'] . '</td>';
 							echo '<td data-title="Category">' . $row['customer_name'] . '</td>';
 							echo '<td data-title="Category">' . $row['today_date'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'delete_restore.php?action=restore&sectionid='.$row['sectionid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a></td>';
 	                        }
@@ -672,7 +687,8 @@ switch($archive) {
 							// Pagination Finish //
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -683,6 +699,8 @@ switch($archive) {
 							{
 								echo '<tr>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -735,7 +753,8 @@ switch($archive) {
 							// Pagination Finish //
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -746,6 +765,8 @@ switch($archive) {
 							{
 								echo '<tr>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -798,7 +819,8 @@ switch($archive) {
 							// Pagination Finish //
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -809,6 +831,8 @@ switch($archive) {
 							{
 								echo '<tr>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -864,7 +888,8 @@ switch($archive) {
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>PO Status</th>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -876,6 +901,8 @@ switch($archive) {
 								echo '<tr>';
 								echo '<td data-title="Status">'.$row['job_tab'].'<br /><a href="../Field Jobs/download/field_po_'.$row['job_id'].'.pdf">View</a></td>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -932,7 +959,8 @@ switch($archive) {
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Work Ticket Status</th>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -945,6 +973,8 @@ switch($archive) {
 								echo '<td data-title="Status">' . ($row['deleted'] == 1 ? 'Archived' : 'Attached to Invoice #'.$row['attach_invoice'].'<br /><a href="../Field Jobs/download/field_invoice_'.$row['attach_invoice'].'.pdf">View Invoice #'.$row['attach_invoice'].'</a>');
 								echo '<br /><a href="../Field Jobs/download/field_work_ticket_'.$row['job_id'].'.pdf">View Work Ticket</a>' . '</td>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore">'.($row['deleted'] == 1 ? '<a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a>'
@@ -1000,7 +1030,8 @@ switch($archive) {
 							// Pagination Finish //
 							echo "<table border='2' cellpadding='10' class='table'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
-								<th>Information</th>";
+								<th>Information</th>
+                                <th>Date of Archival</th>";
 	                        if($edit_access > 0) {
 	                            echo "<th>Restore / Delete</th>";
 	                        }
@@ -1011,6 +1042,8 @@ switch($archive) {
 							{
 								echo '<tr>';
 								echo '<td data-title="Information">' . str_replace('[ENCRYPTED]',($row['encrypted'] == '' ? 'N/A' : decryptIt($row['encrypted'])),$row['info']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
 	                            if($edit_access > 0) {
 								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
 									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -1045,7 +1078,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Work Order #</th>
 								<th>Business</th>
-								<th>Status</th>";
+								<th>Status</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
@@ -1059,6 +1093,8 @@ switch($archive) {
 							echo '<td data-title="Category"># ' . $row['projectmanageid'] . '</td>';
 							echo '<td data-title="Category">' . decryptIt($row['name']) . '</td>';
 							echo '<td data-title="Category">' . $row['status'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&projectmanageid='.$row['projectmanageid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a></td>';
 	                        }
@@ -1086,7 +1122,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Certificate Type</th>
 								<th>Title</th>
-								<th>Name</th>";
+								<th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1100,6 +1137,8 @@ switch($archive) {
 							echo '<td data-title="Certificate-Type">#' . $row['certificate_type'] . '</td>';
 							echo '<td data-title="Title">' . $row['heading'] . '</td>';
 							echo '<td data-title="Name">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&certificateid='.$row['certificateid'].'&category=certificate\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&certificateid='.$row['certificateid'].'&category=certificate\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1127,7 +1166,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Tile</th>
 								<th>Sub Tab</th>
-								<th>Description</th>";
+								<th>Description</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1141,6 +1181,8 @@ switch($archive) {
 							echo '<td data-title="Tile">#' . $row['tile'] . '</td>';
 							echo '<td data-title="Sub Tab">' . $row['subtab'] . '</td>';
 							echo '<td data-title="Description">' . $row['description'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&guideid='.$row['guideid'].'&category=guide\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&guideid='.$row['guideid'].'&category=guide\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1166,7 +1208,8 @@ switch($archive) {
                         if($num_rows > 0) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
-								<th>Description</th>";
+								<th>Description</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1178,6 +1221,8 @@ switch($archive) {
                         {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['sub_heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&hrid='.$row['hrid'].'&category=hr\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&hrid='.$row['hrid'].'&category=hr\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1204,7 +1249,8 @@ switch($archive) {
                         if($num_rows > 0) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
-								<th>Heading</th>";
+								<th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1216,6 +1262,8 @@ switch($archive) {
                         {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&manualtypeid='.$row['manualtypeid'].'&category=eh\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&manualtypeid='.$row['manualtypeid'].'&category=eh\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1242,7 +1290,8 @@ switch($archive) {
                         if($num_rows > 0) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
-								<th>Heading</th>";
+								<th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1254,6 +1303,8 @@ switch($archive) {
                         {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&manualtypeid='.$row['manualtypeid'].'&category=manual\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&manualtypeid='.$row['manualtypeid'].'&category=manual\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1280,7 +1331,8 @@ switch($archive) {
                         if($num_rows > 0) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
-								<th>Heading</th>";
+								<th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1292,6 +1344,8 @@ switch($archive) {
                         {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&manualtypeid='.$row['manualtypeid'].'&category=pp\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&manualtypeid='.$row['manualtypeid'].'&category=pp\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1320,7 +1374,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Checklist Name</th>
 								<th>Security</th>
-								<th>Checklist Type</th>";
+								<th>Checklist Type</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1334,6 +1389,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['checklist_name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['security'] . '</td>';
 							echo '<td data-title="Tile">' . $row['checklist_type'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&checklistid='.$row['checklistid'].'&category=checklist\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&checklistid='.$row['checklistid'].'&category=checklist\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
                             }
@@ -1363,7 +1420,8 @@ switch($archive) {
 								<th>Client Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
-								<th>Name</th>";
+								<th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1378,6 +1436,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['title'] . '</td>';
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&client_documentsid='.$row['client_documentsid'].'&category=cd\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&client_documentsid='.$row['client_documentsid'].'&category=cd\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1407,7 +1467,8 @@ switch($archive) {
 								<th>Internal Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
-								<th>Name</th>";
+								<th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1422,6 +1483,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['title'] . '</td>';
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&internal_documentsid='.$row['internal_documentsid'].'&category=id\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&internal_documentsid='.$row['internal_documentsid'].'&category=id\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1451,7 +1514,8 @@ switch($archive) {
 								<th>Password Type</th>
 								<th>Category</th>
 								<th>Heading</th>
-								<th>Description</th>";
+								<th>Description</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1466,6 +1530,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
 							echo '<td data-title="Tile">' . html_entity_decode($row['description']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&passwordid='.$row['passwordid'].'&category=passwords\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&passwordid='.$row['passwordid'].'&category=passwords\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1493,7 +1559,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
 								<th>Tile Heading</th>
-								<th>Document</th>";
+								<th>Document</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1506,6 +1573,8 @@ switch($archive) {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['tile_heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['document'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&documentid='.$row['documentid'].'&category=documents\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&documentid='.$row['documentid'].'&category=documents\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1534,7 +1603,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Type Heading</th>
 								<th>Support Type</th>
-								<th>Client Info</th>";
+								<th>Client Info</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1548,6 +1618,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['company_name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['support_type'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&supportid='.$row['supportid'].'&category=helpdesk\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&supportid='.$row['supportid'].'&category=helpdesk\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1577,7 +1649,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
 								<th>Tile Name</th>
-								<th>Project Path</th>";
+								<th>Project Path</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1590,6 +1663,8 @@ switch($archive) {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['tile_name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['project_path'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&project_workflow_id='.$row['project_workflow_id'].'&category=project_workflow\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&project_workflow_id='.$row['project_workflow_id'].'&category=project_workflow\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1620,7 +1695,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Category</th>
 								<th>Sub Category</th>
-								<th>Name</th>";
+								<th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1634,6 +1710,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['sub_category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&assetid='.$row['assetid'].'&category=asset\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&assetid='.$row['assetid'].'&category=asset\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1664,7 +1742,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Category</th>
 								<th>Sub Category</th>
-								<th>Name</th>";
+								<th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1678,6 +1757,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['sub_category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&materialid='.$row['materialid'].'&category=material\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&materialid='.$row['materialid'].'&category=material\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1710,7 +1791,8 @@ switch($archive) {
 								<th>Category</th>
 								<th>Form</th>
 								<th>Heading</th>
-								<th>Sub Heading</th>";
+								<th>Sub Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1726,6 +1808,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['form'] . '</td>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['sub_heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&safetyid='.$row['safetyid'].'&category=safety\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&safetyid='.$row['safetyid'].'&category=safety\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1792,7 +1876,8 @@ switch($archive) {
 								<th>Service Type</th>
 								<th>".TICKET_NOUN." Heading</th>
 								<th>Sub Heading</th>
-								<th>Service</th>";
+								<th>Service</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1807,6 +1892,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['sub_heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['service'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&ticketid='.$row['ticketid'].'&category=tickets\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&ticketid='.$row['ticketid'].'&category=tickets\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1837,7 +1924,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Location</th>
 								<th>Short Description</th>
-								<th>Work Performed</th>";
+								<th>Work Performed</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1851,6 +1939,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['location'] . '</td>';
 							echo '<td data-title="Tile">' . $row['short_desc'] . '</td>';
 							echo '<td data-title="Tile">' . $row['work_preformed'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&timetrackingid='.$row['timetrackingid'].'&category=time_tracking\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&timetrackingid='.$row['timetrackingid'].'&category=time_tracking\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1880,7 +1970,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
 								<th>Business</th>
-								<th>".ESTIMATE_TILE." Name</th>";
+								<th>".ESTIMATE_TILE." Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1893,6 +1984,8 @@ switch($archive) {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['businessid'], 'name') . '</td>';
 							echo '<td data-title="Tile">' . $row['estimate_name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&estimateid='.$row['estimateid'].'&category=estimate\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&estimateid='.$row['estimateid'].'&category=estimate\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1922,7 +2015,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
 								<th>Quote Name</th>
-								<th>Total Cost</th>";
+								<th>Total Cost</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1935,6 +2029,8 @@ switch($archive) {
                             echo '<tr>';
 							echo '<td data-title="Tile">' . $row['estimate_name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['financial_cost'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&estimateid='.$row['estimateid'].'&category=quote\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&estimateid='.$row['estimateid'].'&category=quote\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -1965,7 +2061,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Communication Id</th>
 								<th>Subject</th>
-								<th>Status</th>";
+								<th>Status</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -1979,6 +2076,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['email_communicationid'] . '</td>';
 							echo '<td data-title="Tile">' . $row['subject'] . '</td>';
 							echo '<td data-title="Tile">' . $row['status'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&email_communicationid='.$row['email_communicationid'].'&category=email_communication\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&email_communicationid='.$row['email_communicationid'].'&category=email_communication\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2009,7 +2108,8 @@ switch($archive) {
                         echo "<tr>
 								<th>Title</th>
 								<th>Description</th>
-								<th>Newsboard Type</th>";
+								<th>Newsboard Type</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2023,6 +2123,8 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['title'] . '</td>';
 							echo '<td data-title="Tile">' . $row['description'] . '</td>';
 							echo '<td data-title="Tile">' . $row['newsboard_type'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&newsboardid='.$row['newsboardid'].'&category=newsboard\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&newsboardid='.$row['newsboardid'].'&category=newsboard\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2136,6 +2238,7 @@ switch($archive) {
                             <th>Paid</th>
                             <th>Patient Invoice</th>
                             <th>Patient Receipt</th>
+                            <th>Date of Archival</th>
                             </tr>";
                         } else {
                             echo "<h2>No Record Found.</h2>";
@@ -2202,6 +2305,7 @@ switch($archive) {
                             } else {
                                 echo '<td>-</td>';
                             }
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
                             echo "</tr>";
                         }
@@ -2237,7 +2341,8 @@ switch($archive) {
                                 <th>Contacts</th>
                                 <th>Timeline</th>
                                 <th>Follow Up</th>
-                                <th>End Date</th>";
+                                <th>End Date</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2271,6 +2376,7 @@ switch($archive) {
                             echo '<td data-title="Timeline">'. $row['match_date']. '</td>';
                             echo '<td data-title="Follow Up">'. $row['follow_up_date']. '</td>';
                             echo '<td data-title="End Date">'. $row['end_date']. '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&matchid='.$row['matchid'].'&category=match\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&matchid='.$row['matchid'].'&category=match\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
@@ -2304,7 +2410,8 @@ switch($archive) {
                                 <th>Expense Date</th>
                                 <th>Description</th>
                                 <th>Total Amount</th>
-                                <th>Expense Type</th>";
+                                <th>Expense Type</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2321,6 +2428,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['description'] . '</td>';
 							echo '<td data-title="Tile">' . $row['total'] . '</td>';
 							echo '<td data-title="Tile">' . $row['type'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&expenseid='.$row['expenseid'].'&category=expense\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&expenseid='.$row['expenseid'].'&category=expense\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2352,7 +2460,8 @@ switch($archive) {
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
-                                <th>Product Pricing</th>";
+                                <th>Product Pricing</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2368,6 +2477,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['contactid'], 'name') . '</td>';
 							echo '<td data-title="Tile">' . $row['total_price'] . '</td>';
 							echo '<td data-title="Tile">' . $row['productpricing'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&posid='.$row['posid'].'&category=pos\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&posid='.$row['posid'].'&category=pos\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2399,7 +2509,8 @@ switch($archive) {
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
-                                <th>Product Pricing</th>";
+                                <th>Product Pricing</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2415,6 +2526,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['contactid'], 'name') . '</td>';
 							echo '<td data-title="Tile">' . $row['total_price'] . '</td>';
 							echo '<td data-title="Tile">' . $row['productpricing'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&sales_orderid='.$row['posid'].'&category=sales_order\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&sales_orderid='.$row['posid'].'&category=sales_order\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2446,7 +2558,8 @@ switch($archive) {
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
-                                <th>Product Pricing</th>";
+                                <th>Product Pricing</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2462,6 +2575,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['contactid'], 'name') . '</td>';
 							echo '<td data-title="Tile">' . $row['total_price'] . '</td>';
 							echo '<td data-title="Tile">' . $row['productpricing'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&poid='.$row['posid'].'&category=purchase_order\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&poid='.$row['posid'].'&category=purchase_order\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2492,7 +2606,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Code</th>
                                 <th>Part Number</th>
-                                <th>Category</th>";
+                                <th>Category</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2507,6 +2622,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['code'] . '</td>';
 							echo '<td data-title="Tile">' . $row['part_number'] . '</td>';
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&vplid='.$row['vplid'].'&category=vpl\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&vpl='.$row['vplid'].'&category=vpl\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2538,7 +2654,8 @@ switch($archive) {
                                 <th>Budget Name</th>
                                 <th>Staff Lead</th>
                                 <th>Business</th>
-								<th>Budget Creation Date</th>";
+								<th>Budget Creation Date</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2554,6 +2671,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['staff_lead']) . '</td>';
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['business'],'name') . '</td>';
 							echo '<td data-title="Tile">' . $row['budget_created'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&status=2&budgetid='.$row['budgetid'].'&category=budget\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&budgetid='.$row['budgetid'].'&category=budget\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2584,7 +2702,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Title</th>
 								<th>Category</th>
-                                <th>Revised Date</th>";
+                                <th>Revised Date</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2599,6 +2718,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['form'] . '</td>';
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['last_edited'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&infogatheringid='.$row['infogatheringid'].'&category=infogathering\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&infogatheringid='.$row['infogatheringid'].'&category=infogathering\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2630,7 +2750,8 @@ switch($archive) {
                                 <th>Title</th>
 								<th>Category</th>
                                 <th>Description</th>
-								<th>Heading</th>";
+								<th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2646,6 +2767,7 @@ switch($archive) {
 							echo '<td data-title="Tile">' . $row['category'] . '</td>';
 							echo '<td data-title="Tile">' . $row['description'] . '</td>';
 							echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&marketing_materialid='.$row['marketing_materialid'].'&category=marketing_material\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&marketing_materialid='.$row['marketing_materialid'].'&category=marketing_material\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2677,7 +2799,8 @@ switch($archive) {
                                 <th>Staff Document Type</th>
                                 <th>Category</th>
                                 <th>Title</th>
-                                <th>Name</th>";
+                                <th>Name</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2692,6 +2815,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['title'] . '</td>';
                             echo '<td data-title="Tile">' . $row['name'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&staff_documentsid='.$row['staff_documentsid'].'&category=staff_documents\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&staff_documentsid='.$row['staff_documentsid'].'&category=staff_documents\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2720,7 +2844,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Form</th>
                                 <th>Category</th>
-                                <th>Heading</th>";
+                                <th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2734,6 +2859,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['form'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&patientformid='.$row['patientformid'].'&category=treatment\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&patientformid='.$row['patientformid'].'&category=treatment\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2763,7 +2889,8 @@ switch($archive) {
                                 <th>Reminder Type</th>
                                 <th>Reminder By</th>
                                 <th>Subject</th>
-								<th>Sender</th>";
+								<th>Sender</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2778,6 +2905,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . get_contact($dbc, $row['contactid']) . '</td>';
                             echo '<td data-title="Tile">' . $row['subject'] . '</td>';
 							echo '<td data-title="Tile">' . $row['sender'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&reminderid='.$row['reminderid'].'&category=reminder\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&reminderid='.$row['reminderid'].'&category=reminder\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2806,7 +2934,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
-                                <th>Heading</th>";
+                                <th>Heading</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2820,6 +2949,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['service_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&customid='.$row['customid'].'&category=custom\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&customid='.$row['customid'].'&category=custom\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2848,7 +2978,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Labour Type</th>
                                 <th>Heading</th>
-                                <th>Cost</th>";
+                                <th>Cost</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2862,6 +2993,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['labour_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
                             echo '<td data-title="Tile">' . $row['cost'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&labourid='.$row['labourid'].'&category=labour\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&labourid='.$row['labourid'].'&category=labour\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2890,7 +3022,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
-                                <th>Headig</th>";
+                                <th>Headig</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2904,6 +3037,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['service_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&packageid='.$row['packageid'].'&category=package\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&packageid='.$row['packageid'].'&category=package\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2932,7 +3066,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Product Type</th>
                                 <th>Category</th>
-                                <th>Headig</th>";
+                                <th>Headig</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2946,6 +3081,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['product_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&productid='.$row['productid'].'&category=products\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&productid='.$row['productid'].'&category=products\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -2974,7 +3110,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
-                                <th>Headig</th>";
+                                <th>Headig</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -2988,6 +3125,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['service_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&promotionid='.$row['promotionid'].'&category=promotion\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&promotionid='.$row['promotionid'].'&category=products\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3016,7 +3154,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
-                                <th>Headig</th>";
+                                <th>Headig</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3030,6 +3169,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['service_type'] . '</td>';
                             echo '<td data-title="Tile">' . $row['category'] . '</td>';
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&serviceid='.$row['serviceid'].'&category=service\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&serviceid='.$row['serviceid'].'&category=service\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3073,7 +3213,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Chart Type</th>
                                 <th>Client/Business</th>
-                                <th>Time</th>";
+                                <th>Time</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3087,6 +3228,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Seizure Record</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['client'])) ? get_client($dbc, $row['client']) : get_contact($dbc, $row['client'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&seizure_record_id='.$row['seizure_record_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&seizure_record_id='.$row['seizure_record_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3098,6 +3240,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Blood Glucose</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['client'])) ? get_client($dbc, $row['client']) : get_contact($dbc, $row['client'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 	                        if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&blood_glucose_id='.$row['blood_glucose_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&blood_glucose_id='.$row['blood_glucose_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3109,6 +3252,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Bowel Movement</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['client'])) ? get_client($dbc, $row['client']) : get_contact($dbc, $row['client'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&bowel_movement_id='.$row['bowel_movement_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&bowel_movement_id='.$row['bowel_movement_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3120,6 +3264,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Daily Water Temp (Client)</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['client'])) ? get_client($dbc, $row['client']) : get_contact($dbc, $row['client'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&daily_water_temp_id='.$row['daily_water_temp_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&daily_water_temp_id='.$row['daily_water_temp_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3131,6 +3276,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Daily Water Temp (Business)</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['business'])) ? get_client($dbc, $row['business']) : get_contact($dbc, $row['business'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&daily_water_temp_bus_id='.$row['daily_water_temp_bus_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&daily_water_temp_bus_id='.$row['daily_water_temp_bus_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3142,6 +3288,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Daily Fridge Temp</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['business'])) ? get_client($dbc, $row['business']) : get_contact($dbc, $row['business'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&daily_fridge_temp_id='.$row['daily_fridge_temp_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&daily_fridge_temp_id='.$row['daily_fridge_temp_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3153,6 +3300,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Daily Freezer Temp</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['business'])) ? get_client($dbc, $row['business']) : get_contact($dbc, $row['business'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&daily_freezer_temp_id='.$row['daily_freezer_temp_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&daily_freezer_temp_id='.$row['daily_freezer_temp_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3164,6 +3312,7 @@ switch($archive) {
                             echo '<td data-title="Tile">Daily Dishwasher Temp</td>';
                             echo '<td data-title="Tile">' . (!empty(get_client($dbc, $row['business'])) ? get_client($dbc, $row['business']) : get_contact($dbc, $row['business'])) . '</td>';
                             echo '<td data-title="Tile">' . $row['time'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&daily_dishwasher_temp_id='.$row['daily_dishwasher_temp_id'].'&category=charts\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&daily_dishwasher_temp_id='.$row['daily_dishwasher_temp_id'].'&category=charts\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3192,7 +3341,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Support Contact Category</th>
                                 <th>Category</th>
-                                <th>Planned Activity</th>";
+                                <th>Planned Activity</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3206,6 +3356,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['support_contact_category'] . '</td>';
                             echo '<td data-title="Tile">' . get_contact($dbc, $row['support_contact']) . '</td>';
                             echo '<td data-title="Tile">' . $row['planned_activity'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&dayprogramid='.$row['dayprogramid'].'&category=day_program\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&dayprogramid='.$row['dayprogramid'].'&category=day_program\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3237,7 +3388,8 @@ switch($archive) {
                                 <th>Funding For</th>
                                 <th>Staff</th>
                                 <th>Title</th>
-								<th>Description</th>";
+								<th>Description</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3256,7 +3408,7 @@ switch($archive) {
                                 <th>Last Name</th>
                                 <th>Client</th>
 								<th>Email</th>
-                                <th>Restore / Delete</th>";
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3274,6 +3426,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['last_name'] . '</td>';
 							echo '<td data-title="Tile">' . get_contact($dbc, $row['client_id']) . '</td>';
 							echo '<td data-title="Tile">' . $row['email_address'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3287,6 +3440,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . get_contact($dbc, $row['staff']) . '</td>';
                             echo '<td data-title="Tile">' . $row['title'] . '</td>';
 							echo '<td data-title="Tile">' . $row['description'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3317,7 +3471,8 @@ switch($archive) {
                                 <th>Category</th>
                                 <th>Heading</th>
 								<th>Name</th>
-								<th>Title</th>";
+								<th>Title</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3333,6 +3488,7 @@ switch($archive) {
                             echo '<td data-title="Tile">' . $row['heading'] . '</td>';
 							echo '<td data-title="Tile">' . $row['name'] . '</td>';
 							echo '<td data-title="Tile">' . $row['title'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&medicationid='.$row['medicationid'].'&category=medication\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&medicationid='.$row['medicationid'].'&category=medication\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3360,7 +3516,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
                                 <th>Category</th>
-                                <th>Support Contact</th>";
+                                <th>Support Contact</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3373,6 +3530,7 @@ switch($archive) {
                             echo '<tr>';
                             echo '<td data-title="Tile">' . $row['support_contact_category'] . '</td>';
                             echo '<td data-title="Tile">' . get_contact($dbc, $row['contactid']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&individualsupportplanid='.$row['individualsupportplanid'].'&category=individual_support_plan\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&individualsupportplanid='.$row['individualsupportplanid'].'&category=individual_support_plan\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3400,7 +3558,8 @@ switch($archive) {
                         echo "<table border='2' cellpadding='10' class='table'>";
                         echo "<tr>
                                 <th>Contact Category</th>
-                                <th>Contact</th>";
+                                <th>Contact</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3413,6 +3572,7 @@ switch($archive) {
                             echo '<tr>';
                             echo '<td data-title="Tile">' . $row['contact_category'] . '</td>';
                             echo '<td data-title="Tile">' . get_contact($dbc, $row['contact']) . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&keymethodologiesid='.$row['keymethodologiesid'].'&category=social_story\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&keymethodologiesid='.$row['keymethodologiesid'].'&category=social_story\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
@@ -3441,7 +3601,8 @@ switch($archive) {
                         echo "<tr>
                                 <th>Staff</th>
                                 <th>Position</th>
-                                <th>Date Created</th>";
+                                <th>Date Created</th>
+                                <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
@@ -3455,6 +3616,7 @@ switch($archive) {
                             echo '<td data-title="Staff">' . get_contact($dbc, $row['userid']) . '</td>';
                             echo '<td data-title="Position">' . $row['position'] . '</td>';
                             echo '<td data-title="Created Date">' . $row['today_date'] . '</td>';
+                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
                             if($edit_access > 0) {
                             echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&reviewid='.$row['reviewid'].'&category=social_story\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&reviewid='.$row['reviewid'].'&category=social_story\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
