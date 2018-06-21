@@ -468,12 +468,10 @@ if($_GET['action'] == 'save_template_field') {
     
     $total_price = 0;
     $total_cost = 0;
-    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail`, `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
-	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-	$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
     while( $row=mysqli_fetch_assoc($query) ) {
         $total_price += $row['retail'];
-        $total_cost += $row['qty'] * ($row['pricing'] == 'usd_cpu' ? $row['cost'] * $us_rate : $row['cost']);
+        $total_cost += $row['qty'] * $row['cost'];
     }
     $margin = number_format(($total_cost > 0 ? ($total_price - $total_cost) / $total_cost * 100 : 0),2, '.', '');
     $profit = number_format($total_price - $total_cost,2, '.', '');
