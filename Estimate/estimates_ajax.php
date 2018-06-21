@@ -462,8 +462,9 @@ if($_GET['action'] == 'save_template_field') {
     $qty = filter_var($_GET['qty'],FILTER_VALIDATE_INT);
     $profit = filter_var($_GET['profit'],FILTER_SANITIZE_STRING);
     $margin = filter_var($_GET['margin'],FILTER_SANITIZE_STRING);
+    $price = filter_var($_GET['price'],FILTER_SANITIZE_STRING);
     $retail = filter_var($_GET['retail'],FILTER_SANITIZE_STRING);
-    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `retail`='$retail' WHERE `id`='$id'");
+    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `price`='$price', `retail`='$retail' WHERE `id`='$id'");
     
     $total_price = 0;
     $total_cost = 0;
