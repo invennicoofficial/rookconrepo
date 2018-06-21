@@ -10,9 +10,10 @@ $projectid = $_GET['edit'];
 $project = $dbc->query("SELECT * FROM `project` WHERE `projectid`='$projectid'")->fetch_assoc();
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
+        $date_of_archival = date('Y-m-d');
 	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1 where projectid=$editid and status='".$status_complete."'";
+	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
 	$update_clear_completed = mysqli_query($dbc, $query);
 	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
 }

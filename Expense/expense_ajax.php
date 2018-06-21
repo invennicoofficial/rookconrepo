@@ -14,9 +14,9 @@ if($_GET['action'] == 'delete') {
 		$sql = "UPDATE `expense` SET `status`='Rejected', `approval_by`='$user', `approval_date`='".date('Y-m-d')."' WHERE `expenseid`='$id'";
 		echo $sql."\n";
 		mysqli_query($dbc, $sql);
-		
+
 		$expense = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `expense` WHERE `expenseid`='$id'"));
-		
+
 		$to = get_email($dbc, $expense['staff']);
 		$subject = "Your expense was rejected";
 		$body = "This is to inform you that one of your expenses was rejected. Please contact your manager for more details.<br />
@@ -24,10 +24,12 @@ if($_GET['action'] == 'delete') {
 			Expense Heading: ".$expense['title']."<br />
 			Expense Type: ".$expense['type']."<br />
 			Expense Amount: ".$expense['total'];
-		
+
 		send_email([get_email($dbc, $_SESSION['contactid']) => get_contact($dbc, $_SESSION['contactid']], $to, '', '', $subject, $body, '');
 	}
-	$sql = "UPDATE `expense` SET `deleted`=1 WHERE `expenseid`='$id'";
+        $date_of_archival = date('Y-m-d');
+
+	$sql = "UPDATE `expense` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `expenseid`='$id'";
 	echo $sql;
 	exit;
 	mysqli_query($dbc, $sql);

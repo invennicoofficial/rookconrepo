@@ -37,8 +37,12 @@ function add_payment() {
 }
 function remove_payment(line) {
 	var line = $(line).closest('.pay-group');
-	line.find('[name=deleted]').val(1);
+	line.find('[name=deleted]').val(1).change();
 	line.find('[name=status]').val('Void');
+	if($('.pay-group').length <= 1) {
+		add_payment();
+	}
+	line.remove();
 }
 function set_save_fields() {
 	$('input').off('change',saveField).change(saveField);
@@ -59,6 +63,9 @@ function saveFieldMethod(field) {
 	});
 }
 </script>
+<?php if(IFRAME_PAGE) { ?>
+	<h3>Payment Schedule<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a></h3>
+<?php } ?>
 <?php $query = $dbc->query("SELECT * FROM (SELECT '' `heading`, `invoice`.`tile_name`, `invoice`.`invoiceid`, `invoice`.`invoiceid` `id`, 'invoice' `table`, `invoice`.`total_price`, `invoice`.`due_date`, `invoice_payment`.`date_paid` FROM `invoice` LEFT JOIN `invoice_payment` ON `invoice`.`invoiceid`=`invoice_payment`.`invoiceid` WHERE `invoice`.`projectid`='$projectid' AND `invoice`.`status` NOT IN ('Void','Archived') UNION SELECT `heading`, '' `tile_name`, 0 `invoiceid`, `id`, 'project_payments' `table`, `amount` `total_price`, `due_date`, `date_paid` FROM `project_payments` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status` != 'Void') `payments` ORDER BY `due_date`"); ?>
 <div class="form-horizontal">
 	<div class="hide-titles-mob text-center">
@@ -74,7 +81,7 @@ function saveFieldMethod(field) {
 	<?php $pay_line = 1;
 	$payment = $query->fetch_assoc();
 	do { ?>
-		<div class="pay-group form-group" data-table="<?= $payment['table'] ?>" data-id="<?= $payment['id'] ?>">
+		<div class="pay-group form-group" data-table="<?= empty($payment['table']) ? 'project_payments' : $payment['table'] ?>" data-id="<?= $payment['id'] ?>">
 			<span class="col-sm-2">Payment <?= $pay_line++ ?></span>
 			<span class="col-sm-2"><span class="show-on-mob">Heading</span>
 				<?php if($payment['invoiceid'] > 0) { ?>

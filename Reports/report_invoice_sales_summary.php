@@ -165,8 +165,6 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 	$total_services = 0;
 	$total_inventory = 0;
 	$total_packages = 0;
-	$total_products = 0;
-	$total_misc = 0;
 
     ////Customer A/R
     $all_customer_ar = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(sub_total) as `all_customer_ar` FROM invoice_patient WHERE (paid = 'On Account' OR paid = '' OR paid IS NULL) AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice` WHERE invoice_date >= '".$starttime."' AND invoice_date <= '".$endtime."')"));
@@ -331,7 +329,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     ////Insurer Paid
 
     ////Error Reporting
-	$invoice_list = mysqli_query($dbc, "SELECT `invoice`.`invoiceid`, `invoice`.`serviceid`, `invoice`.`fee`, `invoice`.`inventoryid`, `invoice`.`sell_price`, `invoice`.`packageid`, `invoice`.`package_cost`, `invoice`.`productid`, `invoice`.`product_price`, `invoice`.`misc_item`, `invoice`.`misc_price`, `invoice`.`total_price`, `invoice`.`final_price`, IFNULL(ip.`sub_patient`,0)+IFNULL(ii.`sub_insurer`,0) sub_assigned, IFNULL(ip.`total_patient`,0)+IFNULL(ii.`total_insurer`,0) total_assigned
+	$invoice_list = mysqli_query($dbc, "SELECT `invoice`.`invoiceid`, `invoice`.`serviceid`, `invoice`.`fee`, `invoice`.`inventoryid`, `invoice`.`sell_price`, `invoice`.`packageid`, `invoice`.`package_cost`, `invoice`.`total_price`, `invoice`.`final_price`, IFNULL(ip.`sub_patient`,0)+IFNULL(ii.`sub_insurer`,0) sub_assigned, IFNULL(ip.`total_patient`,0)+IFNULL(ii.`total_insurer`,0) total_assigned
 		FROM `invoice` LEFT JOIN (SELECT SUM(`sub_total`) sub_patient, SUM(`patient_price`) total_patient, `invoiceid` FROM `invoice_patient` GROUP BY `invoiceid`) ip ON `invoice`.`invoiceid`=ip.`invoiceid`
 		LEFT JOIN (SELECT SUM(`sub_total`) sub_insurer, SUM(`insurer_price`) total_insurer, `invoiceid` FROM `invoice_insurer` GROUP BY `invoiceid`) ii ON `invoice`.`invoiceid`=ii.`invoiceid` WHERE (`invoice`.`invoice_date` >= '".$starttime."' AND `invoice`.`invoice_date` <= '".$endtime."')");
 	$un_payment = 0;
@@ -360,18 +358,6 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 			if($this_id > 0) {
 				$services_inventory += explode(',', $invoice_row['package_cost'])[$this_row];
 				$total_packages += explode(',', $invoice_row['package_cost'])[$this_row];
-			}
-		}
-		foreach(explode(',',$invoice_row['productid']) as $this_row => $this_id) {
-			if($this_id > 0) {
-				$services_inventory += explode(',', $invoice_row['product_price'])[$this_row];
-				$total_products += explode(',', $invoice_row['product_price'])[$this_row];
-			}
-		}
-		foreach(explode(',',$invoice_row['misc_item']) as $this_row => $this_id) {
-			if(!empty($this_id)) {
-				$services_inventory += explode(',', $invoice_row['misc_price'])[$this_row];
-				$total_misc += explode(',', $invoice_row['misc_price'])[$this_row];
 			}
 		}
 		if($invoice_row['total_price'] != $services_inventory) {
@@ -511,22 +497,6 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 		$report_data .= '<tr nobr="true">';
 		$report_data .= '<td colspan="3">';
 		$report_data .= '<b>Packages : $'. number_format($total_packages, 2).'</b>';
-		$report_data .= '</td>';
-		$report_data .= '</tr>';
-	}
-
-	if($total_products != 0) {
-		$report_data .= '<tr nobr="true">';
-		$report_data .= '<td colspan="3">';
-		$report_data .= '<b>Products : $'. number_format($total_products, 2).'</b>';
-		$report_data .= '</td>';
-		$report_data .= '</tr>';
-	}
-
-	if($total_misc != 0) {
-		$report_data .= '<tr nobr="true">';
-		$report_data .= '<td colspan="3">';
-		$report_data .= '<b>Miscellaneous : $'. number_format($total_misc, 2).'</b>';
 		$report_data .= '</td>';
 		$report_data .= '</tr>';
 	}

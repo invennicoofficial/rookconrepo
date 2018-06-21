@@ -1,8 +1,6 @@
 <?php include_once('../include.php');
 checkAuthorised('estimate');
 error_reporting(0);
-$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
 $estimateid = filter_var($_GET['financials'],FILTER_SANITIZE_STRING);
 $estimate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 ORDER BY `sort_order`");
@@ -161,30 +159,18 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 					$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
 				} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
 					$scope_description = get_contact($dbc, $scope_line['src_id']);
-				}
-				if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-					$scope_line['price'] = $scope_line['cost'] * $us_rate;
-				}
-				if($scope_line['pricing'] == 'usd_cpu') {
-					$scope_line['cost'] = $scope_line['cost'] * $us_rate;
-				}
-				if(!($scope_line['profit'] > 0)) {
-					$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
-					$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
 				} ?>
 				<tr>
                     <td data-title="Heading"><?= $scope_line['scope_name'] ?></td>
 					<td data-title="Heading"><?= $scope_line['heading'] ?></td>
-					<td data-title="Description" colspan="<?= $scope_line['src_table'] == 'notes' ? 7 : 1 ?>"><?= html_entity_decode($scope_description) ?></td>
+					<td data-title="Description"><?= $scope_description ?></td>
 					<!--<td data-title="U of M"><?php //echo $scope_line['uom'] ?></td>-->
-					<?php if($scope_line['src_table'] != 'notes') { ?>
-						<td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
-						<td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '').($scope_line['pricing'] == 'usd_cpu' ? ' CAD Approx' : '') ?>" /></td>
-						<td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
-						<td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
-						<td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
-						<td data-title="Total" align="right"><input type="text" name="total" id="totalscope_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
-					<?php } ?>
+					<td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
+					<td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '') ?>" /></td>
+					<td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
+					<td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
+					<td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
+					<td data-title="Total" align="right"><input type="text" name="total" id="totalscope_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
 				</tr>
 				<?php $total_cost += $scope_line['cost'] * $scope_line['qty'];
 				$total_price += $scope_line['retail'];
@@ -290,30 +276,18 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
                         $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
                     } else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
                         $scope_description = get_contact($dbc, $scope_line['src_id']);
-                    }
-					if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-						$scope_line['price'] = $scope_line['cost'] * $us_rate;
-					}
-					if($scope_line['pricing'] == 'usd_cpu') {
-						$scope_line['cost'] = $scope_line['cost'] * $us_rate;
-					}
-					if(!($scope_line['profit'] > 0)) {
-						$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
-						$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
-					} ?>
+                    } ?>
             
                     <tr>
                         <td data-title="Scope Name"><?= $scope_line['scope_name'] ?></td>
-                        <td data-title="Description" colspan="<?= $scope_line['src_table'] == 'notes' ? 7 : 1 ?>"><?= html_entity_decode($scope_description) ?></td>
+                        <td data-title="Description"><?= $scope_description ?></td>
                         <!--<td data-title="U of M"><?php //echo $scope_line['uom'] ?></td>-->
-						<?php if($scope_line['src_table'] != 'notes') { ?>
-							<td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
-							<td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '').($scope_line['pricing'] == 'usd_cpu' ? ' CAD Approx' : '') ?>" /></td>
-							<td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
-							<td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
-							<td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
-							<td data-title="Total" align="right"><input type="text" name="total" id="totalscope_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
-						<?php } ?>
+                        <td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
+                        <td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '') ?>" /></td>
+                        <td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
+                        <td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
+                        <td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
+                        <td data-title="Total" align="right"><input type="text" name="total" id="totalscope_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
                     </tr><?php
                     $total_cost += $scope_line['cost'] * $scope_line['qty'];
                     $total_price += $scope_line['retail'];
@@ -386,29 +360,17 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
                     $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
                 } else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
                     $scope_description = get_contact($dbc, $scope_line['src_id']);
-                }
-				if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-					$scope_line['price'] = $scope_line['cost'] * $us_rate;
-				}
-				if($scope_line['pricing'] == 'usd_cpu') {
-					$scope_line['cost'] = $scope_line['cost'] * $us_rate;
-				}
-				if(!($scope_line['profit'] > 0)) {
-					$scope_line['profit'] = $scope_line['price'] - $scope_line['cost'];
-					$scope_line['margin'] = $scope_line['profit'] / $scope_line['cost'] * 100;
-				} ?>
+                } ?>
                 <tr>
                     <td data-title="Heading"><?= $scope_line['heading'] ?></td>
-                    <td data-title="Description" colspan="<?= $scope_line['src_table'] == 'notes' ? 7 : 1 ?>"><?= html_entity_decode($scope_description) ?></td>
+                    <td data-title="Description"><?= $scope_description ?></td>
                     <!--<td data-title="U of M"><?php //echo $scope_line['uom'] ?></td>-->
-					<?php if($scope_line['src_table'] != 'notes') { ?>
-						<td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
-						<td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '').($scope_line['pricing'] == 'usd_cpu' ? ' CAD Approx' : '') ?>" /></td>
-						<td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
-						<td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
-						<td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
-						<td data-title="Total" align="right"><input type="text" name="total" id="total_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
-					<?php } ?>
+                    <td data-title="Quantity" align="right"><input type="number" name="quantity" id="quantity_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right quantity" value="<?= number_format($scope_line['qty'],0, '.', '') ?>" min="1" /></td>
+                    <td data-title="Unit Cost" align="right"><input type="text" name="cost" id="cost_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right cost" readonly value="<?= number_format($scope_line['cost'], 2, '.', '') ?>" /></td>
+                    <td data-title="Margin" align="right"><input type="text" name="margin" id="margin_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right margin" value="<?= number_format($scope_line['margin'], 2, '.', '') ?>" /></td>
+                    <td data-title="Profit" align="right"><input type="text" name="profit" id="profit_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right profit" value="<?= number_format($scope_line['profit'], 2, '.', '') ?>" /></td>
+                    <td data-title="Estimate Price" align="right"><input type="text" name="price" id="price_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right price" readonly value="<?= number_format($scope_line['price'], 2, '.', '') ?>" /></td>
+                    <td data-title="Total" align="right"><input type="text" name="total" id="total_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
                 </tr>
                 <?php $total_cost += $scope_line['cost'] * $scope_line['qty'];
                 $total_price += $scope_line['retail'];

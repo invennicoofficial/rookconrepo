@@ -542,12 +542,14 @@ $(document).ready(function() {
 
 							$count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$type_name' = 'pending' OR '$type_name' = 'favourite' OR `status` != 'Pending' OR '$pending_projects' = 'disable') AND ('$tile' = 'project' OR `projecttype`='$tile') AND (`projecttype`='$type_name' OR ('$type_name' = 'favourite' AND `favourite` LIKE '%,".$_SESSION['contactid'].",%') OR ('$type_name' = 'pending' AND `status`='Pending'))"))[0];
 
-                            if(in_array('SUMM Colors', $summ_config)) {
-                                $c_a = 'style="background-color:'.$color_apply.';height: 20px;width: 20px;margin-top: 5px;"';
-							    $block .= '<div class="row"><div class="col-sm-2"><div '. $c_a .'></div></div><div class="col-sm-8"><a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a></div></div><br />';
-                            } else {
-                                $c_a = '';
-                                $block .= '<a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a><br />';
+                            if($count > 0) {
+                                if(in_array('SUMM Colors', $summ_config)) {
+                                    $c_a = 'style="background-color:'.$color_apply.';height: 20px;width: 20px;margin-top: 5px;"';
+                                    $block .= '<div class="row"><div class="col-sm-2"><div '. $c_a .'></div></div><div class="col-sm-8"><a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a></div></div><br />';
+                                } else {
+                                    $c_a = '';
+                                    $block .= '<a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a><br />';
+                                }
                             }
 
 							$block_length += 23;
@@ -566,9 +568,11 @@ $(document).ready(function() {
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_TILE.' by Region</h4>';
 						foreach($region_list as $region_name => $region_projects) {
-							$region_string = config_safe_str($region_name);
-							$block .= '<a href="?tile_name='.$tile.'&type=region_'.$region_string.'" onclick="selectType(\'region_'.$region_string.'\'); return false;"><label class="cursor-hand control-label">'.($region_name == '' ? 'No Region' : $region_name).':</label> '.count(array_unique($region_projects)).'</a><br />';
-							$block_length += 23;
+                            if(count(array_unique($region_projects)) > 0) {
+                                $region_string = config_safe_str($region_name);
+                                $block .= '<a href="?tile_name='.$tile.'&type=region_'.$region_string.'" onclick="selectType(\'region_'.$region_string.'\'); return false;"><label class="cursor-hand control-label">'.($region_name == '' ? 'No Region' : $region_name).':</label> '.count(array_unique($region_projects)).'</a><br />';
+                                $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];
@@ -585,8 +589,10 @@ $(document).ready(function() {
 						<h4>'.PROJECT_TILE.' by Status</h4>';
 						foreach($status_list as $status_name) {
 							$status_count = $dbc->query("SELECT `status`, COUNT(*) `count` FROM `project` WHERE `deleted`=0 AND `status`='$status_name'")->fetch_assoc()['count'];
-							$block .= '<label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
-							$block_length += 23;
+                            if($status_count > 0) {
+							    $block .= '<label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
+							    $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];
@@ -669,8 +675,10 @@ $(document).ready(function() {
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Actual Time</h4>';
 						while($time = $total_tracked_time->fetch_assoc()) {
-							$block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
-							$block_length += 23;
+                            if($time['time'] > 0) {
+							    $block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
+							    $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];

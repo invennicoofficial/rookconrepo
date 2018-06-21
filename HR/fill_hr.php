@@ -145,7 +145,7 @@ $form_config = ','.$get_hr['fields'].','; ?>
 			<h2>
 				<?= $get_hr['category'] != '' ? '<b>'.$get_hr['category'].'</b><br />' : '' ?>
 				<?= $get_hr['third_heading'] != '' ? $get_hr['third_heading_number'].' '.$get_hr['third_heading'] : ($get_hr['sub_heading'] != '' ? $get_hr['sub_heading_number'].' '.$get_hr['sub_heading'] : $get_hr['heading_number'].' '.$get_hr['heading']) ?>
-				<a href="?hrid_pdf=<?= $get_hr['hrid'] ?>" class="pull-right">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
+				<a href="?hrid_pdf=<?= $get_hr['hrid'] ?>" class="pull-right" target="_blank">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
 			</h2>
 			<?php if($user_form_layout != 'Sidebar') { ?>
 			<div class="block-group">

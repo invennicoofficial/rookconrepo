@@ -11,6 +11,9 @@ if (isset($_POST['add_tab'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('vpl_tabs', '$inventory_tabs')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
+
+    set_config($dbc, 'show_category_dropdown_vpl', filter_var($_POST['show_category_dropdown_vpl'],FILTER_SANITIZE_STRING));
+    set_config($dbc, 'vpl_sort_accordions', filter_var($_POST['vpl_sort_accordions'],FILTER_SANITIZE_STRING));
 }
 ?>
 <div class="standard-body-title">
@@ -38,8 +41,15 @@ if (isset($_POST['add_tab'])) {
 					}
 				}
 				?>
-	              <input type='checkbox' style='width:20px; height:20px;' <?php echo $checked; ?>  name='' class='show_category_dropdown' value='1'>
+	              <input type='checkbox' style='width:20px; height:20px;' <?php echo $checked; ?>  name='show_category_dropdown_vpl' class='show_category_dropdown' value='1'>
 	            </div>
+	        </div>
+	        <div class="form-group">
+	        	<label class="col-sm-4 control-label">Sort Dashboard In Accordions:</label>
+	        	<div class="col-sm-8">
+	        		<?php $vpl_sort_accordions = get_config($dbc, 'vpl_sort_accordions'); ?>
+					<input type='checkbox' style='width:20px; height:20px;' <?= $vpl_sort_accordions == 1 ? 'checked' : '' ?>  name='vpl_sort_accordions' value='1'>
+	        	</div>
 	        </div>
 
 	        <div class="form-group pull-right">

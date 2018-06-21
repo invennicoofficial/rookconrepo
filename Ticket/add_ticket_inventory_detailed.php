@@ -299,7 +299,7 @@ do {
 									<div class="col-sm-8"><div class="col-sm-12">
 										<select name="po_line" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" class="chosen-select-deselect"><option />
 											<?php $line_num = $dbc->query("SELECT MAX(`po_line`) FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory'")->fetch_array(MYSQLI_NUM)[0]; ?>
-											<?php for($i = 10; $i <= $line_num; $i += 10) { ?>
+											<?php for($i = 10; $i <= $line_num + 20; $i += 10) { ?>
 												<option <?= $inventory['po_line'] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
 											<?php } ?>
 										</select>

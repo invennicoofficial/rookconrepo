@@ -13,6 +13,22 @@ if($_GET['fill'] == 'project_path_milestone') {
         echo "<option value='". $cat_tab."'>".$cat_tab.'</option>';
     }
 }
+
+if($_GET['fill'] == 'ticket_security_settings') {
+	$security_level = $_POST['security_level'];
+	$subtabs_hidden = implode(',', $_POST['subtabs_hidden']);
+	$subtabs_viewonly = implode(',', $_POST['subtabs_viewonly']);
+	$fields_hidden = implode(',', $_POST['fields_hidden']);
+	$fields_viewonly = implode(',', $_POST['fields_viewonly']);
+
+	$num_rows = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) as num_rows FROM `field_config_ticket_security` WHERE `security_level` = '$security_level'"))['num_rows'];
+	if($num_rows > 0) {
+		mysqli_query($dbc, "UPDATE `field_config_ticket_security` SET `subtabs_hidden` = '$subtabs_hidden', `subtabs_viewonly` = '$subtabs_viewonly', `fields_hidden` = '$fields_hidden', `fields_viewonly` = '$fields_viewonly' WHERE `security_level` = '$security_level'");
+	} else {
+		mysqli_query($dbc, "INSERT INTO `field_config_ticket_security` (`security_level`, `subtabs_hidden`, `subtabs_viewonly`, `fields_hidden`, `fields_viewonly`) VALUES ('$security_level', '$subtabs_hidden', '$subtabs_viewonly', '$fields_hidden', '$fields_viewonly')");
+	}
+}
+
 if($_GET['fill'] == 'project_paths') {
 	echo '<option value=""></option>';
 	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
@@ -400,7 +416,8 @@ if($_GET['fill'] == 'book_ticket') {
 	$contact_category = get_contact($dbc, $contactid, 'category');
 
 	if($is_booked == 1) {
-		mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `item_id` = '$contactid'");
+	        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ticketid` = '$ticketid' AND `item_id` = '$contactid'");
 	} else {
 		$contact_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) as num_rows FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `item_id` = '$item_id'"))['num_rows'];
 		if($contact_exists > 0) {
@@ -423,7 +440,8 @@ if($_GET['action'] == 'add_pieces') {
 			}
 		} else if($count < $current) {
 			for(; $current > $count; $current--) {
-				$dbc->query("UPDATE `ticket_attached` LEFT JOIN (SELECT MAX(`id`) `id` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory_general' AND `ticketid`='$ticketid') `top_id` ON `ticket_attached`.`id`=`top_id`.`id` SET `ticket_attached`.`deleted`=1 WHERE `top_id`.`id` IS NOT NULL");
+			    $date_of_archival = date('Y-m-d');
+    		$dbc->query("UPDATE `ticket_attached` LEFT JOIN (SELECT MAX(`id`) `id` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory_general' AND `ticketid`='$ticketid') `top_id` ON `ticket_attached`.`id`=`top_id`.`id` SET `ticket_attached`.`deleted`=1, `ticket_attached`.`date_of_archival` = '$date_of_archival' WHERE `top_id`.`id` IS NOT NULL");
 			}
 		}
 	}
@@ -1367,7 +1385,8 @@ if($_GET['action'] == 'update_fields') {
 		$time_diff = gmdate('H:i:s', strtotime($max_qa_time) - strtotime($time_length));
 		mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='QA Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_qa_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
 	}
-	mysqli_query($dbc, "UPDATE `ticket_time_list` SET `deleted` = 1, `deleted_by` = '$deleted_by' WHERE `id` = '$id'");
+        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `ticket_time_list` SET `deleted` = 1, `date_of_archival` = '$date_of_archival', `deleted_by` = '$deleted_by' WHERE `id` = '$id'");
 } else if($_GET['action'] == 'add_stop') {
 	$ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
 	if(!mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `sub_ticket`, `ticket_type`, `category`, `businessid`, `clientid`, `other_ind`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `postal_code`, `pickup_order`, `city`, `projectid`, `salesorderid`, `client_projectid`, `piece_work`, `preferred_staff`, `contactid`, `service_type`, `service`, `serviceid`, `total_time`,`service_qty`, `service_estimate`, `sub_heading`, `heading`, `heading_auto`, `project_path`, `milestone_timeline`, `assign_work`, `task_available`, `notes`, `internal_qa_date`, `internal_qa_contactid`, `deliverable_date`, `deliverable_contactid`, `max_time`, `max_qa_time`, `spent_time`, `total_days`, `start_time`, `end_time`, `fee_name`, `fee_details`, `fee_amt`, `created_date`, `created_by`, `status`, `po_id`, `flag_colour`, `alerts_enabled`, `status_date`, `deleted`, `history`, `internal_qa_start_time`, `internal_qa_end_time`, `deliverable_start_time`, `deliverable_end_time`, `police_contact`, `poison_contact`, `non_emergency_contact`, `emergency_contact`, `emergency_notes`, `member_start_time`, `member_end_time`, `summary_notes`, `sign_off_id`, `sign_off_signature`, `afe_number`, `attached_image`, `max_capacity`, `equipmentid`, `equipment_assignmentid`, `teamid`, `region`, `classification`, `con_location`, `cancellation`, `mdsr_child_name`, `mdsr_child_dob`, `mdsr_date_of_report`, `mdsr_background_info`, `mdsr_progress`, `mdsr_clinical_impacts`, `mdsr_proposed_goal_areas`, `mdsr_recommendations`)
@@ -1716,8 +1735,9 @@ if($_GET['action'] == 'update_fields') {
 		echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
 	}
 } else if($_GET['action'] == 'archive') {
+	    $date_of_archival = date('Y-m-d');
 	$ticketid = filter_var($_POST['ticketid'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `tickets` SET `status`='Archive', `deleted`=1 WHERE `ticketid`='$ticketid' AND `ticketid` > 0");
+	$dbc->query("UPDATE `tickets` SET `status`='Archive', `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `ticketid`='$ticketid' AND `ticketid` > 0");
 } else if($_GET['action'] == 'contact_address') {
 	$contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
 	$address = filter_var($_POST['address'], FILTER_SANITIZE_STRING);
@@ -1971,7 +1991,8 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "INSERT INTO `ticket_service_checklist` (`ticketid`, `contactid`, `serviceid`, `checked_date`, `index`, `checked_by`) VALUES ('$ticketid', '$staffid', '$serviceid', '$today_date', '$index', '$checked_by')");
 		$marked = 'complete';
 	} else {
-		mysqli_query($dbc, "UPDATE `ticket_service_checklist` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `contactid` = '$staffid' AND `serviceid` = '$serviceid' AND `index` = '$index'");
+	        $date_of_archival = date('Y-m-d');
+    	mysqli_query($dbc, "UPDATE `ticket_service_checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ticketid` = '$ticketid' AND `contactid` = '$staffid' AND `serviceid` = '$serviceid' AND `index` = '$index'");
 		$marked = 'incomplete';
 	}
 

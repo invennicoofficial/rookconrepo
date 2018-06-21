@@ -6,7 +6,8 @@ $from_url = (!empty($_GET['from_url']) ? $_GET['from_url'] : 'daily_dishwasher_t
 $value = $config['settings']['Choose Fields for Daily Dishwasher Temp'];
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
-    mysqli_query($dbc, "UPDATE daily_dishwasher_temp set deleted = 1 WHERE daily_dishwasher_temp_id=".$_GET['daily_dishwasher_temp_id']);
+    $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE daily_dishwasher_temp set deleted = 1, `date_of_archival` = '$date_of_archival' WHERE daily_dishwasher_temp_id=".$_GET['daily_dishwasher_temp_id']);
 
     echo '<script type="text/javascript"> window.location.replace("'.$from_url.'"); </script>';
 }
@@ -123,7 +124,7 @@ if(isset($value['config_field'])) {
 			<div class="clearfix"></div>
         </div>
 
-        
+
 
     </form>
 
