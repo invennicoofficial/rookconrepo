@@ -36,7 +36,7 @@ $(document).ready(function() {
         var row = arr[1];
         var db_id = $(this).data('id');
         var profit = $(this).val();
-        var quantity = $(this).closest('tr').find('#quantity_'+row).val();
+        var quantity = $(this).closest('tr').find('#quantity_'+row).val(); alert(quantity);
         var cost = $(this).closest('tr').find('#cost_'+row).val().replace(/[^\d.]/g,'');
         var price = $(this).closest('tr').find('#price_'+row).val().replace(/[^\d.]/g,'');
         calcTotals('profit', profit, quantity, cost, price, row, db_id);
@@ -81,9 +81,6 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
     
     $('#margin_'+row+', #marginscope_'+row).val(line_margin);
     $('#profit_'+row+', #profitscope_'+row).val(line_profit);
-	if(quantity > 0) {
-		$('#price_'+row+', #pricescope_'+row).val(round2Fixed(line_total / quantity));
-	}
     $('#total_'+row+', #totalscope_'+row).val(line_total);
     
     $.ajax({
@@ -95,7 +92,6 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
             qty: quantity,
             profit: line_profit,
             margin: line_margin,
-            price: line_total / quantity,
             retail: line_total,
         },
         success: function(response){
