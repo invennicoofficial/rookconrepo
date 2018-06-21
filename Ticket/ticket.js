@@ -2371,6 +2371,12 @@ function saveNewTicketFromCalendar(element) {
 	var milestone = $('[name="milestone_timeline"]').val();
 
 	var scheduled_stop = 0;
+	var stop_equipmentid = '';
+	var stop_to_do_date = '';
+	var stop_to_do_start_time = '';
+	var stop_address = '';
+	var stop_city = '';
+	var stop_postal_code = '';
 	if($('.scheduled_stop').length > 0) {
 		var block = $('.scheduled_stop').first();
 		scheduled_stop = 1;
