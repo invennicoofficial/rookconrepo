@@ -356,10 +356,11 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_config') {
     $formid = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
     $intake_field = filter_var($_POST['intake_field'],FILTER_SANITIZE_STRING);
     $assigned_tiles = filter_var(implode(',', json_decode($_POST['assigned_tiles'])),FILTER_SANITIZE_STRING);
+    $attached_contacts = filter_var(implode(',', json_decode($_POST['attached_contacts'])),FILTER_SANITIZE_STRING);
     $subtab = filter_var($_POST['subtab'],FILTER_SANITIZE_STRING);
     $form_layout = filter_var($_POST['form_layout'],FILTER_SANITIZE_STRING);
 
-    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout' WHERE `form_id` = '$formid'");
+    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `attached_contacts` = '$attached_contacts', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout' WHERE `form_id` = '$formid'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'delete_logo') {
