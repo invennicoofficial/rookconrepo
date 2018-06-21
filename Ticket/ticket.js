@@ -2063,6 +2063,14 @@ function sortScheduledStops() {
 		$(this).closest('.scheduled_stop').find('.block_count').html(i);
 	});
 }
+function remScheduledStop(input) {
+	var block = $(input).closest('.scheduled_stop');
+	if($('.scheduled_stop:visible').length <= 1) {
+		addScheduledStop();
+	}
+	block.find('[name=deleted]').val(1).change();
+	block.remove();
+}
 function addScheduledStop() {
 	destroyInputs($('.scheduled_stop'));
 	var clone = $('.scheduled_stop:visible').last().clone();
