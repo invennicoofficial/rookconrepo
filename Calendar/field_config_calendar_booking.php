@@ -10,7 +10,8 @@ if (isset($_POST['add_booking'])) {
 
     //Appointment Types
     foreach ($_POST['appt_type_delete'] as $key => $value) {
-        mysqli_query($dbc, "UPDATE `appointment_type` SET `deleted` = 1 WHERE `id` = '$value'");
+        $date_of_archival = date('Y-m-d');
+        mysqli_query($dbc, "UPDATE `appointment_type` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$value'");
     }
     foreach ($_POST['appt_type_existing'] as $key => $value) {
         mysqli_query($dbc, "UPDATE `appointment_type` SET `name` = '$value' WHERE `id` = '$key'");

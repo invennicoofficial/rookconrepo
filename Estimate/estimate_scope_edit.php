@@ -234,7 +234,7 @@ function setIncluded(input) {
 					<div class="col-sm-8">
 						<select name="scope_template" class="chosen-select-deselect" onchange="window.location.replace('?estimateid=<?= $_GET['estimateid'] ?>&scope=<?= $_GET['scope'] ?>&mode<?= $_GET['mode'] ?>=&src=<?= $_GET['src'] ?>&templateid='+this.value+'&rate=<?= $_GET['rate'] ?>');">
 							<option></option>
-							<?php $templates = mysqli_query($dbc, "SELECT `id`, `template_name` FROM `estimate_templates` ORDER BY `template_name`");
+							<?php $templates = mysqli_query($dbc, "SELECT `id`, `template_name` FROM `estimate_templates` WHERE `deleted` = 0ORDER BY `template_name`");
 							while($template = mysqli_fetch_array($templates)) { ?>
 								<option <?= $_GET['templateid'] == $template['id'] ? 'selected' : '' ?> value="<?= $template['id'] ?>"><?= $template['template_name'] ?></option>
 							<?php } ?>

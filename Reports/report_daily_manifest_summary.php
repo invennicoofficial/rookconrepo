@@ -149,7 +149,7 @@ function report_summary($dbc, $starttime, $siteid, $table_style, $table_row_styl
 	if($siteid > 0) {
 		$manifest_filter = "AND `ticket_manifests`.`siteid`='".$siteid."'";
 	}
-	$manifest_list = $dbc->query("SELECT `ticket_manifests`.`id`, `ticket_manifests`.`date`, `tickets`.`ticket_label`, `ticket_attached`.`po_num`, `ticket_attached`.`qty`,`ticket_attached`.`weight`,`ticket_attached`.`weight_units`, `origin`.`vendor`, `ticket_manifests`.`siteid` FROM `ticket_manifests` LEFT JOIN `ticket_attached` ON CONCAT(',',`ticket_manifests`.`line_items`,',') LIKE CONCAT('%,',`ticket_attached`.`id`,',%') LEFT JOIN `tickets` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_manifests`.`deleted`=0 $manifest_filter AND `ticket_manifests`.`date` = '$starttime' ORDER BY `ticket_manifests`.`id` DESC");
+	$manifest_list = $dbc->query("SELECT `ticket_manifests`.`id`, `ticket_manifests`.`date`, `ticket_manifests`.`revision`, `tickets`.`ticket_label`, `ticket_attached`.`po_num`, `ticket_attached`.`qty`,`ticket_attached`.`weight`,`ticket_attached`.`weight_units`, `origin`.`vendor`, `ticket_manifests`.`siteid` FROM `ticket_manifests` LEFT JOIN `ticket_attached` ON CONCAT(',',`ticket_manifests`.`line_items`,',') LIKE CONCAT('%,',`ticket_attached`.`id`,',%') LEFT JOIN `tickets` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_manifests`.`deleted`=0 $manifest_filter AND `ticket_manifests`.`date` = '$starttime' ORDER BY `ticket_manifests`.`id` DESC");
 	if($manifest_list->num_rows > 0) {
 		$report_data .= '<div id="no-more-tables">
 			<table class="table table-bordered">
@@ -170,7 +170,7 @@ function report_summary($dbc, $starttime, $siteid, $table_style, $table_row_styl
 						<td data-title="BOX/SKID/PIECE(S)">'.$manifest['qty'].'</td>
 						<td data-title="WEIGHT (LBS)">'.(strtoupper($manifest['weight_units']) == 'KGS' ? $manifest['weight'] * 2.2 : (strtoupper($manifest['weight_units']) == 'LBS' ? $manifest['weight'] : $manifest['weight'].' '.$manifest['weight_units'])).'</td>
 						<td data-title="JF LOCATION(S)">'.get_contact($dbc, $manifest['siteid']).'</td>
-						<td data-title="MANIFEST"><a target="_blank" href="../Ticket/manifest/manifest_'.$manifest['id'].'.pdf">'.date('y',strtotime($manifest['date'])).'-'.str_pad($manifest['id'],4,0,STR_PAD_LEFT).' <img class="inline-img" src="../img/pdf.png"></a></td>
+						<td data-title="MANIFEST">'.(file_exists('../Ticket/manifest/manifest_'.$manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '').'.pdf') ? '<a target="_blank" href="../Ticket/manifest/manifest_'.$manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '').'.pdf">'.date('y',strtotime($manifest['date'])).'-'.str_pad($manifest['id'],4,0,STR_PAD_LEFT).' <img class="inline-img" src="../img/pdf.png"></a>' : date('y',strtotime($manifest['date'])).'-'.str_pad($manifest['id'],4,0,STR_PAD_LEFT)).'</td>
 					</tr>';
 				}
 			$report_data .= '</table>

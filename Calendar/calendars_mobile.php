@@ -5,7 +5,7 @@ include_once('calendar_functions_inc.php');
 include_once('calendar_settings_inc.php');
 
 $calendar_add_urls = [
-	'ticket' => [TICKET_NOUN, WEBSITE_URL."/Ticket/index.php?calendar_view=true&region=".$_GET['region']],
+	'ticket' => [TICKET_NOUN, WEBSITE_URL."/Ticket/index.php?edit=0&calendar_view=true&region=".$_GET['region']],
 	'appt' => ['Appointment', WEBSITE_URL."/Calendar/booking.php?action=edit&bookingid=NEW&region=".$_GET['region']],
 	'shift' => ['Shift', WEBSITE_URL."/Calendar/shifts.php?shiftid=NEW&region=".$_GET['region']],
 	'reminder' => ['Reminder', WEBSITE_URL."/Calendar/add_reminder.php&region=".$_GET['region']],

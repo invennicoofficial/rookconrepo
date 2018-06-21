@@ -648,8 +648,9 @@ if($_GET['fill'] == 'delete_milestone_item') {
 	$item = $_GET['checklistid'];
 	$updated_date = date('Y-m-d');
 	$updated_by = $_SESSION['contactid'];
+    $date_of_archival = date('Y-m-d');
 
-	$query = "UPDATE `client_project_milestone_checklist` SET `deleted`=1, `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `checklistid`='$item'";
+	$query = "UPDATE `client_project_milestone_checklist` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `checklistid`='$item'";
 	$result = mysqli_query($dbc, $query);
 }
 
@@ -929,7 +930,7 @@ if($_GET['fill'] == 'assign_review') {
 	$staff = $_POST['staff'];
 	$date = $_POST['date'];
 	mysqli_query($dbc, "UPDATE `client_project` SET `assign_review_date`='$date', `assign_review_id`='$staff' WHERE `projectid`='$project'");
-	
+
     $sender = get_email($dbc, $_SESSION['contactid']);
 	$subject = 'Please Review Client Project #'.$project;
     $body = filter_var(htmlentities("This is a reminder that you need to review Client Project #".$project.".<br />

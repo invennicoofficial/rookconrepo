@@ -59,6 +59,7 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Invoiced".',') !== false) { echo " checked"; } ?> value="Invoiced" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Invoiced (Y/N)</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Status".',') !== false) { echo " checked"; } ?> value="Status" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Status</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Total Budget Time".',') !== false) { echo " checked"; } ?> value="Total Budget Time" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Total Budget Time</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Service Time Estimate".',') !== false) { echo " checked"; } ?> value="Service Time Estimate" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Service Time Estimate</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."PDF".',') !== false) { echo " checked"; } ?> value="PDF" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> PDF Download</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Export Ticket Log".',') !== false) { echo " checked"; } ?> value="Export Ticket Log" style="height: 20px; width: 20px;" name="tickets_dashboard[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will display a link to the <?= TICKET_NOUN ?> log from the dashboard."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Export <?= TICKET_NOUN ?> Log</label>
@@ -66,6 +67,8 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Edit Staff".',') !== false) { echo " checked"; } ?> value="Edit Staff" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Edit Staff</label>
 
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Milestone Timeline".',') !== false) { echo " checked"; } ?> value="Milestone Timeline" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Milestone & Timeline</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Address".',') !== false) { echo " checked"; } ?> value="Site Address" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Address</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Notes".',') !== false) { echo " checked"; } ?> value="Site Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Notes</label>
 
 	</div>
 </div>

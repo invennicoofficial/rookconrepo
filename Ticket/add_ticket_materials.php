@@ -17,6 +17,8 @@ do {
 							</select>
 						</div>
 					</div>
+				<?php } ?>
+				<?php if(strpos($value_config,',Material Subcategory,') !== FALSE && $field_sort_field == 'Material Subcategory') { ?>
 					<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
 						<label class="control-label col-sm-4">Sub-Category:</label>
 						<div class="col-sm-8">
@@ -32,7 +34,7 @@ do {
 				<?php if(strpos($value_config,',Material Type,') !== FALSE && $field_sort_field == 'Material Type') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Type:</label>
-						<div class="col-sm-7 select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
+						<div class="col-sm-8 select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
 							<select name="item_id" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category`, `sub_category`, `name`, `materialid` FROM `material` WHERE `deleted`=0 ORDER BY `category`, `sub_category`, `name`");
 								while($units = mysqli_fetch_assoc($groups)) { ?>
@@ -41,13 +43,8 @@ do {
 								<option value="MANUAL">Add Custom</option>
 							</select>
 						</div>
-						<div class="col-sm-7 manual-div" style="<?= $material['description'] != '' ? '' : 'display:none;' ?>">
+						<div class="col-sm-8 manual-div" style="<?= $material['description'] != '' ? '' : 'display:none;' ?>">
 							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['description'] ?>">
-						</div>
-						<div class="col-sm-1">
-							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 						<div class="clearfix"></div>
 					</div>
@@ -55,13 +52,8 @@ do {
 				<?php if(strpos($value_config,',Material Manual,') !== FALSE && $field_sort_field == 'Material Manual') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Material:</label>
-						<div class="col-sm-7">
+						<div class="col-sm-8">
 							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
-						</div>
-						<div class="col-sm-1">
-							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 						<div class="clearfix"></div>
 					</div>
@@ -70,7 +62,7 @@ do {
 					<div class="form-group">
 						<label class="control-label col-sm-4">Quantity:</label>
 						<div class="col-sm-8">
-							<input type="number" min=0 step="any" name="qty" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['qty'] ?>" onchange="materialRate(this);">
+							<input type="number" min=0 step="<?= !empty(get_config($dbc, 'ticket_material_increment')) ? get_config($dbc, 'ticket_material_increment') : 'any' ?>" name="qty" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['qty'] ?>" onchange="materialRate(this);">
 						</div>
 					</div>
 					<div class="clearfix"></div>
@@ -101,6 +93,12 @@ do {
 					</div>
 				<?php } ?>
 			<?php } ?>
+			<div class="form-group pull-right">
+				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" value="0">
+				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+			</div>
+			<div class="clearfix"></div>
 		</div>
 		<hr>
 	<?php } else if($material['materialid'] > 0) { ?>

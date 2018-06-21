@@ -27,7 +27,7 @@ $project_vars = [];
 foreach($project_tabs as $item) {
     $project_vars[preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)))] = $item;
 }
-$status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
+$page_status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 ?>
 <div class="container">
     <div class='iframe_holder' style='display:none;'>
@@ -66,10 +66,10 @@ $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                             $offset = ($pageNum - 1) * $rowsPerPage;
 
                             if(!empty($_POST['search_incident_reports'])) {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(status,'') = '$status' OR ('$status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(status,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query";
                             } else {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(status,'') = '$status' OR ('$status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query LIMIT $offset, $rowsPerPage";
-                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (IFNULL(status,'') = '$status' OR ('$status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(status,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query LIMIT $offset, $rowsPerPage";
+                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (IFNULL(status,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query";
                             }
 
                             $result = mysqli_query($dbc, $query_check_credentials);
@@ -127,8 +127,8 @@ $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                                     if (strpos($value_config, ','."Location".',') !== FALSE) {
                                         echo '<th>Location</th>';
                                     }
-									if($status != 'Pending') {
-										echo '<th>'.($status == 'Revision' ? 'In Revision' : ($status == 'Review' ? 'Under Review' : 'Approved')).'</th>';
+									if($page_status != 'Pending') {
+										echo '<th>'.($page_status == 'Revision' ? 'In Revision' : ($page_status == 'Review' ? 'Under Review' : 'Approved')).'</th>';
 									}
                                     if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                         echo '<th>View</th>';
@@ -232,8 +232,8 @@ $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                                         if (strpos($value_config, ','."Location".',') !== FALSE) {
                                             echo '<td data-title="Location">' . $row['location'] . '</td>';
                                         }
-										if($status != 'Pending') {
-											echo '<td data-title="'.($status == 'Revision' ? 'In Revision' : ($status == 'Review' ? 'Under Review' : 'Approved')).'">'.profile_id($dbc, $row['approved_by'], false).'</td>';
+										if($page_status != 'Pending') {
+											echo '<td data-title="'.($page_status == 'Revision' ? 'In Revision' : ($page_status == 'Review' ? 'Under Review' : 'Approved')).'">'.profile_id($dbc, $row['approved_by'], false).'</td>';
 										}
                                         if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                             $name_of_file = 'incident_report_'.$row['incidentreportid'].'.pdf';

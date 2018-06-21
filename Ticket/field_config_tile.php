@@ -104,6 +104,28 @@ function saveField() {
 				value: this.value
 			}
 		});
+	} else if(this.name == 'ticket_unassigned_status') {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'ticket_unassigned_status',
+				value: this.value
+			}
+		});
+	} else if(this.name == 'ticket_uneditable_status[]') {
+		var statuses = [];
+		$(this).find('option:selected').each(function () {
+			statuses.push(this.value);
+		});
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'ticket_uneditable_status',
+				value: statuses.join(',')
+			}
+		});
 	}
 }
 </script>
@@ -148,6 +170,19 @@ function saveField() {
 		<select name="default_status" class="chosen-select-deselect">
 			<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_option) { ?>
 				<option <?= $status == $status_option ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+			<?php } ?>
+		</select>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Uneditable Statuses:</label>
+	<div class="col-sm-8">
+		<?php $status = ','.get_config($dbc, "ticket_uneditable_status").','; ?>
+		<select name="ticket_uneditable_status[]" multiple class="chosen-select-deselect">
+			<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_option) { ?>
+				<option <?= strpos($status, ','.$status_option.',') !== FALSE ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
 			<?php } ?>
 		</select>
 	</div>
@@ -219,6 +254,15 @@ function saveField() {
 		<?php $ticket_textarea_style = get_config($dbc, 'ticket_textarea_style'); ?>
 		<label><input name="ticket_textarea_style" type="radio" value="" <?= $ticket_textarea_style != 'no_editor' ? 'checked' : '' ?>>Default</label>
 		<label><input name="ticket_textarea_style" type="radio" value="no_editor" <?= $ticket_textarea_style == 'no_editor' ? 'checked' : '' ?>>No Edit Tools</label>
+	</div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Set Unassigned <?= TICKET_TILE?> Status to "Unassigned":</label>
+	<div class="col-sm-8">
+		<?php $ticket_unassigned_status = get_config($dbc, 'ticket_unassigned_status'); ?>
+		<label><input name="ticket_unassigned_status" type="radio" value="1" <?= $ticket_unassigned_status == '1' ? 'checked' : '' ?>>Yes</label>
+		<label><input name="ticket_unassigned_status" type="radio" value="" <?= $ticket_unassigned_status != '1' ? 'checked' : '' ?>>No</label>
 	</div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_tile.php') { ?>

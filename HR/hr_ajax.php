@@ -169,7 +169,7 @@ if($_GET['action'] == 'settings_tabs') {
 	if($subsection == '') {
 		echo "#*#<option></option>";
 	} else {
-		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `hr` WHERE `sub_heading_number`='$section' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
+		$sub_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sub_heading` FROM `hr` WHERE `sub_heading_number`='$subsection' AND `category`='$category' AND `deleted`=0"))['sub_heading'];
 		echo $sub_heading.'#*#<option></option>';
 		$heading_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `third_heading_number`, `sub_heading_number` FROM (SELECT `third_heading_number`, `sub_heading_number` FROM `hr` UNION SELECT `third_heading_number`, `sub_heading_number` FROM `manuals`) `hr_manuals` WHERE LPAD(`third_heading_number`, 100, 0) IN (SELECT MAX(LPAD(`third_heading_number`, 100, 0)) FROM (SELECT `third_heading_number` FROM `hr` WHERE `deleted`=0 AND `category`='".$category."' AND `heading_number`='$subsection' UNION SELECT `third_heading_number` FROM `manuals` WHERE `deleted`=0 AND `category`='".$category."' AND `sub_heading_number`='$subsection') `numbers`) GROUP BY `third_heading_number`"));
 		$heading_count = substr($heading_count['third_heading_number'],strlen($heading_count['sub_heading_number']) + 1) + 5;
@@ -250,14 +250,15 @@ if($_GET['action'] == 'settings_tabs') {
 	set_config($dbc, 'performance_review_forms', filter_var(implode(',', $_POST['pr_forms'])),FILTER_SANITIZE_STRING);
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
+    $date_of_archival = date('Y-m-d');
 	switch($_POST['type']) {
 		case 'hr':
-			mysqli_query($dbc, "UPDATE `hr` SET `deleted`=1 WHERE `hrid`='$id'");
-			echo "UPDATE `hr` SET `deleted`=1 WHERE `hrid`='$id'";
+			mysqli_query($dbc, "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'");
+			echo "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'";
 			break;
 		case 'manual':
-			mysqli_query($dbc, "UPDATE `manuals` SET `deleted`=1 WHERE `manualtypeid`='$id'");
-			echo "UPDATE `manuals` SET `deleted`=1 WHERE `manualtypeid`='$id'";
+			mysqli_query($dbc, "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'");
+			echo "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'";
 			break;
 	}
 }

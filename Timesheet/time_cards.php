@@ -79,7 +79,7 @@ if(!empty($_GET['export'])) {
 		if($layout == 'multi_line') {
 			$sql .= ", `time_cards_id`";
 		}
-		$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+		$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 		$date = $search_start_date;
 		$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
 		
@@ -747,6 +747,9 @@ function addSignature(chk) {
             $search_project = 0;
             $search_ticket = 0;
             $search_staff = $_SESSION['contactid'];
+            if(!empty($_GET['search_staff'])) {
+            	$search_staff = $_GET['search_staff'];
+            }
             if(!empty($_GET['search_client'])) {
             	$search_staff = $_GET['search_client'];
             }
@@ -777,6 +780,21 @@ function addSignature(chk) {
 				$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 			}
 			include('pay_period_dates.php'); ?>  
+
+				<?php if(in_array('search_staff',$value_config) && check_subtab_persmission($dbc, 'timesheet', ROLE, 'search_staff')) { ?>
+	                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
+	                  <label for="site_name" class="control-label">Search By Staff:</label>
+	                </div>
+	                  <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
+	                  	<select name="search_staff" class="chosen-select-deselect">
+	                  		<option></option>
+	                  		<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0 AND `contacts`.`category` IN (".STAFF_CATS.") AND `contacts`.`staff_category` NOT IN (".STAFF_CATS_HIDE.")"));
+			                foreach($query as $staff_row) { ?>
+			                    <option <?php if (strpos(','.$search_staff.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
+			                } ?>
+	                  	</select>
+	                  </div>
+				<?php } ?>
 
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                   <label for="site_name" class="control-label">Search By Start Date:</label>
@@ -1041,7 +1059,7 @@ function addSignature(chk) {
 						if($layout == 'multi_line') {
 							$sql .= ", `time_cards_id`";
 						}
-						$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
@@ -1254,8 +1272,10 @@ function addSignature(chk) {
 			<?php elseif($layout == 'position_dropdown' || $layout == 'ticket_task'): ?>
 				<script>
 				$(document).ready(function() {
+					checkTimeOverlaps();
 					initLines();
 				});
+				$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
 				function getTasks(sel) {
 					var tasks = $(sel).find('option:selected').data('tasks');
 					var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -1307,9 +1327,50 @@ function addSignature(chk) {
 						line.find('[name^=comment_box]').show().focus();
 					});
 				}
+				function checkTimeOverlaps() {
+					<?php if(in_array('time_overlaps',$value_config)) { ?>
+						$('.timesheet_div table tr').css('background-color', '');
+						var time_list = [];
+						var date_list = [];
+						$('.timesheet_div table').each(function() {
+							$(this).find('tr').each(function() {
+								var date = $(this).find('[name="date[]"]').val();
+								if(time_list[date] == undefined) {
+									time_list[date] = [];
+								}
+								if(date_list.indexOf(date) == -1) {
+									date_list.push(date);
+								}
+
+								var start_time = '';
+								var end_time = '';
+								if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+									time_list[date].push($(this));
+								}
+							});
+						});
+						date_list.forEach(function(date) {
+							time_list[date].forEach(function(tr) {
+								$(tr).data('current_row', 1);
+								start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+								end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+								time_list[date].forEach(function(tr2) {
+									if($(tr2).data('current_row') != 1) {
+										start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+										end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+										if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+											$(tr).css('background-color', 'red');
+										}
+									}
+								});
+								$(tr).data('current_row', 0);
+							});
+						});
+					<?php } ?>
+				}
 				</script>
 				<div id="no-more-tables">
-					<table class='table table-bordered'>
+					<table class='table table-bordered timesheet_table'>
 						<tr class='hidden-xs hidden-sm'>
 							<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
 							<?php $total_colspan = 2; ?>

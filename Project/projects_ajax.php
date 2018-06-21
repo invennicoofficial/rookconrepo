@@ -579,8 +579,8 @@ if($_GET['action'] == 'mark_favourite') {
 				if($serviceid > 0) {
 					$qty = explode(',',$ticket['service_qty'])[$i];
 					$price = $dbc->query("SELECT `cust_price` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$serviceid' AND `tile_name`='Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) ORDER BY `start_date`")->fetch_assoc()['cust_price'];
-					mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-						VALUES ('$invoiceid', '$serviceid', 'services', '".TICKET_TILE."', '$description', '$qty', '$price', 'each', '".($qty * $price)."')");
+					mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`,`total`)
+						VALUES ('$invoiceid', '$serviceid', 'services', '".TICKET_TILE."', '$description', '$qty', '$price', 'each', '".($qty * $price)."', '".($qty * $price)."')");
 						$services .= $serviceid.',';
 						$service_fee .= $price.',';
 				}
@@ -597,8 +597,8 @@ if($_GET['action'] == 'mark_favourite') {
 				} else if($ticket_line['src_table'] == 'equipment') {
 					$item = $dbc->query("SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label, 0 `price` FROM `equipment` WHERE `equipmentid`='{$ticket_line['item_id']}'")->fetch_assoc();
 				}
-				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-					VALUES ('$invoiceid', '{$ticket_line['item_id']}', '{$ticket_line['src_table']}', '".TICKET_TILE."', '{$item['label']}', '{$ticket_line['qty']}', '{$item['price']}', 'Each', '".($ticket_line['qty'] * $item['price'])."')");
+				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `total`)
+					VALUES ('$invoiceid', '{$ticket_line['item_id']}', '{$ticket_line['src_table']}', '".TICKET_TILE."', '{$item['label']}', '{$ticket_line['qty']}', '{$item['price']}', 'Each', '".($ticket_line['qty'] * $item['price'])."', '".($ticket_line['qty'] * $item['price'])."')");
 			}
 			$dbc->query("UPDATE `invoice` SET `ticketid`='{$ticket['ticketid']}', `patientid`='".(explode(',',$ticket['clientid'])[0])."', `service_date`='".date('Y-m-d',strtotime($ticket['created_date']))."', `therapistsid`='".(trim(explode(',',$ticket['contactid']),',')[0])."', `serviceid`='$services', `fee`='$service_fee', `$inventoryid`='$inventory', `sell_price`='$inv_price', `quantity`='$inv_qty' WHERE `invoiceid`='$invoiceid");
 		} else {
@@ -614,13 +614,49 @@ if($_GET['action'] == 'mark_favourite') {
 				if(empty($description)) {
 					$description = $billable['description'];
 				}
-				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-					VALUES ('$invoiceid', '{$billable['item_id']}', '{$billable['category']}', '{$billable['description']}', '$description', '{$billable['qty']}', '{$billable['price']}', '{$billable['uom']}', '{$billable['retail']}')");
+				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `total`)
+					VALUES ('$invoiceid', '{$billable['item_id']}', '{$billable['category']}', '{$billable['description']}', '$description', '{$billable['qty']}', '{$billable['price']}', '{$billable['uom']}', '{$billable['retail']}', '{$billable['retail']}')");
 		}
 		$final_price += $billable['retail'];
 	}
 	$final_price = number_format($final_price, 2);
 	mysqli_query($dbc, "UPDATE `invoice` SET `total_price` = '$total_price', `final_price` = '$final_price' WHERE `invoiceid` = '$invoiceid'");
+	
+	// PDF
+	$invoice_design = get_config($dbc, 'invoice_design');
+	switch($invoice_design) {
+		case 1:
+			include('pos_invoice_1.php');
+			break;
+		case 2:
+			include('pos_invoice_2.php');
+			break;
+		case 3:
+			include('pos_invoice_3.php');
+			break;
+		case 4:
+			include ('patient_invoice_pdf.php');
+			if($insurerid != '') {
+				include ('insurer_invoice_pdf.php');
+			}
+			break;
+		case 5:
+			include ('pos_invoice_small.php');
+			break;
+		case 'service':
+			include ('pos_invoice_service.php');
+			break;
+		case 'pink':
+			include ('pos_invoice_pink.php');
+			break;
+		case 'cnt1':
+			include ('pos_invoice_contractor_1.php');
+			break;
+        default:
+			include('pos_invoice_1.php');
+			break;
+	}
+	ob_clean();
 	echo WEBSITE_URL."/Project/projects.php?edit=".$projectid."&tab=".$type;
 } else if($_GET['action'] == 'approve_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
@@ -779,7 +815,8 @@ if($_GET['action'] == 'mark_favourite') {
 	}
 } else if($_GET['action'] == 'archive_project_form') {
 	$projectform = $_POST['projectform'];
-	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1 WHERE `id` = '$projectform'");
+        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$projectform'");
 } else if($_GET['action'] == 'get_category_list') {
 	$category = filter_var(($_POST['category'] ?: $_GET['category']),FILTER_SANITIZE_STRING);
 	echo '<option></option>';
@@ -844,7 +881,8 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'remove_custom_field') {
 	$id = $_POST['id'];
 	if($id > 0) {
-		mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1 WHERE `id` = '$id'");
+	        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$id'");
 	}
 } else if($_GET['action'] == 'add_custom_field_upload') {
 	$id = $_POST['id'];

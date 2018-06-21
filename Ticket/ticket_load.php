@@ -328,6 +328,46 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 			echo '</div>
 		</div>';
 	}
+	if(in_array('Service Time Estimate',$db_config)) {
+		$serviceids = explode(',', $ticket['serviceid']);
+		$service_qtys = explode(',', $ticket['service_qty']);
+
+		$time_est = 0;
+		foreach($serviceids as $i => $serviceid) {
+			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$serviceid'"));
+			$estimated_hours = empty($service['estimated_hours']) ? '00:00' : $service['estimated_hours'];
+			$qty = empty($service_qtys[$i]) ? 1 : $service_qtys[$i];
+			$minutes = explode(':', $estimated_hours);
+			$minutes = ($minutes[0]*60) + $minutes[1];
+			$minutes = $qty * $minutes;
+			$time_est += $minutes;
+		}
+		$new_hours = $time_est / 60;
+		$new_minutes = $time_est % 60;
+		$new_hours = sprintf('%02d', $new_hours);
+		$new_minutes = sprintf('%02d', $new_minutes);
+		$time_est = $new_hours.':'.$new_minutes;
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Time Estimate:</label>
+			<div class="col-sm-8">';
+				echo '<input type="text" name="service_time_estimate" disabled class="form-control" value="'.$time_est.'">';
+			echo '</div>
+		</div>';
+	}
+	if(in_array('Site Address',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Site Address:</label>
+			<div class="col-sm-8">'.$site['address'].'</div>
+		</div>';
+	}
+	if(in_array('Site Notes',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Site Notes:</label>
+			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
+		</div>';
+	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>
 		<div class="col-sm-6">
 			<?php $functions = [];

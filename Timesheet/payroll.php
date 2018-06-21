@@ -232,7 +232,7 @@ function viewTicket(a) {
             </div>
         </form>
 
-    <form id="form1" name="form1" action="add_time_card_approvals.php" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
+    <form id="form1" name="form1" action="add_time_card_approvals.php?pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
 
     <div id="no-more-tables">
 
@@ -375,7 +375,7 @@ function viewTicket(a) {
                         $sql .= ", `time_cards_id`";
                         $post_i = 0;
                     }
-                    $sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+                    $sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
                     $result = mysqli_query($dbc, $sql);
                     $date = $search_start_date;
                     $row = mysqli_fetch_array($result);
@@ -590,8 +590,10 @@ function viewTicket(a) {
                     echo '<button type="submit" name="approve_position" value="paid_btn" class="btn brand-btn pull-right">Update and Mark Selected Paid</button>'; ?>
                     <script>
                     $(document).ready(function() {
+                        checkTimeOverlaps();
                         initLines();
                     });
+                    $(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
                     function getTasks(sel) {
                         var tasks = $(sel).find('option:selected').data('tasks');
                         var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -625,19 +627,61 @@ function viewTicket(a) {
                             line.find('[name^=comment_box]').show().focus();
                         });
                     }
+                    function checkTimeOverlaps() {
+                        <?php if(in_array('time_overlaps',$value_config)) { ?>
+                            $('.timesheet_div table tr').css('background-color', '');
+                            var time_list = [];
+                            var date_list = [];
+                            $('.timesheet_div table').each(function() {
+                                $(this).find('tr').each(function() {
+                                    var date = $(this).find('[name="date[]"]').val();
+                                    if(time_list[date] == undefined) {
+                                        time_list[date] = [];
+                                    }
+                                    if(date_list.indexOf(date) == -1) {
+                                        date_list.push(date);
+                                    }
+
+                                    var start_time = '';
+                                    var end_time = '';
+                                    if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+                                        time_list[date].push($(this));
+                                    }
+                                });
+                            });
+                            date_list.forEach(function(date) {
+                                time_list[date].forEach(function(tr) {
+                                    $(tr).data('current_row', 1);
+                                    start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+                                    end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+                                    time_list[date].forEach(function(tr2) {
+                                        if($(tr2).data('current_row') != 1) {
+                                            start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+                                            end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+                                            if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+                                                $(tr).css('background-color', 'red');
+                                            }
+                                        }
+                                    });
+                                    $(tr).data('current_row', 0);
+                                });
+                            });
+                        <?php } ?>
+                    }
                     </script>
                     <div id="no-more-tables">
                         <table class='table table-bordered'>
                             <tr class='hidden-xs hidden-sm'>
                                 <th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
-                                <?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
-                                <?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-                                <?php if(in_array('start_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-                                <?php if(in_array('end_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
+                                <?php $total_colspan = 2; ?>
+                                <?php if(in_array('schedule',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
+                                <?php if(in_array('scheduled',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
+                                <?php if(in_array('start_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
+                                <?php if(in_array('end_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
                                 <?php if(in_array('end_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_day_tile',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-                                <?php if($layout == 'ticket_task') { ?>
+                                <?php if($layout == 'ticket_task') { $total_colspan++ ?>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
                                 <?php } else { ?>
@@ -699,9 +743,11 @@ function viewTicket(a) {
                                     if(empty($row['ticketid'])) {
                                         $driving_time = 'Driving Time';
                                     }
+                                    $show_separator = 0;
                                 } else {
                                     $row = '';
                                     $comments = '';
+                                    $show_separator = 1;
                                 }
                                 $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
                                 $day_of_week = date('l', strtotime($date));
@@ -722,20 +768,19 @@ function viewTicket(a) {
                                 if($date < $last_period) {
                                     $mod = 'readonly';
                                 } ?>
-                                <tr style="<?= $hl_colour ?>">
+                                <tr style="<?= $hl_colour ?>" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>">
                                     <input type="hidden" name="time_cards_id[]" value="<?= $row['id'] ?>">
                                     <input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
                                     <input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-                                    <?php $total_colspan = 2; ?>
                                     <td data-title="Date"><?= $date ?></td>
-                                    <?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
-                                    <?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><td data-title="Scheduled Hours"></td><?php } ?>
-                                    <?php if(in_array('start_time',$value_config)) { $total_colspan++; ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
-                                    <?php if(in_array('end_time',$value_config)) { $total_colspan++; ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
+                                    <?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
+                                    <?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours"></td><?php } ?>
+                                    <?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
+                                    <?php if(in_array('end_time',$value_config)) { ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
                                     <?php if(in_array('start_time_editable',$value_config)) { ?><td data-title="Start Time"><input type="text" name="start_time[]" class="form-control datetimepicker" value="<?= $row['start_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="start_time[]" value="<?= $row['start_time'] ?>"><?php } ?>
                                     <?php if(in_array('end_time_editable',$value_config)) { ?><td data-title="End Time"><input type="text" name="end_time[]" class="form-control datetimepicker" value="<?= $row['end_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="end_time[]" value="<?= $row['end_time'] ?>"><?php } ?>
                                     <?php if(in_array('start_day_tile',$value_config)) { ?><td data-title="<?= $timesheet_start_tile ?>" style="text-align: center;"><label><input type="checkbox" value="Driving Time" <?= $driving_time == 'Driving Time' ? 'checked' : '' ?> class="driving_time" onchange="checkDrivingTime(this);"></label></span></td><?php } ?>
-                                    <?php if($layout == 'ticket_task') { $total_colspan++; ?>
+                                    <?php if($layout == 'ticket_task') { ?>
                                         <td data-title="<?= TICKET_NOUN ?>" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a <?= TICKET_NOUN ?>"" onchange="getTasks(this);"><option></option>
                                             <?php foreach($ticket_list as $ticket) { ?>
                                                 <option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $row['ticketid'] ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>

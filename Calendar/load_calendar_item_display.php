@@ -333,7 +333,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				unset($page_query['unbooked']);
 				unset($page_query['equipment_assignmentid']);
 				unset($page_query['teamid']);
-				$row_html .= ($edit_access == 1 ? "<a href='' onclick='universalAdd(this); return false;' class='shift' data-appturl='".WEBSITE_URL."/Calendar/booking.php?".http_build_query($page_query)."' data-ticketurl='".WEBSITE_URL."/Ticket/index.php?calendar_view=true&new_ticket_calendar=true&current_time=".$current_time."&current_date=".$current_date."&calendar_contactid=".$contact_id."'>" : "");
+				$row_html .= ($edit_access == 1 ? "<a href='' onclick='universalAdd(this); return false;' class='shift' data-appturl='".WEBSITE_URL."/Calendar/booking.php?".http_build_query($page_query)."' data-ticketurl='".WEBSITE_URL."/Ticket/index.php?edit=0&calendar_view=true&new_ticket_calendar=true&current_time=".$current_time."&current_date=".$current_date."&calendar_contactid=".$contact_id."'>" : "");
 				$row_html .= "<div class='resizable-shift' data-shifttype='universal' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; opacity: 0;'>";
 				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 				$page_query['add_reminder'] = $_GET['add_reminder'];
@@ -626,7 +626,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$enddate = $calendar_col[$calendar_row][3];
 				$starttime = date('h:i a', strtotime($calendar_col[$calendar_row][2]));
 				$endtime = date('h:i a', strtotime("+30 minutes", strtotime($calendar_col[$calendar_row][2])));
-				$row_html .= ($edit_access == 1 ? "<a onclick='overlayIFrameSlider($(this).data(\"ticketurl\")); return false;' data-ticketurl='".WEBSITE_URL."/Ticket/index.php?calendar_view=true&new_ticket_calendar=true&current_time=".$starttime."&current_date=".$startdate."&calendar_contactid=".$staffid."&end_time=".$endtime."' class='shift'>" : '');
+				$row_html .= ($edit_access == 1 ? "<a onclick='overlayIFrameSlider($(this).data(\"ticketurl\")); return false;' data-ticketurl='".WEBSITE_URL."/Ticket/index.php?edit=0&calendar_view=true&new_ticket_calendar=true&current_time=".$starttime."&current_date=".$startdate."&calendar_contactid=".$staffid."&end_time=".$endtime."' class='shift'>" : '');
 				$row_html .= "<div class='resizable-shift' data-shifttype='ticket' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; opacity: 0;'>";
 				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 			} else if (!empty($ticket)) {

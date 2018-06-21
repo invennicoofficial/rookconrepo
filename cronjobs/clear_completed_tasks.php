@@ -21,7 +21,8 @@ if($tasklist_auto_archive == 1) {
         $today_date = date('Y-m-d', strtotime(date('Y-m-d').' - '.$tasklist_auto_archive_days.' days'));
         $old_tasks = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `status` = '$status_complete' AND `status_date` <= '$today_date' AND `status_date` != '0000-00-00' AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach ($old_tasks as $old_task) {
-            mysqli_query($dbc, "UPDATE `tasklist` SET `deleted` = 1 WHERE `tasklistid` = '".$old_task['tasklistid']."'");
+           $date_of_archival = date('Y-m-d');
+         mysqli_query($dbc, "UPDATE `tasklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `tasklistid` = '".$old_task['tasklistid']."'");
         }
     }
 }

@@ -6,7 +6,7 @@ $action = $_GET['fill'];
 
 if($action == 'businessid') {
 	$business = $_POST['business'];
-	
+
 	$sites = '<option></option><option '.($business == 'NEW' ? 'selected' : '').' value="NEW">New Site</option>';
 	$site = $_POST['site'];
 	$site_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `site_name` name FROM `contacts` WHERE `category`='Sites' AND `businessid`='$business' AND `deleted`=0 AND `status`=1"),MYSQLI_ASSOC));
@@ -14,14 +14,14 @@ if($action == 'businessid') {
 		$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `site_name`, `google_maps_address`, `lsd` FROM `contacts` WHERE `contactid`='$id'"));
 		$sites .= "<option data-name='".$row['site_name']."' data-google='".$row['google_maps_address']."' data-location='".$row['lsd']."' ".($id == $site ? 'selected' : '')." value='$id'>".$row['site_name']."</option>";
 	}
-	
+
 	$contacts = '<option></option><option '.($business == 'NEW' ? 'selected' : '').' value="NEW">New Contact</option>';
 	$contact = $_POST['contact'];
 	$contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` NOT IN ('Sites','Business','Staff') AND `businessid`='$business' AND `deleted`=0 AND `status`=1"),MYSQLI_ASSOC));
 	foreach($contact_list as $id) {
 		$contacts .= "<option ".($id == $contact ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
 	}
-	
+
 	echo $sites.'#*#'.$contacts;
 }
 
@@ -34,14 +34,14 @@ else if($action == 'siteid') {
 	foreach($contact_list as $id) {
 		$contacts .= "<option ".($id == $contact ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
 	}
-	
+
 	echo $contacts;
 }
 else if($action == 'service_rates') {
 	$heading = $_POST['service'];
 	$category = $_POST['category'];
 	$date = empty($_POST['date']) ? date('Y-m-d') : $_POST['date'];
-	
+
 	$result = mysqli_query($dbc, "SELECT `service_rate` FROM `service_rate_card` LEFT JOIN `services` ON `service_rate_card`.`serviceid`=`services`.`serviceid` WHERE `category`='$category' AND `heading`='$heading' AND `service_rate_card`.`deleted`=0 AND `services`.`deleted`=0 AND '$date' >= `service_rate_card`.`start_date` AND ('$date' <= `service_rate_card`.`end_date` OR `service_rate_card`.`end_date` IS NULL OR `service_rate_card`.`end_date` = '0000-00-00')");
 	while($rate = mysqli_fetch_array($result)) {
 		echo "<option value='".$rate['service_rate']."'>$".number_format($rate['service_rate'],2)."</option>\n";
@@ -68,7 +68,8 @@ else if($_GET['fill'] == 'add_checklist') {
 	echo mysqli_insert_id($dbc);
 }
 else if($_GET['fill'] == 'delete_checklist') {
-	$query = mysqli_query($dbc, "UPDATE `site_work_checklist` SET `deleted`=1 WHERE `checklistid`='".$_GET['id']."'");
+    $date_of_archival = date('Y-m-d');
+	$query = mysqli_query($dbc, "UPDATE `site_work_checklist` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistid`='".$_GET['id']."'");
 }
 else if($_GET['fill'] == 'checklist_flag') {
 	$item_id = $_POST['id'];

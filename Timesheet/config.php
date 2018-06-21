@@ -51,6 +51,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Business', 'dropdown', 'business'),
 			array('Customer', 'dropdown', 'customer'),
 			array(TICKET_NOUN, 'dropdown', 'ticketid'),
+			array('Search by Staff', 'dropdown', 'search_staff'),
 			array('Search by Client', 'dropdown', 'search_client'),
 			array('Show Hours', 'hidden', 'show_hours'),
 			array('Scheduled Hours', 'hidden', 'scheduled'),
@@ -99,7 +100,8 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Comments', 'hidden', 'comment_box'),
 			array('Parent/Guardian Signature', 'signature', 'signature'),
 			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
-			array('Approve All Checkbox', 'hidden', 'approve_all')
+			array('Approve All Checkbox', 'hidden', 'approve_all'),
+			array('Show Time Overlaps', 'hidden', 'time_overlaps')
 		)
 );
 
@@ -678,7 +680,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	$timesheet_min_hours = get_config($_SERVER['DBC'], 'timesheet_min_hours');
 	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
-	if($timesheet = $_SERVER['DBC']->query("SELECT MAX(`time_cards_id`) `id`, `date`, `staff`, `type_of_time`, SUM(`total_hrs`) `hours`, SUM(`timer_tracked`) `timer`, GROUP_CONCAT(`comment_box` SEPARATOR '&lt;br /&gt;') COMMENTS, SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS, GROUP_CONCAT(`business`) BUSINESS, `ticketid`, `start_time`, `end_time`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name` FROM `time_cards` WHERE `deleted`=0 AND `date` BETWEEN '$start_date' AND '$end_date' $limits GROUP BY `type_of_time` $group ORDER BY `date`, `start_time`, `end_time` ASC")) {
+	if($timesheet = $_SERVER['DBC']->query("SELECT MAX(`time_cards_id`) `id`, `date`, `staff`, `type_of_time`, SUM(`total_hrs`) `hours`, SUM(`timer_tracked`) `timer`, GROUP_CONCAT(`comment_box` SEPARATOR '&lt;br /&gt;') COMMENTS, SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS, GROUP_CONCAT(`business`) BUSINESS, `ticketid`, `start_time`, `end_time`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name` FROM `time_cards` WHERE `deleted`=0 AND `date` BETWEEN '$start_date' AND '$end_date' $limits GROUP BY `type_of_time` $group ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC")) {
 		$time = [];
 		while($time_card = $timesheet->fetch_assoc()) {
 			if($time_card['hours'] < $timesheet_min_hours) {

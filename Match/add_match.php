@@ -28,12 +28,13 @@ if (isset($_POST['add_medication'])) {
         $history = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added on '.date('Y-m-d H:i:s').'<br>';
 
         $query_insert_vendor = "INSERT INTO `match_contact` (`support_contact_category`, `support_contact`, `staff_contact_category`, `staff_contact`, `match_date`, `follow_up_date`, `end_date`, `status`, `history`) VALUES ('$support_contact_category', '$support_contact', '$staff_contact_category', '$staff_contact', '$match_date', '$follow_up_date', '$end_date', '$status', '$history')";
-    
+
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $matchid = mysqli_insert_id($dbc);
 
         if($status == 'Archive') {
-            $query_update_vendor = "UPDATE `match_contact` SET `deleted` = 1 WHERE `matchid` = '$matchid'";
+           $date_of_archival = date('Y-m-d');
+         $query_update_vendor = "UPDATE `match_contact` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `matchid` = '$matchid'";
             $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         }
 
@@ -45,7 +46,8 @@ if (isset($_POST['add_medication'])) {
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
         if($status == 'Archive') {
-            $query_update_vendor = "UPDATE `match_contact` SET `deleted` = 1 WHERE `matchid` = '$matchid'";
+         $date_of_archival = date('Y-m-d');
+           $query_update_vendor = "UPDATE `match_contact` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `matchid` = '$matchid'";
             $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         }
         $url = 'Updated';
@@ -301,7 +303,7 @@ checkAuthorised('match');
 		  </div>
         </div>
 
-        
+
 
     </form>
 

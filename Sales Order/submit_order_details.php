@@ -150,8 +150,9 @@ foreach ($get_uploads as $get_upload) {
 
     mysqli_query($dbc, "INSERT INTO `sales_order_upload` (`posid`, `name`, `file`, `added_by`) VALUES ('$posid', '$name', '$file', '$added_by')");
 }
+        $date_of_archival = date('Y-m-d');
 
 // Set Sales Order Temp Deleted to 1
-mysqli_query($dbc, "UPDATE `sales_order_temp` SET `deleted` = 1 WHERE `sotid` = '$sotid'");
+mysqli_query($dbc, "UPDATE `sales_order_temp` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `sotid` = '$sotid'");
 
 $redirect_url = 'index.php';

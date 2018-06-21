@@ -60,6 +60,9 @@ $(document).on('change', 'select[name="security_level"]', function() { change_ty
         if(strpos($staff_tabs, ',Software ID,') === FALSE) {
             $staff_tabs .= 'Software ID,';
         }
+        if(strpos($staff_tabs, ',Software Access,') === FALSE) {
+            $staff_tabs .= 'Software Access,';
+        }
         $staff_tabs = array_filter(explode(',',$staff_tabs));
         foreach($staff_tabs as $staff_tab) { ?>
             <div class="form-group subtab_block">

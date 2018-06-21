@@ -15,15 +15,16 @@ $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 $_GET['rate'] = $current_rate;
 $headings = [];
 //$query = mysqli_query($dbc, "SELECT `heading`, `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
+$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 
-$query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+$query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
 $scope_name = '';
 if(mysqli_num_rows($query) > 0) {
 	while($row = mysqli_fetch_array($query)) {
 		$headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
 	}
 } else {
-	$headings['scope'] = 'Scope';
+	$headings['scope'] = 'Scope 1';
 } ?>
 <script>
 profile_tab = [];
@@ -62,8 +63,21 @@ function save_sort() {
 	});
 }
 function set_headings() {
+	$('[name=heading][data-init]').each(function() {
+		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
+		var heading_name = this.value;
+		$(this).closest('table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&heading=[a-z0-9]*/,'&heading='+heading_name);
+		});
+	});
+}
+function set_scopes() {
 	$('[name=scope_name][data-init]').each(function() {
-		$(this).closest('table').find('[name=scope_name][data-table]').val(this.value).change();
+		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
+		var scope_name = this.value;
+		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&scope=[a-z0-9]*/,'&scope='+scope_name);
+		});
 	});
 }
 function scrollScreen() {
@@ -293,6 +307,7 @@ function add_line() {
 				<?php
                 foreach($headings as $head_id => $heading) {
                     if($head_id == $_GET['status']) {
+						$scope = $heading;
 					    include('edit_headings.php');
                     }
 				} ?>

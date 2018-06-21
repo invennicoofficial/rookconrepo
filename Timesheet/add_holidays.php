@@ -5,7 +5,8 @@ include 'config.php';
 $value = $config['settings']['Choose Fields for Holidays'];
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
-    mysqli_query($dbc, "UPDATE holidays SET `deleted`=1 WHERE holidays_id=".$_GET['holidays_id']);
+	    $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE holidays SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE holidays_id=".$_GET['holidays_id']);
 
     echo '<script type="text/javascript"> window.location.replace("holidays.php"); </script>';
 }
@@ -173,7 +174,7 @@ if(isset($value['config_field'])) {
           </div>
         </div>
 
-        
+
 
     </form>
 

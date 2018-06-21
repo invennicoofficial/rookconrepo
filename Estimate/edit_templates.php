@@ -39,11 +39,19 @@ function save_sort() {
 function set_headings() {
 	$('[name=heading][data-init]').each(function() {
 		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
+		var heading_name = this.value;
+		$(this).closest('table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&heading=[a-z0-9]*/,'&heading='+heading_name);
+		});
 	});
 }
 function set_scopes() {
 	$('[name=scope_name][data-init]').each(function() {
 		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
+		var scope_name = this.value;
+		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&scope=[a-z0-9]*/,'&scope='+scope_name);
+		});
 	});
 }
 function getLock(tab_name) {
@@ -196,6 +204,7 @@ function add_line() {
         $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
         $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
         $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+		$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 
         $rates = [];
         $query = mysqli_query($dbc, "SELECT `rate_card` FROM `estimate_scope` WHERE `estimateid`='$estimateid' GROUP BY `rate_card`");
@@ -210,14 +219,14 @@ function add_line() {
         $_GET['rate'] = $current_rate;
         
         $scope_list = [];
-        $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+        $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
         $scope_name = '';
         if(mysqli_num_rows($query) > 0) {
             while($row = mysqli_fetch_array($query)) {
                 $scope_list[preg_replace('/[^a-z0-9]*/','',strtolower($row[0]))] = $row[0];
             }
         } else {
-            $scope_list['scope'] = 'Scope';
+            $scope_list['scope'] = 'Scope 1';
         } ?>
         
         <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->

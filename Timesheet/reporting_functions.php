@@ -173,7 +173,7 @@
 				if($layout == 'multi_line') {
 					$sql .= ", `time_cards_id`";
 				}
-				$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+				$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 				$result = mysqli_query($dbc, $sql);
 				$date = $search_start_date;
 				$row = mysqli_fetch_array($result);
@@ -401,9 +401,11 @@
 							if(empty($row['ticketid'])) {
 								$driving_time = 'Driving Time';
 							}
+							$show_separator = 0;
 						} else {
 							$row = '';
 							$comments = '';
+							$show_separator = 1;
 						}
 						$day_of_week = date('l', strtotime($date));
 						$shifts = checkShiftIntervals($dbc, $search_staff, $day_of_week, $date, 'all');
@@ -423,7 +425,7 @@
 						if($date < $last_period) {
 							$mod = 'readonly';
 						}
-						$report .= '<tr style="'.$hl_colour.'">
+						$report .= '<tr style="'.$hl_colour.'" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">
 							<td data-title="Date">'.$date.'</td>
 							'.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
 							'.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'

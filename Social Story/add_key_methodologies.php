@@ -5,7 +5,8 @@ include 'config.php';
 $value = $config['settings']['Choose Fields for Key Methodologies'];
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
-    mysqli_query($dbc, "UPDATE key_methodologies set deleted = 1 WHERE keymethodologiesid=".$_GET['keymethodologiesid']);
+    $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE key_methodologies set deleted = 1, `date_of_archival` = '$date_of_archival' WHERE keymethodologiesid=".$_GET['keymethodologiesid']);
 
     echo '<script type="text/javascript"> window.location.replace("'.$_GET['from_url'].'"); </script>';
 }
@@ -142,10 +143,10 @@ if(isset($value['config_field'])) {
 			<div class="col-sm-6"><button type="submit" name="submit" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button></div>
 			<div class="clearfix"></div>
 		  </div>
-		  
+
         </div>
 
-        
+
 
     </form>
 
