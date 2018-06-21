@@ -7,28 +7,30 @@ $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_field
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
 });
-function saveField() {
-	syncUnsaved(this.name);
-	syncSaving();
-	name = this.name;
-	if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
-		$.ajax({
-			url: 'estimates_ajax.php?action=estimate_fields',
-			method: 'POST',
-			data: {
-				id: $(this).data('id'),
-				id_field: $(this).data('id-field'),
-				table: $(this).data('table'),
-				field: this.name,
-				value: this.value,
-				estimate: '<?= $estimateid ?>'
-			},
-			success: function(response) {
-				syncDone(name);
-			}
-		});
+<?php if(empty($_GET['view'])) { ?>
+	function saveField() {
+		syncUnsaved(this.name);
+		syncSaving();
+		name = this.name;
+		if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
+			$.ajax({
+				url: 'estimates_ajax.php?action=estimate_fields',
+				method: 'POST',
+				data: {
+					id: $(this).data('id'),
+					id_field: $(this).data('id-field'),
+					table: $(this).data('table'),
+					field: this.name,
+					value: this.value,
+					estimate: '<?= $estimateid ?>'
+				},
+				success: function(response) {
+					syncDone(name);
+				}
+			});
+		}
 	}
-}
+<?php } ?>
 function add_follow_up() {
 	$.ajax({
 		url: 'estimates_ajax.php?action=estimate_fields',

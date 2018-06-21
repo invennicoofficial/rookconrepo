@@ -462,15 +462,18 @@ if($_GET['action'] == 'save_template_field') {
     $qty = filter_var($_GET['qty'],FILTER_VALIDATE_INT);
     $profit = filter_var($_GET['profit'],FILTER_SANITIZE_STRING);
     $margin = filter_var($_GET['margin'],FILTER_SANITIZE_STRING);
+    $price = filter_var($_GET['price'],FILTER_SANITIZE_STRING);
     $retail = filter_var($_GET['retail'],FILTER_SANITIZE_STRING);
-    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `retail`='$retail' WHERE `id`='$id'");
+    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `price`='$price', `retail`='$retail' WHERE `id`='$id'");
     
     $total_price = 0;
     $total_cost = 0;
-    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail`, `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+	$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
     while( $row=mysqli_fetch_assoc($query) ) {
         $total_price += $row['retail'];
-        $total_cost += $row['qty'] * $row['cost'];
+        $total_cost += $row['qty'] * ($row['pricing'] == 'usd_cpu' ? $row['cost'] * $us_rate : $row['cost']);
     }
     $margin = number_format(($total_cost > 0 ? ($total_price - $total_cost) / $total_cost * 100 : 0),2, '.', '');
     $profit = number_format($total_price - $total_cost,2, '.', '');
