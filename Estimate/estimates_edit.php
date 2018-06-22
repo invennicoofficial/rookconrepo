@@ -15,7 +15,7 @@ if(!($estimateid > 0)) {
     
     if ( $scope_count > 0 ) {
         while($row = mysqli_fetch_array($query)) {
-            $headings[preg_replace('/[^a-z0-9]*/','',strtolower($row[0]))] = $row[0];
+            $headings[config_safe_str($row[0])] = $row[0];
         }
     } else {
         $headings['scope'] = 'Scope';

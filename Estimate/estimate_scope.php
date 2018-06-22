@@ -67,7 +67,7 @@ function set_headings() {
 		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
 		var heading_name = this.value;
 		$(this).closest('table').find('a[href*=scope][href*=heading]').each(function() {
-			this.href = this.href.replace(/&heading=[a-z0-9]*/,'&heading='+heading_name);
+			this.href = this.href.replace(/&heading=[a-zA-Z0-9_]*/,'&heading='+heading_name.replace(/[^a-zA-Z0-9]/,'_'));
 		});
 	});
 }
@@ -76,7 +76,7 @@ function set_scopes() {
 		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
 		var scope_name = this.value;
 		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
-			this.href = this.href.replace(/&scope=[a-z0-9]*/,'&scope='+scope_name);
+			this.href = this.href.replace(/&scope=[a-zA-Z0-9_]*/,'&scope='+scope_name.replace(/[^a-zA-Z0-9]/,'_'));
 		});
 	});
 }
