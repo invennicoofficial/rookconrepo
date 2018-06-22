@@ -16,8 +16,12 @@ if(!isset($estimate)) {
 	$current_rate = $_GET['rate'];
 	$scope_list = [];
 	$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
-	while($row = mysqli_fetch_array($query)) {
-		$scope_list[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+	if($query->num_rows > 0) {
+		while($row = mysqli_fetch_array($query)) {
+			$scope_list[config_safe_str($row[0])] = $row[0];
+		}
+	} else {
+		$scope_list['scope_1'] = 'Scope 1';
 	}
 	$scope_id = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 	$scope = $scope_list[$scope_id];
@@ -203,14 +207,14 @@ $col_spanned = $columns; ?>
 			<table class="table table-bordered">
 				<tr>
 					<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
-						<h3 class="no-margin"><input type="text" name="heading" value="<?= $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
+						<h3 class="no-margin"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
 					</td>
 					<td>
 						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle">
 						<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_heading('<?= $scope ?>');">
 						<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_heading(this);">
 						<?php if($_GET['tab'] != 'scope') { ?>
-							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href+'&heading='+$(this).closest('tr').find('[name=heading]').val(), '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
+							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
 						<?php } ?>
 					</td>
 				</tr>
@@ -240,7 +244,7 @@ $col_spanned = $columns; ?>
 								<em>Please add details</em>
 							</td>
 							<td data-title="Function" align="center">
-								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
 							</td>
 						</tr>
 					<?php } else { ?>
@@ -275,9 +279,13 @@ $col_spanned = $columns; ?>
 														echo $label.': ';
 													}
 												}
-												foreach($src_options as $option) {
-													if($option['tile_name'] == $line['src_table'] && $option['id'] == $line['src_id']) {
-														echo $option['label'];
+												if($line['src_id'] > 0 && in_array($line['src_table'],['staff','clients','contractor','customer'])) {
+													echo get_contact($dbc, $line['src_id']);
+												} else {
+													foreach($src_options as $option) {
+														if($option['tile_name'] == $line['src_table'] && $option['id'] == $line['src_id']) {
+															echo $option['label'];
+														}
 													}
 												}
 											} ?>
@@ -325,7 +333,7 @@ $col_spanned = $columns; ?>
 							<td data-title="Function" align="center">
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
-								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
 								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
 							</td>
 						</tr>

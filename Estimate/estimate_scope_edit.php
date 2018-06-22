@@ -12,7 +12,7 @@ if(!empty($_GET['scope'])) {
 	$scope_name = '';
 	$scope_names = $dbc->query("SELECT `scope_name` FROM `estimate_scope` WHERE `deleted`=0 AND IFNULL(`scope_name`,'') != ''");
 	while($scope_name_row = $scope_names->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($scope_name_row)) == $_GET['scope']) {
+		if(config_safe_str($scope_name_row) == $_GET['scope']) {
 			$scope_name = $scope_name_row;
 		}
 	}
@@ -318,13 +318,6 @@ function setIncluded(input) {
 		</div>
 	</div>
 
-    <div class="form-group">
-        <label class="col-sm-4">Scope Name:</label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" name="scope_name" data-table="estimate" data-id-field="estimateid" value="<?= empty($scope_name) ? $estimate['estimate_name'] : $scope_name ?>">
-        </div>
-    </div>
-
 	<?php $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 	if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 		$heading_order[] = 'Detail***Scope Detail';
@@ -334,13 +327,21 @@ function setIncluded(input) {
 	}
 	$value_config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
 	$scope_name = '';
-	$query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)");
+	$query = mysqli_query($dbc, "SELECT * FROM (SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY `scope_name` ORDER BY MIN(`sort_order`)) `scopes` UNION SELECT 'Scope 1' `scope_name`");
 	while($row = mysqli_fetch_array($query)) {
-		if($_GET['scope'] == preg_replace('/[^a-z]*/','',strtolower($row[0]))) {
+		if((empty($_GET['scope']) && empty($scope_name)) || $_GET['scope'] == config_safe_str($row[0])) {
 			$scope_name = $row[0];
 		}
-	}
-	$_GET['rate'] = $current_rate;
+	} ?>
+
+    <div class="form-group">
+        <label class="col-sm-4">Scope Name:</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="scope_name" data-table="estimate" data-id-field="estimateid" value="<?= $scope_name ?>">
+        </div>
+    </div>
+	
+	<?php $_GET['rate'] = $current_rate;
 	if($_GET['templateid'] > 0) {
 		$query = mysqli_query($dbc, "SELECT `heading_name`, `id` FROM `estimate_template_headings` WHERE `template_id`='{$_GET['templateid']}' AND `deleted`=0 ORDER BY `sort_order`");
 	} else if($_GET['priorid'] > 0) {
