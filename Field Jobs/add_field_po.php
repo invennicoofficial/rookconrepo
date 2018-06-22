@@ -12,6 +12,7 @@ if (isset($_POST['purchase_order'])) {
 	$po_number = $_POST['po_number'];
 	$type = ( !empty($_POST['type']) ) ? $_POST['type'] : '';
 	$bill_to = ( !empty($_POST['bill_to']) ) ? $_POST['bill_to'] : '';
+	$third_invoice_no = $_POST['third_invoice_no'];
 	$vendorid = $_POST['vendorid'];
     $issue_date = $_POST['issue_date'];
     $revision = $_POST['revision'];
@@ -31,16 +32,29 @@ if (isset($_POST['purchase_order'])) {
     $created_by = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 
 	if(empty($_POST['fieldpoid'])) {
-		$query_insert_po = "INSERT INTO `field_po` (`jobid`, `po_number`, `type`, `bill_to`, `vendorid`, `issue_date`, `description`, `qty`, `desc`, `grade`, `tag`, `detail`, `price_per_unit`, `each_cost`, `cost`, `mark_up`, `total_cost`, `created_by`) VALUES ('$jobid', '$po_number', '$type', '$bill_to', '$vendorid', '$issue_date', '$description', '$qty', '$desc', '$grade', '$tag', '$detail', '$price_per_unit', '$each_cost', '$cost', '$mark_up', '$total_cost', '$created_by')";
+		$query_insert_po = "INSERT INTO `field_po` (`jobid`, `po_number`, `type`, `bill_to`, `vendorid`, `third_invoice_no`, `issue_date`, `description`, `qty`, `desc`, `grade`, `tag`, `detail`, `price_per_unit`, `each_cost`, `cost`, `mark_up`, `total_cost`, `created_by`) VALUES ('$jobid', '$po_number', '$type', '$bill_to', '$vendorid', '$third_invoice_no', '$issue_date', '$description', '$qty', '$desc', '$grade', '$tag', '$detail', '$price_per_unit', '$each_cost', '$cost', '$mark_up', '$total_cost', '$created_by')";
 	    $result_insert_po = mysqli_query($dbc, $query_insert_po);
         $fieldpoid = mysqli_insert_id($dbc);
         $url = 'Added';
 	} else {
 		$fieldpoid = $_POST['fieldpoid'];
-		$query_update_site = "UPDATE `field_po` SET `po_number`='$po_number', `type`='$type', `bill_to`='$bill_to', `issue_date`='$issue_date', `description`='$description', `qty`='$qty', `vendorid`='$vendorid', `desc`='$desc', `grade`='$grade', `tag`='$tag', `detail`='$detail', `price_per_unit`='$price_per_unit', `each_cost`='$each_cost', `description`='$description', `cost`='$cost', `mark_up`='$mark_up', `total_cost`='$total_cost', `revision`='$revision', `edited_by`='$created_by' WHERE `fieldpoid`='$fieldpoid'";
+		$query_update_site = "UPDATE `field_po` SET `po_number`='$po_number', `type`='$type', `bill_to`='$bill_to', `issue_date`='$issue_date', `description`='$description', `qty`='$qty', `vendorid`='$vendorid', `third_invoice_no`='$third_invoice_no', `desc`='$desc', `grade`='$grade', `tag`='$tag', `detail`='$detail', `price_per_unit`='$price_per_unit', `each_cost`='$each_cost', `description`='$description', `cost`='$cost', `mark_up`='$mark_up', `total_cost`='$total_cost', `revision`='$revision', `edited_by`='$created_by' WHERE `fieldpoid`='$fieldpoid'";
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
         $url = 'Updated';
 	}
+	$invoice_list = '';
+	foreach($_POST['vendor_invoice'] as $invoice) {
+		$invoice_list .= '##FFM##'.$invoice;
+	}
+	foreach($_FILES['vendor_upload']['name'] as $i => $file) {
+		if(!file_exists('download/field_invoice')) {
+			mkdir('download/field_invoice',0777,true);
+		}
+		$file = htmlspecialchars($file, ENT_QUOTES);
+		move_uploaded_file($_FILES['vendor_upload']['tmp_name'][$i],'download/field_invoice/'.$file);
+		$invoice_list .= '##FFM##'.$file;
+	}
+	mysqli_query($dbc, "UPDATE `field_po` SET `vendor_invoice`='$invoice_list' WHERE `fieldpoid`='$fieldpoid'");
 
     $vendname = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$vendorid'"));
     $vend_name = decryptIt($vendname['name']);
@@ -335,6 +349,8 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                 $bill_to = $get_job['bill_to'];
                 $total_cost = $get_job['total_cost'];
                 $vendorid = $get_job['vendorid'];
+                $vendor_invoice = $get_job['vendor_invoice'];
+                $third_invoice_no = $get_job['third_invoice_no'];
                 $cost = $get_job['cost'];
                 $description = $get_job['description'];
 
@@ -431,6 +447,35 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                     </div>
                 </div>
             <?php endif; ?>
+
+            <?php if(strpos($edit_config,',3rd party,') !== false): ?>
+                <div class="form-group vendor">
+                    <label for="fax_number"	class="col-sm-4	control-label">3rd Party Invoice #:</label>
+                    <div class="col-sm-8">
+						<input type="text" class="form-control" name="third_invoice_no" value="<?= $third_invoice_no ?>">
+                    </div>
+                </div>
+			<?php else: ?>
+				<input type="hidden" name="third_invoice_no" value="<?= $third_invoice_no ?>">
+            <?php endif; ?>
+
+            <?php if(strpos($edit_config,',invoice,') !== false): ?>
+                <div class="form-group vendor">
+                    <label for="fax_number"	class="col-sm-4	control-label">Upload Invoice:</label>
+                    <div class="col-sm-8">
+						<input accept="*" name="vendor_upload[]" type="file" data-filename-placement="inside" class="form-control" multiple>
+						<?php $invoices = explode('##FFM##',$vendor_invoice);
+						for($i = 1; $i < count($invoices); $i ++) { ?>
+							<div class="form-group"><input type="hidden" name="vendor_invoice[]" value="<?= $invoices[$i] ?>"><?= file_exists('download/field_invoice/'.$invoices[$i]) ? '<a href="download/field_invoice/'.$invoices[$i].'" target="_blank">'.$invoices[$i].'</a>' : $invoices[$i] ?> | <span class="cursor-hand" onclick="$(this).closest('.form-group').remove();">Archive</span></div>
+						<?php } ?>
+                    </div>
+                </div>
+			<?php else:
+				$invoices = explode('##FFM##',$vendor_invoice);
+				for($i = 1; $i < count($invoices); $i ++) { ?>
+					<input type="hidden" name="vendor_invoice[]" value="<?= $invoices[$i] ?>">
+				<?php }
+			endif; ?>
 
             <?php if(strpos($edit_config,',date,') !== false): ?>
                 <div class="form-group vendor">
