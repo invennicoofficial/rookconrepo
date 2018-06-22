@@ -278,7 +278,7 @@ function remove_follow_up(elem) {
 			$col_width = 1 / ($col_width + 1) * 100;
 
 			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-			$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v']; ?>
+			$us_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v']; ?>
 			<div id="no-more-tables" class="responsive-table">
 				<table class="table table-bordered">
 					<tr class="hidden-xs hidden-sm">
