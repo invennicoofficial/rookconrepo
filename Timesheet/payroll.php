@@ -42,6 +42,23 @@ function filterStaff(sel) {
     }
   }
 }
+function unapproveTimeSheet(a) {
+    var staff = $(a).data('staff');
+    var type = $(a).data('type');
+    var date = $(a).data('date');
+    var id = $(a).data('timesheetid');
+    if(confirm('Are you sure you want to unapprove this time?')) {
+        $.ajax({
+            url: '../Timesheet/time_cards_ajax.php?action=unapprove_time',
+            method: 'POST',
+            data: { staff: staff, type: type, date: date, id: id },
+            success: function(response) {
+                console.log(response);
+                $(a).closest('tr').remove();
+            }
+        });
+    }
+}
 </script>
 
 </head>
@@ -672,7 +689,7 @@ function viewTicket(a) {
                     <div id="no-more-tables">
                         <table class='table table-bordered'>
                             <tr class='hidden-xs hidden-sm'>
-                                <th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
+                                <th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
                                 <?php $total_colspan = 2; ?>
                                 <?php if(in_array('schedule',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
                                 <?php if(in_array('scheduled',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
@@ -772,7 +789,7 @@ function viewTicket(a) {
                                     <input type="hidden" name="time_cards_id[]" value="<?= $row['id'] ?>">
                                     <input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
                                     <input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-                                    <td data-title="Date"><?= $date ?></td>
+                                    <td data-title="Date"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
                                     <?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
                                     <?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours"></td><?php } ?>
                                     <?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>

@@ -48,6 +48,7 @@ if (isset($_POST['submit'])) {
 	$timesheet_record_history = get_config($dbc, 'timesheet_record_history');
 	foreach($_POST['time_cards_id'] as $i => $id) {
 		$date = filter_var($_POST['date'][$i],FILTER_SANITIZE_STRING);
+		$date_editable = filter_var($_POST['date_editable'][$i],FILTER_SANITIZE_STRING);
 		$staff = filter_var($_POST['staff'][$i],FILTER_SANITIZE_STRING);
 		$type_of_time = filter_var($_POST['type_of_time'][$i],FILTER_SANITIZE_STRING);
 		$start_time = filter_var($_POST['start_time'][$i],FILTER_SANITIZE_STRING);
@@ -114,6 +115,11 @@ if (isset($_POST['submit'])) {
 			}
 			if($_POST['approve_date_id'][$i] != 'UNCHECKED_PLACEHOLDER' && isset($_POST['approve_date_id'][$i])) {
 				$_POST['approve_date_id'][$i] = $id;
+			}
+		}
+		foreach($ids as $id) {
+			if($id > 0 && !empty($date_editable) && $date != $date_editable) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `date` = '$date_editable' WHERE `time_cards_id` = '$id'");
 			}
 		}
 		if($layout == 'ticket_task') {
