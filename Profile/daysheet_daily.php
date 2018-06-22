@@ -364,7 +364,7 @@ $(document).ready(function () {
             }
 
             $checklist_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` AS `cn` LEFT JOIN `checklist` AS `c`ON `c`.`checklistid` = `cn`.`checklistid` WHERE `checklistnameid` = '".$checklist_action['checklistnameid']."'"));
-			$label = ($checklist_name['businessid'] > 0 ? get_contact($dbc, $checklist_name['businessid'], 'name').', ' : '').($checklist_name['projectid'] > 0 ? PROJECT_NOUN.' #'.$checklist_name['projectid'].' '.get_project($dbc,$checklist_name['projectid'],'project_name') : '');
+            $label = ($checklist_name['businessid'] > 0 ? get_contact($dbc, $checklist_name['businessid'], 'name').', ' : '').($checklist_name['projectid'] > 0 ? PROJECT_NOUN.' #'.$checklist_name['projectid'].' '.get_project($dbc,$checklist_name['projectid'],'project_name') : '');
             echo '<a href="../Checklist/checklist.php?view='.$checklist_name['checklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;'.($checklist_action['done'] == 1 ? 'text-decoration: line-through;' : '').'">'.($label != '' ? $label.'<br />' : '').'Checklist: '.$checklist_name['checklist_name'].' - Item: '.explode('&lt;p&gt;', $checklist_name['checklist'])[0].'</a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
@@ -378,6 +378,62 @@ $(document).ready(function () {
     } else {
         echo '<ul id="checklists_daily">';
         echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Shifts', $daysheet_fields_config)) { ?>
+    <?php include_once ('../Calendar/calendar_functions_inc.php'); ?>
+    <h4 style="font-weight: normal;">Shifts</h4>
+    <?php
+    $day_of_week = date('l', strtotime($daily_date));
+    $shifts = checkShiftIntervals($dbc, $_SESSION['contactid'], $day_of_week, $daily_date, 'all');
+    if (!empty($shifts)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="shifts_daily">';
+        }
+        $total_booked_time = 0;
+        foreach($shifts as $shift) {
+            if($daysheet_styling == 'card') {
+                echo '<div class="block-group-daysheet" style="padding: 5px;">';
+            } else {
+                echo '<li>';
+            }
+            if(!empty($shift['dayoff_type'])) {
+                echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
+                echo 'Day Off Type: '.$shift['dayoff_type'];
+            } else {
+                $total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
+                echo 'Shift: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+                if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
+                    echo '<br>';
+                    echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
+                }
+                if(!empty($shift['clientid'])) {
+                    echo '<br>';
+                    echo get_contact($dbc, $shift['clientid'], 'category').': ';
+                    echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
+                }
+            }
+
+            if($daysheet_styling == 'card') {
+                echo '</div>';
+            } else {
+                echo '</li>';
+            }
+        }
+        if($daysheet_styling == 'card') {
+            echo '<div class="block-group-daysheet" style="padding: 5px;">Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'</div>';
+        } else {
+            echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="shifts_daily">';
+        echo 'No shifts found.';
         echo '</ul>';
     } ?>
     <hr>

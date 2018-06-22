@@ -79,6 +79,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
     //Item Layout
     if($daysheet_styling == 'card') {
         $row_open = '<div class="block-group-daysheet">';
+        $row_open_shifts = '<div class="block-group-daysheet" style="padding: 5px;">';
         $row_close = '</div>';
     } else {
         $row_open = '<li>';
@@ -174,6 +175,39 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
 						$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
                         echo $row_open.'<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
                         $no_records = false;
+                    }
+                }
+                if (in_array('Shifts', $daysheet_fields_config)) {
+                    include_once ('../Calendar/calendar_functions_inc.php');
+                    $day_of_week = date('l', strtotime($current_day));
+                    $shifts = checkShiftIntervals($dbc, $_SESSION['contactid'], $day_of_week, $current_day, 'all');
+                    if(!empty($shifts)) {
+                        foreach ($shifts as $shift) {
+                            echo $row_open_shifts;
+                            if(!empty($shift['dayoff_type'])) {
+                                echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
+                                echo 'Day Off Type: '.$shift['dayoff_type'];
+                            } else {
+                                $total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
+                                echo 'Shift: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+                                if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
+                                    echo '<br>';
+                                    echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
+                                }
+                                if(!empty($shift['clientid'])) {
+                                    echo '<br>';
+                                    echo get_contact($dbc, $shift['clientid'], 'category').': ';
+                                    echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
+                                }
+                            }
+                            echo $row_close;
+                            $no_records = false;
+                        }
+                        if($daysheet_styling == 'card') {
+                            echo '<div class="block-group-daysheet" style="padding: 5px;">Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'</div>';
+                        } else {
+                            echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
+                        }
                     }
                 }
                 if ($no_records) {
