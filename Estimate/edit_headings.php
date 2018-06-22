@@ -310,11 +310,11 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2) ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php if($us_pricing > 0) { ?>
 												</td><td data-title="US Pricing">
 												<?php if($line['pricing'] == 'usd_cpu') { ?>
-													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2) ?> CAD)
+													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD)
 													<?php if(!($line['price'] > 0)) {
 														$line['price'] = $line['cost'] * $us_rate;
 													}
@@ -324,7 +324,7 @@ $col_spanned = $columns; ?>
 											}
 											break;
 										case 'Total': ?>
-											<input type="text" name="retail" class="form-control" value="<?= round($line['retail']) != round($line['qty'] * $line['price']) ? number_format($line['qty'] * $line['price'],2) : $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="retail" class="form-control" value="<?= round($line['retail']) != round($line['qty'] * $line['price']) ? number_format($line['qty'] * $line['price'],2,'.','') : $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;
 									}
 									echo "</td>";
