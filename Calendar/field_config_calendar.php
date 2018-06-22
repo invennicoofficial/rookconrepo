@@ -503,6 +503,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_multi_class_admin' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_multi_class_admin') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_multi_class_admin."' WHERE `name`='scheduling_multi_class_admin'");
+	if (!empty($_POST['scheduling_combine_warehouse'])) {
+		$scheduling_combine_warehouse = $_POST['scheduling_combine_warehouse'];
+	} else {
+		$scheduling_combine_warehouse = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -1934,6 +1941,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_multi_class_admin = get_config($dbc, 'scheduling_multi_class_admin'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_multi_class_admin" <?= $scheduling_multi_class_admin == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_warehouse" <?= $scheduling_combine_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
