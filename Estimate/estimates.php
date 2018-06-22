@@ -12,14 +12,14 @@ $(document).ready(function() {
 		});
 		var available = 0;
         try {
-            available = Math.floor($(window).innerHeight() - $('.main-screen .main-screen').offset().top - $('footer').outerHeight());
+            available = Math.floor($(window).innerHeight() - $('.main-screen .main-screen').offset().top - $('footer:visible').outerHeight());
         } catch(err) { }
 		if(available > 300) {
 			$('.tile-sidebar, .main-screen .main-screen, .preview-bar').each(function() {
 				$(this).outerHeight(available);
 			});
 			$('.main-screen .has-dashboard').each(function() {
-				$(this).outerHeight($(window).innerHeight() - $('.main-screen .has-dashboard').offset().top - $('footer').outerHeight());
+				$(this).outerHeight($(window).innerHeight() - $('.main-screen .has-dashboard').offset().top - $('footer:visible').outerHeight());
 				var height = this.clientHeight;
 				$(this).find('div.dashboard-list').each(function() {
 					var offset = $(this).find('.info-block-header').outerHeight();

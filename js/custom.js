@@ -194,31 +194,31 @@ $(document).ready(function() {
 		allowClear: true
 	});
     
-  //   $('.hide-header-footer').click(function() {
-  //       $('#main-header, #nav, #footer').toggle();
-  //       var fullscreen = $('#fullscreen').val();
-  //       if ( fullscreen==1 ) {
-  //           $(this).removeClass('down');
-  //           $('.pullup').removeClass('rotate');
-  //           $('#fullscreen').val(0);
-  //           $('.main-screen').removeClass('double-pad-top');
-  //       } else {
-  //           $(this).addClass('down');
-  //           $('.pullup').addClass('rotate');
-  //           $('#fullscreen').val(1);
-  //           $('.main-screen').addClass('double-pad-top');
-  //       }
-  //       fullscreen = $('#fullscreen').val();
-		// $.ajax({
-		// 	type: "GET",
-		// 	url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
-		// 	dataType: "html",
-		// 	success: function(response){
-		// 		console.log(response);
-		// 	}
-		// });
-  //       $(window).resize();
-  //   });
+    $('.hide-header-footer').click(function() {
+        $('#main-header, #nav, #footer').toggle();
+        var fullscreen = $('#fullscreen').val();
+        if ( fullscreen==1 ) {
+            $(this).removeClass('down');
+            $('.pullup').removeClass('rotate');
+            $('#fullscreen').val(0);
+            $('.main-screen').removeClass('double-pad-top');
+        } else {
+            $(this).addClass('down');
+            $('.pullup').addClass('rotate');
+            $('#fullscreen').val(1);
+            $('.main-screen').addClass('double-pad-top');
+        }
+        fullscreen = $('#fullscreen').val();
+		$.ajax({
+			type: "GET",
+			url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
+			dataType: "html",
+			success: function(response){
+				console.log(response);
+			}
+		});
+        $(window).resize();
+    });
 });
 
 function initTooltips() {

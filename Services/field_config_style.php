@@ -132,14 +132,19 @@ $(document).ready(function(){
 	// Fix links
 	$('a[href="#"]').attr('href', 'javascript:void(0)');
 
-	$(document).ready(function(){
-        if($(window).width() > 767) {
+	/* if($(window).width() > 767) {
+        resizeScreen();
+        $(window).resize(function() {
             resizeScreen();
-            $(window).resize(function() {
-                resizeScreen();
-            });
+        });
+    } */
+    
+    $(window).resize(function() {
+		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+        if(available_height > 300) {
+            $('.tile-sidebar, .tile-sidebar .sidebar, .tile-content').height(available_height);
         }
-    });
+	}).resize();
 });
 
 function resizeScreen() {

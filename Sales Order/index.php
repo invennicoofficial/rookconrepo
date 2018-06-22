@@ -85,11 +85,18 @@ if(isset($_POST['copy_order'])) {
 <script type="text/javascript">
     $(document).ready(function() {
         if($(window).width() > 767) {
-            resizeScreen();
+            //resizeScreen();
             $(window).resize(function() {
-                resizeScreen();
+                //resizeScreen();
             });
         }
+        
+        $(window).resize(function() {
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_order_div .tile-container').offset().top - 2;
+            if(available_height > 200) {
+                $('#sales_order_div .tile-sidebar, #sales_order_div .tile-content').height(available_height);
+            }
+        }).resize();
     });
 	function searchLeads(string) {
 		$('[data-searchable]').hide();

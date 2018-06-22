@@ -8,8 +8,14 @@ $total_cost = $total_price = 0; ?>
 <script>
 $(document).ready(function(){
     //$('.financials').height($('#estimates_main').height() - $('.tile-header').height() - $('.tile-navbar').height() );
-    var financialsHeight = $('#estimates_main').height() - $('.tile-header').height() - 25;
-    $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+financialsHeight+'px !important;'); })
+    /* var financialsHeight = $('#estimates_main').height() - $('.tile-header').height() - 25;
+    $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+financialsHeight+'px !important;'); }) */
+    $(window).resize(function() {
+        available = Math.floor($(window).innerHeight() - $('.main-screen').offset().top - $('footer:visible').outerHeight() - 80);
+		if(available > 300) {
+            $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+available+'px !important;'); })
+		}
+	}).resize();
 });
 </script>
 <div id="no-more-tables" class="col-sm-12 fit-to-screen-full financials">

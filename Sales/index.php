@@ -8,15 +8,22 @@ include ('../include.php');
 <script type="text/javascript">
     $(document).ready(function(){
         if($(window).width() > 767) {
-            resizeScreen();
+            //resizeScreen();
             $(window).resize(function() {
                 $('.double-scroller div').width($('.main-screen-white:visible').get(0).scrollWidth);
                 $('.double-scroller').off('scroll',doubleScroll).scroll(doubleScroll);
                 $('.dashboard-container').off('scroll',setDoubleScroll).scroll(setDoubleScroll);
-                resizeScreen();
+                //resizeScreen();
             });
         }
         $('.dashboard-container').css('height', 'calc(100% - '+$('.double-scroller').height()+'px)');
+        
+        $(window).resize(function() {
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 19;
+            if(available_height > 200) {
+                $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
+            }
+        }).resize();
     });
     
 	function doubleScroll() {
@@ -76,7 +83,15 @@ include ('../include.php');
 
     function resizeScreen() {
         var view_height = $(window).height() > 500 ? $(window).height() : 500;
-        $('#sales_div .scale-to-fill,#sales_div .scale-to-fill .main-screen,#sales_div .tile-sidebar').height($('#sales_div').height() - $('.tile-header').height() + 15);
+        
+        if ( $('header .container').is(':visible')==true ) {
+            view_height = $('header').height() + $('#nav').height() + $('footer').height();
+        } else {
+            view_height = 0;
+        }
+        
+        //$('#sales_div .scale-to-fill,#sales_div .scale-to-fill .main-screen,#sales_div .tile-sidebar').height($('#sales_div .tile-container').height());
+        $('#sales_div .tile-sidebar, #sales_div .tile-content').height($(window).height() - view_height - $('#sales_div .tile-header').height() - 21);
     }
 </script>
 </head>

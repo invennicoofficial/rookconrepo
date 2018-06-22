@@ -43,8 +43,8 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 $_SERVER['page_load_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 $_SERVER['page_load_info'] .= 'Ticket Banners Loaded: '.number_format($_SERVER['page_load_time'],5)."\n";
 ?>
-<header id="main-header" style="display:none;">
-	<div class="container">
+<header id="main-header">
+	<div class="container" style="display:none;">
 		<div class="row">
             <div class="logo-div">
                 <a href="<?php echo WEBSITE_URL; ?>/home.php" class="logo" style="text-align: left;">
@@ -127,16 +127,17 @@ $(document).ready(function() {
 		$('#info_toggle_state').val(1);
 	}
     
-    // var fullscreen = $('#fullscreen').val();
-    // if ( fullscreen==1 ) {
-    //     $('#main-header, #nav, #footer').hide();
-    //     $('.pullup').addClass('rotate');
-    //     $('.main-screen').addClass('double-pad-top');
-    // } else {
-    //     $('#main-header, #nav, #footer').show();
-    //     $('.pullup').removeClass('rotate');
-    //     $('.main-screen').removeClass('double-pad-top');
-    // }
+    var fullscreen = $('#fullscreen').val();
+    if ( fullscreen==1 ) {
+        $('#main-header, #nav, #footer').hide();
+        $('.pullup').addClass('rotate');
+        $('.main-screen').addClass('double-pad-top');
+        $(window).resize();
+    } else {
+        $('#main-header, #nav, #footer').show();
+        $('.pullup').removeClass('rotate');
+        $('.main-screen').removeClass('double-pad-top');
+    }
 });
 
 var software_search_shifted = false;
@@ -379,11 +380,11 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
-        <!-- <div class="hide-header-footer">
+        <div class="hide-header-footer">
             <div class="pull-right">
                 <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
             </div>
-        </div> -->
+        </div>
         <?php include('sticky_tile_menu.php'); ?>
     </div>
 <?php endif; ?>

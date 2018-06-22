@@ -22,12 +22,19 @@ switch($_GET['tab']) {
 
 <script type="text/javascript">
 $(document).ready(function(){
-    if($(window).width() > 767) {
+    /* if($(window).width() > 767) {
         resizeScreen();
         $(window).resize(function() {
             resizeScreen();
         });
-    }
+    } */
+    $(window).resize(function() {
+		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar:visible').offset().top;
+        if(available_height > 300) {
+            $('.tile-sidebar, .scale-to-fill').height(available_height);
+            $('.main-screen-white').height(available_height - 10);
+        }
+	}).resize();
 });
 
 function resizeScreen() {
