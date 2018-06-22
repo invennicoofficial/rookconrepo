@@ -38,7 +38,7 @@ if(isset($_POST['submit'])) {
 		$exchange_rate = 1;
 		if($pricing == 'usd_cpu') {
 			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-			$exchange_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+			$exchange_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v'];
 		}
         foreach($_POST['inventoryid'] as $i => $value) {
         	$cost = $_POST['vpl_price'][$i];
