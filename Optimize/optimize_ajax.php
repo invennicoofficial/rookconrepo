@@ -45,9 +45,12 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 	if($increment == '') {
 		$increment = '30 minutes';
 	}
+	$available_increment = get_config($dbc, 'delivery_timeframe_default');
 	$stops = $dbc->query("SELECT `id` FROM `ticket_schedule` WHERE `ticketid`='$ticket' AND `deleted`=0 ORDER BY `id`");
 	while($stop = $stops->fetch_assoc()) {
-		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
+		$start_available = $start_time;
+		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
+		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
 		$start_time = date('H:i',strtotime($start_time.' + '.$increment));
 	}
 }
