@@ -2,7 +2,15 @@
 include_once('../include.php');
 checkAuthorised('estimate');
 $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
-$count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `estimate` WHERE '$status' IN (`status`,'all') AND `estimate`.`deleted`=0 AND (`status`!='$closed_status' OR `status_date` >= '$closed_date')"))[0]; ?>
+$dashboard = filter_var($_GET['dashboard'], FILTER_SANITIZE_STRING);
+if(empty($dashboard)) {
+	$dashboard = $_SESSION['contactid'];
+}
+$all_status_list = [];
+foreach(explode('#*#',get_config($dbc, 'estimate_status')) as $status_name) {
+	$all_status_list[] = "'".preg_replace('/[^a-z]/','',strtolower($status_name))."'";
+}
+$count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `estimate` WHERE ('$status' IN (`status`,'all') OR ('$status'='misc' AND `status` NOT IN (".implode(',',$all_status_list)."))) AND `estimate`.`deleted`=0 AND (`status`!='$closed_status' OR `status_date` >= '$closed_date')".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")))[0]; ?>
 <script>
 var estLoaded = 10;
 var max = 0<?= $count ?>;
@@ -19,7 +27,7 @@ $(document).ready(function() {
 });
 function loadEstimates(start, end) {
 	$.ajax({
-		url: 'estimates_list_load.php?status=<?= $_GET['status'] ?>&startdate=<?= $_GET['startdate'] ?>&enddate=<?= $_GET['enddate'] ?>&staffid=<?= $_GET['staffid'] ?>&start='+start+'&end='+end,
+		url: 'estimates_list_load.php?dashboard=<?= $_GET['dashboard'] ?>&status=<?= $_GET['status'] ?>&startdate=<?= $_GET['startdate'] ?>&enddate=<?= $_GET['enddate'] ?>&staffid=<?= $_GET['staffid'] ?>&start='+start+'&end='+end,
 		method: 'POST',
 		dataType: 'html',
 		success: function(response) {
@@ -27,6 +35,7 @@ function loadEstimates(start, end) {
 			$('#display_screen').append(response);
 			$('input,select').off('change', saveField).change(saveField);
 			loadMore = true;
+			initInputs();
 		}
 	});
 }

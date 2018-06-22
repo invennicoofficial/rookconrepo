@@ -89,23 +89,27 @@ function clearEstimates() {
 <div class="double-scroller"><div></div></div>
 <form class="has-dashboard main-screen-white form-horizontal" style="padding:0.5em;overflow-y:hidden;">
 	<div>
-		<?php $statuses = $set_status = [];
+		<?php $dashboard = filter_var($_GET['dashboard'], FILTER_SANITIZE_STRING);
+		if(empty($dashboard)) {
+			$dashboard = $_SESSION['contactid'];
+		}
+		$statuses = $set_status = [];
 		foreach($status as $status_name) {
 			$statuses[$status_name] = preg_replace('/[^a-z]/','',strtolower($status_name));
 			$set_status[] = "'".$statuses[$status_name]."'";
 		}
-		$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0"))['estimates'];
+		$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")))['estimates'];
 		if($sqlstatuses > 0) {
 			$statuses['Uncategorized'] = "misc";
 		}
 		$approvals = approval_visible_function($dbc, 'estimate');
 		foreach($statuses as $status_name => $status_id) {
-			$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) total, SUM(`total_retail`) value FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` WHERE `deleted`=0 AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status).")))")); ?>
+			$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) total, SUM(`total_retail`) value FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` WHERE `deleted`=0 AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status).")))".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : ""))); ?>
 			<div class="dashboard-list" data-status="<?= $status_id ?>">
 				<div class="info-block-header"><a href="?status=<?= $status_id ?>"><h4><?= $status_name ?><?php if($closed_status == $status_id) { ?><img class="inline-img small pull-right no-toggle black-color" data-original-title="Clear Completed Estimates" src="../img/clear-checklist.png" onclick="clearEstimates(); return false;"><?php } ?></h4>
 				<div class="small"><?= $summary['total'] ?><span class="pull-right">$<?= number_format($summary['value'],2) ?></span></div></a><div class="clearfix"></div></div>
 				<ul class="dashboard-list" data-status="<?= $status_id ?>">
-					<?php $estimates = mysqli_query($dbc, "SELECT `estimate`.`estimateid`, `estimate_name`, `businessid`, `clientid`, `total_price`, `status`, CURDATE() - `created_date` status_days, `estimatetype`, `projectid`, `add_to_project`, `prices`.`total_retail` FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` LEFT JOIN (SELECT MIN(`due_date`) due_date, `estimateid` FROM `estimate_actions` WHERE `deleted`=0 GROUP BY `estimateid`) actions ON `estimate`.`estimateid`=actions.`estimateid` WHERE (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status)."))) AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND `deleted`=0 ORDER BY actions.`due_date`, `expiry_date` LIMIT 0,".get_config($dbc, "estimate_dashboard_length"));
+					<?php $estimates = mysqli_query($dbc, "SELECT `estimate`.`estimateid`, `estimate_name`, `businessid`, `clientid`, `total_price`, `status`, CURDATE() - `created_date` status_days, `estimatetype`, `projectid`, `add_to_project`, `prices`.`total_retail` FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` LEFT JOIN (SELECT MIN(`due_date`) due_date, `estimateid` FROM `estimate_actions` WHERE `deleted`=0 GROUP BY `estimateid`) actions ON `estimate`.`estimateid`=actions.`estimateid` WHERE (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status)."))) AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND `deleted`=0".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")." ORDER BY actions.`due_date`, `expiry_date` LIMIT 0,".get_config($dbc, "estimate_dashboard_length"));
 					while($estimate = mysqli_fetch_array($estimates)) {
 						$action = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='{$estimate['estimateid']}' AND `deleted`=0 ORDER BY `due_date` ASC")); ?>
 						<li class="dashboard-item textwrap <?= $action['due_date'] == date('Y-m-d') ? 'blue-border' : ($action['due_date'] < date('Y-m-d') ? 'red-border' : '') ?>" data-id="<?= $estimate['estimateid'] ?>">

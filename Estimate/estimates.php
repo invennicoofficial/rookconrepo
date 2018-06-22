@@ -25,7 +25,6 @@ $(document).ready(function() {
 					var offset = $(this).find('.info-block-header').outerHeight();
 					$(this).find('ul').height('calc('+(height - offset)+'px - 1em)');
 				});
-				// $(this).find('ul.dashboard-list').outerHeight('calc('+($(this).find('.main-screen .has-dashboard div').first().offset().top + $(this).find('.main-screen .has-dashboard div').first().outerHeight() - $(this).find('ul.dashboard-list').first().offset().top) + 'px + 0.5em)');
 			});
 			$('body').css('overflow-y','hidden');
 		}
@@ -37,7 +36,7 @@ $(document).ready(function() {
     });
 });
 
-$(document).on('change', 'select.dashboard_select_onchange', function() { window.location.replace('?dashboard='+this.value); });
+$(document).on('change', 'select.dashboard_select_onchange', function() { window.location.replace('?status=<?= $_GET['status'] ?>&dashboard='+this.value); });
 var current_fields = [];
 function syncUnsaved(name) {
 	if(typeof(name) != 'string') {
@@ -83,7 +82,12 @@ function syncIcon() {
 checkAuthorised('estimate');
 $edit_access = vuaed_visible_function($dbc, 'estimate');
 $config_access = config_visible_function($dbc, 'estimate');
-include_once ('../navigation.php'); ?>
+include_once ('../navigation.php');
+$summary_view = explode(',',get_config($dbc, 'estimate_summary_view'));
+if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'summary') && !isset($_GET['status'])) {
+	$_GET['status'] = 'summary_view';
+	$_GET['view'] = 'summary';
+} ?>
 <div id="estimates_main" class="container">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
@@ -93,29 +97,24 @@ include_once ('../navigation.php'); ?>
 	</div>
 	<div class="row">
 		<div class="main-screen">
-            <div class="tile-header">
-                <div class="col-xs-12 col-sm-8">
-                    <h1><a href="?"><?= ESTIMATE_TILE ?></a>
-                    <?php if(!empty($_GET['edit'])) {
-                    echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
-                    }
-                    ?>
-                    </h1>
-                </div>
-                <div class="col-xs-12 col-sm-4 gap-top"><?php
-                        if($config_access > 0) {
-                        echo "<div class='pull-right gap-left'><a href='?settings=status'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30'></a></div>";
-                        echo "<div class='pull-right gap-left hide-titles-mob'><a href='?reports=statistics' style='font-size: 0.5em;'><button class='btn brand-btn icon-pie-chart'>Reporting</button></a></div>";
-                        echo "<div class='pull-right gap-left'><a href='?template=list' style='font-size: 0.5em;'><button class='btn brand-btn'>Templates</button></a></div>";
-                        // echo "<div class='pull-right gap-left'><a href='?style_settings=design_styleA' style='font-size: 0.5em;'><button class='btn brand-btn'>PDF Style</button></a></div>";
-                    }
+            <div class="tile-header col-sm-12">
+				<h1><a href="?"><?= ESTIMATE_TILE ?></a>
+					<?php if(!empty($_GET['edit'])) {
+						echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
+					}
+					if($config_access > 0) {
+						echo "<div class='pull-right gap-left'><a href='?settings=status'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30'></a></div>";
+						echo "<div class='pull-right gap-left hide-titles-mob'><a href='?reports=statistics' style='font-size: 0.5em;'><button class='btn brand-btn icon-pie-chart'>Reporting</button></a></div>";
+						echo "<div class='pull-right gap-left'><a href='?template=list' style='font-size: 0.5em;'><button class='btn brand-btn'>Templates</button></a></div>";
+					}
                     if($edit_access > 0) {
                         echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".ESTIMATE_TILE."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
+						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small" src="../img/icons/pie-chart.png">
                         <div class="pull-right top-dashboard"><img src="../img/icons/ROOK-Speedometer.png" class="cursor-hand" height="30" onclick="$('.dashboard_select').toggle();" /></div>
-                        <div class="col-sm-3 pull-right dashboard_select" style="display: none;">
+                        <div class="col-sm-3 pull-right small dashboard_select" style="display: none;">
                             <select class="chosen-select-deselect dashboard_select_onchange">
                                 <option value="<?= $_SESSION['contactid'] ?>">My Dashboard</option>
                                 <?php if($config_access > 0) {
@@ -128,11 +127,10 @@ include_once ('../navigation.php'); ?>
                                 } ?>
                             </select>
                         </div>
-						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob" src="../img/icons/pie-chart.png">
                     <?php } ?>
                     <img class="no-toggle syncIcon pull-right no-margin inline-img" title="" src="" />
-                </div>
-                <div class="clearfix"></div>
+				</h1>
+				<div class="clearfix"></div>
             </div>
 
 			<?php if(($_GET['edit'] > 0 || $_GET['edit'] == 'new') && $edit_access > 0) {
