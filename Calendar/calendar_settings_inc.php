@@ -375,6 +375,7 @@ switch($_GET['type']) {
         if($_GET['mode'] == 'staff') {
             $mobile_calendar_view = 'Staff';
         }
+        $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
         break;
     case 'estimates':
         $config_type = 'estimates';

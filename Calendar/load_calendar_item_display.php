@@ -375,7 +375,36 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
 			$row_html .= "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
 		} else if ($calendar_col[$calendar_row][0] == 'ticket_equip') {
-			if($calendar_col[$calendar_row][1] == 'SHIFT') {
+			if($calendar_col[$calendar_row][1] == 'warehouse') {
+				$ticket = $calendar_col[$calendar_row][5];
+				$warehouse_ticketids = $calendar_col[$calendar_row][4];
+				$warehouse = $calendar_col[$calendar_row][2];
+				$warehouse_count = $calendar_col[$calendar_row][3];
+				$rows = 1;
+				$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/view_warehouse_pickups.php?warehouse=".urlencode($warehouse)."&ticketids=".implode(',',$warehouse_ticketids)."\"); return false;'>" : "")."<div class='used-block' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' ";
+				$row_html .= "style='";
+				$delivery_color = get_delivery_color($dbc, 'warehouse');
+				if(!empty($delivery_color)) {
+					$row_html .= "background-color:".$delivery_color.';';
+				} else {
+					if($ticket['region'] == '') {
+						$ticket['region'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '".$equipment_assignmentid."'"))['region'];
+						if($ticket['region'] == '') {
+							$ticket['region'] = explode('*#*', mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$ticket['equipmentid']."'"))['region'])[0];
+						}
+					}
+					if($ticket['region'] != '') {
+						foreach($region_list as $region_line => $region_name) {
+							if($region_name == $ticket['region']) {
+								$row_html .= "background-color:".$region_colours[$region_line].";";
+							}
+						}
+					}
+				}
+				$row_html .= "height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
+				$row_html .= "<b>Warehouse: ".$warehouse." (".$warehouse_count." Pick Ups)</b>";
+				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
+			} else if($calendar_col[$calendar_row][1] == 'SHIFT') {
 				$rows = 1;
 				$current_time = $calendar_col[$calendar_row][2];
 				$current_date = $calendar_col[$calendar_row][3];
