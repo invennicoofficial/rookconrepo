@@ -305,7 +305,16 @@ function actionDate(sel) {
 				if($row['deleted'] == 1) {
 					echo 'Archived';
 				} else {
-					echo $row['date_sent'];
+					$sent_dates = [];
+					foreach(array_filter(explode('<br>',$row['date_sent'])) as $date_sent) {
+						$date_sent = explode('|',$date_sent);
+						if($date_sent[1] == 'hand') {
+							$sent_dates[] = $date_sent[0].' - Hand Delivered';
+						} else {
+							$sent_dates[] = $date_sent[0].' - Emailed';
+						}
+					}
+					echo implode('<br>',$sent_dates);
 				}
 				echo "&nbsp;";
 				$submit_value = 'submit_'.$submit_inc;
@@ -349,6 +358,7 @@ function actionDate(sel) {
                 echo 'Cust. Approved | <a href=\'field_jobs.php?workticketid='.$row['workticketid'].'&status=Revert\'>Revert</a>';
             }
             echo ' | <input type="checkbox" name="workticketid_send[]" value="'.$row['workticketid'].'"> | ';
+            echo '<a class="cursor-hand" onclick="$.get(\'field_job_ajax_all.php?action=hand_deliver&workticketid='.$row['workticketid'].'\'); $(\'#search_wt_submit\').click(); return false;">Hand Deliver</a> | ';
 			echo '<a href=\'../delete_restore.php?action=delete&subtab=wt&workticketid='.$row['workticketid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
             echo '<input type="hidden" name="contactid_send" value="'.$contactid.'" />';
 

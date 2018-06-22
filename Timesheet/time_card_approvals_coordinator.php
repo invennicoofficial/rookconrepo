@@ -760,7 +760,7 @@ function viewTicket(a) {
 						<div id="no-more-tables">
 							<table class='table table-bordered'>
 								<tr class='hidden-xs hidden-sm'>
-									<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
+									<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
 									<?php $total_colspan = 2; ?>
 									<?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
 									<?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
@@ -874,7 +874,7 @@ function viewTicket(a) {
 										<input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
 										<input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
 										<input type="hidden" name="deleted[]" value="0">
-										<td data-title="Date"><?= $date ?></td>
+										<td data-title="Date"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
 										<?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
 										<?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours"></td><?php } ?>
 										<?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>

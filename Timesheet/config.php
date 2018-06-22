@@ -101,7 +101,8 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Parent/Guardian Signature', 'signature', 'signature'),
 			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
 			array('Approve All Checkbox', 'hidden', 'approve_all'),
-			array('Show Time Overlaps', 'hidden', 'time_overlaps')
+			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
+			array('Editable Dates', 'hidden', 'editable_dates')
 		)
 );
 

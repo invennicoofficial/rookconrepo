@@ -41,10 +41,11 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 	if($start_time == '') {
 		$start_time = '08:00';
 	}
+	$start_time = date('H:i',strtotime($start_time));
 	if($increment == '') {
 		$increment = '30 minutes';
 	}
-	$stops = $dbc->query("SELECT `id` FROM `ticket_schedule` WHERE `ticketid`='$ticket' ORDER BY `id`");
+	$stops = $dbc->query("SELECT `id` FROM `ticket_schedule` WHERE `ticketid`='$ticket' AND `deleted`=0 ORDER BY `id`");
 	while($stop = $stops->fetch_assoc()) {
 		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
 		$start_time = date('H:i',strtotime($start_time.' + '.$increment));

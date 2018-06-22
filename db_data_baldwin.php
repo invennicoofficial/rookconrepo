@@ -119,5 +119,14 @@
 
     //2018-06-21 - Ticket #8000 - HR Default Email
 
+    //2018-06-21 - Ticket #7736 - Shift Reports & My Shifts
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contacts` text NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `user_form_pdf` ADD `attached_contactid` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-21 - Ticket #7736 - Shift Reports & My Shifts
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
