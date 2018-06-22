@@ -322,7 +322,8 @@ function initIconColors() {
 	            src.match('/icons/dropdown-arrow.png') ||
 	            src.match('/icons/eyeball.png') ||
 	            src.match('/icons/clock-button.png') ||
-	            src.match('/icons/save.png') ) {
+	            src.match('/icons/save.png') ||
+                src.match('/clear-checklist.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }
