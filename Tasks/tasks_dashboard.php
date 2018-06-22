@@ -837,7 +837,7 @@ function savePathName(name) {
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label">Timer:</label>
                                             <div class="col-sm-9">
-                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left; max-width:57%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
+                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
                                                 <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
                                                 <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
                                             </div>
