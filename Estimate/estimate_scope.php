@@ -21,10 +21,10 @@ $query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope
 $scope_name = '';
 if(mysqli_num_rows($query) > 0) {
 	while($row = mysqli_fetch_array($query)) {
-		$headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+		$headings[config_safe_str($row[0])] = $row[0];
 	}
 } else {
-	$headings['scope'] = 'Scope 1';
+	$headings['scope_1'] = 'Scope 1';
 } ?>
 <script>
 profile_tab = [];

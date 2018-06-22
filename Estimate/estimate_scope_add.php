@@ -4,22 +4,18 @@ $estimateid = 0;
 if($_GET['estimateid'] > 0) {
 	$estimateid = $_GET['estimateid'];
 }
-if(!empty($_GET['scope'])) {
-	$scope_name = '';
-	$scope_names = $dbc->query("SELECT `scope_name` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND IFNULL(`scope_name`,'') != '' GROUP BY `scope_name`");
-	while($scope_name_row = $scope_names->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($scope_name_row)) == $_GET['scope']) {
-			$scope_name = $scope_name_row;
-		}
+$scope_name = '';
+$scope_names = $dbc->query("SELECT `scope_name` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND IFNULL(`scope_name`,'') != '' GROUP BY `scope_name` UNION SELECT 'Scope 1' `scope_name`");
+while($scope_name_row = $scope_names->fetch_array()[0]) {
+	if(config_safe_str($scope_name_row) == $_GET['scope']) {
+		$scope_name = $scope_name_row;
 	}
 }
-if(!empty($_GET['heading'])) {
-	$heading = '';
-	$headings = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND IFNULL(`heading`,'') != '' GROUP BY `heading`");
-	while($heading_row = $headings->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($heading_row)) == $_GET['heading'] || $heading_row == $_GET['heading']) {
-			$heading = $heading_row;
-		}
+$heading = '';
+$headings = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND IFNULL(`heading`,'') != '' GROUP BY `heading` UNION SELECT 'Heading 1' `heading`");
+while($heading_row = $headings->fetch_array()[0]) {
+	if((empty($_GET['heading']) && $heading_row == 'Heading 1' && empty($heading)) || config_safe_str($heading_row) == $_GET['heading'] || $heading_row == $_GET['heading']) {
+		$heading = $heading_row;
 	}
 }
 $rates = [];

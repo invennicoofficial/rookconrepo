@@ -3,10 +3,17 @@ checkAuthorised('estimate');
 ob_clean();
 error_reporting(0);
 $approvals = approval_visible_function($dbc, 'estimate');
+$dashboard = filter_var($_GET['dashboard'], FILTER_SANITIZE_STRING);
+if(empty($dashboard)) {
+	$dashboard = $_SESSION['contactid'];
+}
+$search_query = '';
+if($dashboard > 0) {
+	$search_query .= " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'";
+}
 $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
 $start = filter_var($_GET['start'], FILTER_SANITIZE_STRING);
 $end = filter_var($_GET['end'], FILTER_SANITIZE_STRING);
-$search_query = '';
 if(!empty($_GET['startdate'])) {
 	$search_query .= " AND IFNULL(`status_date`,`created_date`) >= '".$_GET['startdate']."'";
 }
