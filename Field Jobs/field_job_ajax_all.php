@@ -120,4 +120,7 @@ if($from == 'field_job_fs') {
 		echo $jobid.'*'.$job['contactid'].'*'.$job['afe_number'].'*'.$job['siteid'].'*'.$job['additional_info'];
 	}
 }
+if($_GET['action'] == 'hand_deliver' && $_GET['workticketid'] > 0) {
+	mysqli_query($dbc, "UPDATE `field_work_ticket` SET date_sent = CONCAT_WS('<br>',date_sent, '".date('Y-m-d')."|hand') WHERE `workticketid` = '".$_GET['workticketid']."'");
+}
 ?>

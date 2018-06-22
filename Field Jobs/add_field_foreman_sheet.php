@@ -410,6 +410,7 @@ $(document).ready(function() {
             resetChosen(clone.find("select[class^=chosen]"));
             clone.removeClass("additional_crew");
             $('#add_here_new_crew').append(clone);
+			$('[name="contactid[]"]').off('change',updateCrewPosition).change(updateCrewPosition);
             return false;
     });
 
@@ -515,12 +516,29 @@ $(document).ready(function() {
             $('#edit_here_new_stockmat').append(clone);
             return false;
     });
+	
+	$('[name="contactid[]"]').off('change',updateCrewPosition).change(updateCrewPosition);
 
 	$('[id^=equrate]').change();
 });
 // $(document).on('change', 'select[name="jobid"]', function() { job_select(this); });
 $(document).on('change', 'select[name="equ_billing_rate[]"]', function() { selectHours(this); });
 
+function updateCrewPosition() {
+	var pos = $(this).find('option:selected').data('position');
+	if(pos == '' || pos == undefined) {
+		return;
+	}
+	var select = $(this).closest('.form-group').find('[name="positionname[]"]');
+	if(pos != select.value && pos != $(select).find('option:selected').text()) {
+		if($(select).find('option[value='+pos+']').length == 0) {
+			pos = $(select).find('option[data-label='+pos+']').val();
+		}
+		if($(select).find('option[value='+pos+']').length > 0) {
+			$(select).val(pos).change();
+		}
+	}
+}
 function updateCrewRate(select) {
 	var line = $(select).closest('.form-group');
 	var rate = $(select).find('option:selected').data('rate');
@@ -775,7 +793,8 @@ function job_select(sel) {
 
 		<?php if(strpos($edit_config,',crew_') !== false): ?>
 			<!-- Foreman sheet crew -->
-			<?php $id=1; $no_ratecard = 0; ?>
+			<?php $id=1; $no_ratecard = 0;
+			$sorted_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, category, name, first_name, last_name, position FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND status>0")); ?>
 
 			<div class="form-group">
 				<label for="additional_note" class="col-sm-4 control-label"><h3>Crew</h3></label>
@@ -818,10 +837,8 @@ function job_select(sel) {
 									<div class="col-sm-3"><label for="company_name" class="col-sm-4 show-on-mob control-label">Name:</label>
 										<select data-placeholder="Choose a Crew Member..." name="contactid[]" class="chosen-select-deselect form-control office_zip" width="380">
 										  <option value=""></option>
-										  <?php
-											$sorted_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, category, name, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND status>0"), MYSQLI_ASSOC));
-											foreach($sorted_list as $id) { ?>
-												<option value='<?php echo  $id; ?>' ><?php echo get_contact($dbc, $id); ?></option>
+										  <?php foreach($sorted_list as $staff) { ?>
+												<option data-position="<?= $staff['position'] ?>" value='<?php echo  $staff['contactid']; ?>' ><?= $staff['full_name'] ?></option>
 											<?php  } ?>
 										</select>
 									</div> <!-- Quantity -->
@@ -838,7 +855,7 @@ function job_select(sel) {
 											}
 											$query = mysqli_query($dbc,"SELECT `positions`.position_id, `positions`.name, `rates`.`hourly` FROM positions $rate_sql WHERE `positions`.`deleted`=0 AND `rates`.`hourly` > 0 ORDER BY `name`");
 											while($row = mysqli_fetch_array($query)) { ?>
-												<option data-rate="<?= $row['hourly'] ?>" value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
+												<option data-rate="<?= $row['hourly'] ?>" data-label="<?= $row['name'] ?>" value='<?= $row['position_id'] ?>' ><?= $row['name'] ?></option>
 											<?php } ?>
 										</select>
 									</div> <!-- Quantity -->
@@ -934,10 +951,8 @@ function job_select(sel) {
 									  <div class="col-sm-3"><label for="company_name" class="col-sm-4 show-on-mob control-label">Name:</label>
 										<select data-placeholder="Choose a Crew Member..." name="contactid[]" class="chosen-select-deselect form-control office_zip" width="380">
 										  <option value=""></option>
-										  <?php
-											$sorted_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, category, name, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND status>0"), MYSQLI_ASSOC));
-											foreach($sorted_list as $id) { ?>
-												<option <?php echo ($id == $empid ? 'selected' : ''); ?> value='<?php echo  $id; ?>' ><?php echo get_contact($dbc, $id); ?></option>
+										  <?php foreach($sorted_list as $staff) { ?>
+												<option <?= ($staff['contactid'] == $empid ? 'selected' : '') ?> data-position="<?= $staff['position'] ?>" value='<?php echo  $staff['contactid']; ?>' ><?= $staff['full_name'] ?></option>
 											<?php  } ?>
 										</select>
 									  </div> <!-- Quantity -->
@@ -957,7 +972,7 @@ function job_select(sel) {
 												<option data-rate="<?= $row['hourly'] ?>" <?php if ($cp == $row['position_id']) {
 													$crew_rate = $row['hourly'];
 													echo " selected='selected'"; 
-												} ?> value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
+												} ?> data-label="<?= $row['name'] ?>" value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
 											<?php } ?>
 										</select>
 									  </div> <!-- Quantity -->
@@ -1006,10 +1021,8 @@ function job_select(sel) {
 									<div class="col-sm-3"><label for="company_name" class="col-sm-4 show-on-mob control-label">Name:</label>
 										<select data-placeholder="Choose a Crew Member..." name="contactid[]" class="chosen-select-deselect form-control office_zip" width="380">
 										  <option value=""></option>
-										  <?php
-											$sorted_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, category, name, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND status>0"), MYSQLI_ASSOC));
-											foreach($sorted_list as $id) { ?>
-												<option value='<?php echo  $id; ?>' ><?php echo get_contact($dbc, $id); ?></option>
+										  <?php foreach($sorted_list as $staff) { ?>
+												<option data-position="<?= $staff['position'] ?>" value='<?php echo  $staff['contactid']; ?>' ><?= $staff['full_name'] ?></option>
 											<?php  } ?>
 										</select>
 									</div> <!-- Quantity -->
@@ -1026,7 +1039,7 @@ function job_select(sel) {
 											}
 											$query = mysqli_query($dbc,"SELECT `positions`.position_id, `positions`.name, `rates`.`hourly` FROM positions $rate_sql WHERE `positions`.`deleted`=0 AND `rates`.`hourly` > 0 ORDER BY `name`");
 											while($row = mysqli_fetch_array($query)) { ?>
-												<option data-rate="<?= $row['hourly'] ?>" value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
+												<option data-rate="<?= $row['hourly'] ?>" data-label="<?= $row['name'] ?>" value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
 											<?php  }
 											?>
 										</select>
