@@ -97,9 +97,9 @@ function changeDailyDate(input) {
             <?php if (in_array('My Checklists', $daysheet_button_config) && mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` IN ('".implode("','", array_filter(explode(',',$user_settings['checklist_fav'])))."') AND (`assign_staff` LIKE '%,$contactid,%' OR `assign_staff`=',ALL,')")) > 0) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_checklists" class="btn brand-btn pull-right mobile-anchor">CHECKLISTS</a><?php } ?>
             <?php if (in_array('My Tickets', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_tickets" class="btn brand-btn pull-right mobile-anchor"><?= strtoupper(TICKET_TILE) ?></a><?php } ?>
             <?php if (in_array('My Projects', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_projects" class="btn brand-btn pull-right mobile-anchor"><?= strtoupper(PROJECT_TILE) ?></a><?php } ?>
-            <?php if (in_array('My Notifications', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=notifications" class="btn brand-btn pull-right mobile-anchor">Notifications <?= $noti_count > 0 ? '<span style="font-weight: bold; color: red;">('.$noti_count.')</span>' : '('.$noti_count.')' ?></a><?php } ?>
         <?php } ?>
 
+        <?php if ($_GET['tab'] == 'daysheet') { ?><a href="?daily_date=<?= $daily_date ?>&side_content=notifications" class="btn brand-btn pull-right mobile-anchor">Notifications <?= $noti_count > 0 ? '<span style="font-weight: bold; color: red;">('.$noti_count.')</span>' : '('.$noti_count.')' ?></a><?php } ?>
         <?php if ($num_rows_past > 0) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=past_due" class="btn brand-btn pull-right mobile-anchor" style="background: red; background-color: red;">PAST DUE ALERTS</a><?php } ?>
     </div>
 </div>
@@ -173,7 +173,14 @@ if ( !empty($note) ) { ?>
 
                 </div>
                 <div class="scale-to-fill weekly-overview-header">
-                    <?php if ($side_content == 'notifications') { ?>
+                    <?php if ($side_content == 'contact_form') {
+                        $form_id = $_GET['form_id'];
+                        $contact_form = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` = '$form_id'"));
+                        $attached_contact = $_GET['attached_contactid']; ?>
+                        <h1 class="no-margin"><?= $contact_form['name'] ?> - <?= !empty(get_client($dbc, $match_contact)) ? get_client($dbc, $match_contact) : get_contact($dbc, $match_contact) ?></h1>
+                    <?php } else if ($side_content == 'my_shifts') { ?>
+                        <h1 class="no-margin">Shifts</h1>
+                    <?php } else if ($side_content == 'notifications') { ?>
                         <h1 class="no-margin">Notifications</h1>
                     <?php } else if ($side_content == 'journal') { ?>
                         <h1 class="no-margin">Journal for <?= date('F jS', strtotime($_GET['daily_date'])) ?></h1>
@@ -216,7 +223,11 @@ if ( !empty($note) ) { ?>
             </div>
             <div class="clearfix"></div>
             <div class="sidebar weekly" style="padding: 1em; margin: 0 auto; overflow-y: auto;">
-                <?php if($side_content == 'notifications') {
+                <?php if($side_content == 'contact_form') {
+                    include('daysheet_contact_form.php');
+                } else if($side_content == 'my_shifts') {
+                    include('daysheet_shifts.php');
+                } else if($side_content == 'notifications') {
                     include('daysheet_notifications.php');
                 } else if ($side_content == 'journal') {
                     include('daysheet_notepad.php');

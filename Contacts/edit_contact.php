@@ -891,7 +891,7 @@ function addContactForm(form_id) {
 				<?php }
 			} ?>
 			<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
-				$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' ORDER BY `name`");
+				$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
 				while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
 					<div class="panel panel-default">
 						<div class="panel-heading">
@@ -947,7 +947,7 @@ function addContactForm(form_id) {
 							<?php }
 						} ?>
 						<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
-							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' ORDER BY `name`");
+							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
 							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
 								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
@@ -1072,7 +1072,7 @@ function addContactForm(form_id) {
 							<?php }
 						}
 						if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
-							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' ORDER BY `name`");
+							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
 							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
 								<div data-tab-name='contactform_<?= $contact_form['form_id'] ?>' data-locked='' id="contactform_<?= $contact_form['form_id'] ?>" class="scroll-section">
 									<hr>
