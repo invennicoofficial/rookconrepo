@@ -80,6 +80,11 @@ $(document).ready(function() {
             success: function(response) {}
         });
     });
+    
+    $('li.t_item').each(function() {
+        $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
+    });
+    
 });
 $(document).on('change', 'select[name="change_milestone"]', function() { changeMilestone(this); });
 
@@ -726,8 +731,8 @@ function savePathName(name) {
 							echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.$status.' '.$class_on.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
 							<div class="info-block-header">
-								<h4><?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'">'. $label .'</a>'. $alert ?><!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
-									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left" src="../img/icons/ROOK-edit-icon.png">
+								<h4 class="pad-top"><?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'" class="pull-left">'. $label .'</a>'. $alert ?><!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
+									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left gap-left" src="../img/icons/ROOK-edit-icon.png">
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
@@ -763,7 +768,7 @@ function savePathName(name) {
 								}
 
                                 if ( $row['task_milestone_timeline']==$cat_tab ) {
-                                    echo '<li id="'.$row['tasklistid'].'" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                                    echo '<li id="'.$row['tasklistid'].'" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; '.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
                                     $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                                     $clientid = $url_tab=='Client' ? $row['clientid'] : '';
@@ -779,51 +784,31 @@ function savePathName(name) {
 
 
 
-                                    echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
-
-
-                                    //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
-                                    echo '</span>';
-
-                                    echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-                                    echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />'; ?>
-                                    <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Timer:</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-                                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-                                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
-                                            </div>
-                                        </div>
-                                    </div><?php
-                                    echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-                                    echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
-                                    echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
-                                    foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
-                                            <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
-                                    <?php }
-                                    echo '</select></div><div class="clearfix"></div>';
-                                    //echo '<a href="add_tasklist.php?type='.$row['status'].'&tasklistid='.$row['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">';
-                                    //echo limit_text($row['heading'], 5 ).'</a><img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" /><span class="pull-right">'; ?>
-                                    <div class="row">
-
-                                        <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?= $row['heading']; ?>
-                                            <?php
-                                            echo '<span class="pull-right small">';
-                                            if ( $row['company_staff_sharing'] ) {
-                                                foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
-                                                    profile_id($dbc, $staffid);
-                                                }
-                                            } else {
-                                                profile_id($dbc, $row['contactid']);
+                                    //echo '<span class="pull-right action-icons gap-top" data-task="'.$row['tasklistid'].'">';
+                                        //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
+                                    //echo '</span>'; ?>
+                                    <div class="row pull-left t_name">
+                                        <h4 style="<?= $style_strikethrough ?>">
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> style="height:auto;" />
+                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><span><?= $row['heading']; ?></span>
+                                        </h4>
+                                    </div>
+                                    <span class="pull-right action-icons gap-top t_drag" data-task="<?= $row['tasklistid'] ?>">
+                                        <img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />
+                                    </span>
+                                    <div class="small pull-right offset-top-5 t_staff"><?php
+                                        if ( $row['company_staff_sharing'] ) {
+                                            foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
+                                                profile_id($dbc, $staffid);
                                             }
-                                            echo '</span></h4></span></div>';
+                                        } else {
+                                            profile_id($dbc, $row['contactid']);
+                                        } ?>
+                                    </div>
+                                    <div class="clearfix"></div><?php
 
 
-
-                                    echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
                                             <span style="display:inline-block; text-align:center; width:11%"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">►</a></span><?php
@@ -842,7 +827,29 @@ function savePathName(name) {
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                     echo '</span>';
-                                    ?>
+                                    ?><?php
+                                    
+                                    echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
+                                    echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />'; ?>
+                                    <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Timer:</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left; max-width:57%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
+                                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
+                                            </div>
+                                        </div>
+                                    </div><?php
+                                    echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
+                                    echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
+                                    echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
+                                    foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
+                                            <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+                                    <?php }
+                                    echo '</select></div><div class="clearfix"></div>';
+                                    //echo '<a href="add_tasklist.php?type='.$row['status'].'&tasklistid='.$row['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">';
+                                    //echo limit_text($row['heading'], 5 ).'</a><img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" /><span class="pull-right">'; ?>
                                     <!--
                                         <div class="form-group gap">
                                             <div class="col-sm-3">Assign Staff:</div>
