@@ -50,7 +50,7 @@ function set_scopes() {
 		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
 		var scope_name = this.value;
 		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
-			this.href = this.href.replace(/&scope=[a-zA-Z0-9_]*/,'&scope='+scope_name.replace(/[^a-zA-Z0-9]/,'_');
+			this.href = this.href.replace(/&scope=[a-zA-Z0-9_]*/,'&scope='+scope_name.replace(/[^a-zA-Z0-9]/,'_'));
 		});
 	});
 }
