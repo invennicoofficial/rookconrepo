@@ -94,7 +94,7 @@ include_once ('../navigation.php'); ?>
 	<div class="row">
 		<div class="main-screen">
             <div class="tile-header">
-                <div class="col-xs-12 col-sm-8">
+                <div class="col-xs-12 col-sm-5">
                     <h1><a href="?"><?= ESTIMATE_TILE ?></a>
                     <?php if(!empty($_GET['edit'])) {
                     echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
@@ -102,7 +102,7 @@ include_once ('../navigation.php'); ?>
                     ?>
                     </h1>
                 </div>
-                <div class="col-xs-12 col-sm-4 gap-top"><?php
+                <div class="col-xs-12 col-sm-7 gap-top"><?php
                         if($config_access > 0) {
                         echo "<div class='pull-right gap-left'><a href='?settings=status'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30'></a></div>";
                         echo "<div class='pull-right gap-left hide-titles-mob'><a href='?reports=statistics' style='font-size: 0.5em;'><button class='btn brand-btn icon-pie-chart'>Reporting</button></a></div>";
@@ -128,7 +128,7 @@ include_once ('../navigation.php'); ?>
                                 } ?>
                             </select>
                         </div>
-						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob" src="../img/icons/pie-chart.png">
+						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob gap-right offset-top-5" src="../img/icons/pie-chart.png">
                     <?php } ?>
                     <img class="no-toggle syncIcon pull-right no-margin inline-img" title="" src="" />
                 </div>
