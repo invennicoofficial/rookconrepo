@@ -89,6 +89,7 @@ else if($_GET['action'] == 'task_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_vac = filter_var($_POST['id_vac'],FILTER_SANITIZE_STRING);
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$date_editable = filter_var($_POST['date_editable'],FILTER_SANITIZE_STRING);
 	$start_time = filter_var($_POST['start_time'],FILTER_SANITIZE_STRING);
 	$end_time = filter_var($_POST['end_time'],FILTER_SANITIZE_STRING);
 	$staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
@@ -124,6 +125,9 @@ else if($_GET['action'] == 'task_time') {
 		if($end_time != $time_card['end_time']) {
 			$comment_history[$id] .= $session_user.' updated End Time from '.$time_card['end_time'].' to '.$end_time.'.<br>';
 		}
+		if(!empty($date_editable) && $date != $date_editable) {
+			mysqli_query($dbc, "UPDATE `time_cards` SET `date` = '$date_editable' WHERE `time_cards_id` = '$id'");
+		}
 	} else if($total_hrs > 0) {
 		mysqli_query($dbc,"INSERT INTO `time_cards` (`date`, `staff`, `type_of_time`, `total_hrs`, `comment_box`, `projectid`, `business`, `start_time`, `end_time`) VALUES('$date', '$staff', '$type_of_time', '$total_hrs', '$comment_box', '$business', '$projectid', '$start_time', '$end_time')");
 		$ids .= mysqli_insert_id($dbc);
@@ -136,12 +140,20 @@ else if($_GET['action'] == 'task_time') {
 		if($total_hrs_vac != $time_card['total_hrs']) {
 			$comment_history[$id_vac] .= $session_user.' updated Vacation Hours from '.$time_card['total_hrs'].' to '.$total_hrs_vac.'.<br>';
 		}
+		if(!empty($date_editable) && $date != $date_editable) {
+			mysqli_query($dbc, "UPDATE `time_cards` SET `date` = '$date_editable' WHERE `time_cards_id` = '$id_vac'");
+		}
 	} else if($total_hrs_vac > 0) {
 		mysqli_query($dbc,"INSERT INTO `time_cards` (`date`, `staff`, `type_of_time`, `total_hrs`, `comment_box`) VALUES('$date', '$staff', 'Vac Hrs.', '$total_hrs_vac', '$comment_box')");
 		$ids .= mysqli_insert_id($dbc);
 		$comment_history[mysqli_insert_id($dbc)] .= $session_user.' inserted new row with Vacation Hours.<br>';
 	}
 	echo $ids;
+	foreach(explode(',',$ids) as $id) {
+		if($id > 0 && !empty($date_editable) && $date != $date_editable) {
+			mysqli_query($dbc, "UPDATE `time_cards` SET `date` = '$date_editable' WHERE `time_cards_id` = '$id'");
+		}
+	}
 	if($_POST['ticketid'] > 0) {
 		$ticketid = $_POST['ticketid'];
 		foreach(explode(',', $ids) as $id) {
@@ -238,4 +250,17 @@ else if($_GET['action'] == 'position_time') {
 		$ids .= mysqli_insert_id($dbc);
 	}
 	echo $ids;
+}
+else if($_GET['action'] == 'unapprove_time') {
+	$staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
+	$type = filter_var($_POST['type'],FILTER_SANITIZE_STRING);
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+
+	if($type == 'day') {
+		mysqli_query($dbc, "UPDATE `time_cards` SET `approv` = 'N', `manager_name` = NULL, `date_manager` = NULL, `coordinator_name` = NULL, `date_coordinator` = NULL, `manager_approvals` = '', `coord_approvals` = '' WHERE `staff` = '$staff' AND `deleted` = 0 ANd `date` = '$date' AND `approv` = 'Y'");
+		echo "UPDATE `time_cards` SET `approv` = 'N', `manager_name` = NULL, `date_manager` = NULL, `coordinator_name` = NULL, `date_coordinator` = NULL WHERE `staff` = '$staff' AND `deleted` = 0 ANd `date` = '$date' AND `approv` = 'Y'";
+	} else if($type == 'id') {
+		mysqli_query($dbc, "UPDATE `time_cards` SET `approv` = 'N', `manager_name` = NULL, `date_manager` = NULL, `coordinator_name` = NULL, `date_coordinator` = NULL, `manager_approvals` = '', `coord_approvals` = '' WHERE `time_cards_id` = '$id'");
+	}
 }

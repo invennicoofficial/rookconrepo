@@ -1372,7 +1372,7 @@ function addSignature(chk) {
 				<div id="no-more-tables">
 					<table class='table table-bordered timesheet_table'>
 						<tr class='hidden-xs hidden-sm'>
-							<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
+							<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
 							<?php $total_colspan = 2; ?>
 							<?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
 							<?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
@@ -1471,7 +1471,7 @@ function addSignature(chk) {
 								<input type="hidden" name="time_cards_id_vac[]" value="<?= $row['type_of_time'] == 'Vac Hrs.' ? $row['id'] : '' ?>">
 								<input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
 								<input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-								<td data-title="Date" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $date ?></td>
+								<td data-title="Date" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
 								<?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $hours ?></td><?php } ?>
 								<?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"></td><?php } ?>
 								<?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $row['start_time'] ?></td><?php } ?>
@@ -1826,7 +1826,7 @@ function addSignature(chk) {
 					</script>
 				<?php } else if($layout == 'position_dropdown') { ?>
 					<script>
-						$('[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="comment_box[]"]').change(saveField);
+						$('[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="comment_box[]"],[name="date_editable[]"]').change(saveField);
 						function saveFieldMethod(field) {
 							var line = $(field).closest('tr');
 							$.post('time_cards_ajax.php?action=position_time', {
@@ -1835,6 +1835,7 @@ function addSignature(chk) {
 								id: line.find('[name="time_cards_id[]"]').val(),
 								id_vac: line.find('[name="time_cards_id_vac[]"]').val(),
 								date: line.find('[name="date[]"]').val(),
+								date_editable: line.find('[name="date_editable[]"]').val(),
 								staff: line.find('[name="staff[]"]').val(),
 								type_of_time: line.find('[name="type_of_time[]"]').val(),
 								total_hrs: line.find('[name="total_hrs[]"]').val(),
@@ -1856,7 +1857,7 @@ function addSignature(chk) {
 					</script>
 				<?php } else if($layout == 'ticket_task') { ?>
 					<script>
-						$('[name="start_time[]"],[name="end_time[]"],[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="ticketid[]"],[name="comment_box[]"]').change(saveField);
+						$('[name="start_time[]"],[name="end_time[]"],[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="ticketid[]"],[name="comment_box[]"],[name="date_editable[]"]').change(saveField);
 						function saveFieldMethod(field) {
 							var line = $(field).closest('tr');
 							$.post('time_cards_ajax.php?action=task_time', {
@@ -1865,6 +1866,7 @@ function addSignature(chk) {
 								id: line.find('[name="time_cards_id[]"]').val(),
 								id_vac: line.find('[name="time_cards_id_vac[]"]').val(),
 								date: line.find('[name="date[]"]').val(),
+								date_editable: line.find('[name="date_editable[]"]').val(),
 								start_time: line.find('[name="start_time[]"]').val(),
 								end_time: line.find('[name="end_time[]"]').val(),
 								staff: line.find('[name="staff[]"]').val(),
@@ -1874,6 +1876,9 @@ function addSignature(chk) {
 								total_hrs_vac: line.find('[name="total_hrs_vac[]"]').val(),
 								comment_box: line.find('[name="comment_box[]"]').val()
 							}, function(response) {
+								if(line.find('[name="date_editable[]"]').val() != undefined && line.find('[name="date_editable[]"]').val() != '' && line.find('[name="date_editable[]"]').val() != line.find('[name="date[]"]').val()) {
+									line.find('[name="date[]"]').val(line.find('[name="date_editable[]"]').val());
+								}
 								if(response != '') {
 									ids = response.split(',');
 									if(ids[0] > 0) {

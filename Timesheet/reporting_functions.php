@@ -682,6 +682,7 @@
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Over Time</div></th>
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Double Time</div></th>
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total</div></th>
+                    '.($tab == 'payroll' && $report_format != 'to_array' ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Unapprove</div></th>' : '').'
                 </tr>';
                 $total = 0;
                 $total_reg = 0;
@@ -760,8 +761,13 @@
                             <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Hours">'.(empty($row['hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))).' h</td>
                             <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Over Time">'.(empty($row['overtime_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['overtime_hours'],2) : time_decimal2time($row['overtime_hours']))).' h</td>
                             <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Double Time">'.(empty($row['doubletime_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['doubletime_hours'],2) : time_decimal2time($row['doubletime_hours']))).' h</td>
-                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total">'.(empty($row['row_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['row_hours'],2) : time_decimal2time($row['row_hours']))).' h</td>
-                        </tr>';
+                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total">'.(empty($row['row_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['row_hours'],2) : time_decimal2time($row['row_hours']))).' h</td>';
+                            if($tab == 'payroll' && $report_format != 'to_array') {
+		                    	$report .= '<td align="center" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Unapprove">';
+		                    	$report .= '<a href="" onclick="unapproveTimeSheet(this); return false;"'.($timesheet_payroll_layout ? ' data-type="day" data-date="'.$date.'"' : ' data-type="id" data-timesheetid="'.$row['id'].'"').' data-staff="'.$search_staff.'">Unapprove</a>';
+		                    	$report .= '</td>';
+		                    }
+                        $report .= '</tr>';
                     }
                     if($date != $row['date']) {
                         $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
@@ -779,6 +785,7 @@
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Over Time">'.($timesheet_time_format == 'decimal' ? number_format($total_overtime,2) : time_decimal2time($total_overtime)).' h</td>
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data="Total Double Time">'.($timesheet_time_format == 'decimal' ? number_format($total_doubletime,2) : time_decimal2time($total_doubletime)).' h</td>
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Hours">'.($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)).' h</td>
+                    '.($tab == 'payroll' && $report_format != 'to_array' ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '').'
                 </tr>
             </table>';
 
