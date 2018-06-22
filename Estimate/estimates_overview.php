@@ -319,7 +319,7 @@ function remove_follow_up(elem) {
 						} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
 							$scope_description = get_contact($dbc, $scope_line['src_id']);
 						}
-						if($scope_line['pricing'] == 'usd_cpu' && empty($scope_line['price'])) {
+						if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
 							$scope_line['price'] = $scope_line['cost'] * $us_rate;
 							$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
 						}
