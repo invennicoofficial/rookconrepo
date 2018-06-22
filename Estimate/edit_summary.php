@@ -14,18 +14,49 @@ if(!isset($estimate)) {
 		$rates[''] = '';
 	}
 	$current_rate = $_GET['rate'];
-	$headings = [];
+	$scope_list = [];
 	$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
+	if($query->num_rows > 0) {
+		while($row = mysqli_fetch_array($query)) {
+			$scope_list[config_safe_str($row[0])] = $row[0];
+		}
+	} else {
+		$scope_list['scope_1'] = 'Scope 1';
+	}
+	$scope_id = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
+	$scope = $scope_list[$scope_id];
+	$headings = [];
+	$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 	while($row = mysqli_fetch_array($query)) {
 		$headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
 	}
+	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 }
-$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`cost` * `qty`) total_cost, SUM(`retail`) total_price FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."'"));
-$profit = $summary['total_price'] - $summary['total_cost'];
-$margin = $profit / $summary['total_cost'] * 100; ?>
+$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+$summary_details = mysqli_query($dbc, "SELECT `cost`,`price`,`pricing`,`qty`,`retail` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `rate_card`='".implode(':',$rates[$current_rate])."'");
+$summary = mysqli_fetch_assoc(mysqli_query("SELECT `discount`, `discount_type` FROM `estimate` WHERE `estimateid`='$estimateid'"));
+$total_price = 0;
+$total_cost = 0;
+while($scope_line_item = $summary_details->fetch_assoc()) {
+	$line_cost = $line_price = 0;
+	if($scope_line_item['pricing'] == 'usd_cpu') {
+		$line_cost = ($scope_line_item['cost'] * $us_rate * $scope_line_item['qty']);
+	} else {
+		$line_cost = $scope_line_item['cost'] * $scope_line_item['qty'];
+	}
+	if(empty($scope_line_item['retail'])) {
+		$line_price = $line_cost;
+	} else {
+		$line_price = $scope_line_item['retail'];
+	}
+	$total_cost += $line_cost;
+	$total_price += $line_price;
+}
+$profit = $total_price - $total_cost;
+$margin = $profit / $total_cost * 100; ?>
 <script>
-var total_cost = '0<?= $summary['total_cost'] ?>';
-var total_price = '0<?= $summary['total_price'] - ($summary['discount_type'] == '%' ? ($summary['discount'] * $summary['total_price'] / 100) : $summary['discount']) ?>';
+var total_cost = '0<?= $total_cost ?>';
+var total_price = '0<?= $total_price - ($summary['discount_type'] == '%' ? ($summary['discount'] * $total_price / 100) : $summary['discount']) ?>';
 </script>
 <div class="form-horizontal col-sm-12" data-tab-name="summary">
 	<h3>Summary</h3>
@@ -40,7 +71,7 @@ var total_price = '0<?= $summary['total_price'] - ($summary['discount_type'] == 
 	</div>
 	<div class="form-group">
 		<label class="col-sm-4">Total Cost:</label>
-		<div class="col-sm-8" id="total_cost">$<?= number_format($summary['total_cost'],2) ?></div>
+		<div class="col-sm-8" id="total_cost">$<?= number_format($total_cost,2) ?></div>
 	</div>
 	<div class="form-group">
 		<label class="col-sm-4">Total $ Profit:</label>
@@ -52,7 +83,7 @@ var total_price = '0<?= $summary['total_price'] - ($summary['discount_type'] == 
 	</div>
 	<div class="form-group">
 		<label class="col-sm-4">Total Price:</label>
-		<div class="col-sm-8" id="total_price">$<?= number_format($summary['total_price'],2) ?></div>
+		<div class="col-sm-8" id="total_price">$<?= number_format($total_price,2) ?></div>
 	</div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_summary.php') { ?>

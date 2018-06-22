@@ -252,7 +252,7 @@ function remove_follow_up(elem) {
         </div><!-- .row -->
 		<div class="col-sm-12">
 			<h4><?= ESTIMATE_TILE ?> Scope:</h4><?php
-            $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `sort_order`");
+            $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `scope_name`, `heading`, `sort_order`");
 			$heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 			if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 				$heading_order[] = 'Detail***Scope Detail';
@@ -275,7 +275,10 @@ function remove_follow_up(elem) {
 						break;
 				}
 			}
-			$col_width = 1 / ($col_width + 1) * 100; ?>
+			$col_width = 1 / ($col_width + 1) * 100;
+
+			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+			$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v']; ?>
 			<div id="no-more-tables" class="responsive-table">
 				<table class="table table-bordered">
 					<tr class="hidden-xs hidden-sm">
@@ -315,7 +318,12 @@ function remove_follow_up(elem) {
 							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
 						} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
 							$scope_description = get_contact($dbc, $scope_line['src_id']);
-						} ?>
+						}
+						if($scope_line['pricing'] == 'usd_cpu' && empty($scope_line['price'])) {
+							$scope_line['price'] = $scope_line['cost'] * $us_rate;
+							$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+						}
+						?>
 						<tr>
 							<td data-title="Heading"><?= $scope_line['heading'] ?></td>
 							<?php foreach($heading_order as $order_info) {
