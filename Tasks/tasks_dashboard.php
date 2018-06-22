@@ -18,7 +18,9 @@ if(empty($url_tab)) {
 $dbc->query("INSERT INTO `taskboard_seen` (`taskboardid`, `tab`, `contactid`) SELECT '$taskboardid', '$url_tab', '{$_SESSION['contactid']}' FROM (SELECT COUNT(*) `rows` FROM `taskboard_seen` WHERE `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."') = '$url_tab' AND `contactid`='{$_SESSION['contactid']}') `num` WHERE `num`.`rows`=0");
 $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `contactid`='{$_SESSION['contactid']}' AND `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."')='$url_tab'");
 ?>
-
+<style>
+.note_block ul, note_block ul li { margin-left:0; padding-left:0; }
+</style>
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
@@ -874,8 +876,8 @@ function savePathName(name) {
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
                                                     <div class="note_block row">
-                                                        <div class="col-xs-2"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-                                                        <div class="col-xs-10" style="<?= $style_strikethrough ?>">
+                                                        <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
+                                                        <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
                                                         </div>
@@ -893,8 +895,8 @@ function savePathName(name) {
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 while ( $row_comment=mysqli_fetch_assoc($comments) ) { ?>
                                                     <div class="note_block row">
-                                                        <div class="col-xs-2"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-                                                        <div class="col-xs-10" style="<?= $style_strikethrough ?>">
+                                                        <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
+                                                        <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><?= html_entity_decode($row_comment['comment']); ?></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
                                                         </div>
