@@ -19,7 +19,7 @@ $dbc->query("INSERT INTO `taskboard_seen` (`taskboardid`, `tab`, `contactid`) SE
 $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `contactid`='{$_SESSION['contactid']}' AND `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."')='$url_tab'");
 ?>
 <style>
-.note_block ul, note_block ul li { margin-left:0; padding-left:0; }
+.note_block ul, .note_block ul li { margin-left:0; padding-left:0; }
 </style>
 <script type="text/javascript" src="tasks.js"></script>
 <script>
