@@ -236,17 +236,35 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 			</tr><?php
             $total_cost = 0;
 			$total_price = 0;
-            $scope_headings = mysqli_query($dbc, "SELECT `heading`, SUM(`cost` * `qty`) total_cost, SUM(`retail`) total_price FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading` ORDER BY `sort_order`");
-			while($scope_heading = mysqli_fetch_assoc($scope_headings)) { ?>
+            $scope_headings = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading` ORDER BY `sort_order`");
+			while($scope_heading = mysqli_fetch_assoc($scope_headings)) {
+				$cost = 0;
+				$price = 0;
+				$scope_details = mysqli_query($dbc, "SELECT `cost`,`qty`,`price`,`retail`,`pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+				while($scope_line_item = $scope_details->fetch_assoc()) {
+					$line_cost = $line_price = 0;
+					if($scope_line_item['pricing'] == 'usd_cpu') {
+						$line_cost = ($scope_line_item['cost'] * $us_rate * $scope_line_item['qty']);
+					} else {
+						$line_cost = $scope_line_item['cost'] * $scope_line_item['qty'];
+					}
+					if(empty($scope_line_item['retail'])) {
+						$line_price = $line_cost;
+					} else {
+						$line_price = $scope_line_item['retail'];
+					}
+					$cost += $line_cost;
+					$price += $line_price;
+				} ?>
 				<tr>
 					<td data-title="Heading"><?= $scope_heading['heading'] ?></td>
-					<td data-title="Cost" align="right">$<?= number_format($scope_heading['total_cost'],2, '.', '') ?></td>
-					<td data-title="% Margin" align="right"><?= number_format(($scope_heading['total_cost'] > 0 ? ($scope_heading['total_price'] - $scope_heading['total_cost']) / $scope_heading['total_cost'] * 100 : 0),2, '.', '') ?>%</td>
-					<td data-title="$ Profit" align="right">$<?= number_format($scope_heading['total_price'] - $scope_heading['total_cost'],2, '.', '') ?></td>
-					<td data-title="Total" align="right">$<?= number_format($scope_heading['total_price'],2, '.', '') ?></td>
+					<td data-title="Cost" align="right">$<?= number_format($cost,2, '.', '') ?></td>
+					<td data-title="% Margin" align="right"><?= number_format(($cost > 0 ? ($price - $cost) / $cost * 100 : 0),2, '.', '') ?>%</td>
+					<td data-title="$ Profit" align="right">$<?= number_format($price - $cost,2, '.', '') ?></td>
+					<td data-title="Total" align="right">$<?= number_format($price,2, '.', '') ?></td>
 				</tr><?php
-                $total_cost += $scope_heading['total_cost'];
-				$total_price += $scope_heading['total_price'];
+                $total_cost += $cost;
+				$total_price += $price;
 			} ?>
 			<tr style="font-weight:bold;">
 				<td data-title="">Total <?php if (PROJECT_TILE=='Projects') { echo "Project"; } else { echo PROJECT_TILE; } ?> Price</td>

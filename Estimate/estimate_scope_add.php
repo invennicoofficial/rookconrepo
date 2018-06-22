@@ -35,11 +35,17 @@ if(isset($_POST['submit'])) {
 	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
 	if($_GET['type'] == 'vpl') {
 		$pricing = filter_var($_POST['productpricing'],FILTER_SANITIZE_STRING);
+		$exchange_rate = 1;
+		if($pricing == 'usd_cpu') {
+			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+			$exchange_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+		}
         foreach($_POST['inventoryid'] as $i => $value) {
         	$cost = $_POST['vpl_price'][$i];
         	$qty = $_POST['vpl_quantity'][$i];
+			$retail = $cost * $exchange_rate * $qty;
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'usd_cpu' ? 0 : $cost)."','$pricing','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'usd_cpu' ? 0 : $cost)."','$pricing','$qty','$retail','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'inventory') {
@@ -49,7 +55,7 @@ if(isset($_POST['submit'])) {
         	$qty = $_POST['qty'][$i];
 			$retail = $price * $qty;
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','inventory','$value','$cost','$price','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','inventory','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'services') {
