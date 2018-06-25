@@ -214,7 +214,7 @@ mysqli_query($dbc, "ALTER TABLE `checklist_document` ADD `date_of_archival` DATE
 mysqli_query($dbc, "ALTER TABLE `sales` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `order_lists` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 
-
+mysqli_query($dbc, "ALTER TABLE `agenda_meeting` ADD `heading` VARCHAR(500) NULL AFTER `location`");
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>
