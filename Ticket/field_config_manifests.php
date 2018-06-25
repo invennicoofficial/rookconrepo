@@ -35,6 +35,7 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('site', $manifest_fields) ? 'checked' : '' ?> value="site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> <?= SITES_CAT ?> on Manifest</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('req site', $manifest_fields) ? 'checked' : '' ?> value="req site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> <?= SITES_CAT ?> are Mandatory</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('edit', $manifest_fields) ? 'checked' : '' ?> value="edit" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Edit Manifests</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('ticket_sort', $manifest_fields) ? 'checked' : '' ?> value="ticket_sort" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= TICKET_NOUN ?></label>
 	</div>
 </div>
 <div class="form-group">
