@@ -38,11 +38,20 @@ function saveFields() {
 	</div>
 </div>
 <div class="form-group">
-	<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> to include on Manifests:</label>
+	<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> to Include on Manifests:</label>
 	<div class="col-sm-8">
 		<?php foreach($ticket_tabs as $ticket_type) {
 			$type_id = config_safe_str($ticket_type); ?>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('type '.$type_id, $manifest_fields) || !in_array_starts('type ',$manifest_fields) ? 'checked' : '' ?> value="type <?= $type_id ?>" name="tickets_manifests[]"> <?= $ticket_type ?></label>
+		<?php } ?>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Types to Display For Manifests:</label>
+	<div class="col-sm-8">
+		<?php foreach($project_tabs as $project_type) {
+			$type_id = config_safe_str($project_type); ?>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields) ? 'checked' : '' ?> value="project_type <?= $type_id ?>" name="tickets_manifests[]"> <?= $project_type ?></label>
 		<?php } ?>
 	</div>
 </div>
