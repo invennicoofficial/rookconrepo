@@ -371,7 +371,7 @@ if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 //Check if only using today's data
 $query_daily = "";
 if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
-	$query_daily = " AND `date_stamp`='".date('Y-m-d')."' ";
+	$query_daily = " AND (`date_stamp`='".date('Y-m-d')."' OR IFNULL(`checked_out`,'') = '')";
 }
 if(isset($_GET['min_view'])) {
 	$value_config = $min_view;
@@ -379,7 +379,7 @@ if(isset($_GET['min_view'])) {
 
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
-$ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 $query_daily");
+$ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted` = 0 $query_daily");
 $access_any = (vuaed_visible_function($dbc, 'ticket') + vuaed_visible_function($dbc, 'ticket_type_'.$get_ticket['ticket_type'])) > 0;
 $access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 $access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
@@ -485,6 +485,9 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 	$access_complete = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'complete');
 	$access_services = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
 	$access_all = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'all_access');
+}
+if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
+	$query_daily = " AND `date_stamp`='".date('Y-m-d')."' ";
 }
 
 
