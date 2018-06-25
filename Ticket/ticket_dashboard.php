@@ -810,22 +810,38 @@ IF(!IFRAME_PAGE) { ?>
 						<?php if(in_array('sort_top',$manifest_fields)) { ?>
 							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last 25 Line Items</a></li>
 						<?php } ?>
-						<?php $project_type_list = [''];
+						<?php $project_type_list = [''=>''];
 						if(in_array('sort_project',$manifest_fields)) {
 							$project_type_list = $project_types;
 						}
+						$ticket_filter = '';
+						if(in_array_starts('type ',$manifest_fields)) {
+							$type_filters = [];
+							foreach($manifest_fields as $config_field) {
+								$config_field = explode(' ',$config_field);
+								if($config_field[0] == 'type' && count($config_field) == 2) {
+									$type_filters[] = $config_field[1];
+								}
+							}
+							$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+						}
 						foreach($project_type_list as $type_id => $type_name) {
-							if(!empty($type_name)) { ?>
-								<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
-									<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
-							<?php } ?>
-							<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) { ?>
-								<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?></a></li>
-							<?php }
-							if(!empty($type_name)) { ?>
-									</ul>
-								</li>
-							<?php }
+							if(in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields)) {
+								if(!empty($type_name)) { ?>
+									<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
+										<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
+								<?php } ?>
+								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) {
+									$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
+									$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type_id) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".$type_id."')" : '';
+									$piece_count = $dbc->query("SELECT COUNT(*) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,".$site['contactid'].",%' $filter_inv $ticket_filter $filter_proj")->fetch_assoc(); ?>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?><span class="pull-right"><?= $piece_count['numrows'] ?></span></a></li>
+								<?php }
+								if(!empty($type_name)) { ?>
+										</ul>
+									</li>
+								<?php }
+							}
 						} ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last 25 Manifests</a></li>
 					</ul>

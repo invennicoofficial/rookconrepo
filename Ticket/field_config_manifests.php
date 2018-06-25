@@ -49,7 +49,7 @@ function saveFields() {
 <div class="form-group">
 	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Types to Display For Manifests:</label>
 	<div class="col-sm-8">
-		<?php foreach($project_tabs as $project_type) {
+		<?php foreach(explode(',',get_config($dbc, 'project_tabs')) as $project_type) {
 			$type_id = config_safe_str($project_type); ?>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields) ? 'checked' : '' ?> value="project_type <?= $type_id ?>" name="tickets_manifests[]"> <?= $project_type ?></label>
 		<?php } ?>
