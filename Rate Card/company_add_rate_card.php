@@ -31,6 +31,9 @@ if(isset($_POST['submit'])) {
 		$margin = isset($_POST['total']) ? ($profit*100)/$total : 0;
 		$sort_order = isset($_POST['sort_order']) ? filter_var($_POST['sort_order'][$key],FILTER_SANITIZE_STRING) : '';
 		$deleted = $_POST['deleted'][$key];
+		if($item_id > 0 && $cost > 0 && $tile_name == 'Services') {
+			$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$item_id'");
+		}
 
 		if(!empty($heading) || !empty($rate_card_types) || !empty($description) || !empty($item_id) || !empty($daily) || !empty($hourly) || !empty($uom) || !empty($cost) || !empty($cust_price) || !empty($total) || !empty($sort_order) || !empty($deleted)) {
 			if(strpos($id, 'NEW_') === FALSE) {

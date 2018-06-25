@@ -23,6 +23,9 @@ if (isset($_POST['submit'])) {
 	else {
 		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`item_id`=$serviceid,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `rate_id`='$id'";
 	}
+	if($serviceid > 0 && $cost > 0) {
+		$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
+	}
 	$result = mysqli_query($dbc, $sql);
 	
 	$result = mysqli_query($dbc, $sql);
@@ -125,7 +128,10 @@ if (isset($_POST['submit'])) {
 		</div></div>
 	<?php } ?>
 
-	<?php if(strpos($field_config, ',cost,') !== false) { ?>
+	<?php if(strpos($field_config, ',cost,') !== false) {
+		if(!($row['cost'] > 0) && ($_GET['service'] > 0 || $row['serviceid'] > 0)) {
+			$row['cost'] = $dbc->query("SELECT `cost` FROM `services` WHERE `serviceid` IN ('".filter_var($_GET['service'],FILTER_SANITIZE_STRING)."','{$row['serviceid']}')")->fetch_assoc()['cost'];
+		} ?>
 		<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Cost:</label>
 		<div class='col-sm-8'><input class='form-control' type='text' name='cost' value='<?php echo $row['cost']; ?>'></div></div>
 	<?php } ?>
