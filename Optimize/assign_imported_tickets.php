@@ -3,7 +3,7 @@ echo '<h3>'.TICKET_TILE.'</h3>';
 foreach(explode(',',$_GET['ids']) as $ticket) {
 	if($ticket > 0) {
 		$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticket'")->fetch_assoc();
-		$unbooked_html = '<span class="block-item ticket" style="position: relative; background-color: '.$ticket_colour.'; border: 1px solid rgba(0,0,0,0.5); color: #000; margin: 0.25em 0 0; display:block; float: left; width: 30em;" data-ticketid="'.$ticket['ticketid'].'" title="View '.TICKET_NOUN.'">
+		$unbooked_html = '<span class="block-item ticket gap" style="position: relative; background-color: '.$ticket_colour.'; border: 1px solid rgba(0,0,0,0.5); color: #000; margin: 0.25em 0 0; display:block; float: left; width: 30em;" data-ticketid="'.$ticket['ticketid'].'" title="View '.TICKET_NOUN.'">
 			<div class="drag-handle full-height" title="Drag Me!">
 				<img class="drag-handle black-color inline-img pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" />
 			</div>
@@ -26,18 +26,17 @@ foreach(explode(',',$_GET['ids']) as $ticket) {
 if(empty($_GET['ids'])) {
 	echo '<h3>No '.TICKET_TILE.'</h3>';
 }
-if(!empty($_GET['unassign_type')) {
+if(!empty($_GET['unassign_type'])) {
 	$type = filter_var($_GET['unassign_type'],FILTER_SANITIZE_STRING);
 	$filter = '';
 	$id_list = explode(',',filter_var($_GET['ids'],FILTER_SANITIZE_STRING));
-	$filter = "`ticketid` NOT IN ('".implode("','",$id_list."')";
-	$sql = "SELECT * FROM `tickets` WHERE `ticket_type`='$type' AND `ticketid` NOT IN (SELECT `ticketid` FROM `ticket_schedule` where equipmentid > 0 GROUP BY `ticketid`) AND `deleted`=0 AND `status` NOT IN ('Archive')";
+	$filter = "`ticketid` NOT IN ('".implode("','",$id_list)."')";
+	$sql = "SELECT * FROM `tickets` WHERE `ticket_type`='$type' AND `ticketid` NOT IN ('".implode("','",$_GET['ids'])."') AND `ticketid` NOT IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `deleted`=0 AND `equipmentid` > 0 GROUP BY `ticketid`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `deleted`=0 AND IFNULL(`address`,'') != '' GROUP BY `ticketid`) AND `deleted`=0 AND `status` NOT IN ('Archive')";
 	$query = $dbc->query($sql);
 	if($query->num_rows > 0) {
-		echo '<h3>Unassigned '.TICKET_TILE.'</h3>';
+		echo '<div class="clearfix"></div><br /><h3>Unassigned '.TICKET_TILE.'</h3>';
 		while($ticket = $query->fetch_assoc()) {
-			$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticket'")->fetch_assoc();
-			$unbooked_html = '<span class="block-item ticket" style="position: relative; background-color: '.$ticket_colour.'; border: 1px solid rgba(0,0,0,0.5); color: #000; margin: 0.25em 0 0; display:block; float: left; width: 30em;" data-ticketid="'.$ticket['ticketid'].'" title="View '.TICKET_NOUN.'">
+			$unbooked_html = '<span class="block-item ticket gap" style="position: relative; background-color: '.$ticket_colour.'; border: 1px solid rgba(0,0,0,0.5); color: #000; margin: 0.25em 0 0; display:block; float: left; width: 30em;" data-ticketid="'.$ticket['ticketid'].'" title="View '.TICKET_NOUN.'">
 				<div class="drag-handle full-height" title="Drag Me!">
 					<img class="drag-handle black-color inline-img pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" />
 				</div>
