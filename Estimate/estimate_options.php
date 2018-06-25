@@ -73,11 +73,13 @@ function saveField() {
             <div class="row"><?php
                 $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
                 while($pdf_style = mysqli_fetch_assoc($pdf_styles)) {
-                    echo '<div class="col-sm-3 style-select cursor-hand'. ($estimate['pdf_style'] == $pdf_style['pdfsettingid'] ? ' theme-color-border-2x' : '') .'" data-name="pdf_style" data-value="'. $pdf_style['pdfsettingid'] .'" data-table="estimate" data-id-field="estimateid" data-id="'.$estimateid.'" onclick="$(\'.style-select\').removeClass(\'theme-color-border-2x\'); $(this).addClass(\'theme-color-border-2x\'); return false;">';
+                    echo '<div class="col-sm-4 style-select cursor-hand'. ($estimate['pdf_style'] == $pdf_style['pdfsettingid'] ? ' theme-color-border-2x' : '') .'" data-name="pdf_style" data-value="'. $pdf_style['pdfsettingid'] .'" data-table="estimate" data-id-field="estimateid" data-id="'.$estimateid.'" onclick="$(\'.style-select\').removeClass(\'theme-color-border-2x\'); $(this).addClass(\'theme-color-border-2x\'); return false;">';
                         echo '<b>Design: '.$pdf_style['style_name'].'</b><br /><br />';
-                        $_GET['style'] = $pdf_style['pdfsettingid'];
-                        include('estimate_design_output.php');
-                        echo str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $header_html).$html.str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $footer_html);
+                        echo '<div style="height:300px; overflow-y:scroll;">';
+                            $_GET['style'] = $pdf_style['pdfsettingid'];
+                            include('estimate_design_output.php');
+                            echo str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $header_html).$html.str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $footer_html);
+                        echo '</div>';
                     echo '</div>';
                 } ?>
                 <div class="clearfix"></div>
