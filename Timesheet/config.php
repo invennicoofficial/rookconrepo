@@ -1,6 +1,12 @@
 <?php
 require_once('../phpsign/signature-to-image.php');
 
+//Fix bugged out Time Cards where staff is 0 from a Ticket
+$empty_time_cards = mysqli_query($dbc, "SELECT `time_cards`.*, `ticket_attached`.`item_id` FROM `time_cards` LEFT JOIN `ticket_attached` ON `time_cards`.`ticket_attached_id` = `ticket_attached`.`id` WHERE `time_cards`.`staff` = 0 AND `time_cards`.`ticket_attached_id` > 0 AND `ticket_attached`.`item_id` > 0 AND `ticket_attached`.`src_table` LIKE 'Staff%'");
+while($empty_time_card = mysqli_fetch_assoc($empty_time_cards)) {
+	mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$empty_time_card['item_id']."' WHERE `time_cards_id` = '".$empty_time_card['time_cards_id']."'");
+}
+
 error_reporting(0);
 
 global $config;
