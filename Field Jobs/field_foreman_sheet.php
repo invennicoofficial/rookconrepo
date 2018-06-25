@@ -250,7 +250,8 @@ function actionDate(sel) {
 					(strpos($edit_config,',crew_name,') !== false ? "Name - " : "").
 					(strpos($edit_config,',crew_pos,') !== false ? "Position - " : "").
 					(strpos($edit_config,',crew_reg,') !== false ? "Reg Hour - " : "").
-					(strpos($edit_config,',crew_ot,') !== false ? "OT Hour" : "").")</em></th>" : "")."
+					(strpos($edit_config,',crew_ot,') !== false ? "OT Hour" : "").
+					(strpos($edit_config,',crew_travel,') !== false ? "Travel" : "").")</em></th>" : "")."
 				<th>Function</th>
 				<th>Supervisor Process</th>
 				<th>Office Process</th>
@@ -289,6 +290,7 @@ function actionDate(sel) {
 				$positionname = explode(',',$row['positionname']);
 				$crew_reg_hour = explode(',',$row['crew_reg_hour']);
 				$crew_ot_hour = explode(',',$row['crew_ot_hour']);
+				$crew_travel = explode(',',$row['crew_travel_hour']);
 
 				$crew = '';
 				for($emp_loop=0; $emp_loop<=$total_count; $emp_loop++) {
@@ -300,6 +302,9 @@ function actionDate(sel) {
 						}
 						if(isset($crew_ot_hour[$emp_loop])) {
 							$crew .= (strpos($edit_config,',crew_ot,') !== false ? ' - ' . $crew_ot_hour[$emp_loop] : '');
+						}
+						if(isset($crew_travel[$emp_loop])) {
+							$crew .= (strpos($edit_config,',crew_travel,') !== false ? ' - ' . $crew_travel[$emp_loop] : '');
 						}
 						$crew .= '<br>';
 					}
