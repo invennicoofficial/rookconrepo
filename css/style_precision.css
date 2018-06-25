@@ -4823,6 +4823,7 @@ display: table-cell;
   position: absolute;
   height: 100%;
   width: 100%; }
+  .login a { color:#e83324 !important; }
 
 .middle {
   display: table-cell;
