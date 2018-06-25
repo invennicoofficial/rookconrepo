@@ -3143,6 +3143,7 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 
 .theme-color-icon { filter: invert(79%) sepia(26%) saturate(5832%) hue-rotate(162deg) brightness(98%) contrast(93%); }
 .theme-color-border-bottom { border-bottom:2px solid #3AC4F2; }
+.theme-color-border-2x { border:2px solid #3AC4F2; }
 .white-background {
 	background-color: #fff !important;
 }

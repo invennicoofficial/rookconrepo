@@ -5,6 +5,22 @@ $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHER
 <script>
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
+	$('.style-select').click(function() {
+        $.ajax({
+			url: 'estimates_ajax.php?action=estimate_fields',
+			method: 'POST',
+			dataType: 'html',
+			data: {
+				id: $(this).data('id'),
+				id_field: $(this).data('id-field'),
+				table: $(this).data('table'),
+				field: 'pdf_style',
+				value: $(this).data('value'),
+				estimate: $('[name=estimateid]').val()
+			},
+			success: function(response) {}
+		});
+    });
 });
 
 function saveField() {
@@ -52,19 +68,25 @@ function saveField() {
 <div class="form-horizontal col-sm-12">
 	<h3>Options</h3>
 	<div class="form-group">
-		<label class="col-sm-4">PDF Style:</label>
-		<div class="col-sm-8">
-			<select class="chosen-select-deselect" data-placeholder="Select Style" name="pdf_style" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>"><option />
-				<?php $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
-				while($pdf_style = mysqli_fetch_assoc($pdf_styles)) { ?>
-					<option <?= $estimate['pdf_style'] == $pdf_style['pdfsettingid'] ? 'selected' : '' ?> value="<?= $pdf_style['pdfsettingid'] ?>"><?= $pdf_style['style_name'] ?></option>
-				<?php } ?>
-			</select>
+		<label class="col-sm-2">PDF Style:</label>
+		<div class="col-sm-10">
+            <div class="row"><?php
+                $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
+                while($pdf_style = mysqli_fetch_assoc($pdf_styles)) {
+                    echo '<div class="col-sm-3 style-select cursor-hand'. ($estimate['pdf_style'] == $pdf_style['pdfsettingid'] ? ' theme-color-border-2x' : '') .'" data-name="pdf_style" data-value="'. $pdf_style['pdfsettingid'] .'" data-table="estimate" data-id-field="estimateid" data-id="'.$estimateid.'" onclick="$(\'.style-select\').removeClass(\'theme-color-border-2x\'); $(this).addClass(\'theme-color-border-2x\'); return false;">';
+                        echo '<b>Design: '.$pdf_style['style_name'].'</b><br /><br />';
+                        $_GET['style'] = $pdf_style['pdfsettingid'];
+                        include('estimate_design_output.php');
+                        echo str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $header_html).$html.str_replace('[PAGE #]', '<span style="font-size:0.3em">[PAGE #]</span>', $footer_html);
+                    echo '</div>';
+                } ?>
+                <div class="clearfix"></div>
+            </div>
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4">Page Order:</label>
-		<div class="col-sm-8">
+		<label class="col-sm-2">Page Order:</label>
+		<div class="col-sm-10">
 			<button class="btn brand-btn pull-right gap-bottom" onclick="add_page(); return false;">Add Content Page</button>
 			<div class="clearfix"></div>
 			<input type="hidden" name="page_order" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" value="<?= $estimate['page_order'] ?>">
@@ -104,8 +126,8 @@ function saveField() {
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4">Include Page Numbers:</label>
-		<div class="col-sm-8">
+		<label class="col-sm-2">Include Page Numbers:</label>
+		<div class="col-sm-10">
 			<input type="hidden" id="page_numbers" name="page_numbers" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" value="<?= $estimate['page_numbers'] ?>">
 			<a class="<?= $estimate['page_numbers'] == 'none' || $estimate['page_numbers'] == '' ? 'active' : '' ?> col-sm-2 block-item text-center" href="" onclick="$('[name=page_numbers]').val('none').change(); $('.active').removeClass('active'); $(this).addClass('active'); return false;"><img src="../img/icons/cancel.png" class="inline-img text-lg"></a>
 			<a class="<?= $estimate['page_numbers'] == 'top_cover' ? 'active' : '' ?> col-sm-2 block-item text-center" href="" onclick="$('[name=page_numbers]').val('top_cover').change(); $('.active').removeClass('active'); $(this).addClass('active'); return false;" style="border-left:0 none;"><img src="../img/top_cover.png" class="inline-img text-lg"></a>
@@ -124,8 +146,8 @@ function saveField() {
 	<?php } ?>
 	<?php if(in_array('Multiples',$config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">Price Display Options:</label>
-			<div class="col-sm-8">
+			<label class="col-sm-2">Price Display Options:</label>
+			<div class="col-sm-10">
 				<label><input type="radio" name="quote_mode" <?= !in_array($estimate['quote_mode'],['Category','Total','None']) ? 'checked' : '' ?> value="All" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Each Line Total</label>
 				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'Category' ? 'checked' : '' ?> value="Category" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Category Totals</label>
 				<label><input type="radio" name="quote_mode" <?= $estimate['quote_mode'] == 'Total' ? 'checked' : '' ?> value="Total" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" style="height:1.5em; width:1.5em;"> Estimate Total Only</label>
