@@ -626,6 +626,9 @@ function saveFieldMethod(field) {
 						} else if(table_name == 'ticket_attached' && $(field).closest('.tab-section').attr('id') != undefined && $(field).closest('.tab-section').attr('id').substr(0,27) == 'tab_section_general_detail_') {
 							$(field).closest('.tab-section').attr('id','tab_section_general_detail_'+response);
 						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff' && field_name != 'item_id') {
+							$(field).closest('.multi-block').find('[name="item_id"]').change();
+						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
