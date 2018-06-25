@@ -68,7 +68,7 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                             }
                             echo "<option ".($current_type == $type_name ? 'selected' : '')." value='$type_name'>$type_name</option>";
                         }
-                        
+
                         $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE tile_name = '".FOLDER_NAME."' AND tab='$current_type' AND accordion IS NULL"));
                         $contacts_dashboard_config = explode(",",$get_field_config['contacts_dashboard']);
                         ?>
@@ -89,6 +89,7 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('Social', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Social" onchange="save_options();">Social Media Links</label>
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('Website', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Website" onchange="save_options();">Website</label>
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('Description', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Description" onchange="save_options();">Description</label>
+                        <label class="form-checkbox"><input type="checkbox" <?= in_array('Site', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Site" onchange="save_options();">Site</label>
                     </div>
                 </div>
             </div>
