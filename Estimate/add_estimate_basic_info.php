@@ -106,7 +106,7 @@ $(document).on('change', 'select[name="payment_due"]', function() { if(this.valu
 
 
 <div class="form-group clearfix completion_date">
-    <label for="first_name" class="col-sm-4 control-label text-right"><?= ESTIMATE_TILE ?> Type<span class="brand-color">*</span>:</label>
+    <label for="first_name" class="col-sm-4 control-label text-right"><?= rtrim(ESTIMATE_TILE, 's') ?> Type<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select name="estimatetype[]" multiple <?php echo $disable_type; ?> id="estimatetype" data-placeholder="Select a Type..." class="chosen-select-deselect form-control" width="380">
             <option value=''></option>

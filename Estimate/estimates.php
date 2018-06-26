@@ -108,7 +108,7 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 						echo "<div class='pull-right gap-left'><a href='?template=list' style='font-size: 0.5em;'><button class='btn brand-btn'>Templates</button></a></div>";
 					}
                     if($edit_access > 0) {
-                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".ESTIMATE_TILE."</button>";
+                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".rtrim(ESTIMATE_TILE, 's')."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
