@@ -134,5 +134,29 @@
     }
     //2018-06-26 - Ticket #7370 - Equipment Styling
 
+    //2018-06-26 - Ticket #7814 - Holidays Update Notifications
+    if(!mysqli_query($dbc, "CREATE TABLE `holiday_update_reminders` (
+        `reminderid` int(11) NOT NULL,
+        `date` date NOT NULL,
+        `sent` int(1) NOT NULL DEFAULT 1,
+        `log` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        ADD PRIMARY KEY (`reminderid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        MODIFY `reminderid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-26 - Ticket #7814 - Holidays Update Notifications
+
+    //2018-06-26 - Ticket #7766 - Time Tracking Round Down
+    if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `rounded_down` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-26 - Ticket #7766 - Time Tracking Round Down
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
