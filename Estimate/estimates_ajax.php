@@ -482,4 +482,17 @@ if($_GET['action'] == 'save_template_field') {
     $profit = number_format($total_price - $total_cost,2, '.', '');
     $total = number_format($total_price,2, '.', '');
     echo $margin.'%' .'*#*'. '$'.$profit .'*#*'. '$'.$total;
+
+} else if($_GET['action'] == 'save_status_for_archive') {
+    $status_type = filter_var($_POST['status_type'],FILTER_SANITIZE_STRING);
+    $status = filter_var($_POST['status'],FILTER_SANITIZE_STRING);
+    $name = '';
+    if ( $status_type=='closed' ) {
+        $name = 'estimate_status_closed';
+    } else if ( $status_type=='abandoned' ) {
+        $name = 'estimate_status_abandoned';
+    }
+    
+    set_config($dbc, $name, $status);
+    echo '$status_type: '.$status_type.' | $status: '.$status.' | $name:'.$name.'<br>'.mysqli_error($dbc);
 }
