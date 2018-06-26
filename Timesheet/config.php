@@ -46,6 +46,8 @@ foreach($config['tabs'] as $key => $timesheet_tab) {
 }
 $config['tabs'] = $ordered_tabs;
 
+$config['hours_types'] = ['REG_HRS','DIRECT_HRS','INDIRECT_HRS','EXTRA_HRS','RELIEF_HRS','SLEEP_HRS','SICK_ADJ','SICK_HRS','STAT_AVAIL','STAT_HRS','VACA_AVAIL','VACA_HRS','TRACKED_HRS','BREAKS'];
+
 
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 

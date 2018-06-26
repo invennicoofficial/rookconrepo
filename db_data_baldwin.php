@@ -152,11 +152,5 @@
     }
     //2018-06-26 - Ticket #7814 - Holidays Update Notifications
 
-    //2018-06-26 - Ticket #7766 - Time Tracking Round Down
-    // if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `rounded_down` int(1) NOT NULL DEFAULT 0")) {
-    //     echo "Error: ".mysqli_error($dbc)."<br />\n";
-    // }
-    //2018-06-26 - Ticket #7766 - Time Tracking Round Down
-
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

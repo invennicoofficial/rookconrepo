@@ -18,7 +18,7 @@ if($_GET['export'] == 'pdf') {
   $search_position = filter_var($_GET['search_position'],FILTER_SANITIZE_STRING);
   $search_project = filter_var($_GET['search_project'],FILTER_SANITIZE_STRING);
   $search_ticket = filter_var($_GET['search_ticket'],FILTER_SANITIZE_STRING);
-	$report = get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, 'to_array');
+	$report = get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, 'to_array', $config['hours_types']);
 
 	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 	$pdf->SetFont('dejavusans', '', 8);
