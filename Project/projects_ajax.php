@@ -18,6 +18,45 @@ if($_GET['action'] == 'mark_favourite') {
 		$favourites[] = $favourite[0];
 	}
 	echo json_encode($favourites);
+
+} else if($_GET['action'] == 'quick_actions') {
+
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+
+    if($field == 'reminder') {
+            $sender = get_email($dbc, $_SESSION['contactid']);
+            $subject = "A reminder about a ".PROJECT_TILE;
+            foreach($_POST['users'] as $i => $user) {
+                $user = filter_var($user,FILTER_SANITIZE_STRING);
+                $contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$user'");
+                $body = filter_var(htmlentities("This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
+                    <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />
+                    $item"), FILTER_SANITIZE_STRING);
+                mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$user' AND `src_table` = 'project' AND `src_tableid` = '".$id."' AND `src_table` != '' AND `src_table` IS NOT NULL");
+                $result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
+                    VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'project', '".$id."')");
+            }
+    } else if($field == 'document') {
+		$folder = 'download/';
+		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);
+		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', $basename);
+		for($i = 1; file_exists($folder.$filename); $i++) {
+			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.$i.')$1', $basename);
+		}
+		move_uploaded_file($_FILES['file']['tmp_name'],$folder.$filename);
+		mysqli_query($dbc, "INSERT INTO `project_document` (`projectid`,`upload`,`created_by`) VALUES ('$id','$filename','".$_SESSION['contactid']."')");
+	} else if($field == 'email') {
+		$sender = get_email($dbc, $_SESSION['contactid']);
+		$subject = "A reminder about a ".PROJECT_TILE;
+		foreach($_POST['value'] as $user) {
+			$user = get_email($dbc,$user);
+			$body = "This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
+                    <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />";
+			send_email($sender, $user, '', '', $subject, $body, '');
+		}
+	}
 } else if($_GET['action'] == 'setting_status') {
 	$status = filter_var(implode('#*#',array_filter($_POST['status'])),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'project_status' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='project_status') num WHERE num.rows=0");
@@ -399,6 +438,10 @@ if($_GET['action'] == 'mark_favourite') {
         mysqli_query($dbc, "UPDATE task_board SET task_path='$pathid' WHERE taskboardid='$taskboardid'");
 	}
 	mysqli_query($dbc, "UPDATE `project` SET `$path`='$path_list' WHERE `projectid`='$projectid'");
+}  else if($_GET['action'] == 'archive') {
+	$date_of_archival = date('Y-m-d');
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
@@ -621,7 +664,7 @@ if($_GET['action'] == 'mark_favourite') {
 	}
 	$final_price = number_format($final_price, 2);
 	mysqli_query($dbc, "UPDATE `invoice` SET `total_price` = '$total_price', `final_price` = '$final_price' WHERE `invoiceid` = '$invoiceid'");
-	
+
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
 	switch($invoice_design) {
@@ -813,6 +856,12 @@ if($_GET['action'] == 'mark_favourite') {
 	if($project_form_id > 0) {
 		mysqli_query($dbc, "DELETE FROM `field_config_project_form` WHERE `id` = '$project_form_id'");
 	}
+} else if($_GET['action'] == 'saveNote') {
+	$projectid = $_GET['projectid'];
+	$note = $_GET['note'];
+    $created_date = date('Y-m-d');
+    $who_added = $_SESSION['contactid'];
+    mysqli_query($dbc, "INSERT INTO `project_comment` (`projectid`, `comment`, `created_date`, `created_by`, `type`) VALUES ('$projectid', '$note', '$created_date', '$who_added', 'project_note')");
 } else if($_GET['action'] == 'archive_project_form') {
 	$projectform = $_POST['projectform'];
         $date_of_archival = date('Y-m-d');

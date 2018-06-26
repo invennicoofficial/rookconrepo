@@ -61,6 +61,7 @@ if (isset($_POST['submit'])) {
             <div id="collapse_abi" class="panel-collapse collapse in">
                 <div class="panel-body">
 
+	<?php if (strpos($value_config, ','."holiday_rate_type".',') !== FALSE) { ?>
                        <div class="form-group clearfix completion_date">
                             <label for="first_name" class="col-sm-4 control-label text-right">Rate Type:</label>
                             <div class="col-sm-8">
@@ -75,7 +76,9 @@ if (isset($_POST['submit'])) {
                                 </select>
                             </div>
                         </div>
+	<?php } ?>
 
+	<?php if (strpos($value_config, ','."holiday_rate_position".',') !== FALSE) { ?>
                         <div class="form-group clearfix completion_date">
                             <label for="first_name" class="col-sm-4 control-label text-right">Position:</label>
                             <div class="col-sm-8">
@@ -89,7 +92,9 @@ if (isset($_POST['submit'])) {
                                         </select>
                             </div>
                         </div>
+	<?php } ?>
 
+	<?php if (strpos($value_config, ','."holiday_rate_staff".',') !== FALSE) { ?>
                         <div class="form-group clearfix completion_date">
                             <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                             <div class="col-sm-8">
@@ -104,13 +109,16 @@ if (isset($_POST['submit'])) {
                                         </select>
                             </div>
                         </div>
+	<?php } ?>
 
+	<?php if (strpos($value_config, ','."hoilday_rate_hours".',') !== FALSE) { ?>
                         <div class="form-group clearfix completion_date">
                             <label for="first_name" class="col-sm-4 control-label text-right">Number of Hours paid:</label>
                             <div class="col-sm-8">
                                 <input name="no_of_hours_paid" value="<?= $no_of_hours_paid ?>" type="text" class="form-control">
                             </div>
                         </div>
+	<?php } ?>
 
 
                 </div>

@@ -233,6 +233,11 @@ if ( !empty($note) ) { ?>
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
 				<div class="dashboard-item set-relative">
+                        <?php if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
+						<div class="col-sm-6">
+							<?php echo '<b>'.$row['category'].'</b>'; ?>
+						</div>
+                        <?php } ?>
 					<div class="col-sm-6">
 						<img src="../img/person.PNG" class="inline-img"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
@@ -244,6 +249,11 @@ if ( !empty($note) ) { ?>
 					<?php if(in_array('Email Address', $field_display)): ?>
 						<div class="col-sm-6">
 							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img"><?= decryptIt($row['email_address']) ?></a>
+						</div>
+					<?php endif; ?>
+					<?php if(in_array('Site', $field_display)): ?>
+						<div class="col-sm-6">
+							<img src="../img/project-path.PNG" class="inline-img"><?= $row['site_name'] ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Address', $field_display)): ?>
