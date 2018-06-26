@@ -15,7 +15,7 @@ if($siteid == 'recent') {
 	if($_GET['siteid'] > 0) {
 		$manifest_filter = "AND `siteid`='".$_GET['siteid']."'";
 	}
-	$manifest_list = $dbc->query("SELECT `id`, `siteid`, `date`, `revision` FROM `ticket_manifests` WHERE `deleted`=0 $manifest_filter ORDER BY `id` DESC LIMIT 0,25");
+	$manifest_list = $dbc->query("SELECT `id`, `siteid`, `date`, `revision` FROM `ticket_manifests` WHERE `deleted`=0 $manifest_filter ORDER BY `id` DESC LIMIT 0,".$recent_manifests);
 	if($manifest_list->num_rows > 0) { ?>
 		<div id="no-more-tables">
 			<table class="table table-bordered">
@@ -214,8 +214,7 @@ if($siteid == 'recent') {
 		$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
 	} else if($siteid == 'top_25') {
-		$ticket_sql .= ' LIMIT 0,25';
-		$ticket_count = "SELECT 25 numrows";
+		$ticket_sql .= ' LIMIT 0,'.$recent_inventory;
 	} else {
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
 	}
@@ -227,7 +226,7 @@ if($siteid == 'recent') {
 				<button class="btn brand-btn pull-right" name="generate" value="generate" type="submit">Generate Manifest</button>
 			<?php } ?>
 			<button class="btn brand-btn pull-right" type="submit" name="build_blank" value="build_blank">Print Blank Manifest</button>
-			<?php display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); ?>
+			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
 			<table class="table table-bordered">
 				<tr>
 					<?php if(in_array('file',$manifest_fields)) { ?><th><?= TICKET_NOUN ?></th><?php } ?>
@@ -259,7 +258,7 @@ if($siteid == 'recent') {
 					</tr>
 				<?php } ?>
 			</table>
-			<?php display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); ?>
+			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
 			<div class="form-group">
 				<label class="col-sm-4">Signature:</label>
 				<div class="col-sm-8">

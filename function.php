@@ -492,6 +492,10 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '#BBBBBB';
 		} else if($name == 'report_row_colour_2') {
 			return '#DDDDDD';
+		} else if($name == 'recent_manifests') {
+			return '25';
+		} else if($name == 'recent_inventory') {
+			return '25';
 		}
 	}
 
