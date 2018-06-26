@@ -248,10 +248,10 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
 			$ticket_list = [];
 			$task_list = '';
 			$checklist_list = '';
-			$total_ticket_spent_time = [];
 			$total_timer = [];
 			$total_spent = [];
 			$total_all = [];
+			$total_all1 = [];
 
 			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%') `time_list`")->fetch_assoc()['time'];
 
@@ -262,14 +262,22 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
 			while($ticket = $tickets->fetch_assoc()) {
 				//$ticket_list[] = '<p>'.get_ticket_label($dbc, $ticket).' - '.substr($ticket['time_spent'],0,-3).'</p>';
                 $ticket_list[] = '<p>'.get_ticket_label($dbc, $ticket).'</p>';
-				$total_ticket_spent_time[] = $ticket['time_spent'];
 				$total_timer[] = $ticket['timer_total'];
 				$total_spent[] = $ticket['manual_time'];
 
                 $final_total_timer[] = $ticket['timer_total'];
                 $final_total_entered[] = $ticket['manual_time'];
+
+                $total_all[] = $ticket['time_spent'];
+                $total_all1[] = $ticket['timer_total'];
+                $total_all1[] = $ticket['manual_time'];
+
 			}
-				$total_all[] = $total_tracked_time;
+
+
+
+
+				//$total_all[] = $total_tracked_time;
                 $final_total_time[] = $total_tracked_time;
 
 			$tasks = mysqli_query($dbc, "SELECT tasklist.*, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`tasklist_time`.`src`='M',`tasklist_time`.`work_time`,'00:00:00')))),`tasklist`.`work_time`) `manual_time`, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`tasklist_time`.`src`='A',`tasklist_time`.`work_time`,'00:00:00')))),'00:00:00') `timer_total`, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(`tasklist_time`.`work_time`))),`tasklist`.`work_time`) `total_time` FROM tasklist LEFT JOIN `tasklist_time` ON `tasklist`.`tasklistid`=`tasklist_time`.`tasklistid` WHERE IFNULL(`tasklist_time`.`contactid`,`tasklist`.`contactid`) = '$cid' AND IFNULL(`tasklist_time`.`timer_date`,`tasklist`.`task_tododate`) = '".$date."' AND `tasklist`.`tasklistid` > 0 GROUP BY `tasklist`.`tasklistid`");
@@ -307,7 +315,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
 			$report_data .= '<td>'.$checklist_list.'</td>';
 			$report_data .= '<td>'.AddPlayTime($total_timer).'</td>';
 			$report_data .= '<td>'.AddPlayTime($total_spent).'</td>';
-			$report_data .= '<td>'.AddPlayTime($total_all).'</td>';
+			$report_data .= '<td>'.AddPlayTime($total_all).' - '.AddPlayTime($total_all1)'</td>';
 
 			$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(daysheetreportid) AS daysheetreportid FROM daysheet_report WHERE contactid='$cid' AND today_date='$date'"));
 
