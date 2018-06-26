@@ -34,6 +34,9 @@ if(check_subtab_persmission($dbc, 'optimize', ROLE, 'macros')) {
 if(check_subtab_persmission($dbc, 'optimize', ROLE, 'assign')) {
 	$tab_list[] = 'assign';
 }
+if(check_subtab_persmission($dbc, 'optimize', ROLE, 'history')) {
+	$tab_list[] = 'history';
+}
 if(empty($_GET['tab']) || !in_array($_GET['tab'],$tab_list)) {
 	$_GET['tab'] = $tab_list[0];
 }
