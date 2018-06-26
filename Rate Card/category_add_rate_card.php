@@ -36,79 +36,75 @@ if (isset($_POST['submit'])) {
 		$result = mysqli_query($dbc, $sql);
 		$row = mysqli_fetch_array($result);
 	}
-	if(mysqli_num_rows($result) > 0):
-		$categories = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `equipment` UNION SELECT DISTINCT(`type`) FROM `equipment`");
-		$rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0  GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
-		$rate_results = mysqli_query($dbc, $rates_sql); ?>
-		<h3>Rate Card Info</h3>
-		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Rate Card:</label>
-		<div class='col-sm-8'><select name='rate_card' data-placeholder='Select Rate Card' class='chosen-select-deselect form-control'><option></option>
-		<?php while($rate_name = mysqli_fetch_array($rate_results)) {
-			echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
-		} ?>
-		</select></div></div>
-		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Category:</label>
-		<div class='col-sm-8'><select name='category' data-placeholder='Choose a Category' class='chosen-select-deselect form-control'><option></option>
-		<?php while($cat = mysqli_fetch_array($categories)) {
-			echo "<option".($cat['category'] == $row['description'] ? ' selected' : '')." value='{$cat['category']}'>{$cat['category']}</option>";
-		} ?>
-		</select></div></div>
-		<?php $field_config = get_config($dbc, 'category_rate_fields');
-		if(str_replace(',','',$field_config) == '') {
-			$field_config = ",uom,cost,unit_price,";
-		}
-		if(strpos($field_config, ',start_end_dates,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Start Date</label>
-			<div class='col-sm-8'><input class='form-control datepicker' type='text' name='start_date' value='<?php echo $row['start_date']; ?>'></div></div>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>End Date</label>
-			<div class='col-sm-8'><input class='form-control datepicker' type='text' name='end_date' value='<?php echo $row['end_date']; ?>'></div></div>
-		<?php }
-		if(strpos($field_config, ',reminder_alerts,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Date</label>
-			<div class='col-sm-8'><input class='form-control datepicker' type='text' name='alert_date' value='<?php echo $row['alert_date']; ?>'></div></div>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Staff</label>
-			<div class='col-sm-8'>
-				<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
-					<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
-					foreach($staff_list as $staffid) {
-						echo '<option value="'.$staffid.'" '.(strpos(','.$row['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';
-					} ?>
-				</select>
-			</div></div>
-		<?php }
-		if(strpos($field_config, ',daily,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Daily Rate</label>
-			<div class='col-sm-8'><input class='form-control' type='number' name='daily' value='<?php echo $row['daily']; ?>' min='0' step='any'></div></div>
-		<?php }
-		if(strpos($field_config, ',hourly,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Hourly Rate</label>
-			<div class='col-sm-8'><input class='form-control' type='number' name='hourly' value='<?php echo $row['hourly']; ?>' min='0' step='any'></div></div>
-		<?php }
-		if(strpos($field_config, ',cost,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Cost</label>
-			<div class='col-sm-8'><input class='form-control' type='number' name='cost' value='<?php echo $row['cost']; ?>' min='0' step='any'></div></div>
-		<?php }
-		if(strpos($field_config, ',unit_price,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Price</label>
-			<div class='col-sm-8'><input class='form-control' type='number' name='unit_price' value='<?php echo $row['cust_price']; ?>' min='0' step='any'></div></div>
-		<?php }
-		if(strpos($field_config, ',uom,') !== false) { ?>
-			<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>UoM</label>
-			<div class='col-sm-8'>
-				<select name="uom" data-placeholder="Select a UOM..." class="chosen-select-deselect form-control" onchange="if(this.value == 'NEW_UOM') { $(this).closest('div').find('input').removeAttr('disabled').show().focus(); } else { $(this).closest('div').find('input').prop('disabled',true).hide(); }">
-					<option></option>
-					<option value="NEW_UOM">Add New UOM</option>
-					<?php $query = mysqli_query($dbc, "SELECT DISTINCT(`uom`) FROM `company_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' ORDER BY `uom`");
-					while($uom = mysqli_fetch_array($query)) { ?>
-						<option value="<?= $uom['uom'] ?>" <?= $uom['uom'] == $row['uom'] ? 'selected' : '' ?>><?= $uom['uom'] ?></option>
-					<?php } ?>
-				</select>
-				<input type="text" name="uom" disabled class="form-control" style="display: none;">
-			</div>
-			</div>
-		<?php } ?>
-		<button type='submit' name='submit' value='<?php echo $id; ?>' class="btn brand-btn btn-lg pull-right">Submit</button>
-	<?php else: ?>
-		<h3>No Rate Card Found</h3>
-	<?php endif; ?>
+	$categories = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `equipment` UNION SELECT DISTINCT(`type`) FROM `equipment`");
+	$rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0  GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
+	$rate_results = mysqli_query($dbc, $rates_sql); ?>
+	<h3>Rate Card Info</h3>
+	<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Rate Card:</label>
+	<div class='col-sm-8'><select name='rate_card' data-placeholder='Select Rate Card' class='chosen-select-deselect form-control'><option></option>
+	<?php while($rate_name = mysqli_fetch_array($rate_results)) {
+		echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
+	} ?>
+	</select></div></div>
+	<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Category:</label>
+	<div class='col-sm-8'><select name='category' data-placeholder='Choose a Category' class='chosen-select-deselect form-control'><option></option>
+	<?php while($cat = mysqli_fetch_array($categories)) {
+		echo "<option".($cat['category'] == $row['description'] ? ' selected' : '')." value='{$cat['category']}'>{$cat['category']}</option>";
+	} ?>
+	</select></div></div>
+	<?php $field_config = get_config($dbc, 'category_rate_fields');
+	if(str_replace(',','',$field_config) == '') {
+		$field_config = ",uom,cost,unit_price,";
+	}
+	if(strpos($field_config, ',start_end_dates,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Start Date</label>
+		<div class='col-sm-8'><input class='form-control datepicker' type='text' name='start_date' value='<?php echo $row['start_date']; ?>'></div></div>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>End Date</label>
+		<div class='col-sm-8'><input class='form-control datepicker' type='text' name='end_date' value='<?php echo $row['end_date']; ?>'></div></div>
+	<?php }
+	if(strpos($field_config, ',reminder_alerts,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Date</label>
+		<div class='col-sm-8'><input class='form-control datepicker' type='text' name='alert_date' value='<?php echo $row['alert_date']; ?>'></div></div>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Staff</label>
+		<div class='col-sm-8'>
+			<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+				<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
+				foreach($staff_list as $staffid) {
+					echo '<option value="'.$staffid.'" '.(strpos(','.$row['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';
+				} ?>
+			</select>
+		</div></div>
+	<?php }
+	if(strpos($field_config, ',daily,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Daily Rate</label>
+		<div class='col-sm-8'><input class='form-control' type='number' name='daily' value='<?php echo $row['daily']; ?>' min='0' step='any'></div></div>
+	<?php }
+	if(strpos($field_config, ',hourly,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Hourly Rate</label>
+		<div class='col-sm-8'><input class='form-control' type='number' name='hourly' value='<?php echo $row['hourly']; ?>' min='0' step='any'></div></div>
+	<?php }
+	if(strpos($field_config, ',cost,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Cost</label>
+		<div class='col-sm-8'><input class='form-control' type='number' name='cost' value='<?php echo $row['cost']; ?>' min='0' step='any'></div></div>
+	<?php }
+	if(strpos($field_config, ',unit_price,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Price</label>
+		<div class='col-sm-8'><input class='form-control' type='number' name='unit_price' value='<?php echo $row['cust_price']; ?>' min='0' step='any'></div></div>
+	<?php }
+	if(strpos($field_config, ',uom,') !== false) { ?>
+		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>UoM</label>
+		<div class='col-sm-8'>
+			<select name="uom" data-placeholder="Select a UOM..." class="chosen-select-deselect form-control" onchange="if(this.value == 'NEW_UOM') { $(this).closest('div').find('input').removeAttr('disabled').show().focus(); } else { $(this).closest('div').find('input').prop('disabled',true).hide(); }">
+				<option></option>
+				<option value="NEW_UOM">Add New UOM</option>
+				<?php $query = mysqli_query($dbc, "SELECT DISTINCT(`uom`) FROM `company_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' ORDER BY `uom`");
+				while($uom = mysqli_fetch_array($query)) { ?>
+					<option value="<?= $uom['uom'] ?>" <?= $uom['uom'] == $row['uom'] ? 'selected' : '' ?>><?= $uom['uom'] ?></option>
+				<?php } ?>
+			</select>
+			<input type="text" name="uom" disabled class="form-control" style="display: none;">
+		</div>
+		</div>
+	<?php } ?>
+	<button type='submit' name='submit' value='<?php echo $id; ?>' class="btn brand-btn btn-lg pull-right">Submit</button>
 </form></div>

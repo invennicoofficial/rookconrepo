@@ -8,6 +8,7 @@ if (isset($_POST['submit'])) {
 
     $clientid = filter_var($_POST['ratecardclientid'],FILTER_SANITIZE_STRING);
     $rate_card_name = filter_var($_POST['rate_card_name'],FILTER_SANITIZE_STRING);
+    $ref_card = filter_var($_POST['ref_card'],FILTER_SANITIZE_STRING);
     $start_date = filter_var($_POST['start_date'],FILTER_SANITIZE_STRING);
     $end_date = filter_var($_POST['end_date'],FILTER_SANITIZE_STRING);
     $alert_date = filter_var($_POST['alert_date'],FILTER_SANITIZE_STRING);
@@ -103,11 +104,11 @@ if (isset($_POST['submit'])) {
     $staff_position = '';
     $j=0;
     if(!empty($_POST['staff_pos'])) {
-        foreach ($_POST['staff_pos'] as $staff_pos_all) {
-            $staff_position .= $staff_pos_all.'#'.$_POST['staff_pos_hourly_rate'][$j].'#'.$_POST['staff_pos_daily_rate'][$j].'**';
-            $total_price += $_POST['staff_pos_hourly_rate'][$j];
-            $total_price += $_POST['staff_pos_daily_rate'][$j];
-            $j++;
+        foreach ($_POST['staff_pos'] as $j => $staff_pos_all) {
+			if($staff_pos_all > 0) {
+				$staff_position .= $staff_pos_all.'#'.($_POST['staff_pos_unit'] == 'Daily' ? 0 : $_POST['staff_pos_rate'][$j]).'#'.($_POST['staff_pos_unit'] == 'Daily' ? $_POST['staff_pos_rate'][$j] : 0).'**';
+				$total_price += $_POST['staff_pos_rate'][$j];
+			}
         }
     }
 
@@ -213,12 +214,12 @@ if (isset($_POST['submit'])) {
     }
 
     if(empty($_POST['ratecardid'])) {
-        $query_insert_customer = "INSERT INTO `rate_card` (`clientid`, `rate_card_name`, `frequency_type`, `frequency_interval`, `package`, `promotion`, `services`, `products`, `sred`, `client`, `customer`, `inventory`, `equipment`, `equipment_category`, `staff`, `staff_position`, `contractor`, `expense`, `vendor`, `custom`, `material`, `labour`, `other`, `total_price`, `who_added`, `when_added`, `start_date`, `end_date`, `alert_date`, `alert_staff`, `created_by`) VALUES ('$clientid', '$rate_card_name', '$frequency_type', '$frequency_interval', '$package' , '$promotion', '$services', '$products', '$sred', '$client', '$customer', '$inventory', '$equipment', '$equipment_category', '$staff', '$staff_position', '$contractor', '$expense', '$vendor', '$custom', '$material', '$labour', '$other', '$total_price', '$who_added', '$when_added', '$start_date', '$end_date', '$alert_date', '$alert_staff', '".$_SESSION['contactid']."')";
+        $query_insert_customer = "INSERT INTO `rate_card` (`clientid`, `rate_card_name`, `ref_card`, `frequency_type`, `frequency_interval`, `package`, `promotion`, `services`, `products`, `sred`, `client`, `customer`, `inventory`, `equipment`, `equipment_category`, `staff`, `staff_position`, `contractor`, `expense`, `vendor`, `custom`, `material`, `labour`, `other`, `total_price`, `who_added`, `when_added`, `start_date`, `end_date`, `alert_date`, `alert_staff`, `created_by`) VALUES ('$clientid', '$rate_card_name', '$ref_card', '$frequency_type', '$frequency_interval', '$package' , '$promotion', '$services', '$products', '$sred', '$client', '$customer', '$inventory', '$equipment', '$equipment_category', '$staff', '$staff_position', '$contractor', '$expense', '$vendor', '$custom', '$material', '$labour', '$other', '$total_price', '$who_added', '$when_added', '$start_date', '$end_date', '$alert_date', '$alert_staff', '".$_SESSION['contactid']."')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $url = 'Added';
     } else {
         $ratecardid = $_POST['ratecardid'];
-        $query_update_vendor = "UPDATE `rate_card` SET `rate_card_name` = '$rate_card_name', `frequency_type` = '$frequency_type', `frequency_interval` = '$frequency_interval', `package` = '$package', `promotion` = '$promotion', `services` = '$services', `products` = '$products', `sred` = '$sred', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `equipment_category` = '$equipment_category', `staff` = '$staff', `staff_position` = '$staff_position', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `material` = '$material', `labour` = '$labour', `other` = '$other', `total_price` = '$total_price', `who_added` = '$who_added', `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff' WHERE `ratecardid` = '$ratecardid'";
+        $query_update_vendor = "UPDATE `rate_card` SET `rate_card_name` = '$rate_card_name', `ref_card` = '$ref_card', `frequency_type` = '$frequency_type', `frequency_interval` = '$frequency_interval', `package` = '$package', `promotion` = '$promotion', `services` = '$services', `products` = '$products', `sred` = '$sred', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `equipment_category` = '$equipment_category', `staff` = '$staff', `staff_position` = '$staff_position', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `material` = '$material', `labour` = '$labour', `other` = '$other', `total_price` = '$total_price', `who_added` = '$who_added', `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff' WHERE `ratecardid` = '$ratecardid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
     }
@@ -258,6 +259,7 @@ function deleteRatecard(sel, hide, blank) {
 
         $clientid = $_GET['clientid'];
         $rate_card_name = '';
+        $ref_card = '';
         $start_date = '';
         $end_date = '';
         $alert_date = '';
@@ -291,7 +293,8 @@ function deleteRatecard(sel, hide, blank) {
             $ratecardid = $_GET['ratecardid'];
             $ratecard = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM `rate_card` WHERE `ratecardid`='$ratecardid'"));
             $clientid = $ratecard['clientid'];
-            $rate_card_name = $ratecard['rate_card_name'];
+            $rate_card_name = empty($ratecard['rate_card_name']) ? get_contact($dbc, $clientid, 'name_company') : $ratecard['rate_card_name'];
+            $ref_card = $ratecard['ref_card'];
             $start_date = $ratecard['start_date'];
             $end_date = $ratecard['end_date'];
             $alert_date = $ratecard['alert_date'];
@@ -361,7 +364,7 @@ function deleteRatecard(sel, hide, blank) {
                     <div class="form-group clearfix completion_date">
                         <label for="first_name" class="col-sm-4 control-label text-right">Generate For:</label>
                         <div class="col-sm-8">
-                            <select name="ratecardclientid" <?php echo $disabled; ?> data-placeholder="Select Contact..." class="chosen-select-deselect form-control" width="380">
+                            <select name="ratecardclientid" <?php echo $disabled; ?> data-placeholder="Select Contact..." onchange="if($('[name=rate_card_name]').val() == '') { $('[name=rate_card_name]').val($(this).find('option:selected').text()) }" class="chosen-select-deselect form-control" width="380">
                                 <option value=''></option>
                                 <?php
                                 $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT * FROM `contacts` WHERE `category` IN ('".implode("','", $customer_contact_categories)."') AND `deleted`=0"),MYSQLI_ASSOC));
@@ -379,6 +382,20 @@ function deleteRatecard(sel, hide, blank) {
                             <input name="rate_card_name" value="<?php echo $rate_card_name; ?>" type="text" class="form-control"></p>
                         </div>
                     </div>
+
+                    <?php if(strpos($value_config, ',ref_card,') !== FALSE) { ?>
+                        <div class="form-group clearfix completion_date">
+                            <label for="first_name" class="col-sm-4 control-label text-right">Reference Rate Card:</label>
+                            <div class="col-sm-8">
+                                <select name="ref_card" class="chosen-select-deselect" data-placeholder="Select Company Rate Card"><option />
+									<?php $rate_list = $dbc->query("SELECT `rate_card_name` FROM `company_rate_card` WHERE IFNULL(`rate_card_name`,'') != '' AND `deleted`=0 GROUP BY `rate_card_name`");
+									while($ref_rate_name = $rate_list->fetch_assoc()) { ?>
+										<option <?= $ref_rate_name['rate_card_name'] == $ref_card ? 'selected' : '' ?> value="<?= $ref_rate_name['rate_card_name'] ?>"><?= $ref_rate_name['rate_card_name'] ?></option>
+									<?php } ?>
+								</select>
+                            </div>
+                        </div>
+                    <?php } ?>
 
                     <?php if(strpos($value_config, ',start_end_dates,') !== FALSE) { ?>
                         <div class="form-group clearfix completion_date">
@@ -581,6 +598,24 @@ function deleteRatecard(sel, hide, blank) {
         </div>
         <?php } ?>
 
+        <?php if (strpos($value_config, ','."Position".',') !== FALSE) { ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_staffpos" >Position<span class="glyphicon glyphicon-plus"></span></a>
+                </h4>
+            </div>
+
+            <div id="collapse_staffpos" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <?php
+                    include ('add_rate_card_position.php');
+                    ?>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
         <?php if (strpos($value_config, ','."Contractor".',') !== FALSE) { ?>
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -719,24 +754,6 @@ function deleteRatecard(sel, hide, blank) {
                 <div class="panel-body">
                     <?php
                     include ('add_rate_card_equipment_category.php');
-                    ?>
-                </div>
-            </div>
-        </div>
-        <?php } ?>
-
-        <?php if (strpos($value_config, ','."Staff Position".',') !== FALSE) { ?>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_staffpos" >Staff Position<span class="glyphicon glyphicon-plus"></span></a>
-                </h4>
-            </div>
-
-            <div id="collapse_staffpos" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <?php
-                    include ('add_rate_card_staff_position.php');
                     ?>
                 </div>
             </div>
