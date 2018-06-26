@@ -44,7 +44,7 @@ $macro_list = [];
 foreach(explode('#*#',get_config($dbc, 'upload_macros')) as $macro) {
 	$macro = explode('|',$macro);
 	if(!empty($macro[1]) && file_exists('macros/'.$macro[1])) {
-		$macro_list[$macro[0]] = [config_safe_str($macro[1]),$macro[2]];
+		$macro_list[$macro[0]] = config_safe_str($macro[1]);
 	}
 } ?>
 <div class="container">
