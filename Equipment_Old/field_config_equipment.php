@@ -1,6 +1,10 @@
-<?php include_once('../include.php');
+<?php
+/*
+Dashboard
+*/
+include ('../include.php');
 checkAuthorised('equipment');
-$security = get_security($dbc, 'equipment');
+error_reporting(0);
 
 if (isset($_POST['add_tab'])) {
 	// Add and update Tab Settings
@@ -244,23 +248,36 @@ if (isset($_POST['equip_assign_btn'])) {
 <script type="text/javascript">
 $(document).ready(function() {
 	$("#tab_dashboard").change(function() {
-		window.location = '?settings=dashboard&tab='+this.value;
+		window.location = 'field_config_equipment.php?type=dashboard&tab='+this.value;
 	});
 	$("#tab_field").change(function() {
-		window.location = '?settings=field&tab='+this.value;
+		window.location = 'field_config_equipment.php?type=field&tab='+this.value;
 	});
 	$("#acc").change(function() {
 		var tabs = $("#tab_field").val();
-		window.location = '?settings=field&tab='+tabs+'&accr='+this.value;
+		window.location = 'field_config_equipment.php?type=field&tab='+tabs+'&accr='+this.value;
 	});
 	
 	$("#tab_inspect").change(function() {
-		window.location = '?settings=inspection&tab='+$(this).val();
+		window.location = 'field_config_equipment.php?type=inspection&tab='+$(this).val();
 	});
 });
 </script>
+</head>
+<body>
 
-<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<?php include ('../navigation.php'); ?>
+
+<div class="container">
+<div class="row">
+	<h1>Equipment</h1>
+	<div class="pad-left gap-top double-gap-bottom"><a href="equipment.php?category=Top" class="btn brand-btn">Back to Dashboard</a></div>
+	<!--<a href="#" class="btn brand-btn pull-right" onclick="history.go(-1);return false;">Back</a>-->
+
+<form id="form1" name="form1" method="post"	action="field_config_equipment.php" enctype="multipart/form-data" class="form-horizontal" role="form">
+
+<div class="panel-group" id="accordion2">
+
 	<?php
 	$invtype = $_GET['tab'];
 	$accr = $_GET['accr'];
@@ -273,6 +290,56 @@ $(document).ready(function() {
 	$equipment_dashboard_config = ','.$get_field_config['equipment_dashboard'].',';
 
 	$get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`order` SEPARATOR ',') AS all_order FROM field_config_equipment WHERE tab='$invtype'"));
+
+	$active_tab = '';
+	$active_field = '';
+	$active_dashboard = '';
+	$active_inspection = '';
+	$active_expenses = '';
+	$active_service_request = '';
+	$active_service_record = '';
+
+	if($_GET['type'] == 'tab') {
+		$active_tab = 'active_tab';
+	}
+	if($_GET['type'] == 'field') {
+		$active_field = 'active_tab';
+	}
+	if($_GET['type'] == 'dashboard') {
+		$active_dashboard = 'active_tab';
+	}
+	if($_GET['type'] == 'inspection') {
+		$active_inspection = 'active_tab';
+	}
+	if($_GET['type'] == 'expenses') {
+		$active_expenses = 'active_tab';
+	}
+	if($_GET['type'] == 'service_request') {
+		$active_service_request = 'active_tab';
+	}
+	if($_GET['type'] == 'service_record') {
+		$active_service_record = 'active_tab';
+	}
+	if($_GET['type'] == 'equip_assign') {
+		$active_equip_assign = 'active_tab';
+	}
+	if($_GET['type'] == 'classification') {
+		$active_classification = 'active_tab';
+	}
+
+	echo "<a href='field_config_equipment.php?type=tab'><button type='button' class='btn brand-btn mobile-block ".$active_tab."' >General</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=field'><button type='button' class='btn brand-btn mobile-block ".$active_field."' >Fields</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=dashboard'><button type='button' class='btn brand-btn mobile-block ".$active_dashboard."' >Dashboard</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=inspection'><button type='button' class='btn brand-btn mobile-block ".$active_inspection."' >Inspections</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=expenses'><button type='button' class='btn brand-btn mobile-block ".$active_expenses."' >Expenses</button></a>&nbsp;&nbsp;";
+
+	echo "<a href='field_config_equipment.php?type=service_request'><button type='button' class='btn brand-btn mobile-block ".$active_service_request."' >Service Request</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=service_record'><button type='button' class='btn brand-btn mobile-block ".$active_service_record."'> Service Record</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."'> Equipment Assignment</button></a>&nbsp;&nbsp;";
+	echo "<a href='field_config_equipment.php?type=classification'><button type='button' class='btn brand-btn mobile-block ".$active_classification."'> Classifications</button></a>&nbsp;&nbsp;";
+
+	//echo "<a href='field_config_equipment.php?type=general'><button type='button' class='btn brand-btn mobile-block ".$active_general."' >General</button></a>&nbsp;&nbsp;";
+	echo '<br><br><Br>';
 
 	if($_GET['type'] == 'tab') {
 		$equipment_main_tabs = explode(',',get_config($dbc,'equipment_main_tabs')); ?>
@@ -1803,4 +1870,9 @@ $(document).ready(function() {
 			</div>
 		</div>
 	<?php } ?>
+</div>
 </form>
+</div>
+</div>
+
+<?php include ('../footer.php'); ?>

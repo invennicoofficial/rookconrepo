@@ -680,6 +680,9 @@ function get_equipment_field($dbc, $equipmentid, $field_name) {
     $get_equipment =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM equipment WHERE	equipmentid='$equipmentid'"));
     return $get_equipment[$field_name];
 }
+function get_equipment_label($dbc, $equipment) {
+    return $equipment['category'].(!empty($equipment['make']) ? " ".$equipment['make'] : "").(!empty($equipment['model']) ? " ".$equipment['model'] : "").(!empty($equipment['unit_number']) ? " ".$equipment['unit_number'] : "");
+}
 function get_vendor_pricelist($dbc, $pricelistid, $field_name) {
     $get_pricelist =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM vendor_pricelist WHERE	pricelistid='$pricelistid'"));
     return $get_pricelist[$field_name];
