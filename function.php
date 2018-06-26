@@ -2487,6 +2487,9 @@ function get_reminder_url($dbc, $reminder) {
             case 'rate_card':
                 $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
                 break;
+            case 'holidays_update':
+                $reminder_url = '../Timesheet/holidays.php';
+                break;
         }
     }
 

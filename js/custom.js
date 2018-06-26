@@ -263,6 +263,7 @@ function destroyInputs(container) {
 	tinymce.remove(container.selector+' textarea');
 	container.find('textarea').removeAttr('id');
 	container.find('.datepicker').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
+	container.find('.datepickernoyear').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.datefuturepicker').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.dateandtimepicker').datetimepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.datetimepicker').timepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
@@ -505,6 +506,16 @@ function initInputs(container) {
 			changeYear: true,
 			yearRange: '1920:2025',
 			dateFormat: 'yy-mm-dd'
+		});
+	});
+
+	$( container + ' ' + ".datepickernoyear").each(function() {
+		$(this).datepicker({
+			changeMonth: true,
+			changeYear: false,
+			dateFormat: 'mm-dd'
+		}).focus(function () {
+			$('.ui-datepicker-year').hide();
 		});
 	});
 
