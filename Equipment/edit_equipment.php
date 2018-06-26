@@ -1,9 +1,6 @@
-<?php
-/*
-Add	Inventory
-*/
-include ('../include.php');
-error_reporting(0);
+<?php include_once('../include.php');
+checkAuthorised('equipment');
+$security = get_security($dbc, 'equipment');
 
 if (isset($_POST['submit'])) {
 
@@ -162,6 +159,24 @@ if (isset($_POST['submit'])) {
         $result_update_equipment	= mysqli_query($dbc, $query_update_equipment);
         $url = 'Updated';
     }
+    if($_POST['equipment_image_delete'] == 1) {
+        mysqli_query($dbc, "UPDATE `equipment` SET `equipment_image` = '' WHERE `equipmentid` = '$equipmentid'");
+    }
+    if(!empty($_FILES['equipment_image']['name'])) {
+        $filename = $_FILES['equipment_image']['name'];
+        $file = $_FILES['equipment_image']['tmp_name'];
+        if (!file_exists('download')) {
+            mkdir('download', 0777, true);
+        }
+        $basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
+        $i = 0;
+        while(file_exists('download/'.$filename)) {
+            $filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', $basefilename);
+        }
+        move_uploaded_file($file, "download/".$filename);
+        $equipment_image = $filename;
+        mysqli_query($dbc, "UPDATE `equipment` SET `equipment_image` = '$filename' WHERE `equipmentid` = '$equipmentid'");
+    }
 	
 	if(!empty($_POST['reg_reminder_staff'])) {
 		$contactid = implode(',',$_POST['reg_reminder_staff']);
@@ -196,12 +211,12 @@ if (isset($_POST['submit'])) {
 			VALUES ('$contactid', '', '$reminder_date', '$reminder_time', '$reminder_type', '$verify', '$subject', '$body', '$sender', 'equipment_insurance', '$equipmentid')");
 	}
 
-	if($_POST['submit'] == 'Submit') {
-		echo '<script type="text/javascript"> window.location.replace("equipment.php?category='.$category.'"); </script>';
-	} else {
-		ob_clean();
-		header('Location:'.$_POST['submit'].'?equipmentid='.$equipmentid);
-	}
+	// if($_POST['submit'] == 'Submit') {
+	// 	echo '<script type="text/javascript"> window.location.replace("?category='.$category.'"); </script>';
+	// } else {
+	// 	ob_clean();
+	// 	header('Location:'.$_POST['submit'].'?equipmentid='.$equipmentid);
+	// }
 
    // mysqli_close($dbc); //Close the DB Connection
 }
@@ -215,7 +230,7 @@ $(document).ready(function () {
 	<?php } ?>
 
 	$("#form1").submit(function( event ) {
-		var category = $("#category").val();
+        var category = $("[name=category]").last().val();
 		var sub_category = $("#sub_category").val();
 
 		var code = $("input[name=code]").val();
@@ -223,7 +238,7 @@ $(document).ready(function () {
 		var category_name = $("input[name=category_name]").val();
 		var sub_category_name = $("input[name=sub_category_name]").val();
 
-		if (code == '' || category == '' || sub_category == '' || name == '') {
+		if ((code != undefined && code == '') || (category != undefined && category == '') || (sub_category != undefined && sub_category == '') || (name != undefined && name == '')) {
 			alert("Please make sure you have filled in all of the required fields.");
 			return false;
 		}
@@ -316,277 +331,260 @@ $(document).ready(function () {
     //         $('[name=region]').val($(this).find('option:selected').data('region')).trigger('change.select2');
     //     }
     // });
+
+    // Active tabs
+    $('[data-tab-target]').click(function() {
+        $('.main-screen .main-screen').scrollTop($('#tab_section_'+$(this).data('tab-target')).offset().top + $('.main-screen .main-screen').scrollTop() - $('.main-screen .main-screen').offset().top);
+        return false;
+    });
+    setTimeout(function() {
+        $('.main-screen .main-screen').scroll(function() {
+            var screenTop = $('.main-screen .main-screen').offset().top + 10;
+            var screenHeight = $('.main-screen .main-screen').innerHeight();
+            $('.active.blue').removeClass('active blue');
+            $('.tab-section').filter(function() { return $(this).offset().top + this.clientHeight > screenTop && $(this).offset().top < screenTop + screenHeight; }).each(function() {
+                $('[data-tab-target='+$(this).attr('id').replace('tab_section_','')+']').find('li').addClass('active blue');
+            });
+        });
+        $('.main-screen .main-screen').scroll();
+    }, 500);
 });
 
 </script>
-</head>
-
-<body>
-<?php include_once ('../navigation.php');
-checkAuthorised('equipment');
-$equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
+<?php $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
 $category = $_GET['category'];
 if(empty($category)) {
 	$category = explode(',', trim(get_config($dbc, 'equipment_tabs'),','))[0];
 }
-include_once('../Equipment/region_location_access.php'); ?>
-<div class="container">
-  <div class="row">
-		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-		<?php
-        $equ_description = '';
-        $type = '';
-        $make = '';
-        $model = '';
-        $submodel = '';
-        $model_year = '';
-        $label = '';
-		$total_kilometres = '';
-		$leased = '';
-        $style = '';
-        $vehicle_size = '';
-        $color = '';
-        $trim = '';
-        $fuel_type = '';
-        $tire_type = '';
-        $drive_train = '';
-        $serial_number = '';
-        $unit_number = '';
-        $vin_number = '';
-        $licence_plate = '';
-        $nickname = '';
-        $year_purchased = '';
-        $mileage = '';
-        $hours_operated = '';
-        $cost = '';
-        $cnd_cost_per_unit = '';
-        $usd_cost_per_unit = '';
-        $finance = '';
-        $lease = '';
-        $insurance = '';
-        $insurance_contact = '';
-        $insurance_phone = '';
-        $insurance_card = '';
-        $hourly_rate = '';
-        $daily_rate = '';
-        $semi_monthly_rate = '';
-        $monthly_rate = '';
-        $field_day_cost = '';
-        $field_day_billable = '';
-        $hr_rate_work = '';
-        $hr_rate_travel = '';
-        $next_service_date = '';
-        $next_service = '';
-        $next_serv_desc = '';
-        $service_location = '';
-        $last_oil_filter_change_date = '';
-        $last_oil_filter_change = '';
-        $next_oil_filter_change_date = '';
-        $next_oil_filter_change = '';
-        $last_insp_tune_up_date = '';
-        $last_insp_tune_up = '';
-        $next_insp_tune_up_date = '';
-        $next_insp_tune_up = '';
-        $tire_condition = '';
-        $last_tire_rotation_date = '';
-        $last_tire_rotation = '';
-        $next_tire_rotation_date = '';
-        $next_tire_rotation = '';
-        $registration_card = '';
-        $reg_renewal_date = '';
-        $insurance_renewal = '';
-        $region = '';
-        $location = '';
-        $classification = '';
-        $current_address = '';
-        $lsd = '';
-        $status = '';
-        $volume = '';
-        $ownership_status = '';
-        $assigned_status = '';
-        $quote_description = '';
-        $notes = '';
-		$cviprenewal = '';
-        $vehicle_access_code = '';
-        $cargo = '';
-        $lessor = '';
-        $group = '';
-        $use = '';
-        $staff = '';
+include_once('../Equipment/region_location_access.php');
 
-		if(!empty($_GET['equipmentid']))	{
+$equ_description = '';
+$type = '';
+$make = '';
+$model = '';
+$submodel = '';
+$model_year = '';
+$label = '';
+$total_kilometres = '';
+$leased = '';
+$style = '';
+$vehicle_size = '';
+$color = '';
+$trim = '';
+$fuel_type = '';
+$tire_type = '';
+$drive_train = '';
+$serial_number = '';
+$unit_number = '';
+$vin_number = '';
+$licence_plate = '';
+$nickname = '';
+$year_purchased = '';
+$mileage = '';
+$hours_operated = '';
+$cost = '';
+$cnd_cost_per_unit = '';
+$usd_cost_per_unit = '';
+$finance = '';
+$lease = '';
+$insurance = '';
+$insurance_contact = '';
+$insurance_phone = '';
+$insurance_card = '';
+$hourly_rate = '';
+$daily_rate = '';
+$semi_monthly_rate = '';
+$monthly_rate = '';
+$field_day_cost = '';
+$field_day_billable = '';
+$hr_rate_work = '';
+$hr_rate_travel = '';
+$next_service_date = '';
+$next_service = '';
+$next_serv_desc = '';
+$service_location = '';
+$last_oil_filter_change_date = '';
+$last_oil_filter_change = '';
+$next_oil_filter_change_date = '';
+$next_oil_filter_change = '';
+$last_insp_tune_up_date = '';
+$last_insp_tune_up = '';
+$next_insp_tune_up_date = '';
+$next_insp_tune_up = '';
+$tire_condition = '';
+$last_tire_rotation_date = '';
+$last_tire_rotation = '';
+$next_tire_rotation_date = '';
+$next_tire_rotation = '';
+$registration_card = '';
+$reg_renewal_date = '';
+$insurance_renewal = '';
+$region = '';
+$location = '';
+$classification = '';
+$current_address = '';
+$lsd = '';
+$status = '';
+$volume = '';
+$ownership_status = '';
+$assigned_status = '';
+$quote_description = '';
+$notes = '';
+$cviprenewal = '';
+$vehicle_access_code = '';
+$cargo = '';
+$lessor = '';
+$group = '';
+$use = '';
+$staff = '';
+$equipment_image = '';
 
-			$equipmentid = $_GET['equipmentid'];
-			$get_equipment =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM	equipment WHERE	equipmentid='$equipmentid'"));
+if(!empty($_GET['edit']))   {
 
-            $equ_description = $get_equipment['equ_description'];
-            $category = $get_equipment['category'];
-            $type = $get_equipment['type'];
-            $make = $get_equipment['make'];
-            $model = $get_equipment['model'];
-            $submodel = $get_equipment['submodel'];
-            $model_year = $get_equipment['model_year'];
-            $label = $get_equipment['label'];
-			$total_kilometres = $get_equipment['total_kilometres'];
-			$leased = $get_equipment['leased'];
-            $style = $get_equipment['style'];
-            $vehicle_size = $get_equipment['vehicle_size'];
-            $color = $get_equipment['color'];
-            $trim = $get_equipment['trim'];
-            $fuel_type = $get_equipment['fuel_type'];
-            $tire_type = $get_equipment['tire_type'];
-            $drive_train = $get_equipment['drive_train'];
-            $serial_number = $get_equipment['serial_number'];
-            $unit_number = $get_equipment['unit_number'];
-            $vin_number = $get_equipment['vin_number'];
-            $licence_plate = $get_equipment['licence_plate'];
-            $nickname = $get_equipment['nickname'];
-            $year_purchased = $get_equipment['year_purchased'];
-            $mileage = $get_equipment['mileage'];
-            $hours_operated = $get_equipment['hours_operated'];
-            $cost = $get_equipment['cost'];
-            $cnd_cost_per_unit = $get_equipment['cnd_cost_per_unit'];
-            $usd_cost_per_unit = $get_equipment['usd_cost_per_unit'];
-            $finance = $get_equipment['finance'];
-            $lease = $get_equipment['lease'];
-            $insurance = $get_equipment['insurance'];
-            $insurance_contact = $get_equipment['insurance_contact'];
-            $insurance_phone = $get_equipment['insurance_phone'];
-            $insurance_card = $get_equipment['insurance_file'];
-            $hourly_rate = $get_equipment['hourly_rate'];
-            $daily_rate = $get_equipment['daily_rate'];
-            $semi_monthly_rate = $get_equipment['semi_monthly_rate'];
-            $monthly_rate = $get_equipment['monthly_rate'];
-            $field_day_cost = $get_equipment['field_day_cost'];
-            $field_day_billable = $get_equipment['field_day_billable'];
-            $hr_rate_work = $get_equipment['hr_rate_work'];
-            $hr_rate_travel = $get_equipment['hr_rate_travel'];
-            $next_service_date = $get_equipment['next_service_date'];
-            $next_service = $get_equipment['next_service'];
-            $next_serv_desc = $get_equipment['next_serv_desc'];
-            $service_location = $get_equipment['service_location'];
-            $last_oil_filter_change_date = $get_equipment['last_oil_filter_change_date'];
-            $last_oil_filter_change = $get_equipment['last_oil_filter_change'];
-            $next_oil_filter_change_date = $get_equipment['next_oil_filter_change_date'];
-            $next_oil_filter_change = $get_equipment['next_oil_filter_change'];
-            $last_insp_tune_up_date = $get_equipment['last_insp_tune_up_date'];
-            $last_insp_tune_up = $get_equipment['last_insp_tune_up'];
-            $next_insp_tune_up_date = $get_equipment['next_insp_tune_up_date'];
-            $next_insp_tune_up = $get_equipment['next_insp_tune_up'];
-            $tire_condition = $get_equipment['tire_condition'];
-            $last_tire_rotation_date = $get_equipment['last_tire_rotation_date'];
-            $last_tire_rotation = $get_equipment['last_tire_rotation'];
-            $next_tire_rotation_date = $get_equipment['next_tire_rotation_date'];
-            $next_tire_rotation = $get_equipment['next_tire_rotation'];
-            $registration_card = $get_equipment['registration_file'];
-            $reg_renewal_date = $get_equipment['reg_renewal_date'];
-            $insurance_renewal = $get_equipment['insurance_renewal'];
-            $region = $get_equipment['region'];
-            $location = $get_equipment['location'];
-            $classification = $get_equipment['classification'];
-            $current_address = $get_equipment['current_address'];
-            $lsd = $get_equipment['lsd'];
-            $status = $get_equipment['status'];
-            $volume = $get_equipment['volume'];
-            $ownership_status = $get_equipment['ownership_status'];
-            $assigned_status = $get_equipment['assigned_status'];
-            $quote_description = $get_equipment['quote_description'];
-            $notes = $get_equipment['notes'];
-			$cviprenewal = $get_equipment['cvip_renewal_date'];
-            $vehicle_access_code = $get_equipment['vehicle_access_code'];
-            $cargo = $get_equipment['cargo'];
-            $lessor = $get_equipment['lessor'];
-            $group = $get_equipment['group'];
-            $use = $get_equipment['use'];
-            $staff = $get_equipment['staffid'];
+    $equipmentid = $_GET['edit'];
+    $get_equipment =    mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM equipment WHERE equipmentid='$equipmentid'"));
 
-		?>
-		<input type="hidden" id="equipmentid"	name="equipmentid" value="<?php echo $equipmentid ?>" />
-		<?php	} ?>
-		<input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
+    $equ_description = $get_equipment['equ_description'];
+    $category = $get_equipment['category'];
+    $type = $get_equipment['type'];
+    $make = $get_equipment['make'];
+    $model = $get_equipment['model'];
+    $submodel = $get_equipment['submodel'];
+    $model_year = $get_equipment['model_year'];
+    $label = $get_equipment['label'];
+    $total_kilometres = $get_equipment['total_kilometres'];
+    $leased = $get_equipment['leased'];
+    $style = $get_equipment['style'];
+    $vehicle_size = $get_equipment['vehicle_size'];
+    $color = $get_equipment['color'];
+    $trim = $get_equipment['trim'];
+    $fuel_type = $get_equipment['fuel_type'];
+    $tire_type = $get_equipment['tire_type'];
+    $drive_train = $get_equipment['drive_train'];
+    $serial_number = $get_equipment['serial_number'];
+    $unit_number = $get_equipment['unit_number'];
+    $vin_number = $get_equipment['vin_number'];
+    $licence_plate = $get_equipment['licence_plate'];
+    $nickname = $get_equipment['nickname'];
+    $year_purchased = $get_equipment['year_purchased'];
+    $mileage = $get_equipment['mileage'];
+    $hours_operated = $get_equipment['hours_operated'];
+    $cost = $get_equipment['cost'];
+    $cnd_cost_per_unit = $get_equipment['cnd_cost_per_unit'];
+    $usd_cost_per_unit = $get_equipment['usd_cost_per_unit'];
+    $finance = $get_equipment['finance'];
+    $lease = $get_equipment['lease'];
+    $insurance = $get_equipment['insurance'];
+    $insurance_contact = $get_equipment['insurance_contact'];
+    $insurance_phone = $get_equipment['insurance_phone'];
+    $insurance_card = $get_equipment['insurance_file'];
+    $hourly_rate = $get_equipment['hourly_rate'];
+    $daily_rate = $get_equipment['daily_rate'];
+    $semi_monthly_rate = $get_equipment['semi_monthly_rate'];
+    $monthly_rate = $get_equipment['monthly_rate'];
+    $field_day_cost = $get_equipment['field_day_cost'];
+    $field_day_billable = $get_equipment['field_day_billable'];
+    $hr_rate_work = $get_equipment['hr_rate_work'];
+    $hr_rate_travel = $get_equipment['hr_rate_travel'];
+    $next_service_date = $get_equipment['next_service_date'];
+    $next_service = $get_equipment['next_service'];
+    $next_serv_desc = $get_equipment['next_serv_desc'];
+    $service_location = $get_equipment['service_location'];
+    $last_oil_filter_change_date = $get_equipment['last_oil_filter_change_date'];
+    $last_oil_filter_change = $get_equipment['last_oil_filter_change'];
+    $next_oil_filter_change_date = $get_equipment['next_oil_filter_change_date'];
+    $next_oil_filter_change = $get_equipment['next_oil_filter_change'];
+    $last_insp_tune_up_date = $get_equipment['last_insp_tune_up_date'];
+    $last_insp_tune_up = $get_equipment['last_insp_tune_up'];
+    $next_insp_tune_up_date = $get_equipment['next_insp_tune_up_date'];
+    $next_insp_tune_up = $get_equipment['next_insp_tune_up'];
+    $tire_condition = $get_equipment['tire_condition'];
+    $last_tire_rotation_date = $get_equipment['last_tire_rotation_date'];
+    $last_tire_rotation = $get_equipment['last_tire_rotation'];
+    $next_tire_rotation_date = $get_equipment['next_tire_rotation_date'];
+    $next_tire_rotation = $get_equipment['next_tire_rotation'];
+    $registration_card = $get_equipment['registration_file'];
+    $reg_renewal_date = $get_equipment['reg_renewal_date'];
+    $insurance_renewal = $get_equipment['insurance_renewal'];
+    $region = $get_equipment['region'];
+    $location = $get_equipment['location'];
+    $classification = $get_equipment['classification'];
+    $current_address = $get_equipment['current_address'];
+    $lsd = $get_equipment['lsd'];
+    $status = $get_equipment['status'];
+    $volume = $get_equipment['volume'];
+    $ownership_status = $get_equipment['ownership_status'];
+    $assigned_status = $get_equipment['assigned_status'];
+    $quote_description = $get_equipment['quote_description'];
+    $notes = $get_equipment['notes'];
+    $cviprenewal = $get_equipment['cvip_renewal_date'];
+    $vehicle_access_code = $get_equipment['vehicle_access_code'];
+    $cargo = $get_equipment['cargo'];
+    $lessor = $get_equipment['lessor'];
+    $group = $get_equipment['group'];
+    $use = $get_equipment['use'];
+    $staff = $get_equipment['staffid'];
+    $equipment_image = $get_equipment['equipment_image'];
+}
 
-		<h1><?= (!empty($_GET['equipmentid']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?></h1>
+$accordion_list = [];
+$query = mysqli_query($dbc,"SELECT accordion FROM field_config_equipment WHERE  tab='$category' AND accordion IS NOT NULL AND `order` IS NOT NULL ORDER BY `order`");
+if(mysqli_num_rows($query) == 0) {
+    $query = mysqli_query($dbc,"SELECT accordion FROM field_config_equipment WHERE  tab='' AND accordion IS NOT NULL AND `order` IS NOT NULL ORDER BY `order`");
+}
+while($row = mysqli_fetch_array($query)) {
+    $accordion_list[] = $row['accordion'];
+}
+?>
 
-		<div class="pad-left gap-top double-gap-bottom"><a href="equipment.php?category=<?php echo $category; ?>" class="btn brand-btn">Back to Dashboard</a></div>
+<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
+    <ul>
+        <a href="?category=<?= $category ?>"><li>Back to Dashboard</li></a>
+        <?php foreach($accordion_list as $accordion) { ?>
+            <a href="" data-tab-target="<?= config_safe_str($accordion) ?>"><li><?= $accordion ?></li></a>
+        <?php } ?>
+    </ul>
+</div>
 
-		<div class="gap-left tab-container">
-			<button type="submit" name="submit" value="" class="btn brand-btn active_tab">Equipment</button>
-			<?php if ( in_array('Inspection',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'inspection') === TRUE ) { ?>
-				<button type="submit" name="submit" value="equipment_inspections.php" class="btn brand-btn">Inspections</button>
-			<?php } ?>
-			<?php if ( in_array('Work Order',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'work_order') === TRUE ) { ?>
-				<button type="submit" name="submit" value="equipment_work_order.php" class="btn brand-btn">Work Orders</button>
-			<?php } ?>
-			<?php if ( in_array('Schedules',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'schedules') === TRUE ) { ?>
-				<button type="submit" name="submit" value="equipment_service.php" class="btn brand-btn">Service Schedule</button>
-			<?php } ?>
-			<?php if ( in_array('Expenses',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'expenses') === TRUE ) { ?>
-				<button type="submit" name="submit" value="equipment_expenses.php" class="btn brand-btn">Expenses</button>
-			<?php } ?>
-			<?php if ( in_array('Expenses',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'expenses') === TRUE ) { ?>
-				<button type="submit" name="submit" value="equipment_balance.php" class="btn brand-btn">Balance Sheet</button>
-			<?php } ?>
-            <?php if ( in_array('Equipment Assignment',$equipment_main_tabs) && check_subtab_persmission($dbc, 'eqipment', ROLE, 'equip_assign') === TRUE ) { ?>
-                <button type="submit" name="submit" value="equipment_assignment.php" class="btn brand-btn">Equipment Assignment</button>
-            <?php } ?>
-		</div>
+<div class="scale-to-fill has-main-screen" style="overflow: hidden;">
+    <div class="main-screen standard-body form-horizontal">
+        <div class="standard-body-title">
+            <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?></h3>
+        </div>
 
-        <div class="panel-group" id="accordion2">
+        <div class="standard-body-content" style="padding: 0.5em;">
+    		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        <?php
-        $query = mysqli_query($dbc,"SELECT accordion FROM field_config_equipment WHERE	tab='$category' AND accordion IS NOT NULL AND `order` IS NOT NULL ORDER BY `order`");
+                <input type="hidden" id="equipmentid"   name="equipmentid" value="<?php echo $equipmentid ?>" />
+                <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
 
-        $j=0;
-        while($row = mysqli_fetch_array($query)) {
-        ?>
+                <?php foreach($accordion_list as $accordion) { ?>
+                    <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">
+                        <h4><?= $accordion ?></h4>
+                        <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
+                        if(empty($get_field_config['equipment'])) {
+                            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='' AND accordion='$accordion'"));
+                        }
+                        $value_config = ','.$get_field_config['equipment'].',';
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_<?php echo $j;?>" >
-                        <?php echo $row['accordion']; ?><span class="glyphicon glyphicon-plus"></span>
-                    </a>
-                </h4>
-            </div>
+                        include ('add_equipment_fields.php'); ?>
+                        <div class="clearfix"></div><hr>
+                    </div>
+                <?php } ?>
 
-            <div id="collapse_<?php echo $j;?>" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <?php
-                    $accordion = $row['accordion'];
-
-                    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
-                    $value_config = ','.$get_field_config['equipment'].',';
-
-                    include ('add_equipment_fields.php');
-
-                    ?>
-
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <p><span class="brand-color"><em>Required Fields *</em></span></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="pull-right">
+                            <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
+                            <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+    		</form>
         </div>
-        <?php $j++; } ?>
-
-        </div>
-
-		<div class="form-group">
-			<p><span class="brand-color"><em>Required	Fields *</em></span></p>
-		</div>
-
-		  <div class="form-group">
-			<div class="col-sm-6">
-				<a href="equipment.php?category=<?php echo $category; ?>"	class="btn brand-btn btn-lg">Back</a>
-				<!--<a href="#" class="btn brand-btn btn-lg pull-right" onclick="history.go(-1);return false;">Back</a>-->
-			</div>
-			<div class="col-sm-6">
-				<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg	pull-right">Submit</button>
-			</div>
-		  </div>
-
-        
-
-		</form>
-
-	</div>
-  </div>
-
-<?php include ('../footer.php'); ?>
+    </div>
+</div>

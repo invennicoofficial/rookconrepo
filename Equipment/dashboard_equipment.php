@@ -112,7 +112,25 @@ if(!empty($_FILES['upload']['name'])) {
 }
 ?>
 <script>
-$(document).on('change', 'select[name="search_category"]', function() { location = this.value; });
+$(document).on('change', 'select[name="search_category"]', function() { changeCategory(this); });
+function changeCategory(sel) {
+	var value = sel.value;
+	<?php if($_GET['mobile_view'] == 1) { ?>
+		var panel = $(sel).closest('.panel').find('.panel-body');
+		panel.html('Loading...');
+		$.ajax({
+			url: 'dashboard_equipment.php'+value+'&mobile_view=1',
+			method: 'GET',
+			response: 'html',
+			success: function(response) {
+				panel.html(response);
+				$('.pagination_links a').click(pagination_load);
+			}
+		});
+	<?php } else { ?>
+		location = value;
+	<?php } ?>
+}
 function send_csv() {
 	$('[name=upload]').change(function() {
 		$('form').submit();
@@ -144,7 +162,7 @@ $each_tab = explode(',', get_config($dbc, 'equipment_tabs')); ?>
                 Category:
             </label>
 			<div class="col-sm-4">
-				<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual" onchange="location = this.value;">
+				<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
 					<option value="?category=Top">Last 25 Added</option>
 					<?php
 						foreach ($each_tab as $cat_tab) {
@@ -159,31 +177,9 @@ $each_tab = explode(',', get_config($dbc, 'equipment_tabs')); ?>
 <?php } ?>
 	<div>
     <form name="form_sites" method="post" action="" class="form-inline" role="form" enctype="multipart/form-data">
-        <center>
-        <div class="form-group">
-            <label for="site_name" class="col-sm-5 control-label">Search By Any:</label>
-            <div class="col-sm-6">
-			<?php if(isset($_POST['search_equipment_submit'])) { ?>
-				<input type="text" name="search_equipment" value="<?php echo $_POST['search_equipment']?>" class="form-control">
-			<?php } else { ?>
-				<input type="text" name="search_equipment" class="form-control">
-			<?php } ?>
-            </div>
-        </div>
-        &nbsp;
-            <button type="submit" name="search_equipment_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-            <button type="submit" name="display_all_equipment" value="Display All" class="btn brand-btn mobile-block">Display All</button>
-        </center>
-
     <?php
 
     if(vuaed_visible_function($dbc, 'equipment') == 1) {
-        if($_GET['category'] != 'Top') {
-            echo '<div class="gap-bottom pull-right">';
-                echo '<span class="popover-examples" style="margin:0 2px 0 8px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add New Equipment."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
-                echo '<a href="add_equipment.php?category='.$category.'" class="btn brand-btn mobile-block">Add Equipment</a>';
-            echo '</div>';
-        }
 		echo '<input type="file" name="upload" style="display:none;" />';
 		echo '<button type="button" name="send_upload" value="export" class="btn brand-btn mobile-block gap-bottom pull-right" onclick="export_csv();">Export CSV <img src="../img/csv.png" style="height:1em;"></button>';
 		echo '<button type="submit" name="send_upload" value="upload" class="btn brand-btn mobile-block gap-bottom pull-right" onclick="send_csv(); return false;">Upload CSV <img src="../img/csv.png" style="height:1em;"></button>';
@@ -192,598 +188,585 @@ $each_tab = explode(',', get_config($dbc, 'equipment_tabs')); ?>
     } ?>
 	</form>
 </div>
-	<div class="clearfix double-gap-top"></div>
+<div class="clearfix double-gap-top"></div>
 
-    <div id="no-more-tables"> <?php
+<div id="no-more-tables"> <?php
 
- // Display Pager
+// Display Pager
 
+$equipment = '';
+
+if (isset($_GET['search_equipment_submit'])) {
+    $equipment = $_GET['search_equipment'];
+
+    if (!empty($_GET['search_equipment'])) {
+        $equipment = $_GET['search_equipment'];
+    }
+    if (!empty($_GET['search_category'])) {
+        $equipment = $_GET['search_category'];
+    }
+}
+
+if (isset($_GET['display_all_equipment'])) {
     $equipment = '';
+}
 
-    if (isset($_POST['search_equipment_submit'])) {
-        $equipment = $_POST['search_equipment'];
+/* Pagination Counting */
+$rowsPerPage = 25;
+$pageNum = 1;
 
-        if (!empty($_POST['search_equipment'])) {
-            $equipment = $_POST['search_equipment'];
-        }
-        if (!empty($_POST['search_category'])) {
-            $equipment = $_POST['search_category'];
-        }
-    }
+if(isset($_GET['page'])) {
+    $pageNum = $_GET['page'];
+}
 
-    if (isset($_POST['display_all_equipment'])) {
-        $equipment = '';
-    }
+$offset = ($pageNum - 1) * $rowsPerPage;
 
-    /* Pagination Counting */
-    $rowsPerPage = 25;
-    $pageNum = 1;
-
-    if(isset($_GET['page'])) {
-        $pageNum = $_GET['page'];
-    }
-
-    $offset = ($pageNum - 1) * $rowsPerPage;
-
-	$status_search = '';
-	if($status == 'Active') {
-		$status_search = " AND IFNULL(`status`,'') NOT IN ('Inactive')";
-	} else {
-		$status_search = " AND IFNULL(`status`,'') IN ('Inactive')";
+$status_search = '';
+if($status == 'Active') {
+	$status_search = " AND IFNULL(`status`,'') NOT IN ('Inactive')";
+} else {
+	$status_search = " AND IFNULL(`status`,'') IN ('Inactive')";
+}
+if($equipment != '') {
+	if(!empty($_GET['category']) && $_GET['category'] != 'Top') {
+		$category_query = " AND category='$category'";
 	}
-    if($equipment != '') {
-    	if(!empty($_GET['category'])) {
-    		$category_query = " AND category='$category'";
-    	}
-        $query_check_credentials = "SELECT * FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
-        $query = "SELECT count(*) as numrows FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number)";
+    $query_check_credentials = "SELECT * FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
+    $query = "SELECT count(*) as numrows FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number)";
+} else {
+    if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
+        $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search $access_query ORDER BY ABS(unit_number) DESC LIMIT 25";
     } else {
-        if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
-            $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search $access_query ORDER BY ABS(unit_number) DESC LIMIT 25";
-        } else {
-            $category = $_GET['category'];
-            $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search AND category='$category' $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
-            $query = "SELECT count(*) as numrows FROM equipment WHERE deleted = 0 $status_search AND category='$category'".$access_query;
-        }
+        $category = $_GET['category'];
+        $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search AND category='$category' $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
+        $query = "SELECT count(*) as numrows FROM equipment WHERE deleted = 0 $status_search AND category='$category'".$access_query;
     }
+}
 
-    $result = mysqli_query($dbc, $query_check_credentials);
+$result = mysqli_query($dbc, $query_check_credentials);
 
-    $num_rows = mysqli_num_rows($result);
-
-    if($num_rows > 0) {
-        if(empty($_GET['category']) || $_GET['category'] == 'Top') {
-            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
-            $value_config = ',Category,'.$get_field_config['equipment_dashboard'].',';
-        } else {
-            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$category' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
-			$value_config = ','.$get_field_config['equipment_dashboard'].',';
-        }
-
-        // Added Pagination //
-        if(isset($query))
-            echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-        // Pagination Finish //
-
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>";
-        if (strpos($value_config, ','."Unit #".',') !== FALSE) {
-            echo '<th>Unit #</th>';
-        }
-        if (strpos($value_config, ','."VIN #".',') !== FALSE) {
-            echo '<th>VIN #</th>';
-        }
-        if (strpos($value_config, ','."Serial #".',') !== FALSE) {
-            echo '<th>Serial #</th>';
-        }
-        if (strpos($value_config, ','."Description".',') !== FALSE) {
-            echo '<th>Description</th>';
-        }
-        if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<th>Category</th>';
-        } if (strpos($value_config, ','."Type".',') !== FALSE) {
-            echo '<th>Type</th>';
-        }
-        if (strpos($value_config, ','."Make".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Make of this item of equipment as set in the equipment profile."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Make</th>';
-        }
-        if (strpos($value_config, ','."Model".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Model of this item of equipment as set in the equipment profile."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Model</th>';
-        }
-        if (strpos($value_config, ','."Unit of Measure".',') !== FALSE) {
-            echo '<th>Unit of Measure</th>';
-        }
-        if (strpos($value_config, ','."Model Year".',') !== FALSE) {
-            echo '<th>Model Year</th>';
-        }
-        if (strpos($value_config, ','."Label".',') !== FALSE) {
-            echo '<th>Equipment Label</th>';
-        }
-		if (strpos($value_config, ','."Total Kilometres".',') !== FALSE) {
-            echo '<th>Total Kilometres</th>';
-        }
-        if (strpos($value_config, ','."Style".',') !== FALSE) {
-            echo '<th>Style</th>';
-        }
-        if (strpos($value_config, ','."Vehicle Size".',') !== FALSE) {
-            echo '<th>Vehicle Size</th>';
-        }
-        if (strpos($value_config, ','."Color".',') !== FALSE) {
-            echo '<th>Color</th>';
-        }
-        if (strpos($value_config, ','."Trim".',') !== FALSE) {
-            echo '<th>Trim</th>';
-        }
-        if (strpos($value_config, ','."Staff".',') !== FALSE) {
-            echo '<th>Staff</th>';
-        }
-        if (strpos($value_config, ','."Fuel Type".',') !== FALSE) {
-            echo '<th>Fuel Type</th>';
-        }
-        if (strpos($value_config, ','."Tire Type".',') !== FALSE) {
-            echo '<th>Tire Type</th>';
-        }
-        if (strpos($value_config, ','."Drive Train".',') !== FALSE) {
-            echo '<th>Drive Train</th>';
-        }
-        if (strpos($value_config, ','."Truck Lease".',') !== FALSE) {
-            echo '<th>Truck Lease</th>';
-        }
-        if (strpos($value_config, ','."Insurance".',') !== FALSE) {
-            echo '<th>Insurance</th>';
-        }
-
-        if (strpos($value_config, ','."Licence Plate".',') !== FALSE) {
-            echo '<th>Licence Plate</th>';
-        }
-        if (strpos($value_config, ','."Nickname".',') !== FALSE) {
-            echo '<th>Nickname</th>';
-        }
-        if (strpos($value_config, ','."Year Purchased".',') !== FALSE) {
-            echo '<th>Year Purchased</th>';
-        }
-        if (strpos($value_config, ','."Mileage".',') !== FALSE) {
-            echo '<th>Mileage</th>';
-        }
-        if (strpos($value_config, ','."Hours Operated".',') !== FALSE) {
-            echo '<th>Hours Operated</th>';
-        }
-        if (strpos($value_config, ','."Cost".',') !== FALSE) {
-            echo '<th>Cost</th>';
-        }
-        if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
-            echo '<th>CDN Cost Per Unit</th>';
-        }
-        if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
-            echo '<th>USD Cost Per Unit</th>';
-        }
-        if (strpos($value_config, ','."Finance".',') !== FALSE) {
-            echo '<th>Finance</th>';
-        }
-        if (strpos($value_config, ','."Lease".',') !== FALSE) {
-            echo '<th>Lease</th>';
-        }
-        if (strpos($value_config, ','."Insurance".',') !== FALSE) {
-            echo '<th>Insurance</th>';
-        }
-        if (strpos($value_config, ','."Hourly Rate".',') !== FALSE) {
-            echo '<th>Hourly Rate</th>';
-        }
-        if (strpos($value_config, ','."Daily Rate".',') !== FALSE) {
-            echo '<th>Daily Rate</th>';
-        }
-        if (strpos($value_config, ','."Semi-monthly Rate".',') !== FALSE) {
-            echo '<th>Semi-monthly Rate</th>';
-        }
-        if (strpos($value_config, ','."Monthly Rate".',') !== FALSE) {
-            echo '<th>Monthly Rate</th>';
-        }
-        if (strpos($value_config, ','."Field Day Cost".',') !== FALSE) {
-            echo '<th>Field Day Cost</th>';
-        }
-        if (strpos($value_config, ','."Field Day Billable".',') !== FALSE) {
-            echo '<th>Field Day Billable</th>';
-        }
-        if (strpos($value_config, ','."HR Rate Work".',') !== FALSE) {
-            echo '<th>HR Rate Work</th>';
-        }
-        if (strpos($value_config, ','."HR Rate Travel".',') !== FALSE) {
-            echo '<th>HR Rate Travel</th>';
-        }
-        if (strpos($value_config, ','."Next Service Date".',') !== FALSE) {
-            echo '<th>Next Service Date</th>';
-        }
-        if (strpos($value_config, ','."Next Service Hours".',') !== FALSE) {
-            echo '<th>Next Service Hours</th>';
-        }
-        if (strpos($value_config, ','."Next Service Description".',') !== FALSE) {
-            echo '<th>Next Service Description</th>';
-        }
-        if (strpos($value_config, ','."Service Location".',') !== FALSE) {
-            echo '<th>Service Location</th>';
-        }
-        if (strpos($value_config, ','."Last Oil Filter Change (date)".',') !== FALSE) {
-            echo '<th>Last Oil Filter Change (date)</th>';
-        }
-        if (strpos($value_config, ','."Last Oil Filter Change (km)".',') !== FALSE) {
-            echo '<th>Last Oil Filter Change (km)</th>';
-        }
-        if (strpos($value_config, ','."Next Oil Filter Change (date)".',') !== FALSE) {
-            echo '<th>Next Oil Filter Change (date)</th>';
-        }
-
-        if (strpos($value_config, ','."Next Oil Filter Change (km)".',') !== FALSE) {
-            echo '<th>Next Oil Filter Change (km)</th>';
-        }
-        if (strpos($value_config, ','."Last Inspection & Tune Up (date)".',') !== FALSE) {
-            echo '<th>Last Inspection & Tune Up (date)</th>';
-        }
-        if (strpos($value_config, ','."Last Inspection & Tune Up (km)".',') !== FALSE) {
-            echo '<th>Last Inspection & Tune Up (km)</th>';
-        }
-        if (strpos($value_config, ','."Next Inspection & Tune Up (date)".',') !== FALSE) {
-                    echo '<th>Next Inspection & Tune Up (date)</th>';
-        }
-        if (strpos($value_config, ','."Next Inspection & Tune Up (km)".',') !== FALSE) {
-            echo '<th>Next Inspection & Tune Up (km)</th>';
-        }
-        if (strpos($value_config, ','."Tire Condition".',') !== FALSE) {
-            echo '<th>Tire Condition</th>';
-        }
-        if (strpos($value_config, ','."Last Tire Rotation (date)".',') !== FALSE) {
-            echo '<th>Last Tire Rotation (date)</th>';
-        }
-        if (strpos($value_config, ','."Last Tire Rotation (km)".',') !== FALSE) {
-            echo '<th>Last Tire Rotation (km)</th>';
-        }
-        if (strpos($value_config, ','."Next Tire Rotation (date)".',') !== FALSE) {
-            echo '<th>Next Tire Rotation (date)</th>';
-        }
-        if (strpos($value_config, ','."Next Tire Rotation (km)".',') !== FALSE) {
-            echo '<th>Next Tire Rotation (km)</th>';
-        }
-        if (strpos($value_config, ','."Registration Renewal date".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Registration Rewnewal Date for this item of equipment as set in the equipment profile."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Registration Renewal Date</th>';
-        }
-        if (strpos($value_config, ','."Insurance Renewal Date".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Insurance Renewal Date for this item of equipment as set in the equipment profile."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Insurance Renewal Date</th>';
-        }
-		if (strpos($value_config, ','."CVIP Ticket Renewal Date".',') !== FALSE) {
-            echo '<th>CVIP Ticket Renewal Date</th>';
-        }
-        if (strpos($value_config, ','."Region Dropdown".',') !== FALSE) {
-        	echo '<th>Region</th>';
-        }
-        if (strpos($value_config, ','."Location Dropdown".',') !== FALSE) {
-        	echo '<th>Location</th>';
-        }
-        if (strpos($value_config, ','."Classification Dropdown".',') !== FALSE) {
-        	echo '<th>Classification</th>';
-        }
-        if (strpos($value_config, ','."Location".',') !== FALSE) {
-            echo '<th>Location</th>';
-        }
-        if (strpos($value_config, ','."LSD".',') !== FALSE) {
-            echo '<th>LSD</th>';
-        }
-        if (strpos($value_config, ','."Service History Link".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="View the Service History for this item of equipment as set in the equipment profile."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Service History</th>';
-        }
-        if (strpos($value_config, ','."Status".',') !== FALSE) {
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Status of this item of equipment."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Status</th>';
-        }
-        if (strpos($value_config, ','."Ownership Status".',') !== FALSE) {
-            echo '<th>Ownership Status</th>';
-        }
-        if (strpos($value_config, ','."Assigned Status".',') !== FALSE) {
-            echo '<th>Assigned Status</th>';
-        }
-        if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
-            echo '<th>Quote Description</th>';
-        }
-        if (strpos($value_config, ','."Notes".',') !== FALSE) {
-            echo '<th>Notes</th>';
-        }
-            echo '<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Edit or Archive this item of equipment."><img src="'. WEBSITE_URL .'/img/info-w.png" width="18"></a></span> Function</th>';
-            echo "</tr>";
-        } else {
-            echo "<h2>No Record Found.</h2>";
-        }
-
-        while($row = mysqli_fetch_array( $result )) {
-
-        $color = '';
-        if($row['status'] == 'In equipment') {
-            $color = 'style="color: white;"';
-        }
-        if($row['status'] == 'In transit from vendor') {
-            $color = 'style="color: red;"';
-        }
-        if($row['status'] == 'In transit between yards') {
-            $color = 'style="color: blue;"';
-        }
-        if($row['status'] == 'Not confirmed in yard by equipment check') {
-            $color = 'style="color: yellow;"';
-        }
-        if($row['status'] == 'Assigned to job') {
-            $color = 'style="color: green;"';
-        }
-        if($row['status'] == 'In transit and assigned') {
-            $color = 'style="color: purple;"';
-        }
-
-        echo '<tr '.$color.'>';
-        if (strpos($value_config, ','."Unit #".',') !== FALSE) {
-        echo '<td data-title="Unit #">' . $row['unit_number'] . '</td>';
-        }
-        if (strpos($value_config, ','."VIN #".',') !== FALSE) {
-        echo '<td data-title="VIN #">' . $row['vin_number'] . '</td>';
-        }
-        if (strpos($value_config, ','."Serial #".',') !== FALSE) {
-        echo '<td data-title="Serial #">' . $row['serial_number'] . '</td>';
-        }
-        if (strpos($value_config, ','."Description".',') !== FALSE) {
-        echo '<td data-title="Description">' . $row['equ_description'] . '</td>';
-        }
-        if (strpos($value_config, ','."Category".',') !== FALSE) {
-        echo '<td data-title="Category">' . $row['category'] . '</td>';
-        }
-        if (strpos($value_config, ','."Type".',') !== FALSE) {
-        echo '<td data-title="Type">' . $row['type'] . '</td>';
-        }
-        if (strpos($value_config, ','."Make".',') !== FALSE) {
-        echo '<td data-title="Make">' . $row['make'] . '</td>';
-        }
-        if (strpos($value_config, ','."Model".',') !== FALSE) {
-        echo '<td data-title="Model">' . $row['model'] . '</td>';
-        }
-        if (strpos($value_config, ','."Unit of Measure".',') !== FALSE) {
-        echo '<td data-title="Unit of Measure">' . $row['submodel'] . '</td>';
-        }
-        if (strpos($value_config, ','."Model Year".',') !== FALSE) {
-        echo '<td data-title="Model Year">' . $row['model_year'] . '</td>';
-        }
-        if (strpos($value_config, ','."Label".',') !== FALSE) {
-        echo '<td data-title="Equipment Label">' . $row['label'] . '</td>';
-        }
-		if (strpos($value_config, ','."Total Kilometres".',') !== FALSE) {
-        echo '<td data-title="Total Kilometres">' . $row['total_kilometres'] . '</td>';
-        }
-		if (strpos($value_config, ','."Total Kilometres".',') !== FALSE) {
-        echo '<td data-title="Leased">' . ($row['leased'] > 0 ? 'Yes' : 'No') . '</td>';
-        }
-        if (strpos($value_config, ','."Style".',') !== FALSE) {
-        echo '<td data-title="Style">' . $row['style'] . '</td>';
-        }
-        if (strpos($value_config, ','."Vehicle Size".',') !== FALSE) {
-        echo '<td data-title="Vehicle Size">' . $row['vehicle_size'] . '</td>';
-        }
-        if (strpos($value_config, ','."Color".',') !== FALSE) {
-        echo '<td data-title="Color">' . $row['color'] . '</td>';
-        }
-        if (strpos($value_config, ','."Trim".',') !== FALSE) {
-        echo '<td data-title="Trim">' . $row['trim'] . '</td>';
-        }
-        if (strpos($value_config, ','."Staff".',') !== FALSE) {
-        $staff_list = [];
-        foreach(explode(',', $row['staffid']) as $staff_id) {
-        	if($staff_id > 0) {
-        		$staff_list[] = get_contact($dbc, $staff_id);
-        	}
-        }
-        echo '<td data-title="Staff">' . implode(', ', $staff_list) . '</td>';
-        }
-
-        if (strpos($value_config, ','."Fuel Type".',') !== FALSE) {
-        echo '<td data-title="Fuel Type">' . $row['fuel_type'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Tire Type".',') !== FALSE) {
-        echo '<td data-title="Tire Type">' . $row['tire_type'] . '</td>';
-        }
-        if (strpos($value_config, ','."Drive Train".',') !== FALSE) {
-        echo '<td data-title="Drive Train">' . $row['drive_train'] . '</td>';
-        }
-        if (strpos($value_config, ','."Licence Plate".',') !== FALSE) {
-        echo '<td data-title="Licence Plate">' . $row['licence_plate'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Nickname".',') !== FALSE) {
-        echo '<td data-title="Nickname">' . $row['nickname'] . '</td>';
-        }
-        if (strpos($value_config, ','."Year Purchased".',') !== FALSE) {
-        echo '<td data-title="Year Purchased">' . $row['year_purchased'] . '</td>';
-
-        }
-
-        if (strpos($value_config, ','."Mileage".',') !== FALSE) {
-        echo '<td data-title="Mileage">' . $row['mileage'] . '</td>';
-        }
-        if (strpos($value_config, ','."Hours Operated".',') !== FALSE) {
-        echo '<td data-title="Hours Operated">' . $row['hours_operated'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Cost".',') !== FALSE) {
-        echo '<td data-title="Cost">' . $row['cost'] . '</td>';
-        }
-        if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
-        echo '<td data-title="CDN Cost Per Unit">' . $row['cnd_cost_per_unit'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
-        echo '<td data-title="USD Cost Per Unit">' . $row['usd_cost_per_unit'] . '</td>';
-        }
-        if (strpos($value_config, ','."Finance".',') !== FALSE) {
-        echo '<td data-title="Finance">' . $row['finance'] . '</td>';
-        }
-        if (strpos($value_config, ','."Lease".',') !== FALSE) {
-
-        echo '<td data-title="Lease">' . $row['lease'] . '</td>';
-        }
-        if (strpos($value_config, ','."Insurance".',') !== FALSE) {
-
-        echo '<td data-title="Insurance">' . $row['insurance'] . '</td>';
-        }
-        if (strpos($value_config, ','."Hourly Rate".',') !== FALSE) {
-        echo '<td data-title="Hourly Rate">' . $row['hourly_rate'] . '</td>';
-        }
-        if (strpos($value_config, ','."Daily Rate".',') !== FALSE) {
-        echo '<td data-title="Daily Rate">' . $row['daily_rate'] . '</td>';
-        }
-        if (strpos($value_config, ','."Semi-monthly Rate".',') !== FALSE) {
-        echo '<td data-title="Semi-monthly Rate">' . $row['semi_monthly_rate'] . '</td>';
-        }
-        if (strpos($value_config, ','."Monthly Rate".',') !== FALSE) {
-        echo '<td data-title="Monthly Rate">' . $row['monthly_rate'] . '</td>';
-        }
-        if (strpos($value_config, ','."Field Day Cost".',') !== FALSE) {
-        echo '<td data-title="Field Day Cost">' . $row['field_day_cost'] . '</td>';
-        }
-        if (strpos($value_config, ','."Field Day Billable".',') !== FALSE) {
-        echo '<td data-title="Field Day Billable">' . $row['field_day_billable'] . '</td>';
-        }
-        if (strpos($value_config, ','."HR Rate Work".',') !== FALSE) {
-        echo '<td data-title="HR Rate Work">' . $row['hr_rate_work'] . '</td>';
-        }
-        if (strpos($value_config, ','."HR Rate Travel".',') !== FALSE) {
-        echo '<td data-title="HR Rate Travel">' . $row['hr_rate_travel'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Service Date".',') !== FALSE) {
-        echo '<td data-title="Next Service Date">' . $row['next_service_date'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Service Hours".',') !== FALSE) {
-        echo '<td data-title="Next Service Hours">' . $row['next_service'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Service Description".',') !== FALSE) {
-        echo '<td data-title="Next Service Description">' . $row['next_serv_desc'] . '</td>';
-        }
-        if (strpos($value_config, ','."Service Location".',') !== FALSE) {
-        echo '<td data-title="Service Location">' . $row['service_location'] . '</td>';
-
-        }
-
-        if (strpos($value_config, ','."Last Oil Filter Change (date)".',') !== FALSE) {
-        echo '<td data-title="Last Oil Filter Change (date)">' . $row['last_oil_filter_change_date'] . '</td>';
-        }
-        if (strpos($value_config, ','."Last Oil Filter Change (km)".',') !== FALSE) {
-        echo '<td data-title="Last Oil Filter Change (km)">' . $row['last_oil_filter_change'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Next Oil Filter Change (date)".',') !== FALSE) {
-        echo '<td data-title="Next Oil Filter Change (date)">' . $row['next_oil_filter_change_date'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Next Oil Filter Change (km)".',') !== FALSE) {
-
-        echo '<td data-title="Next Oil Filter Change (km)">' . $row['next_oil_filter_change'] . '</td>';
-
-        }
-        if (strpos($value_config, ','."Last Inspection & Tune Up (date)".',') !== FALSE) {
-                    echo '<td data-title="Last Inspection & Tune Up (date)">' . $row['last_insp_tune_up_date'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."Last Inspection & Tune Up (km)".',') !== FALSE) {
-        echo '<td data-title="Last Inspection & Tune Up (km)">' . $row['last_insp_tune_up'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Inspection & Tune Up (date)".',') !== FALSE) {
-                    echo '<td data-title="Next Inspection & Tune Up (date)">' . $row['next_insp_tune_up_date'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Inspection & Tune Up (km)".',') !== FALSE) {
-        echo '<td data-title="Next Inspection & Tune Up (km)">' . $row['next_insp_tune_up'] . '</td>';
-        }
-        if (strpos($value_config, ','."Tire Condition".',') !== FALSE) {
-        echo '<td data-title="Tire Condition">' . $row['tire_condition'] . '</td>';
-        }
-        if (strpos($value_config, ','."Last Tire Rotation (date)".',') !== FALSE) {
-        echo '<td data-title="Last Tire Rotation (date)">' . $row['last_tire_rotation_date'] . '</td>';
-        }
-        if (strpos($value_config, ','."Last Tire Rotation (km)".',') !== FALSE) {
-        echo '<td data-title="Last Tire Rotation (km)">' . $row['last_tire_rotation'] . '</td>';
-        }
-        if (strpos($value_config, ','."Next Tire Rotation (date)".',') !== FALSE) {
-        echo '<td data-title="Next Tire Rotation (date)">' . $row['next_tire_rotation_date'] . '</td>';
- }
-        if (strpos($value_config, ','."Next Tire Rotation (km)".',') !== FALSE) {
-        echo '<td data-title="Next Tire Rotation (km)">' . $row['next_tire_rotation'] . '</td>';
-        }
-        if (strpos($value_config, ','."Registration Renewal date".',') !== FALSE) {
-        echo '<td data-title="Registration Renewal date"><a href="add_equipment.php?equipmentid='.$row['equipmentid'].'&target_field=reg_renewal_date">' . $row['reg_renewal_date'] . '</a></td>';
-        }
-        if (strpos($value_config, ','."Insurance Renewal Date".',') !== FALSE) {
-        echo '<td data-title="Insurance Renewal Date"><a href="add_equipment.php?equipmentid='.$row['equipmentid'].'&target_field=insurance_renewal">' . $row['insurance_renewal'] . '</a></td>';
-        }
-		if (strpos($value_config, ','."CVIP Ticket Renewal Date".',') !== FALSE) {
-             echo '<td data-title="CVIP Ticket Renewal Date">' . $row['cvip_renewal_date'] . '</td>';
-        }
-        if (strpos($value_config, ','."Region Dropdown".',') !== FALSE) {
-        echo '<td data-title="Region">' . implode(', ',explode('*#*',$row['region'])) . '</td>';
-        }
-        if (strpos($value_config, ','."Location Dropdown".',') !== FALSE) {
-        echo '<td data-title="Location">' . implode(', ',explode('*#*',$row['location'])) . '</td>';
-        }
-        if (strpos($value_config, ','."Classification Dropdown".',') !== FALSE) {
-        echo '<td data-title="Classification">' . implode(', ',explode('*#*',$row['classification'])) . '</td>';
-        }
-        if (strpos($value_config, ','."Location".',') !== FALSE) {
-        echo '<td data-title="Location">' . $row['location'] . '</td>';
-        }
-
-        if (strpos($value_config, ','."LSD".',') !== FALSE) {
-        echo '<td data-title="LSD">' . $row['lsd'] . '</td>';
-        }
-        if (strpos($value_config, ','."Service History Link".',') !== FALSE) {
-        echo '<td data-title="Service History"><a href="equipment_service.php?equipmentid='.$row['equipmentid'].'">View</a></td>';
-        }
-        if (strpos($value_config, ','."Status".',') !== FALSE) {
-        echo '<td data-title="status">' . $row['status'] . '</td>';
-        }
-        if (strpos($value_config, ','."Ownership Status".',') !== FALSE) {
-        echo '<td data-title="Ownership Status">' . $row['ownership_status'] . '</td>';
-        }
-        if (strpos($value_config, ','."Assigned Status".',') !== FALSE) {
-        echo '<td data-title="Assigned Status">' . $row['assigned_status'] . '</td>';
-        }
-        if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
-        echo '<td data-title="Quote Description">' . html_entity_decode($row['quote_description']) . '</td>';
-        }
-        if (strpos($value_config, ','."Notes".',') !== FALSE) {
-        echo '<td data-title="Notes">' . $row['notes'] . '</td>';
-        }
-        echo '<td data-title="Function">';
-
-        if(vuaed_visible_function($dbc, 'equipment') == 1) {
-            echo '<a href=\'add_equipment.php?equipmentid='.$row['equipmentid'].'\'>Edit</a> | '; echo '<a href=\''.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$row['equipmentid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
-        }
-        echo '</td>';
-
-        echo "</tr>";
+$num_rows = mysqli_num_rows($result);
+if($num_rows > 0) {
+    if(empty($_GET['category']) || $_GET['category'] == 'Top') {
+        $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
+        $value_config = ',Category,'.$get_field_config['equipment_dashboard'].',';
+    } else {
+        $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$category' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
+		$value_config = ','.$get_field_config['equipment_dashboard'].',';
     }
-    echo '</table>';
 
     // Added Pagination //
-    if(isset($query))
+    if(isset($query)) {
+    	echo '<div class="pagination_links">';
         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+        echo '</div>';
+    }
     // Pagination Finish //
 
-    if(vuaed_visible_function($dbc, 'equipment') == 1) {
-        if($_GET['category'] != 'Top') {
-            echo '<div class="gap-bottom pull-right">';
-                echo '<span class="popover-examples" style="margin:0 2px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add New Equipment."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
-                echo '<a href="add_equipment.php?category='.$category.'" class="btn brand-btn mobile-block">Add Equipment</a>';
-            echo '</div>';
-        }
+    while($row = mysqli_fetch_array( $result )) {
 
-    }
+	    $color = '';
+	    if($row['status'] == 'In equipment') {
+	        $color = 'style="color: white;"';
+	    }
+	    if($row['status'] == 'In transit from vendor') {
+	        $color = 'style="color: red;"';
+	    }
+	    if($row['status'] == 'In transit between yards') {
+	        $color = 'style="color: blue;"';
+	    }
+	    if($row['status'] == 'Not confirmed in yard by equipment check') {
+	        $color = 'style="color: yellow;"';
+	    }
+	    if($row['status'] == 'Assigned to job') {
+	        $color = 'style="color: green;"';
+	    }
+	    if($row['status'] == 'In transit and assigned') {
+	        $color = 'style="color: purple;"';
+	    }
 
-    ?>
+	    echo '<div class="dashboard-item">';
+	    echo '<h3 style="margin-top: 0.5em;">'.(vuaed_visible_function($dbc, 'equipment') == 1 ? '<a href="?edit='.$row['equipmentid'].'">' : '').get_equipment_label($dbc, $row).(vuaed_visible_function($dbc, 'equipment') == 1 ? '</a>' : '').'</h3>';
+	    if (!empty($row['equipment_image']) && file_exists('download/'.$row['equipment_image'])) {
+	    	echo '<div class="col-sm-6"><img src="download/'.$row['equipment_image'].'" class="pull-left thumbnail-small" style="margin: 0.5em; max-width: 150px; height: auto;"></div>';
+	    }
+	    if (strpos($value_config, ','."Unit #".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Unit #:</label>
+			<div class="col-sm-8">' . $row['unit_number'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."VIN #".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">VIN #:</label>
+			<div class="col-sm-8">' . $row['vin_number'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Serial #".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Serial #:</label>
+			<div class="col-sm-8">' . $row['serial_number'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Description".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Description:</label>
+			<div class="col-sm-8">' . $row['equ_description'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Category".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Category:</label>
+			<div class="col-sm-8">' . $row['category'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Type".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Type:</label>
+			<div class="col-sm-8">' . $row['type'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Make".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Make:</label>
+			<div class="col-sm-8">' . $row['make'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Model".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Model:</label>
+			<div class="col-sm-8">' . $row['model'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Unit of Measure".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Unit of Measure:</label>
+			<div class="col-sm-8">' . $row['submodel'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Model Year".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Model Year:</label>
+			<div class="col-sm-8">' . $row['model_year'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Label".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Equipment Label:</label>
+			<div class="col-sm-8">' . $row['label'] . '</div>
+		</div>';
+	    }
+		if (strpos($value_config, ','."Total Kilometres".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Kilometres:</label>
+			<div class="col-sm-8">' . $row['total_kilometres'] . '</div>
+		</div>';
+	    }
+		if (strpos($value_config, ','."Total Kilometres".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Leased:</label>
+			<div class="col-sm-8">' . ($row['leased'] > 0 ? 'Yes' : 'No') . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Style".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Style:</label>
+			<div class="col-sm-8">' . $row['style'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Vehicle Size".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Vehicle Size:</label>
+			<div class="col-sm-8">' . $row['vehicle_size'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Color".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Color:</label>
+			<div class="col-sm-8">' . $row['color'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Trim".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Trim:</label>
+			<div class="col-sm-8">' . $row['trim'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Staff".',') !== FALSE) {
+	    $staff_list = [];
+	    foreach(explode(',', $row['staffid']) as $staff_id) {
+	    	if($staff_id > 0) {
+	    		$staff_list[] = get_contact($dbc, $staff_id);
+	    	}
+	    }
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Staff:</label>
+			<div class="col-sm-8">' . implode(', ', $staff_list) . '</div>
+		</div>';
+	    }
 
-</div>
-</div>
+	    if (strpos($value_config, ','."Fuel Type".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Fuel Type:</label>
+			<div class="col-sm-8">' . $row['fuel_type'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Tire Type".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Tire Type:</label>
+			<div class="col-sm-8">' . $row['tire_type'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Drive Train".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Drive Train:</label>
+			<div class="col-sm-8">' . $row['drive_train'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Licence Plate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Licence Plate:</label>
+			<div class="col-sm-8">' . $row['licence_plate'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Nickname".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Nickname:</label>
+			<div class="col-sm-8">' . $row['nickname'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Year Purchased".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Year Purchased:</label>
+			<div class="col-sm-8">' . $row['year_purchased'] . '</div>
+		</div>';
+
+	    }
+
+	    if (strpos($value_config, ','."Mileage".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Mileage:</label>
+			<div class="col-sm-8">' . $row['mileage'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Hours Operated".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Hours Operated:</label>
+			<div class="col-sm-8">' . $row['hours_operated'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Cost".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Cost:</label>
+			<div class="col-sm-8">' . $row['cost'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">CDN Cost Per Unit:</label>
+			<div class="col-sm-8">' . $row['cnd_cost_per_unit'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">USD Cost Per Unit:</label>
+			<div class="col-sm-8">' . $row['usd_cost_per_unit'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Finance".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Finance:</label>
+			<div class="col-sm-8">' . $row['finance'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Lease".',') !== FALSE) {
+
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Lease:</label>
+			<div class="col-sm-8">' . $row['lease'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Insurance".',') !== FALSE) {
+
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Insurance:</label>
+			<div class="col-sm-8">' . $row['insurance'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Hourly Rate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Hourly Rate:</label>
+			<div class="col-sm-8">' . $row['hourly_rate'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Daily Rate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Daily Rate:</label>
+			<div class="col-sm-8">' . $row['daily_rate'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Semi-monthly Rate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Semi-monthly Rate:</label>
+			<div class="col-sm-8">' . $row['semi_monthly_rate'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Monthly Rate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Monthly Rate:</label>
+			<div class="col-sm-8">' . $row['monthly_rate'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Field Day Cost".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Field Day Cost:</label>
+			<div class="col-sm-8">' . $row['field_day_cost'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Field Day Billable".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Field Day Billable:</label>
+			<div class="col-sm-8">' . $row['field_day_billable'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."HR Rate Work".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">HR Rate Work:</label>
+			<div class="col-sm-8">' . $row['hr_rate_work'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."HR Rate Travel".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">HR Rate Travel:</label>
+			<div class="col-sm-8">' . $row['hr_rate_travel'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Service Date".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Service Date:</label>
+			<div class="col-sm-8">' . $row['next_service_date'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Service Hours".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Service Hours:</label>
+			<div class="col-sm-8">' . $row['next_service'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Service Description".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Service Description:</label>
+			<div class="col-sm-8">' . $row['next_serv_desc'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Service Location".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Service Location:</label>
+			<div class="col-sm-8">' . $row['service_location'] . '</div>
+		</div>';
+
+	    }
+
+	    if (strpos($value_config, ','."Last Oil Filter Change (date)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Oil Filter Change (date):</label>
+			<div class="col-sm-8">' . $row['last_oil_filter_change_date'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Last Oil Filter Change (km)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Oil Filter Change (km):</label>
+			<div class="col-sm-8">' . $row['last_oil_filter_change'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Next Oil Filter Change (date)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Oil Filter Change (date):</label>
+			<div class="col-sm-8">' . $row['next_oil_filter_change_date'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Next Oil Filter Change (km)".',') !== FALSE) {
+
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Oil Filter Change (km):</label>
+			<div class="col-sm-8">' . $row['next_oil_filter_change'] . '</div>
+		</div>';
+
+	    }
+	    if (strpos($value_config, ','."Last Inspection & Tune Up (date)".',') !== FALSE) {
+	                echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Inspection & Tune Up (date):</label>
+			<div class="col-sm-8">' . $row['last_insp_tune_up_date'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."Last Inspection & Tune Up (km)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Inspection & Tune Up (km):</label>
+			<div class="col-sm-8">' . $row['last_insp_tune_up'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Inspection & Tune Up (date)".',') !== FALSE) {
+	                echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Inspection & Tune Up (date):</label>
+			<div class="col-sm-8">' . $row['next_insp_tune_up_date'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Inspection & Tune Up (km)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Inspection & Tune Up (km):</label>
+			<div class="col-sm-8">' . $row['next_insp_tune_up'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Tire Condition".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Tire Condition:</label>
+			<div class="col-sm-8">' . $row['tire_condition'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Last Tire Rotation (date)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Tire Rotation (date):</label>
+			<div class="col-sm-8">' . $row['last_tire_rotation_date'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Last Tire Rotation (km)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Last Tire Rotation (km):</label>
+			<div class="col-sm-8">' . $row['last_tire_rotation'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Next Tire Rotation (date)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Tire Rotation (date):</label>
+			<div class="col-sm-8">' . $row['next_tire_rotation_date'] . '</div>
+		</div>';
+		}
+	    if (strpos($value_config, ','."Next Tire Rotation (km)".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Next Tire Rotation (km):</label>
+			<div class="col-sm-8">' . $row['next_tire_rotation'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Registration Renewal date".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Registration Renewal Date:</label>
+			<div class="col-sm-8"><a href="?edit='.$row['equipmentid'].'&target_field=reg_renewal_date">' . $row['reg_renewal_date'] . '</a></div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Insurance Renewal Date".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Insurance Renewal Date:</label>
+			<div class="col-sm-8"><a href="?edit='.$row['equipmentid'].'&target_field=insurance_renewal">' . $row['insurance_renewal'] . '</a></div>
+		</div>';
+	    }
+		if (strpos($value_config, ','."CVIP Ticket Renewal Date".',') !== FALSE) {
+	         echo '<div class="col-sm-6">
+			<label class="col-sm-4">CVIP Ticket Renewal Date:</label>
+			<div class="col-sm-8">' . $row['cvip_renewal_date'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Region Dropdown".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Region:</label>
+			<div class="col-sm-8">' . implode(', ',explode('*#*',$row['region'])) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Location Dropdown".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Location:</label>
+			<div class="col-sm-8">' . implode(', ',explode('*#*',$row['location'])) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Classification Dropdown".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Classification:</label>
+			<div class="col-sm-8">' . implode(', ',explode('*#*',$row['classification'])) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Location".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Location:</label>
+			<div class="col-sm-8">' . $row['location'] . '</div>
+		</div>';
+	    }
+
+	    if (strpos($value_config, ','."LSD".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">LSD:</label>
+			<div class="col-sm-8">' . $row['lsd'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Service History Link".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Service History:</label>
+			<div class="col-sm-8"><a href="?edit='.$row['equipmentid'].'&subtab=service_schedules">View</a></div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Status".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Status:</label>
+			<div class="col-sm-8">' . $row['status'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Ownership Status".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Ownership Status:</label>
+			<div class="col-sm-8">' . $row['ownership_status'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Assigned Status".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Assigned Status:</label>
+			<div class="col-sm-8">' . $row['assigned_status'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Quote Description:</label>
+			<div class="col-sm-8">' . html_entity_decode($row['quote_description']) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Notes".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Notes:</label>
+			<div class="col-sm-8">' . $row['notes'] . '</div>
+		</div>';
+	    }
+
+	    if(vuaed_visible_function($dbc, 'equipment') == 1) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Function:</label>
+	        <div class="col-sm-8"><a href=\'?edit='.$row['equipmentid'].'\'>Edit</a> | '; echo '<a href=\''.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$row['equipmentid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a></div>
+	    </div>';
+	    }
+	    echo '<div class="clearfix"></div>';
+	    echo '</div>';
+	}
+} else {
+	echo '<h2>No Equipment Found.</h2>';
+}
+
+// Added Pagination //
+if(isset($query)) {
+	echo '<div class="pagination_links">';
+    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+    echo '</div>';
+}
+// Pagination Finish //
+?>
+
 </div>
 <script type="text/javascript">
-	function export_csv()
-	{
-		//var hreflocation = window.location.href;
-		window.location.href += "&export=yes";
-	}
+function export_csv()
+{
+	//var hreflocation = window.location.href;
+	window.location.href += "&export=yes";
+}
 </script>

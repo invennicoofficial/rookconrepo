@@ -1,47 +1,9 @@
-<?php
-/*
-Add	Inventory
-*/
-include ('../include.php');
-error_reporting(0); ?>
-</head>
-
-<body>
-<?php include_once ('../navigation.php');
+<?php include_once('../include.php');
 checkAuthorised('equipment');
+$security = get_security($dbc, 'equipment');
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
-$equipmentid = filter_var($_GET['equipmentid'],FILTER_SANITIZE_STRING);
-$unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='".$equipmentid."'"))['unit_number'];?>
-<div class="container">
-  <div class="row">
-
-		<h1>Equipment Unit #<?= $unit_number ?>: Expenses</h1>
-
-		<div class="pad-left gap-top double-gap-bottom"><a href="equipment.php?category=<?php echo $category; ?>" class="btn brand-btn">Back to Dashboard</a></div>
-
-		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-		<div class="gap-left tab-container">
-			<a href="add_equipment.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Equipment</a>
-			<?php if ( in_array('Inspection',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'inspection') === TRUE ) { ?>
-				<a href="equipment_inspections.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Inspections</a>
-			<?php } ?>
-			<?php if ( in_array('Work Order',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'work_order') === TRUE ) { ?>
-				<a href="equipment_work_order.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Work Orders</a>
-			<?php } ?>
-			<?php if ( in_array('Schedules',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'schedules') === TRUE ) { ?>
-				<a href="equipment_service.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Service Schedule</a>
-			<?php } ?>
-			<?php if ( in_array('Expenses',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'expenses') === TRUE ) { ?>
-				<a href="equipment_expenses.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn active_tab">Expenses</a>
-			<?php } ?>
-			<?php if ( in_array('Expenses',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'expenses') === TRUE ) { ?>
-				<a href="equipment_balance.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Balance Sheet</a>
-			<?php } ?>
-            <?php if ( in_array('Equipment Assignment',$equipment_main_tabs) && check_subtab_persmission($dbc, 'eqipment', ROLE, 'equip_assign') === TRUE ) { ?>
-                <a href="equipment_assignment.php?equipmentid=<?= $_GET['equipmentid'] ?>" class="btn brand-btn">Equipment Assignment</a>
-            <?php } ?>
-		</div><form name="form_sites" method="post" action="" class="form-inline" role="form">
+$equipmentid = 'ALL'; ?>
+<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 	<?php
 	if (isset($_POST['search_submit'])) {
 		$search_month = substr($_POST['search_month'],0,7);
@@ -99,10 +61,10 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
 	</div><br />
-		<?php $query_expenses = "SELECT * FROM equipment_expenses WHERE LEFT(ex_date,7) = '$search_month' AND '$search_staff' IN ('', `staff`) AND `deleted`=0 AND `equipmentid`='$equipmentid'";
+	<div id="no-more-tables">
+		<?php $query_expenses = "SELECT * FROM equipment_expenses WHERE LEFT(ex_date,7) = '$search_month' AND '$search_staff' IN ('', `staff`) AND `deleted`=0";
 
 		include('expense_list.php'); ?>
 	</div>
-</div>
-
-<?php include('../footer.php'); ?>
+	</div>
+</form>

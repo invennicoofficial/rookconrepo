@@ -1,10 +1,7 @@
-<?php
-/*
-Add	Inventory
-*/
-include ('../include.php');
+<?php include_once('../include.php');
+checkAuthorised('equipment');
+$security = get_security($dbc, 'equipment');
 include('../phpsign/signature-to-image.php');
-error_reporting(0);
 
 if (isset($_POST['submit'])) {
 	$staff = $_POST['staffid'];
@@ -235,10 +232,10 @@ if (isset($_POST['submit'])) {
 			send_email([$sender=>$sender_name], $email_list, '', '', $subject, $body, $filename);
 		} catch(Exception $e) { echo "<script> alert('Unable to send service alert to ".get_contact($dbc,$staffid).". Please save the PDF and send it manually.'); window.location.replace('".$filename."'); </script>"; }
 	}
-	if(empty($_GET['equipmentid'])) {
-		echo "<script> window.location.replace('inspections.php'); </script>";
+	if(empty($_GET['edit'])) {
+		echo "<script> window.location.replace('?tab=inspections'); </script>";
 	} else {
-		echo "<script> window.location.replace('equipment_inspections.php?equipmentid=".$equipmentid."'); </script>";
+		echo "<script> window.location.replace('?edit=".$equipmentid."&subtab=inspections'); </script>";
 	}
 } ?>
 <script type="text/javascript">
@@ -277,7 +274,7 @@ $(document).ready(function () {
 			url: "inspection_ajax.php?category="+this.value+"&action=checklist",
 			dataType: "html",
 			success: function(response) {
-				$("#collapse_checklist .form-group").html(response);
+				$("#tab_section_checklist .form-group").html(response);
 			}
 		});
 	});
@@ -314,7 +311,7 @@ $(document).ready(function () {
 			url: "inspection_ajax.php?category="+$("[name=category]").val()+"&action=checklist",
 			dataType: "html",
 			success: function(response) {
-				$("#collapse_checklist .form-group").html(response);
+				$("#tab_section_checklist .form-group").html(response);
 			}
 		});
 	}
@@ -346,243 +343,213 @@ $(document).ready(function () {
 		$('.pause-timer-btn, .remove-timer-btn').removeClass('hidden');
 		return false;
 	});
+
+	// Active tabs
+	$('[data-tab-target]').click(function() {
+		$('.main-screen .main-screen').scrollTop($('#tab_section_'+$(this).data('tab-target')).offset().top + $('.main-screen .main-screen').scrollTop() - $('.main-screen .main-screen').offset().top);
+		return false;
+	});
+	setTimeout(function() {
+		$('.main-screen .main-screen').scroll(function() {
+			var screenTop = $('.main-screen .main-screen').offset().top + 10;
+			var screenHeight = $('.main-screen .main-screen').innerHeight();
+			$('.active.blue').removeClass('active blue');
+			$('.tab-section').filter(function() { return $(this).offset().top + this.clientHeight > screenTop && $(this).offset().top < screenTop + screenHeight; }).each(function() {
+				$('[data-tab-target='+$(this).attr('id').replace('tab_section_','')+']').find('li').addClass('active blue');
+			});
+		});
+		$('.main-screen .main-screen').scroll();
+	}, 500);
 });
 </script>
-</head>
 
-<body>
-<?php include_once ('../navigation.php');
-checkAuthorised('equipment');
-include_once('../Equipment/region_location_access.php'); ?>
-<div class="container">
-  <div class="row">
+<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
+	<ul>
+		<a href="?<?= empty($_GET['edit']) ? 'tab=inspections' : 'edit='.$_GET['edit'] ?>"><li>Back to Dashboard</li></a>
+		<a href="" data-tab-target="info"><li class="active blue">Inspection Information</li></a>
+		<a href="" data-tab-target="equipment"><li>Equipment Details</li></a>
+		<a href="" data-tab-target="checklist"><li>Equipment Checklist</li></a>
+		<a href="" data-tab-target="comment"><li>Comments</li></a>
+		<a href="" data-tab-target="sign"><li>Sign Off</li></a>
+	</ul>
+</div>
 
-		<h1>Inspection</h1>
-
-		<div class="pad-left gap-top double-gap-bottom"><a href="<?= empty($_GET['equipmentid']) ? 'inspections.php' : 'equipment_inspections.php?equipmentid='.$_GET['equipmentid'] ?>" class="btn brand-btn">Back to Dashboard</a></div>
-
-		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-		
-		<?php		
-		$staff = $_SESSION['contactid'];
-		$equipmentid = '';
-		$category = '';
-		$make = '';
-		$model = '';
-
-		if(!empty($_GET['equipmentid'])) {
-			$equipmentid = $_GET['equipmentid'];
-			$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `make`, `model` FROM `equipment` WHERE `equipmentid`='$equipmentid'"));
-			$category = $equipment['category'];
-			$make = $equipment['make'];
-			$model = $equipment['model'];
-		}
-		else if(!empty($_GET['category'])) {
-			$category = $_GET['category'];
-		} ?>
-
-        <div class="panel-group" id="accordion2">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_info" >
-							Inspection Information<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_info" class="panel-collapse collapse">
-					<div class="panel-body">
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Staff:</label>
-							<div class="col-sm-8">
-								<select name="staffid" data-placeholder="Select Staff" class="chosen-select-deselect form-control"><option></option>
-									<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-									foreach($staff_list as $id) {
-										echo "<option ".($id == $staff ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
-									} ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Inspection Type:</label>
-							<div class="col-sm-8">
-								<select name="type" data-placeholder="Select Type" class="chosen-select-deselect form-control"><option></option>
-									<option value="Pre Trip">Pre Trip</option>
-									<option value="Post Trip">Post Trip</option>
-									<option value="Maintenance">Maintenance</option>
-									<option value="Evaluation">Evaluation</option>
-									<option value="Weekly Equipment">Weekly Equipment</option>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Inspection Date:</label>
-							<div class="col-sm-8">
-								<input type="text" name="date" value="<?= date('Y-m-d') ?>" class="form-control datepicker">
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Inspection Time:</label>
-							<div class="col-sm-8">
-								<input type="text" name="time" value="<?= date('g:i A') ?>" class="form-control datetimepicker">
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number" class="col-sm-4 control-label">Timer:</label>
-							<div class="col-sm-8">
-					            <input type='text' name='timer' id='timer_value' style="width: 50%; float: left;" class='form-control timer' placeholder='0 sec' />&nbsp;&nbsp;
-					            <button class='btn btn-success start-timer-btn brand-btn mobile-block'>Start</button>
-					            <button class='btn btn-success resume-timer-btn hidden brand-btn mobile-block'>Resume/End Break</button>
-					            <button class='btn pause-timer-btn hidden brand-btn mobile-block'>Pause/Break</button>
-            				</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_equipment" >
-							Equipment Details<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_equipment" class="panel-collapse collapse">
-					<div class="panel-body">
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Category:</label>
-							<div class="col-sm-8">
-								<select name="category" data-placeholder="Select a Category" class="chosen-select-deselect form-control"><option></option>
-									<?php $list = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category`");
-									while($row = mysqli_fetch_array($list)) {
-										echo "<option ".($category == $row['category'] ? 'selected' : '')." value='".$row['category']."'>".$row['category']."</option>";
-									} ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Make:</label>
-							<div class="col-sm-8">
-								<select name="make" data-placeholder="Select a Make" class="chosen-select-deselect form-control"><option></option>
-									<?php $list = mysqli_query($dbc, "SELECT `category`, `make` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `make`");
-									while($row = mysqli_fetch_array($list)) {
-										echo "<option ".($make == $row['make'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['make']."' data-category='".$row['category']."'>".$row['make']."</option>";
-									} ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Model:</label>
-							<div class="col-sm-8">
-								<select name="model" data-placeholder="Select a Model" class="chosen-select-deselect form-control"><option></option>
-									<?php $list = mysqli_query($dbc, "SELECT `category`, `make`, `model` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `model`");
-									while($row = mysqli_fetch_array($list)) {
-										echo "<option ".($model == $row['model'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['model']."' data-category='".$row['category']."' data-make='".$row['make']."'>".$row['model']."</option>";
-									} ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Unit Number:</label>
-							<div class="col-sm-8">
-								<select name="unit" data-placeholder="Select a Unit Number" class="chosen-select-deselect form-control"><option></option>
-									<?php $list = mysqli_query($dbc, "SELECT `category`, `make`, `model`, `unit_number`, `equipmentid` FROM `equipment` WHERE `deleted`=0 $access_query");
-									while($row = mysqli_fetch_array($list)) {
-										echo "<option ".($equipmentid == $row['equipmentid'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['equipmentid']."' data-category='".$row['category']."' data-make='".$row['make']."' data-model='".$row['model']."'>".$row['unit_number']."</option>";
-									} ?>
-								</select>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_checklist" >
-							Equipment Checklist<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_checklist" class="panel-collapse collapse">
-					<div class="panel-body">
-						<div class="form-group">
-							<h4>Please select a category to view the relevant checklist.</h4>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_comment" >
-							Comments<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_comment" class="panel-collapse collapse">
-					<div class="panel-body">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Comments:</label>
-							<div class="col-sm-8">
-								<textarea name="comments" class="form-control"></textarea>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_sign" >
-							Sign Off<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_sign" class="panel-collapse collapse">
-					<div class="panel-body">
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Is immediate attention of this equipment required?</label>
-							<div class="col-sm-8">
-								<label class="form-checkbox small"><input type="radio" name="attention_needed" value="Yes"> Yes</label>
-								<label class="form-checkbox small"><input type="radio" name="attention_needed" value="No"> No</label>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Signature:</label>
-							<div class="col-sm-8">
-								<?php $output_name = 'signature';
-								include('../phpsign/sign_multiple.php'); ?>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-        </div>
-
-		<div class="form-group">
-			<p><span class="brand-color"><em>Required	Fields *</em></span></p>
+<div class="scale-to-fill has-main-screen" style="overflow: hidden;">
+	<div class="main-screen standard-body form-horizontal">
+		<div class="standard-body-title">
+			<h3>Inspection</h3>
 		</div>
 
-		  <div class="form-group">
-			<div class="col-sm-6">
-				<a href="<?= empty($_GET['equipmentid']) ? 'inspections.php' : 'equipment_inspections.php?equipmentid='.$_GET['equipmentid'] ?>"	class="btn brand-btn btn-lg">Back</a>
-			</div>
-			<div class="col-sm-6">
-				<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg	pull-right">Submit</button>
-			</div>
-		  </div>
+		<div class="standard-body-content">
+			<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        
+				<?php		
+				$staff = $_SESSION['contactid'];
+				$equipmentid = '';
+				$category = '';
+				$make = '';
+				$model = '';
 
-		</form>
+				if(!empty($_GET['edit'])) {
+					$equipmentid = $_GET['edit'];
+					$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `make`, `model` FROM `equipment` WHERE `equipmentid`='$equipmentid'"));
+					$category = $equipment['category'];
+					$make = $equipment['make'];
+					$model = $equipment['model'];
+				}
+				else if(!empty($_GET['category'])) {
+					$category = $_GET['category'];
+				} ?>
 
+				<div id="tab_section_info" class="tab-section col-sm-12">
+					<h4>Inspection Information</h4>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Staff:</label>
+						<div class="col-sm-8">
+							<select name="staffid" data-placeholder="Select Staff" class="chosen-select-deselect form-control"><option></option>
+								<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+								foreach($staff_list as $id) {
+									echo "<option ".($id == $staff ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
+								} ?>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Inspection Type:</label>
+						<div class="col-sm-8">
+							<select name="type" data-placeholder="Select Type" class="chosen-select-deselect form-control"><option></option>
+								<option value="Pre Trip">Pre Trip</option>
+								<option value="Post Trip">Post Trip</option>
+								<option value="Maintenance">Maintenance</option>
+								<option value="Evaluation">Evaluation</option>
+								<option value="Weekly Equipment">Weekly Equipment</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Inspection Date:</label>
+						<div class="col-sm-8">
+							<input type="text" name="date" value="<?= date('Y-m-d') ?>" class="form-control datepicker">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Inspection Time:</label>
+						<div class="col-sm-8">
+							<input type="text" name="time" value="<?= date('g:i A') ?>" class="form-control datetimepicker">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number" class="col-sm-4 control-label">Timer:</label>
+						<div class="col-sm-8">
+				            <input type='text' name='timer' id='timer_value' style="width: 50%; float: left;" class='form-control timer' placeholder='0 sec' />&nbsp;&nbsp;
+				            <button class='btn btn-success start-timer-btn brand-btn mobile-block'>Start</button>
+				            <button class='btn btn-success resume-timer-btn hidden brand-btn mobile-block'>Resume/End Break</button>
+				            <button class='btn pause-timer-btn hidden brand-btn mobile-block'>Pause/Break</button>
+	    				</div>
+					</div>
+					<hr>
+				</div>
+
+				<div id="tab_section_equipment" class="tab-section col-sm-12">
+					<h4>Equipment Details</h4>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Category:</label>
+						<div class="col-sm-8">
+							<select name="category" data-placeholder="Select a Category" class="chosen-select-deselect form-control"><option></option>
+								<?php $list = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category`");
+								while($row = mysqli_fetch_array($list)) {
+									echo "<option ".($category == $row['category'] ? 'selected' : '')." value='".$row['category']."'>".$row['category']."</option>";
+								} ?>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Make:</label>
+						<div class="col-sm-8">
+							<select name="make" data-placeholder="Select a Make" class="chosen-select-deselect form-control"><option></option>
+								<?php $list = mysqli_query($dbc, "SELECT `category`, `make` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `make`");
+								while($row = mysqli_fetch_array($list)) {
+									echo "<option ".($make == $row['make'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['make']."' data-category='".$row['category']."'>".$row['make']."</option>";
+								} ?>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Model:</label>
+						<div class="col-sm-8">
+							<select name="model" data-placeholder="Select a Model" class="chosen-select-deselect form-control"><option></option>
+								<?php $list = mysqli_query($dbc, "SELECT `category`, `make`, `model` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `model`");
+								while($row = mysqli_fetch_array($list)) {
+									echo "<option ".($model == $row['model'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['model']."' data-category='".$row['category']."' data-make='".$row['make']."'>".$row['model']."</option>";
+								} ?>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax_number"	class="col-sm-4	control-label">Unit Number:</label>
+						<div class="col-sm-8">
+							<select name="unit" data-placeholder="Select a Unit Number" class="chosen-select-deselect form-control"><option></option>
+								<?php $list = mysqli_query($dbc, "SELECT `category`, `make`, `model`, `unit_number`, `equipmentid` FROM `equipment` WHERE `deleted`=0 $access_query");
+								while($row = mysqli_fetch_array($list)) {
+									echo "<option ".($equipmentid == $row['equipmentid'] ? 'selected' : ($category != $row['category'] ? 'style="display:none;"' : ''))." value='".$row['equipmentid']."' data-category='".$row['category']."' data-make='".$row['make']."' data-model='".$row['model']."'>".$row['unit_number']."</option>";
+								} ?>
+							</select>
+						</div>
+					</div>
+					<hr>
+				</div>
+
+				<div id="tab_section_checklist" class="tab-section col-sm-12">
+					<h4>Equipment Checklist</h4>
+					<div class="form-group">
+						<h4>Please select a category to view the relevant checklist.</h4>
+					</div>
+					<hr>
+				</div>
+
+				<div id="tab_section_comment" class="tab-section col-sm-12">
+					<h4>Comments</h4>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Comments:</label>
+						<div class="col-sm-8">
+							<textarea name="comments" class="form-control"></textarea>
+						</div>
+					</div>
+					<hr>
+				</div>
+
+				<div id="tab_section_sign" class="tab-section col-sm-12">
+					<h4>Sign Off</h4>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Is immediate attention of this equipment required?</label>
+						<div class="col-sm-8">
+							<label class="form-checkbox small"><input type="radio" name="attention_needed" value="Yes"> Yes</label>
+							<label class="form-checkbox small"><input type="radio" name="attention_needed" value="No"> No</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Signature:</label>
+						<div class="col-sm-8">
+							<?php $output_name = 'signature';
+							include('../phpsign/sign_multiple.php'); ?>
+						</div>
+					</div>
+					<hr>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-6">
+						<p><span class="brand-color"><em>Required Fields *</em></span></p>
+					</div>
+					<div class="col-sm-6">
+						<div class="pull-right">
+							<a href="?<?= empty($_GET['edit']) ? 'tab=inspections' : 'edit='.$_GET['edit'] ?>" class="btn brand-btn">Back</a>
+							<button	type="submit" name="submit"	value="Submit" class="btn brand-btn">Submit</button>
+						</div>
+					</div>
+				</div>
+
+			</form>
+		</div>
 	</div>
-  </div>
-
-<?php include ('../footer.php'); ?>
+</div>

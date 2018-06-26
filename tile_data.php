@@ -41,7 +41,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'inventory': return ['link'=>"Inventory/inventory.php?category=Top",'name'=>INVENTORY_TILE]; break;
 			// case 'vpl': return ['link'=>"Vendor Price List/inventory.php?category=Top",'name'=>get_tile_title_vpl($dbc).'']; break;
 			case 'assets': return ['link'=>"Asset/asset.php?category=Top",'name'=>'Assets']; break;
-			case 'equipment': return ['link'=>"Equipment/equipment.php?category=Top",'name'=>'Equipment']; break;
+			case 'equipment': return ['link'=>"Equipment/index.php?category=Top",'name'=>'Equipment']; break;
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
