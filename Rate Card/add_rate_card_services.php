@@ -92,6 +92,19 @@ function selectServiceHeading(sel) {
             $("#smsrp_"+arr[1]).val(result[5]);
 		}
 	});
+	
+	var rate = $(sel).find('option:selected').data('rate');
+	$(sel).closest('.form-group').find('[name="primary_rate[]"]').val(rate);
+	setServiceSavings();
+}
+
+function setServiceSavings() {
+	$('#collapse_service .form-group').find('[name="sfinalprice[]"]').each(function() {
+		var current = this.value;
+		var company = $(this).closest('.form-group').find('[name="primary_rate[]"]').val();
+		$(this).closest('.form-group').find('[name="savings_dollar[]"]').val(round2Fixed(company - current));
+		$(this).closest('.form-group').find('[name="savings_percent[]"]').val(round2Fixed(company > 0 ? (company - current) / company * 100 : 0));
+	});
 }
 </script>
 <?php
@@ -101,14 +114,14 @@ $field_config_service = ','.$get_field_config_service['services'].',';
 <div class="form-group">
     <div class="col-sm-12">
         <div class="form-group clearfix hide-titles-mob">
-            <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
-            <label class="col-sm-2 text-center">Service Type</label>
-            <?php } ?>
             <?php if (strpos($base_field_config, ','."Services Category".',') !== FALSE) { ?>
-            <label class="col-sm-2 text-center">Category</label>
+            <label class="col-sm-1 text-center">Category</label>
+            <?php } ?>
+            <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
+            <label class="col-sm-1 text-center">Service Type</label>
             <?php } ?>
             <?php if (strpos($base_field_config, ','."Services Heading".',') !== FALSE) { ?>
-            <label class="col-sm-2 text-center">Heading</label>
+            <label class="col-sm-1 text-center">Heading</label>
             <?php } ?>
             <?php if (strpos($field_config_service, ','."Final Retail Price".',') !== FALSE) { ?>
             <label class="col-sm-1 text-center">Final Retail Price</label>
@@ -130,18 +143,37 @@ $field_config_service = ','.$get_field_config_service['services'].',';
             <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
             <?php if (strpos($base_field_config, ','."Services Unit of Measurement".',') !== FALSE) { ?>
-            <label class="col-sm-1 text-center">Unit of Measurement</label>
+            <label class="col-sm-1 text-center">UoM</label>
             <?php } ?>
             <?php if (strpos($base_field_config, ','."Services Comments".',') !== FALSE) { ?>
-            <label class="col-sm-3 text-center">Comments</label>
+            <label class="col-sm-2 text-center">Comments</label>
+            <?php } ?>
+            <?php if (strpos($base_field_config, ','."savings".',') !== FALSE) { ?>
+            <label class="col-sm-1 text-center">Company Rate</label>
+            <label class="col-sm-1 text-center">$ Savings</label>
+            <label class="col-sm-1 text-center">% Savings</label>
             <?php } ?>
         </div>
 
         <?php if(!empty($_GET['ratecardid'])) {
             $each_services = explode('**', $services);
+			$service_id_list = [];
+			if($ref_card != '') {
+				$each_services = array_filter($each_services);
+				foreach($each_services as $serviceid) {
+					$serviceid = explode('#',$serviceid);
+					if($serviceid[0] > 0) {
+						$service_id_list[] = $serviceid[0];
+					}
+				}
+				$ref_services = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND `rate_card_name`='$ref_card' AND `tile_name`='Services' AND `item_id` NOT IN ('".implode("','",$service_id_list)."')");
+				while($ref_service = $ref_services->fetch_assoc()) {
+					$each_services[] = $ref_service['item_id'];
+				}
+			}
             $total_count = mb_substr_count($services,'**');
             $id_loop = 500;
-            for($pid_loop=0; $pid_loop<$total_count; $pid_loop++) {
+			foreach($each_services as $pid_loop => $service_row) {
 
                 $serviceid = '';
 
@@ -156,27 +188,8 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 if($serviceid != '') {
             ?>
             <div class="form-group clearfix" id="<?php echo 'services_'.$id_loop; ?>">
-                <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Service Type:</label>
-                    <select data-placeholder="Choose a Type..." id="<?php echo 'sservice_'.$id_loop; ?>" class="chosen-select-deselect form-control equipmentid serv_serv_onchange" width="380">
-                        <option value=''></option>
-                        <?php
-                        $query = mysqli_query($dbc,"SELECT distinct(service_type) FROM services WHERE deleted=0 order by service_type");
-                        while($row = mysqli_fetch_array($query)) {
-                            if (get_services($dbc, $serviceid, 'service_type') == $row['service_type']) {
-                                $selected = 'selected="selected"';
-                            } else {
-                                $selected = '';
-                            }
-                            echo "<option ".$selected." value='". $row['service_type']."'>".$row['service_type'].'</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-                <?php } ?>
-
                 <?php if (strpos($base_field_config, ','."Services Category".',') !== FALSE) { ?>
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Category:</label>
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Category:</label>
                     <select data-placeholder="Choose a Category..." id="<?php echo 'scategory_'.$id_loop; ?>" class="chosen-select-deselect form-control equipmentid serv_cat_onchange" width="380">
                         <option value=''></option>
                         <?php
@@ -195,18 +208,37 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 </div>
                 <?php } ?>
 
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Heading:</label>
+                <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Service Type:</label>
+                    <select data-placeholder="Choose a Type..." id="<?php echo 'sservice_'.$id_loop; ?>" class="chosen-select-deselect form-control equipmentid serv_serv_onchange" width="380">
+                        <option value=''></option>
+                        <?php
+                        $query = mysqli_query($dbc,"SELECT distinct(service_type) FROM services WHERE deleted=0 order by service_type");
+                        while($row = mysqli_fetch_array($query)) {
+                            if (get_services($dbc, $serviceid, 'service_type') == $row['service_type']) {
+                                $selected = 'selected="selected"';
+                            } else {
+                                $selected = '';
+                            }
+                            echo "<option ".$selected." value='". $row['service_type']."'>".$row['service_type'].'</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <?php } ?>
+
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Heading:</label>
                     <select data-placeholder="Choose a Heading..." id="<?php echo 'sheading_'.$id_loop; ?>" name="serviceid[]" class="chosen-select-deselect form-control equipmentid" width="380">
                         <option value=''></option>
                         <?php
-                        $query = mysqli_query($dbc,"SELECT serviceid, heading FROM services WHERE deleted=0 order by heading");
+                        $query = mysqli_query($dbc,"SELECT `services`.`serviceid`, `services`.`heading`, MAX(`company_rate_card`.`cust_price`) `rate` FROM services LEFT JOIN `company_rate_card` ON `services`.`serviceid`=`company_rate_card`.`item_id` AND `company_rate_card`.`deleted`=0 AND `company_rate_card`.`tile_name`='Services' AND `rate_card_name`='$ref_card' WHERE `services`.`deleted`=0 GROUP BY `services`.`serviceid` order by heading");
                         while($row = mysqli_fetch_array($query)) {
                             if ($serviceid == $row['serviceid']) {
                                 $selected = 'selected="selected"';
                             } else {
                                 $selected = '';
                             }
-                            echo "<option ".$selected." value='". $row['serviceid']."'>".$row['heading'].'</option>';
+                            echo "<option ".$selected." data-rate='".$row['rate']."' value='". $row['serviceid']."'>".$row['heading'].'</option>';
 
                         }
                         ?>
@@ -246,7 +278,7 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 </div>
                 <?php } ?>
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
-                    <input name="sfinalprice[]" value="<?php echo $ratecardprice;?>" id="<?php echo 'sfinalprice_'.$id_loop; ?>" type="text" class="form-control" />
+                    <input name="sfinalprice[]" value="<?php echo $ratecardprice;?>" id="<?php echo 'sfinalprice_'.$id_loop; ?>" type="text" class="form-control" onchange="setServiceSavings();" />
                 </div>
 
                 <?php if (strpos($base_field_config, ','."Services Unit of Measurement".',') !== FALSE) { ?>
@@ -259,8 +291,21 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 <?php } ?>
 
                 <?php if (strpos($base_field_config, ','."Services Comments".',') !== FALSE) { ?>
-                    <div class="col-sm-3"><label for="company_name" class="col-sm-4 show-on-mob control-label">Comments:</label>
+                    <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Comments:</label>
                         <input name="service_comments[]" value="<?php echo $service_comment;?>" id="<?php echo 'service_comments_'.$id_loop; ?>" type="text" class="form-control" />
+                    </div>
+                <?php } ?>
+
+                <?php if (strpos($base_field_config, ','."savings".',') !== FALSE) {
+					$company_rate = $dbc->query("SELECT `cust_price` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$serviceid' AND `tile_name`='Services' AND '$unit_of_measure' IN (`uom`,'')")->fetch_assoc()['cust_price']; ?>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Company Rate</label>
+                        <input name="primary_rate[]" value="<?= $company_rate ?>" disabled type="text" class="form-control" />
+                    </div>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">$ Savings</label>
+                        <input name="savings_dollar[]" value="<?= number_format($company_rate - $ratecardprice,2) ?>" disabled type="text" class="form-control" />
+                    </div>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">% Savings</label>
+                        <input name="savings_percent[]" value="<?= number_format(($company_rate - $ratecardprice) / $company_rate * 100,2) ?>" disabled type="text" class="form-control" />
                     </div>
                 <?php } ?>
 
@@ -278,21 +323,8 @@ $field_config_service = ','.$get_field_config_service['services'].',';
             <div class="clearfix"></div>
 
             <div class="form-group clearfix" id="services_0">
-                <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Service Type:</label>
-                    <select data-placeholder="Choose a Type..." id="sservice_0" class="chosen-select-deselect form-control equipmentid serv_serv_onchange" width="380">
-                        <option value=''></option>
-                        <?php
-                        $query = mysqli_query($dbc,"SELECT distinct(service_type) FROM services WHERE deleted=0 order by service_type");
-                        while($row = mysqli_fetch_array($query)) {
-                            echo "<option value='". $row['service_type']."'>".$row['service_type'].'</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-                <?php } ?>
                 <?php if (strpos($base_field_config, ','."Services Category".',') !== FALSE) { ?>
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Category:</label>
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Category:</label>
                     <select data-placeholder="Choose a Category..." id="scategory_0" class="chosen-select-deselect form-control equipmentid serv_cat_onchange" width="380">
                         <option value=''></option>
                         <?php
@@ -305,7 +337,20 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                     </select>
                 </div>
                 <?php } ?>
-                <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Heading:</label>
+                <?php if (strpos($base_field_config, ','."Services Service Type".',') !== FALSE) { ?>
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Service Type:</label>
+                    <select data-placeholder="Choose a Type..." id="sservice_0" class="chosen-select-deselect form-control equipmentid serv_serv_onchange" width="380">
+                        <option value=''></option>
+                        <?php
+                        $query = mysqli_query($dbc,"SELECT distinct(service_type) FROM services WHERE deleted=0 order by service_type");
+                        while($row = mysqli_fetch_array($query)) {
+                            echo "<option value='". $row['service_type']."'>".$row['service_type'].'</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <?php } ?>
+                <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Heading:</label>
                     <select data-placeholder="Choose a Heading..." id="sheading_0" name="serviceid[]" class="chosen-select-deselect form-control equipmentid" width="380">
                         <option value=''></option>
                         <?php
@@ -351,7 +396,7 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 </div>
                 <?php } ?>
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
-                    <input name="sfinalprice[]" id="sfinalprice_0" type="text" class="form-control" />
+                    <input name="sfinalprice[]" id="sfinalprice_0" type="text" class="form-control" onchange="setServiceSavings();" />
                 </div>
 
                 <?php if (strpos($base_field_config, ','."Services Unit of Measurement".',') !== FALSE) { ?>
@@ -364,8 +409,20 @@ $field_config_service = ','.$get_field_config_service['services'].',';
                 <?php } ?>
 
                 <?php if (strpos($base_field_config, ','."Services Comments".',') !== FALSE) { ?>
-                    <div class="col-sm-3"><label for="company_name" class="col-sm-4 show-on-mob control-label">Comments:</label>
+                    <div class="col-sm-2"><label for="company_name" class="col-sm-4 show-on-mob control-label">Comments:</label>
                         <input name="service_comments[]" value="" id="service_comments_0" type="text" class="form-control" />
+                    </div>
+                <?php } ?>
+
+                <?php if (strpos($base_field_config, ','."savings".',') !== FALSE) { ?>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Company Rate</label>
+                        <input name="primary_rate[]" value="" type="text" class="form-control" />
+                    </div>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">$ Savings</label>
+                        <input name="savings_dollar[]" value="" type="text" class="form-control" />
+                    </div>
+                    <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">% Savings</label>
+                        <input name="savings_percent[]" value="" type="text" class="form-control" />
                     </div>
                 <?php } ?>
 
