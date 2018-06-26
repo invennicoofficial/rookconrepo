@@ -12,6 +12,14 @@ $(document).ready(function() {
 		items: '.status-option',
 		update: saveStatus
 	});
+    $('select[name="estimate_status_closed"]').change(function() {
+        status = $(this).val();
+        saveStatusForArchive('closed', status);
+    });
+    $('select[name="estimate_status_abandoned"]').change(function() {
+        status = $(this).val();
+        saveStatusForArchive('abandoned', status);
+    });
 });
 function saveStatus() {
 	var status_list = [];
@@ -51,6 +59,19 @@ function removeStatus(a) {
 	$(a).closest('.status-option').remove();
 	saveStatus();
 }
+function saveStatusForArchive(status_type, status) {
+    $.ajax({
+		url: 'estimates_ajax.php?action=save_status_for_archive',
+		method: 'POST',
+		data: {
+            status_type: status_type,
+			status: status
+		},
+        success: function(response){
+            console.log(response);
+        }
+	});
+}
 </script>
 <h3><?= ESTIMATE_TILE ?> Status</h3>
 <label class="col-sm-8 text-center hide-titles-mob">Status Name</label>
@@ -77,6 +98,38 @@ function removeStatus(a) {
 	</div>
 <?php } ?>
 <button onclick="addStatus(); return false;" class="btn brand-btn pull-right">Add Status</button>
+
+<div class="clearfix"></div>
+
+<div class="form-group double-gap-top double-gap-bottom">
+    <label class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Estimate Status that will be used for successfully closed estimates."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Estimate Closed Status:</label>
+    <div class="col-sm-8"><?php
+        $get_config_closed_status = get_config($dbc, 'estimate_status_closed'); ?>
+        <select name="estimate_status_closed" class="form-control">
+            <option value="">Select Status</option><?php
+            foreach($estimate_status as $status):
+                $selected = ($get_config_closed_status == $status) ? 'selected="selected"' : ''; ?>
+                <option <?= $selected; ?> value="<?= $status; ?>"><?= $status; ?></option><?php
+            endforeach; ?>
+        </select>
+    </div>
+    
+    <div class="clearfix"></div>
+    
+    <label class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Estimate Status that will be used for abandonded estimates."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Estimate Abandoned Status:</label>
+    <div class="col-sm-8"><?php
+        $get_config_abandoned_status = get_config($dbc, 'estimate_status_abandoned'); ?>
+        <select name="estimate_status_abandoned" class="form-control">
+            <option value="">Select Status</option><?php
+            foreach($estimate_status as $status):
+                $selected = ($get_config_abandoned_status == $status) ? 'selected="selected"' : ''; ?>
+                <option <?= $selected; ?> value="<?= $status; ?>"><?= $status; ?></option><?php
+            endforeach; ?>
+        </select>
+    </div>
+    
+    <div class="clearfix"></div>
+</div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_status.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>
