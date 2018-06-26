@@ -114,7 +114,7 @@ if(empty($_GET['type'])) {
 							} else if($_GET['type'] == 'equipment') {
 								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
 									include('equipment_show_rate_card.php');
-								} else if($_GET['status'] == 'add') {
+								} else if($_GET['status'] == 'add' || !empty($_GET['id'])) {
 									include('equipment_add_rate_card.php');
 								} else {
 									include('equipment_current_rate_card.php');

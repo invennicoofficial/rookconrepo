@@ -78,6 +78,7 @@ $(document).on('change', 'select#category_select', function() { if(this.value ==
 		<?php while($rate_name = mysqli_fetch_array($rate_results)) {
 			echo "<option".($rate_name['rate_card_name'] == $row['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
 		} ?>
+		</select></div></div>
 		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Staff Member:</label>
 		<div class='col-sm-8'><select name='staff_id[]' multiple data-placeholder='Choose a Staff Member' class='chosen-select-deselect form-control'><option></option><option value="ALL_STAFF">Select All Staff</option>
 		<?php $row = mysqli_fetch_array($result);

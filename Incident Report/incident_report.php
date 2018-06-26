@@ -247,12 +247,14 @@ foreach($project_tabs as $item) {
                                         }
                                         if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                             $name_of_file = 'incident_report_'.$row['incidentreportid'].'.pdf';
-                        					echo '<td data-title="PDF"><a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>';
+                        					echo '<td data-title="PDF">'.(file_exists('download/'.$name_of_file) ? '<a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>' : '');
                                             if ($row['revision_number'] > 0) {
                                                 $revision_dates = explode('*#*', $row['revision_date']);
                                                 for ($i = 0; $i < $row['revision_number']; $i++) {
                                                     $name_of_file = 'incident_report_'.$row['incidentreportid'].'_'.($i+1).'.pdf';
-                                                    echo '<br /><a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="view">View R'.($i+1).': '.$revision_dates[$i].'</a>';
+													if(file_exists('download/'.$name_of_file)) {
+														echo '<br /><a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="view">View R'.($i+1).': '.$revision_dates[$i].'</a>';
+													}
                                                 }
                                             }
                                             echo '</td>';
