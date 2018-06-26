@@ -128,5 +128,11 @@
     }
     //2018-06-21 - Ticket #7736 - Shift Reports & My Shifts
 
+    //2018-06-26 - Ticket #7370 - Equipment Styling
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `equipment_image` VARCHAR(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-26 - Ticket #7370 - Equipment Styling
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
