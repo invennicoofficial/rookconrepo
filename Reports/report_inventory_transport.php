@@ -74,6 +74,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/download_tracker_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_inventory_transport', 0, WEBSITE_URL.'/Reports/Download/download_tracker_'.$today_date.'.pdf', 'Inventory Transported Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -164,7 +165,7 @@ if (isset($_POST['printpdf'])) {
             <input type="hidden" name="projectpdf" value="<?php echo $projectid; ?>">
 
 			<div class="clearfix"></div>
-			
+
 			<?php echo report_tracking($dbc, $startdate, $enddate, $businessid, $projectid, '', '', ''); ?>
 		</div>
     </div>
@@ -176,7 +177,7 @@ function report_tracking($dbc, $startdate, $enddate, $businessid, $projectid, $t
 	$enddate = date('Y-m-d',strtotime($enddate));
 	$businessid = filter_var($businessid, FILTER_SANITIZE_STRING);
 	$projectid = filter_var($projectid, FILTER_SANITIZE_STRING);
-	
+
 	$tickets = mysqli_query($dbc, "SELECT `tickets`.*, `inventory`.`piece_num`, `inventory`.`weight`, `inventory`.`weight_units`, `inventory`.`dimensions`, `inventory`.`dimension_units`, `origin`.`location_name` `origin_name`, `origin`.`to_do_date` `origin_date`, `dest`.`location_name` `dest_name`, `dest`.`to_do_date` `dest_date`, `project`.`projectid`,`projecttype`,`project`.`project_name`,`project`.`start_date` `project_date`,`project`.`businessid` `project_business`,`project`.`clientid` `project_client`,`project`.`status` `project_status`
 	FROM `ticket_attached` `inventory` LEFT JOIN `tickets` ON `inventory`.`ticketid`=`tickets`.`ticketid`
 	LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' AND `origin`.`deleted`=0

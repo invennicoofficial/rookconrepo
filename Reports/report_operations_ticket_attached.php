@@ -71,6 +71,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_operations_ticket_attached', 0, WEBSITE_URL.'/Reports/Download/'.config_safe_str(TICKET_NOUN).'_attached_'.$today_date.'.pdf', 'Shop Work Orders - Time Spent Report');
     ?>
 
 	<script>
@@ -101,7 +102,7 @@ if (isset($_POST['printpdf'])) {
 			$search_task = '';
 			$search_from = date('Y-m-01');
 			$search_until = date('Y-m-d');
-			
+
             if (isset($_POST['search_ticket'])) {
                 $search_ticket = $_POST['search_ticket'];
             }
@@ -199,7 +200,7 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
 	if($no_page === false) {
 		$limit = " LIMIT $offset, $rowsPerPage";
 	}
-	
+
 	$edit_ticket = vuaed_visible_function($dbc, 'ticket');
 	$edit_project = vuaed_visible_function($dbc, 'project');
 	$from = '';

@@ -2352,7 +2352,7 @@ function track_download($dbc, $table, $id, $link, $description = '') {
 	$staff = $_SESSION['contactid'];
 	$link = filter_var($link, FILTER_SANITIZE_STRING);
 	$description = filter_var($description, FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `download_tracking` (`table`, `tableid`, `staffid`, `download_link`, `description`) VALUES ('$table', '$id', '$staff', '$link', '$description')");
+	mysqli_query($dbc, "INSERT INTO `download_tracking` (`table_name`, `tableid`, `staffid`, `download_link`, `description`) VALUES ('$table', '$id', '$staff', '$link', '$description')");
 }
 function getFraction($float) {
 	for($i = 1; $i<=100; $i++) {

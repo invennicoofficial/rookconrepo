@@ -62,7 +62,7 @@ if (isset($_POST['printpdf'])) {
     $start_date = date('Y-m-d', strtotime($starttimepdf));
     $end_date = date('Y-m-d', strtotime($endtimepdf));
     $html = '';
-	
+
 	$pdf->AddPage('L', 'LETTER');
 	$pdf->SetFont('helvetica', '', 9);
 	$html = '';
@@ -76,6 +76,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/crm_recommend_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_crm_recommend_date', 0, WEBSITE_URL.'/Reports/Download/crm_recommend_'.$today_date.'.pdf', 'CRM Recommendation Scale Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

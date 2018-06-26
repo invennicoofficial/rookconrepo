@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output('Download/pro_bono_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_marketing_pro_bono', 0, WEBSITE_URL.'/Reports/Download/pro_bono_summary_'.$today_date.'.pdf', 'Pro-Bono Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -160,10 +161,10 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 			<th>Therapist</th>
 			<th>Patient</th>
 			<th>Value (including GST)</th></tr>';
-		
+
 		while($row = mysqli_fetch_array($report_pro_bono)) {
 			$get_staff = true;
-			
+
 			$services = explode(',',$row['serviceid']);
 			$spb = explode(',',$row['service_pro_bono']);
 			$inventory = explode(',',$row['inventoryid']);
@@ -264,7 +265,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 				}
 			}
 		}
-		
+
 		$report_data .= '<tr nobr="true"><td colspan="5"><b>Total</b></td>';
 		$report_data .= '<td><b>$'.number_format($total_pro_bono, 2).'</b></td></tr></table>';
 
