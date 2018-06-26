@@ -143,7 +143,9 @@ if (!empty($_GET['action'])):
 
 		<table class="table table-bordered">
 		<tr class="hidden-xs hidden-sm">
+			<?php if(strpos($db_config,',holiday_rate_type,') !== FALSE) { ?>
 			<th>Holiday Rate Type</th>
+			<?php } ?>
 			<?php if(strpos($db_config,',holiday_rate_position,') !== FALSE) { ?>
 				<th>Position</th>
 			<?php } ?>
@@ -158,7 +160,9 @@ if (!empty($_GET['action'])):
 		<?php
 		while($row = mysqli_fetch_array( $result )) {
 			echo '<tr>';
+            if(strpos($db_config, ',holiday_rate_type,') !== FALSE) {
 			echo '<td data-title="Rate Card Name">' . $row['rate_type'] . '</td>';
+            }
             if(strpos($db_config, ',holiday_rate_position,') !== FALSE) {
                 echo '<td data-title="Start Date">'.get_positions($dbc, $row['positionid'], 'name').'</td>';
             }

@@ -3,7 +3,7 @@ error_reporting(0);
 include_once('../include.php'); ?>
 </head>
 <body>
-<?php 
+<?php
 $folder_name = FOLDER_NAME;
 if($_GET['edit'] > 0) {
 	$tile = get_contact($dbc, $_GET['edit'], 'tile_name');
@@ -91,7 +91,7 @@ include_once ('../navigation.php'); ?>
 				<div class="clearfix"></div>
 			</div>
 		</div>
-        
+
 		<div id="dialog_contact_reminders" title="Add Reminder" style="display:none;">
             <div class="form-group recipient" style="display:none;">
 				<label class="col-sm-4 control-label">Recipient:</label>
@@ -113,7 +113,7 @@ include_once ('../navigation.php'); ?>
 			<input type="hidden" name="contact_reminder_contactid" class="form-control" value="<?= $_GET['edit'] ?>">
             <input type="hidden" name="contact_reminder_folder" class="form-control" value="<?= $folder_name ?>">
 		</div><!-- #dialog_contact_reminders -->
-        
+
 		<div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
 			<div class="iframe">
 				<div class="iframe_loading">Loading...</div>
