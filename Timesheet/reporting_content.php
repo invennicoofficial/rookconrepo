@@ -264,7 +264,7 @@ function viewTicket(a) {
         if($timesheet_reporting_styling == 'EGS') {
             echo get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff);
         } else {
-            echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket);
+            echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, '', $config['hours_types']);
         }
         ?>
 

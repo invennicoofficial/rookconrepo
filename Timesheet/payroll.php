@@ -129,6 +129,8 @@ function viewTicket(a) {
                 $timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
                 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
                 $timesheet_time_format = get_config($dbc, 'timesheet_time_format');
+                $timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+                $timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
                 $current_period = !empty($_GET['pay_period']) || $_GET['pay_period'] == 0 ? $_GET['pay_period'] : -1;
                 $_GET['pay_period'] = $current_period;
                 include('pay_period_dates.php');
@@ -406,6 +408,21 @@ function viewTicket(a) {
                         $end_time = '';
                         $approv = '';
                         if($row['date'] == $date) {
+                            foreach($config['hours_types'] as $hours_type) {
+                                if($row[$hours_type] > 0) {
+                                    switch($timesheet_rounding) {
+                                        case 'up':
+                                            $row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                        case 'down':
+                                            $row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                        case 'nearest':
+                                            $row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                    }
+                                }
+                            }
                             $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
                             $hrs = ['REG'=>$row['REG_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
                                 'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS']];
