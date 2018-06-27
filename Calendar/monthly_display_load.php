@@ -12,7 +12,9 @@ $day_period = get_config($dbc, $config_type.'_increments');
 $contact_id = $_POST['contact_id'];
 
 $column = '';
-if($wait_list == 'shifts' || isset($_GET['shiftid']) || $_GET['mode'] == 'shift') {
+if($_GET['type'] == 'schedule' && $_GET['view'] == 'summary') {
+	include('monthly_display_equip_summary.php');
+} else if($wait_list == 'shifts' || isset($_GET['shiftid']) || $_GET['mode'] == 'shift') {
 	include('monthly_display_shift.php');
 } else if($_GET['type'] == 'uni') {
 	include('monthly_display_universal.php');

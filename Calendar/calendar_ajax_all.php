@@ -174,10 +174,10 @@ if($_GET['fill'] == 'selected_contacts') {
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_contacts`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	} else if($_POST['category'] == 'equipment') {
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
-		if(!empty($contact_list)) {
+		if(isset($_POST['contacts'])) {
 			mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 		}
-		if(!empty($staff_list)) {
+		if(isset($_POST['staff'])) {
 			mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='$staff_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 		}
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_clients`='$client_list' WHERE `contactid`='".$_SESSION['contactid']."'");
