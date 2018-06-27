@@ -573,8 +573,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
 													<?php }
 													if($delivery_type_contacts != '') {
-														foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `category`='$delivery_type_contacts' AND `deleted`=0 AND `status` > 0")) as $contact) { ?>
-															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
+														foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `address`, `city`, `postal_code` FROM `contacts` WHERE `category`='$delivery_type_contacts' AND `deleted`=0 AND `status` > 0")) as $contact) { ?>
+															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" <?= strpos($value_config,',Delivery Pickup Populate Warehouse Address,') !== FALSE ? 'data-address="'.$contact['address'].'" data-city="'.$contact['city'].'" data-postal="'.$contact['postal_code'].'"' : '' ?> data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
 															<?php if($contact['full_name'] == $stop['type'] && $stop['type'] != 'warehouse') {
 																$stop['type'] = 'warehouse';
 															}
