@@ -1327,7 +1327,12 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
-	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
+	if(is_array($_POST['fields'])) {
+		$value = implode(',',$_POST['fields']);
+	} else {
+		$value = $_POST['fields'];
+	}
+	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var($value,FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_action_fields') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_overview_fields') {

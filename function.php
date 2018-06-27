@@ -492,6 +492,10 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '#BBBBBB';
 		} else if($name == 'report_row_colour_2') {
 			return '#DDDDDD';
+		} else if($name == 'recent_manifests') {
+			return '25';
+		} else if($name == 'recent_inventory') {
+			return '25';
 		}
 	}
 
@@ -675,6 +679,9 @@ function get_custom($dbc, $customid, $field_name) {
 function get_equipment_field($dbc, $equipmentid, $field_name) {
     $get_equipment =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM equipment WHERE	equipmentid='$equipmentid'"));
     return $get_equipment[$field_name];
+}
+function get_equipment_label($dbc, $equipment) {
+    return $equipment['category'].(!empty($equipment['make']) ? " ".$equipment['make'] : "").(!empty($equipment['model']) ? " ".$equipment['model'] : "").(!empty($equipment['unit_number']) ? " ".$equipment['unit_number'] : "");
 }
 function get_vendor_pricelist($dbc, $pricelistid, $field_name) {
     $get_pricelist =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM vendor_pricelist WHERE	pricelistid='$pricelistid'"));
@@ -2479,6 +2486,9 @@ function get_reminder_url($dbc, $reminder) {
                 break;
             case 'rate_card':
                 $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                break;
+            case 'holidays_update':
+                $reminder_url = '../Timesheet/holidays.php';
                 break;
         }
     }

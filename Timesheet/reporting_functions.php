@@ -1,6 +1,5 @@
 
-<?php function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '') {
-
+<?php function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '', $hours_types) {
   $filter_query = '';
   if(!empty($search_project)) {
     $filter_query .= " AND `projectid` = '$search_project'";
@@ -50,6 +49,8 @@
 	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
 	$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
 		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 	}
@@ -186,6 +187,21 @@
 					$start_time = '';
 					$end_time = '';
 					if($row['date'] == $date) {
+						foreach($hours_types as $hours_type) {
+							if($row[$hours_type] > 0) {
+								switch($timesheet_rounding) {
+									case 'up':
+										$row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+										break;
+									case 'down':
+										$row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+										break;
+									case 'nearest':
+										$row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+										break;
+								}
+							}
+						}
 						$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
 						$hrs = ['REG'=>$row['REG_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
 							'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'TRACKED_HRS'=>$row['TRACKED_HRS'],'BREAKS'=>$row['BREAKS']];

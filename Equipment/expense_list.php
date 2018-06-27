@@ -22,7 +22,7 @@ if(isset($_POST['submit'])) {
 					VALUES ('$equipmentid', '$category', '$staff', '$description', '$country', '$province', '$date', '$amount', '$pst', '$gst', '$hst', '$total')";
 			} else {
 				$sql_expense = "UPDATE `equipment_expenses` SET `equipmentid`='$equipmentid', `category`='$category', `description`='$description', `country`='$country', `province`='$province', `ex_date`='$date', `amount`='$amount', `pst`='$pst', `gst`='$gst', `hst`='$hst', `total`='$total' WHERE `expenseid`='$id'";
-			}echo $id.'-'.$sql_expense.'<br />';
+			}//echo $id.'-'.$sql_expense.'<br />';
 			mysqli_query($dbc, $sql_expense);
 			if($id == '') {
 				$id = mysqli_insert_id($dbc);

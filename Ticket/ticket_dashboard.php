@@ -46,7 +46,8 @@ if($db_sort != '') {
 $match_business = '';
 if(!empty(MATCH_CONTACTS)) {
 	$match_business = " AND `tickets`.`businessid` IN (".MATCH_CONTACTS.")";
-} ?>
+}
+$recent_manifests = get_config($dbc, 'recent_manifests'); ?>
 <script>
 var ajax_loads = [];
 $(document).ready(function() {
@@ -804,11 +805,12 @@ IF(!IFRAME_PAGE) { ?>
 				</li>
 			<?php } ?>
 			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) {
-				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields')); ?>
+				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
+				$recent_inventory = get_config($dbc, 'recent_inventory'); ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
 					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
 						<?php if(in_array('sort_top',$manifest_fields)) { ?>
-							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last 25 Line Items</a></li>
+							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
 						<?php } ?>
 						<?php $project_type_list = [''=>''];
 						if(in_array('sort_project',$manifest_fields)) {
@@ -843,7 +845,7 @@ IF(!IFRAME_PAGE) { ?>
 								<?php }
 							}
 						} ?>
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last 25 Manifests</a></li>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
 					</ul>
 				</li>
 			<?php } ?>
@@ -861,7 +863,7 @@ IF(!IFRAME_PAGE) { ?>
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
 		<div class="standard-dashboard-body-title">
-			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Top 25 Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
+			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
 					<div class="notice popover-examples ticket_note_div" data-type="ticket_summary" style="display: none;">

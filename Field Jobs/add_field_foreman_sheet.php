@@ -83,7 +83,7 @@ if (isset($_POST['submit'])) {
     $sma = '';
     for($i=0; $i<$total_sm; $i++) {
         if($_POST['stockmat_qty'][$i] != '') {
-            $smd .= $_POST['stockmat_desc'][$i].'*#*';
+            $smd .= filter_var($_POST['stockmat_desc'][$i],FILTER_SANITIZE_STRING).'*#*';
             $smq .= $_POST['stockmat_qty'][$i].',';
             $smup .= $_POST['stockmat_up'][$i].',';
             $sma .= $_POST['stockmat_amount'][$i].',';
