@@ -475,6 +475,11 @@ function saveFieldMethod(field) {
 					if($(field).find('option:selected').data('set-time') != '' && $(field).find('option:selected').data('set-time') != undefined) {
 						$(field).closest('.scheduled_stop').find('[name=to_do_start_time]').val($(field).find('option:selected').data('set-time')).change();
 					}
+					if($(field).find('option:selected').data('address') != '' && $(field).find('option:selected').data('address') != undefined) {
+						$(field).closest('.scheduled_stop').find('[name=address]').val($(field).find('option:selected').data('address')).change();
+						$(field).closest('.scheduled_stop').find('[name=city]').val($(field).find('option:selected').data('city')).change();
+						$(field).closest('.scheduled_stop').find('[name=postal_code]').val($(field).find('option:selected').data('postal')).change();
+					}
 				} else if(field.type == 'select') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value != 'warehouse' }).first().prop('checked',true);
 				} else if($(field).data('set-time') != '' && $(field).data('set-time') != undefined) {

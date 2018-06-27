@@ -2555,6 +2555,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Warehouse Only') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Warehouse Only", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Warehouse Only", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Warehouse Only" name="tickets[]"> Multi-Stop Warehouse Only</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Populate Warehouse Address') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Populate Warehouse Address" name="tickets[]"> Multi-Stop Populate Warehouse Address</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Status", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Status", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Status" name="tickets[]"> Multi-Stop Status</label>
 							<?php } ?>
