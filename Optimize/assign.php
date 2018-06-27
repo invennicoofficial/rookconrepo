@@ -69,9 +69,9 @@ function filterClass() {
 function get_ticket_list() {
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
-	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
+	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
 	initOptions();
 }
