@@ -809,6 +809,7 @@ IF(!IFRAME_PAGE) { ?>
 				$recent_inventory = get_config($dbc, 'recent_inventory'); ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
 					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
 						<?php if(in_array('sort_top',$manifest_fields)) { ?>
 							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
 						<?php } ?>
@@ -845,7 +846,6 @@ IF(!IFRAME_PAGE) { ?>
 								<?php }
 							}
 						} ?>
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
 					</ul>
 				</li>
 			<?php } ?>
