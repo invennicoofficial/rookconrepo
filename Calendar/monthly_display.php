@@ -113,23 +113,15 @@ for($list_day = 1; $list_day <= $days_in_month + $days_added; $list_day++):
 	    if($new_today_date == date('Y-m-d')) {
 	        $class = 'today-btn';
 	    }
-	    echo '<a href="?type='.$_GET['type'].'&view=daily&date='.$new_today_date.'&mode='.$_GET['mode'].'&region='.$_GET['region'].'"><div class="btn brand-btn pull-right '.$class.'">'.($list_day > $days_in_month ? $new_list_day : $list_day).'</div></a>';
+	    echo '<a href="?date_override=1&type='.$_GET['type'].'&view=daily&date='.$new_today_date.'&mode='.($_GET['mode'] == 'summary' ? 'schedule' : $_GET['mode']).'&region='.$_GET['region'].($_GET['type'] == 'schedule' && $_GET['mode'] == 'summary' ? '&retrieve_assigned=1' : '').'"><div class="btn brand-btn pull-right '.$class.'">'.($list_day > $days_in_month ? $new_list_day : $list_day).'</div></a>';
 
-	    // if($wait_list == 'shifts' || isset($_GET['shiftid'])) {
-	    // 	include('monthly_display_shift.php');
-	    // } else if($_GET['type'] == 'uni') {
-	    // 	include('monthly_display_universal.php');
-	    // } else if($_GET['type'] == 'event') {
-	    // 	include('monthly_display_events.php');
-	    // } else if($_GET['type'] == 'estimates') {
-	    // 	include('monthly_display_estimates.php');
-	    // } else if($_GET['type'] == 'schedule') {
-	    // 	include('monthly_display_equip.php');
-	    // } else if($wait_list == 'ticket') {
-	    // 	include('monthly_display_tickets.php');
-	    // } else if($wait_list == 'appt') {
-	    // 	include('monthly_display_appt.php');
-	    // }
+	    if($_GET['retrieve_all'] == 1) {
+	    	if($_GET['type'] == 'schedule' && $_GET['mode'] == 'summary') {
+	    		$column = '<br><br>';
+	    		include('monthly_display_equip_summary.php');
+	    		echo $column;
+	    	}
+	    }
 
 	    /** QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !!  IF MATCHES FOUND, PRINT THEM !! **/
 	    echo str_repeat('<p> </p>',2);
