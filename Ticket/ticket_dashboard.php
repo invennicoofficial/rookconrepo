@@ -1146,8 +1146,49 @@ IF(!IFRAME_PAGE) { ?>
 <?php if(!in_array('Disable',$db_summary)) {
 	$summary_urls = get_config($dbc, 'ticket_summary_urls'); ?>
 	<div class="summary_div" style="display:none;">
+		<script>
+		google.charts.load("current", {"packages":["corechart"]});
+		</script>
 		<?php $blocks = [];
 		$total_length = 0;
+		if(in_array('Time Graph',$db_summary)) {
+			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
+				$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+			}
+			$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
+			$blocks[] = [350, '<div class="overview-block">
+				<div id="time_chart" style="width: 100%; height: 350px;"></div>
+			</div>
+			<script>
+			google.charts.setOnLoadCallback(drawTimeChart);
+
+			function drawTimeChart() {
+
+			var data = google.visualization.arrayToDataTable([
+					["My Tracked Time", "Hours"],
+					["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
+					["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
+				]);
+
+				var options = {
+					title: "My Tracked Time",
+					pieHole: 0.5,
+					tooltip: { text: "none" },
+					slices: {
+						0: { color: "#00aeef" },
+						1: { color: "#84C6E4" },
+					}
+				};
+
+				var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
+
+				chart.draw(data, options);
+			}
+			</script>'];
+			$total_length += 350;
+		}
 		if(in_array('Estimated',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
@@ -1346,11 +1387,7 @@ IF(!IFRAME_PAGE) { ?>
 		$displayed_length = 0; ?>
 		<div class="col-sm-6">
 			<?php foreach($blocks as $block_count => $block) {
-				if($block[0] == $displayed_length && $display_column == 0) {
-					$displayed_length = 0;
-					$total_length -= $block[0] + $displayed_length;
-					echo '</div><div class="col-sm-6">'.$block[1].'</div><div class="col-sm-6">';
-				} else if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks))) {
+				if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks) - 1)) {
 					$displayed_length = 0;
 					$display_column = 1;
 					echo '</div><div class="col-sm-6">'.$block[1];
