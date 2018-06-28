@@ -669,7 +669,7 @@ $date_of_archival = date('Y-m-d');
         $query_update = "UPDATE `equipment` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE equipmentid='$equipmentid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
-            header('Location: Equipment/equipment.php?type=active&category='.$category.'&filter=Top');
+            header('Location: Equipment/index.php?status=Active&category='.$category);
         }
     }
 
