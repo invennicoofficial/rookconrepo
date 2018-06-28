@@ -31,7 +31,7 @@ if($siteid == 'recent') {
 						<td data-title="Date"><?= $manifest['date'] ?></td>
 						<td data-title="ID"><?= date('y',strtotime($manifest['date'])).'-'.str_pad($manifest['id'],4,0,STR_PAD_LEFT) ?></td>
 						<td data-title="Site"><?= get_contact($dbc, $manifest['siteid']) ?></td>
-						<td data-title="Manifest"><?php if(file_exists('manifest/manifest_'.$manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '').'.pdf')) { ?><a target="_blank" href="manifest/manifest_<?= $manifest['id'] ?>.pdf">PDF <img class="inline-img" src="../img/pdf.png"></a><?php } ?></td>
+						<td data-title="Manifest"><?php if(file_exists('manifest/manifest_'.$manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '').'.pdf')) { ?><a target="_blank" href="manifest/manifest_<?= $manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '') ?>.pdf">PDF <img class="inline-img" src="../img/pdf.png"></a><?php } ?></td>
 						<?php if(in_array('edit',$manifest_fields) && $tile_security['edit'] > 0) { ?><td data-title="Function"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&manifestid=<?= $manifest['id'] ?>" onclick="overlayIFrameSlider(this.href); return false;">Edit <?= $manifest['revision'] > 1 ? '(Revision '.$manifest['revision'].')' : '' ?></a></td><?php } ?>
 					</tr>
 				<?php } ?>
