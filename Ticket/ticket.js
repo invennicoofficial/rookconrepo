@@ -437,7 +437,7 @@ function saveFieldMethod(field) {
 			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'Staff') {
 				var staff_ids = [];
 				$('#collapse_staff [name=item_id] option:selected,#tab_section_ticket_staff_list [name=item_id] option:selected').each(function() {
-					if(this.value > 0) {
+					if(this.value > 0 && $(this).closest('.multi-block').find('[name="deleted"]').val() != 1) {
 						staff_ids.push(this.value);
 					}
 				});
@@ -634,6 +634,9 @@ function saveFieldMethod(field) {
 						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff' && field_name != 'item_id') {
 							$(field).closest('.multi-block').find('[name="item_id"]').change();
 						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff') {
+							$(field).closest('.multi-block').find('[name="hours_travel"]').change();
+						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
@@ -821,6 +824,9 @@ function saveFieldMethod(field) {
 					}
 					if(table_name == 'ticket_schedule' && field_name == 'status' && $(field).data('id') > 0) {
 						$('[name="status"][data-table="ticket_schedule"][data-id="'+$(field).data('id')+'"]').val(save_value).trigger('change.select2');
+					}
+					if($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() != undefined && $('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() > 0 && !($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().data('id') > 0)) {
+						$('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().change();
 					}
 					doneSaving();
 				}

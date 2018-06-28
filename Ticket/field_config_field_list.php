@@ -335,6 +335,16 @@ if(!$action_mode && !$overview_mode) {
 								</div>
 							</div>
 							<div class="form-group">
+								<?php $ticket_business_contact_add_pos = get_config($dbc, 'ticket_business_contact_add_pos'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the position of the Add New Contact option in the dropdown for the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Add New Main Contact Position In Dropdown:</label>
+								<div class="col-sm-8">
+									<select name="ticket_business_contact_add_pos" data-placeholder="Select Category" class="chosen-select-deselect">
+										<option <?= $ticket_business_contact_add_pos != 'top' ? 'selected' : ''?>>Bottom</option>
+										<option value="top" <?= $ticket_business_contact_add_pos == 'top' ? 'selected' : '' ?>>Top</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
 								<?php $ticket_project_contact = get_config($dbc, 'ticket_project_contact'); ?>
 								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the category for the <?= CONTACTS_TILE ?> in the Additional Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Additional Contact Category<?= $ticket_project_contact != '' && $tab != '' ? ' (Default: '.$ticket_project_contact.')' : '' ?>:</label>
 								<div class="col-sm-8">
@@ -863,6 +873,13 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
 							<?php } ?>
 						<?php } ?>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4">Default Travel Time:</label>
+							<div class="col-sm-8">
+								<?php $ticket_staff_travel_default = get_config($dbc, 'ticket_staff_travel_default'); ?>
+								<input type="number" name="ticket_staff_travel_default" class="form-control" value="<?= $ticket_staff_travel_default ?>">
+							</div>
 						</div>
 					</div>
 				</div>
