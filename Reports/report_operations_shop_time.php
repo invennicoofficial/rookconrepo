@@ -70,6 +70,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_operations_shop_time', 0, WEBSITE_URL.'/Reports/Download/shop_work_orders_time_'.$today_date.'.pdf', 'Shop Work Orders - Time Spent Report');
     ?>
 
 	<script>
@@ -99,7 +100,7 @@ if (isset($_POST['printpdf'])) {
 			$search_contact = '';
 			$search_from = date('Y-m-01');
 			$search_until = date('Y-m-d');
-			
+
             if (isset($_POST['search_wo'])) {
                 $search_wo = $_POST['search_wo'];
             }

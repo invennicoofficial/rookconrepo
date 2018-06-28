@@ -77,6 +77,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_by_customer_detail_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_sales_by_customer_detail', 0, WEBSITE_URL.'/Reports/Download/sales_by_customer_detail_'.$today_date.'.pdf', 'Sales History by Customer Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -178,7 +181,7 @@ if (isset($_POST['printpdf'])) {
                 }
             ?>
 
-        
+
 
         </form>
 

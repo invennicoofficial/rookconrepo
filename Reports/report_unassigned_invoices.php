@@ -73,6 +73,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_unassigned_invoices', 0, WEBSITE_URL.'/Reports/Download/sales_summary_'.$today_date.'.pdf', 'Sales Summary by Injury Type Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -211,8 +213,8 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
     $report_data .= '<tr nobr="true"><td>Total</td><td></td><td></td><td></td><td></td><td></td><td>'.number_format($ftotal,2).'</td></tr>';
     $report_data .= '</table>';
-	
-	
+
+
 	$invoice_list = mysqli_query($dbc, "SELECT * FROM `invoice` WHERE (`invoice`.`invoice_date` >= '".$starttime."' AND `invoice`.`invoice_date` <= '".$endtime."')");
 	$un_payment = 0;
 	$un_service = 0;

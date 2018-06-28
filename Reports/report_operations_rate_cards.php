@@ -68,6 +68,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_operations_rate_cards', 0, WEBSITE_URL.'/Reports/Download/sales_summary_'.$today_date.'.pdf', 'Rate Cards Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

@@ -126,6 +126,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_balance_detail_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_customer_balance_detail', 0, WEBSITE_URL.'/Reports/Download/customer_balance_detail_'.$today_date.'.pdf', 'Customer Balance by Invoice Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

@@ -73,6 +73,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/monthly_sales_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_invoice_sales_summary', 0, WEBSITE_URL.'/Reports/Download/monthly_sales_'.$today_date.'.pdf', 'Monthly Sales by Injury Type Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -483,7 +485,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     */
     /* $report_data .= $cat_insurer_paid.'<br><b>Total : $' . number_format($insurer_paid, 2).'</b>';
     $report_data .= '</td>'; */
-	
+
 	$report_data .= "<td>".$cat_unassigned."</td>";
     $report_data .= '</tr>';
 

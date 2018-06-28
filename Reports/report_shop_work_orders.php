@@ -70,6 +70,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_shop_work_orders', 0, WEBSITE_URL.'/Reports/Download/shop_work_orders_'.$today_date.'.pdf', 'Shop Work Orders Report');
     ?>
 
 	<script>
