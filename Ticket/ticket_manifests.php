@@ -40,7 +40,7 @@ if($siteid == 'recent') {
 	<?php } else {
 		echo '<h3>No Manifests Found</h3>';
 	}
-} else {error_reporting(E_ALL);
+} else {
 	if(isset($_POST['generate']) || isset($_POST['build_blank'])) {
 		include_once('../tcpdf/tcpdf.php');
 		DEFINE('TICKET_FOOTER',get_config($dbc, 'ticket_pdf_footer'));
