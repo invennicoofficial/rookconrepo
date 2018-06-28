@@ -1185,40 +1185,47 @@ IF(!IFRAME_PAGE) { ?>
 		if(in_array('Time Graph',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
 			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
-			if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
-				$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
+				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
+					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+				}
+				$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
+				$blocks[] = [350, '<div class="overview-block">
+					<div id="time_chart" style="width: 100%; height: 350px;"></div>
+				</div>
+				<script>
+				google.charts.setOnLoadCallback(drawTimeChart);
+
+				function drawTimeChart() {
+
+				var data = google.visualization.arrayToDataTable([
+						["My Tracked Time", "Hours"],
+						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
+						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
+					]);
+
+					var options = {
+						title: "My Tracked Time",
+						pieHole: 0.5,
+						tooltip: { text: "none" },
+						slices: {
+							0: { color: "#00aeef" },
+							1: { color: "#84C6E4" },
+						}
+					};
+
+					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
+
+					chart.draw(data, options);
+				}
+				</script>'];
+				$total_length += 350;
+			} else {
+				$blocks[] = [68, '<div class="overview-block">
+					<h4>Today\'s Time Graph: No Time Found</h4>
+				</div>'];
+				$total_length += 68;
 			}
-			$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
-			$blocks[] = [350, '<div class="overview-block">
-				<div id="time_chart" style="width: 100%; height: 350px;"></div>
-			</div>
-			<script>
-			google.charts.setOnLoadCallback(drawTimeChart);
-
-			function drawTimeChart() {
-
-			var data = google.visualization.arrayToDataTable([
-					["My Tracked Time", "Hours"],
-					["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
-					["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
-				]);
-
-				var options = {
-					title: "My Tracked Time",
-					pieHole: 0.5,
-					tooltip: { text: "none" },
-					slices: {
-						0: { color: "#00aeef" },
-						1: { color: "#84C6E4" },
-					}
-				};
-
-				var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
-
-				chart.draw(data, options);
-			}
-			</script>'];
-			$total_length += 350;
 		}
 		if(in_array('Estimated',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
