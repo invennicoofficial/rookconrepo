@@ -236,6 +236,7 @@ checkAuthorised();
 		<div><?php
 		$active_tab_email = '';
 		$active_tab_config = '';
+		$active_tab_sync = '';
 		$active_tab_initiate = '';
 		$active_tab_set = '';
 		$active_tab = '';
@@ -250,6 +251,9 @@ checkAuthorised();
 		} else if(isset($_GET['config_differences'])) {
 			$active_tab_config = 'active_tab';
 			$title = 'Live vs Demo Configurations';
+		} else if(isset($_GET['data_sync'])) {
+			$active_tab_sync = 'active_tab';
+			$title = 'Live to Demo Data Sync';
 		} else if(isset($_GET['initiate_software'])) {
 			$active_tab_initiate = 'active_tab';
 			$title = 'Initiate Software Pack';
@@ -351,6 +355,14 @@ checkAuthorised();
 							<a data-toggle="tooltip" data-placement="top" title="View your software\'s Live Configurations vs Demo Configurations."><img src="img/info.png" width="20"></a>
 						</span>
 						<a href="admin_software_config.php?config_differences"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_config . '">Live vs Demo Configurations</button></a>
+					</div>';
+					
+				echo '
+					<div class="pull-left tab">
+						<span class="popover-examples no-gap-pad">
+							<a data-toggle="tooltip" data-placement="top" title="View your software\'s Live Configurations vs Demo Configurations."><img src="img/info.png" width="20"></a>
+						</span>
+						<a href="admin_software_config.php?data_sync"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_sync . '">Live to Demo Data Sync</button></a>
 					</div>';
 			} ?>
 
@@ -1824,6 +1836,8 @@ checkAuthorised();
 
 		<?php } else if(isset($_GET['config_differences'])) {
 			include('live_demo_configurations.php');
+		} else if(isset($_GET['data_sync'])) {
+			include('live_demo_data.php');
 		} else if(isset($_GET['email_configuration'])) {
 			include('staff_email_configuration.php');
 		} ?>
