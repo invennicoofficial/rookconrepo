@@ -60,7 +60,7 @@ function ticket_send_alert(ticket) {
 }
 function ticket_send_email(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
-	ticket_choose_user('email', ticket_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+ticket_id, 'auto', false, true);
 }
 function ticket_send_reminder(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');

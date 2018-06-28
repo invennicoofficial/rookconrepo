@@ -114,7 +114,7 @@ function send_alert(ticket) {
 }
 function send_email(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
-	choose_user('email', ticket_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+ticket_id, 'auto', false, true, $('#scrum_div').height());
 }
 function send_reminder(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
@@ -217,7 +217,13 @@ function archive(ticket) {
 	}
 }
 </script>
-<div class="container">
+<div class="container" id="scrum_div">
+	<div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="scrum_iframe" src=""></iframe>
+		</div>
+	</div>
 	<div class='iframe_holder' style='display:none;'>
 
 		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>

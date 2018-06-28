@@ -456,7 +456,7 @@ checkAuthorised('sales');
 ?>
 
 <div id="sales_div" class="container">
-    <div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
+    <div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>
 			<iframe src=""></iframe>
