@@ -162,6 +162,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_break_option', $_POST['timesheet_break_option']);
 	set_config($dbc, 'ticket_force_starts_day', $_POST['ticket_force_starts_day']);
 	set_config($dbc, 'active_ticket_button', $_POST['active_ticket_button']);
+} else if(isset($_POST['submit']) && $_POST['submit'] == 'holiday') {
+	set_config($dbc, 'holiday_update_noti', filter_var($_POST['holiday_update_noti']));
+	set_config($dbc, 'holiday_update_staff', filter_var($_POST['holiday_update_staff']));
+	set_config($dbc, 'holiday_update_date', filter_var($_POST['holiday_update_date']));
 }
 ?>
 <style>
@@ -185,6 +189,8 @@ if($_GET['tab'] == 'approvals') {
 	$_GET['tab'] = 'reporting';
 } else if($_GET['tab'] == 'payroll') {
 	$_GET['tab'] = 'payroll';
+} else if($_GET['tab'] == 'holiday') {
+	$_GET['tab'] = 'holiday';
 } else {
 	$_GET['tab'] = 'fields';
 } ?>
@@ -201,6 +207,7 @@ if($_GET['tab'] == 'approvals') {
 	<a href="?tab=day_tracking&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'day_tracking' ? 'active_tab' : ''); ?>"><?= get_config($dbc, 'timesheet_start_tile') ?: 'Start Day' ?></a>
 	<a href="?tab=reporting&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'reporting' ? 'active_tab' : ''); ?>">Reporting</a>
 	<a href="?tab=payroll&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'payroll' ? 'active_tab' : ''); ?>">Payroll</a>
+	<a href="?tab=holiday&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'holiday' ? 'active_tab' : ''); ?>">Holidays</a>
 </div><br />
 
 <form id="form1" name="form1" method="post" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -873,6 +880,65 @@ if($_GET['tab'] == 'approvals') {
 		<div class="clearfix"></div>
 	</div>
 
+<?php elseif($_GET['tab'] == 'holiday'): ?>
+	<div class="panel-group" id="accordion2">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_holiday_noti" >
+						Statutory Holidays Update Notification<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_holiday_noti" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Enable Notifications:</label>
+						<div class="col-sm-8">
+							<?php $holiday_update_noti = get_config($dbc, 'holiday_update_noti'); ?>
+							<label class="form-checkbox"><input type="checkbox" name="holiday_update_noti" value="1" onchange="if($(this).is(':checked')) { $('#holiday_update_div').show(); } else { $('#holiday_update_noti_div').hide(); }" <?= $holiday_update_noti == 1 ? 'checked' : '' ?>></label>
+						</div>
+					</div>
+
+					<div id="holiday_update_div" <?= $holiday_update_noti == 1 ? '' : 'style="display:none;"' ?>>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Staff:</label>
+							<div class="col-sm-8">
+								<select name="holiday_update_staff" class="chosen-select-deselect form-control">
+									<option></option>
+									<?php $holiday_update_staff = get_config($dbc, 'holiday_update_staff');
+									$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` > 0"));
+									foreach($staff_list as $staff) {
+										echo '<option value="'.$staff['contactid'].'" '.($staff['contactid'] == $holiday_update_staff ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+									} ?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Date (MM-DD):<br><em>Notifications will be sent weekly from this date each year until they are turned off.</em></label>
+							<div class="col-sm-8">
+								<?php $holiday_update_date = get_config($dbc, 'holiday_update_date'); ?>
+								<input type="text" name="holiday_update_date" class="form-control datepickernoyear" value="<?= $holiday_update_date ?>">
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="col-sm-6">
+			<a href="<?= $_GET['from_url'] ?>" class="btn config-btn btn-lg">Back</a>
+		</div>
+		<div class="col-sm-6">
+			<button type="submit" name="submit" value="holiday" class="btn config-btn btn-lg pull-right">Submit</button>
+		</div>
+		<div class="clearfix"></div>
+	</div>
 <?php endif; ?>
 
 </form>

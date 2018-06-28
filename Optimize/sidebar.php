@@ -13,13 +13,16 @@
 						echo '<li>No Macros Found</li>';
 					} else {
 						foreach($macro_list as $macro_label => $macro) {
-							echo '<li class="sidebar-lower-level"><a class="'.($macro == $_GET['macro'] ? 'active' : '').'" href="?tab=macros&macro='.$macro.'">'.$macro_label.'</a></li>';
+							echo '<li class="sidebar-lower-level"><a class="'.($macro[0] == $_GET['macro'] ? 'active' : '').'" href="?tab=macros&macro='.$macro[0].'">'.$macro_label.'</a></li>';
 						}
 					} ?>
 				</ul>
 			<?php }
 			if(in_array('assign',$tab_list)) { ?>
 				<li class="sidebar-higher-level <?= $_GET['tab'] == 'assign' ? 'active' : '' ?>"><a href="?tab=assign">Assign <?= TICKET_TILE ?></a></li>
+			<?php }
+			if(in_array('history',$tab_list)) { ?>
+				<li class="sidebar-higher-level <?= $_GET['tab'] == 'history' ? 'active' : '' ?>"><a href="?tab=history">History</a></li>
 			<?php }
 		} ?>
 	</ul>

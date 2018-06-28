@@ -34,6 +34,10 @@ if(check_subtab_persmission($dbc, 'optimize', ROLE, 'macros')) {
 if(check_subtab_persmission($dbc, 'optimize', ROLE, 'assign')) {
 	$tab_list[] = 'assign';
 }
+if(check_subtab_persmission($dbc, 'optimize', ROLE, 'history')) {
+	$tab_list[] = 'history';
+}
+$tab_list[] = 'assign_past_imports';
 if(empty($_GET['tab']) || !in_array($_GET['tab'],$tab_list)) {
 	$_GET['tab'] = $tab_list[0];
 }
@@ -44,7 +48,7 @@ $macro_list = [];
 foreach(explode('#*#',get_config($dbc, 'upload_macros')) as $macro) {
 	$macro = explode('|',$macro);
 	if(!empty($macro[1]) && file_exists('macros/'.$macro[1])) {
-		$macro_list[$macro[0]] = config_safe_str($macro[1]);
+		$macro_list[$macro[0]] = [config_safe_str($macro[1]),$macro[2]];
 	}
 } ?>
 <div class="container">
@@ -76,6 +80,10 @@ foreach(explode('#*#',get_config($dbc, 'upload_macros')) as $macro) {
 					include('field_config.php');
 				} else if($_GET['tab'] == 'macros') {
 					include('macro.php');
+				} else if($_GET['tab'] == 'history') {
+					include('history.php');
+				} else if($_GET['tab'] == 'assign_past_imports') {
+					include('past_work_orders.php');
 				} else if($_GET['tab'] == 'assign') {
 					include('assign.php');
 				} else {

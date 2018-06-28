@@ -76,7 +76,11 @@ function loadUrlWithCurrentDate(a) {
 	var href = $(a).attr('href');
 	if(href != undefined && href != '' && href != '?' && $(a).data('toggle') != 'collapse') {
 		var params = getQueryStringArray(href);
-		params["date"] = $('#calendar_start').val();
+		if(params["date_override"] == 1) {
+			delete params["date_override"];
+		} else {
+			params["date"] = $('#calendar_start').val();
+		}
 		if(href.indexOf('?') != -1) {
 			href = href.split('?')[0];
 		}
@@ -272,6 +276,7 @@ function checkTicketLastUpdated(ticket_table, ticketid, ticket_scheduleid, times
 }
 function changeDate(date, type = '') {
 	scroll_to_today = true;
+	var summary_view = $('#retrieve_summary').val();
 	var view = $('#calendar_view').val();
 	var config_type = $('#calendar_config_type').val();
 	if(date == '') {
@@ -287,7 +292,9 @@ function changeDate(date, type = '') {
 			$('#calendar_date_heading').html('&nbsp;&nbsp;'+response_arr[1]);
 			$('#calendar_dates').val(JSON.stringify(response_arr[2]));
 			$('#calendar_dates_month').val(JSON.stringify(response_arr[2]));
-			if(view == 'monthly') {
+			if(summary_view == 1) {
+				retrieve_whole_month();
+			} else if(view == 'monthly') {
 				reload_calendar_month(response_arr[0]);
 				reload_all_data_month();
 			} else {
@@ -523,6 +530,43 @@ function toggleMobileView(cell = '') {
 			$('#calendar-month-block').show();
 		}
 	}
+}
+
+//SHIFT VIEWS
+var calendar_type_main = '<?= $_GET['type'] ?>';
+var calendar_config_type_main = '<?= $config_type ?>';
+function loadShiftView() {
+	if($('.shift_anchor').hasClass('active')) {
+		$('#calendar_type').val(calendar_type_main);
+		$('#calendar_config_type').val(calendar_config_type_main);
+		$('.shift_btn').hide();
+		$('.shift_anchor').removeClass('active');
+	} else {
+		calendar_type_main = $('#calendar_type').val();
+		calendar_config_type_main = $('#calendar_config_type').val();
+		$('#calendar_type').val('shift');
+		$('#calendar_config_type').val('shift');
+		$('.shift_btn').show();
+		$('.shift_anchor').addClass('active');
+	}
+	<?php if($_GET['view'] == 'monthly') { ?>
+		clear_all_data_month();
+		reload_all_data_month();
+	<?php } else { ?>
+		var calendar_type = $('#calendar_type').val();
+		var calendar_view = $('#calendar_view').val();
+		var calendar_mode = $('#calendar_mode').val();
+		$.ajax({
+			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			method: 'GET',
+			success: function(response) {
+				$('.calendar_view').html(response);
+				reload_resize_all();
+				clear_all_data();
+				reload_all_data();
+			}
+		});
+	<?php } ?>
 }
 
 //RETRIEVE DATA AND LOAD ITEMS
@@ -991,13 +1035,34 @@ function scrollToToday() {
 //RETRIEVE DATA AND LOAD ITEMS MONTH VIEW
 function reload_all_data_month() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
-	$('#'+retrieve_collapse).find('.block-item.active').each(function() {
-		retrieve_items_month($(this).closest('a'));
-	});
+	var retrieve_summary = $('#retrieve_summary').val();
+	if(retrieve_summary == 1) {
+		retrieve_whole_month();
+	} else {
+		$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+			retrieve_items_month($(this).closest('a'));
+		});
+	}
 	toggle_columns();
 }
 function clear_all_data_month() {
 	$('.calendar_view .calendar_block').remove();
+}
+function retrieve_whole_month() {
+	var calendar_date = $('#calendar_start').val();
+	var calendar_view = $('#calendar_view').val();
+	var type = $('#calendar_type').val();
+
+	loadingOverlayShow('.calendar_view');
+	$.ajax({
+		url: '../Calendar/monthly_display.php?<?= http_build_query($_GET) ?>&type='+type+'&view='+calendar_view+'&date='+calendar_date+'&retrieve_all=1',
+		method: 'GET',
+		success: function(response) {
+			$('.calendar_view').html(response);
+			reload_resize_all_month();
+			toggle_columns();
+		}
+	});
 }
 var still_loading_item_month = 0;
 var result_list_month = [];

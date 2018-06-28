@@ -264,3 +264,6 @@ else if($_GET['action'] == 'unapprove_time') {
 		mysqli_query($dbc, "UPDATE `time_cards` SET `approv` = 'N', `manager_name` = NULL, `date_manager` = NULL, `coordinator_name` = NULL, `date_coordinator` = NULL, `manager_approvals` = '', `coord_approvals` = '' WHERE `time_cards_id` = '$id'");
 	}
 }
+else if($_GET['action'] == 'stop_holiday_update_noti') {
+	set_config($dbc, 'holiday_update_stopdate', date('Y-m-d'));
+}
