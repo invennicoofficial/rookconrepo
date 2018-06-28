@@ -199,7 +199,7 @@ do {
 				<?php if($field_sort_field == 'Staff Travel') { ?>
 					<div class="col-sm-1" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">
 						<label class="show-on-mob control-label">Travel Time:</label>
-						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" class="form-control" value="<?= empty($staff['hours_travel']) ? get_config($dbc, 'ticket_staff_travel_default') : $staff['hours_travel'] ?>">
+						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" data-default="<?= get_config($dbc, 'ticket_staff_travel_default') ?>" class="form-control" value="<?= empty($staff['hours_travel']) ? get_config($dbc, 'ticket_staff_travel_default') : $staff['hours_travel'] ?>">
 					</div>
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Subsistence') { ?>

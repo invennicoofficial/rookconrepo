@@ -1714,6 +1714,9 @@ function addMulti(img, style, clone_location = '') {
 	destroyInputs(panel);
 	var block = source.clone();
 	block.find('input,select,textarea').val('');
+	block.find('[data-default]').each(function() {
+		$(this).val($(this).data('default'));
+	});
 	block.find('[type=checkbox]').removeAttr('checked');
 	block.find('.general_piece_details').hide();
 	block.find('[id]').each(function() {
