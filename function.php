@@ -301,6 +301,25 @@ function get_email($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $email_field FROM	contacts WHERE	contactid='$contactid'"));
     return decryptIt($get_staff[$email_field]);
 }
+
+function get_multiple_email($dbc, $contactid) {
+            $contact_name = '';
+            $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT email_address, second_email_address, office_email, company_email FROM	contacts WHERE	contactid='$contactid'"));
+            if($get_staff['email_address'] != '') {
+                $contact_name .= decryptIt($get_staff['email_address']);
+            }
+            if($get_staff['second_email_address'] != '') {
+                $contact_name .= ','.decryptIt($get_staff['second_email_address']);
+            }
+            if($get_staff['office_email'] != '') {
+                $contact_name .= ','.decryptIt($get_staff['office_email']);
+            }
+            if($get_staff['company_email'] != '') {
+                $contact_name .= ','.decryptIt($get_staff['company_email']);
+            }
+    return $contact_name;
+}
+
 /*function get_email($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT email_address, category FROM	contacts WHERE	contactid='$contactid'"));
     if($get_staff['category'] == 'Patient') {
@@ -2486,6 +2505,9 @@ function get_reminder_url($dbc, $reminder) {
                 break;
             case 'rate_card':
                 $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                break;
+            case 'holidays_update':
+                $reminder_url = '../Timesheet/holidays.php';
                 break;
         }
     }

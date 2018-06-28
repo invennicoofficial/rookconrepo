@@ -437,7 +437,7 @@ function saveFieldMethod(field) {
 			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'Staff') {
 				var staff_ids = [];
 				$('#collapse_staff [name=item_id] option:selected,#tab_section_ticket_staff_list [name=item_id] option:selected').each(function() {
-					if(this.value > 0) {
+					if(this.value > 0 && $(this).closest('.multi-block').find('[name="deleted"]').val() != 1) {
 						staff_ids.push(this.value);
 					}
 				});
@@ -474,6 +474,11 @@ function saveFieldMethod(field) {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
 					if($(field).find('option:selected').data('set-time') != '' && $(field).find('option:selected').data('set-time') != undefined) {
 						$(field).closest('.scheduled_stop').find('[name=to_do_start_time]').val($(field).find('option:selected').data('set-time')).change();
+					}
+					if($(field).find('option:selected').data('address') != '' && $(field).find('option:selected').data('address') != undefined) {
+						$(field).closest('.scheduled_stop').find('[name=address]').val($(field).find('option:selected').data('address')).change();
+						$(field).closest('.scheduled_stop').find('[name=city]').val($(field).find('option:selected').data('city')).change();
+						$(field).closest('.scheduled_stop').find('[name=postal_code]').val($(field).find('option:selected').data('postal')).change();
 					}
 				} else if(field.type == 'select') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value != 'warehouse' }).first().prop('checked',true);
@@ -628,6 +633,9 @@ function saveFieldMethod(field) {
 						}
 						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff' && field_name != 'item_id') {
 							$(field).closest('.multi-block').find('[name="item_id"]').change();
+						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff') {
+							$(field).closest('.multi-block').find('[name="hours_travel"]').change();
 						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
@@ -816,6 +824,9 @@ function saveFieldMethod(field) {
 					}
 					if(table_name == 'ticket_schedule' && field_name == 'status' && $(field).data('id') > 0) {
 						$('[name="status"][data-table="ticket_schedule"][data-id="'+$(field).data('id')+'"]').val(save_value).trigger('change.select2');
+					}
+					if($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() != undefined && $('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() > 0 && !($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().data('id') > 0)) {
+						$('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().change();
 					}
 					doneSaving();
 				}
@@ -1703,6 +1714,9 @@ function addMulti(img, style, clone_location = '') {
 	destroyInputs(panel);
 	var block = source.clone();
 	block.find('input,select,textarea').val('');
+	block.find('[data-default]').each(function() {
+		$(this).val($(this).data('default'));
+	});
 	block.find('[type=checkbox]').removeAttr('checked');
 	block.find('.general_piece_details').hide();
 	block.find('[id]').each(function() {

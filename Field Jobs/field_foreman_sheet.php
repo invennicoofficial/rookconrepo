@@ -247,11 +247,11 @@ function actionDate(sel) {
                 ".(strpos($dashboard_config,',date,') !== false ? "<th>Date</th>" : "")."
                 ".(strpos($dashboard_config,',contact,') !== false ? "<th>Contact</th>" : "")."
                 ".(strpos($dashboard_config,',crew') !== false ? "<th>Crew Info<br><em>(".
-					(strpos($edit_config,',crew_name,') !== false ? "Name - " : "").
-					(strpos($edit_config,',crew_pos,') !== false ? "Position - " : "").
-					(strpos($edit_config,',crew_reg,') !== false ? "Reg Hour - " : "").
-					(strpos($edit_config,',crew_ot,') !== false ? "OT Hour" : "").
-					(strpos($edit_config,',crew_travel,') !== false ? "Travel" : "").")</em></th>" : "")."
+					(strpos($edit_config,',crew_name,') !== false ? "Name" : "").
+					(strpos($edit_config,',crew_pos,') !== false ? " - Position" : "").
+					(strpos($edit_config,',crew_reg,') !== false ? " - Reg Hour" : "").
+					(strpos($edit_config,',crew_ot,') !== false ? " - OT Hour" : "").
+					(strpos($edit_config,',crew_travel,') !== false ? " - Travel" : "").")</em></th>" : "")."
 				<th>Function</th>
 				<th>Supervisor Process</th>
 				<th>Office Process</th>

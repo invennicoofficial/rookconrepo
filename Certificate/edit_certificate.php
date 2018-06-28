@@ -20,6 +20,7 @@ function saveFieldMethod(field) {
     if(field.value == "MANUAL") {
       $('input[name="'+field.name+'"]').closest('.form-group').show();
       $('input[name="'+field.name+'"]').focus();
+	  doneSaving();
     } else if(field.type == 'file') {
       var file = new FormData();
       var file_data = field.files[0];
@@ -365,8 +366,8 @@ if(!empty($_GET['edit'])) {
 					echo '<ul>';
                     while($row = mysqli_fetch_array($result)) {
                         $certuploadid = $row['certuploadid'];
-                        echo '<li><a href="download/'.$row['document_link'].'" target="_blank">'.$row['document_link'].'</a> - <a href="archive_document" onclick="$(this).closest(\'li\').hide().find(\'input\').val(1).change();">Archive</a>
-							<input type="hidden" name="deleted" value="0"></li>';
+                        echo '<li><a href="download/'.$row['document_link'].'" target="_blank">'.$row['document_link'].'</a> - <a href="archive_document" onclick="$(this).closest(\'li\').hide().find(\'input\').val(1).change();return false;">Archive</a>
+							<input type="hidden" name="deleted" data-table="certificate_uploads" data-id="'.$row['certuploadid'].'" data-id-field="certuploadid" value="0"></li>';
                     }
 					echo '</ul>';
                 }
@@ -398,8 +399,8 @@ if(!empty($_GET['edit'])) {
 					echo '<ul>';
                     while($row = mysqli_fetch_array($result)) {
                         $certuploadid = $row['certuploadid'];
-                        echo '<li><a target="_blank" href=\''.$row['document_link'].'\'">'.$row['document_link'].'</a> - <a href="archive_link" onclick="$(this).closest(\'li\').hide().find(\'input\').val(1).change();">Archive</a>
-							<input type="hidden" name="deleted" value="0"></li>';
+                        echo '<li><a target="_blank" href=\''.$row['document_link'].'\'">'.$row['document_link'].'</a> - <a href="archive_link" onclick="$(this).closest(\'li\').hide().find(\'input\').val(1).change();return false;">Archive</a>
+							<input type="hidden" name="deleted" data-table="certificate_uploads" data-id="'.$row['certuploadid'].'" data-id-field="certuploadid" value="0"></li>';
                     }
 					echo '</ul>';
                 }

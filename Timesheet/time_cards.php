@@ -24,6 +24,8 @@ if(!empty($_GET['export'])) {
 	}
 	$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 	$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
+	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 	
 	$mode = $_GET['export'];
 	$search_staff = $_GET['search_staff'];
@@ -294,6 +296,21 @@ if(!empty($_GET['export'])) {
 				$end_time = '';
 				$approval_status = '';
 				if($row['date'] == $date) {
+					foreach($config['hours_types'] as $hours_type) {
+						if($row[$hours_type] > 0) {
+							switch($timesheet_rounding) {
+								case 'up':
+									$row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+								case 'down':
+									$row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+								case 'nearest':
+									$row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+							}
+						}
+					}
 					$hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRECT_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
 						'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'TRACKED_HRS'=>$row['TRACKED_HRS'],'BREAKS'=>$row['BREAKS']];
 					$comments = '';
@@ -774,6 +791,8 @@ function addSignature(chk) {
 			$current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
 			$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 			$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+			$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+			$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 
 			$value_config = explode(',',get_field_config($dbc, 'time_cards'));
 			if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
@@ -1074,6 +1093,21 @@ function addSignature(chk) {
 							$end_time = '';
 							if($row['date'] == $date) {
 								$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
+								foreach($config['hours_types'] as $hours_type) {
+									if($row[$hours_type] > 0) {
+										switch($timesheet_rounding) {
+											case 'up':
+												$row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+											case 'down':
+												$row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+											case 'nearest':
+												$row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+										}
+									}
+								}
 								$hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRECT_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
 									'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'TRACKED_HRS'=>$row['TRACKED_HRS'],'BREAKS'=>$row['BREAKS']];
 								$comments = '';

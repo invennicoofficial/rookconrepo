@@ -510,6 +510,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_summary_view'])) {
+		$scheduling_summary_view = $_POST['scheduling_summary_view'];
+	} else {
+		$scheduling_summary_view = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_summary_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_summary_view') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_summary_view."' WHERE `name`='scheduling_summary_view'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -1948,6 +1955,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_warehouse" <?= $scheduling_combine_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will enable the Summary tab, which is a monthly view of all assigned Equipment in a Summary view with no functionality.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Enable Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_summary_view" <?= $scheduling_summary_view == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
