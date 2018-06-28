@@ -24,9 +24,13 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
 			foreach($cat_list as $cat => $id_list) {
 				echo '<optgroup label="'.$cat.'">';
 				foreach($id_list as $id) {
-					$email = get_email($dbc, $id);
-					$name = get_contact($dbc, $id);
-					echo "<option data-id='".$id."' value='".$email."'>".$name.' : '.$email.'</option>';
+					//$email = get_email($dbc, $id);
+                    $email = explode(',',get_multiple_email($dbc, $id));
+                    foreach($email as $each_email) {
+                        if($each_email != '') {
+                            echo "<option data-id='".$id."' value='". $each_email."'>".get_contact($dbc, $id).' : '.$each_email.'</option>';
+                        }
+                    }
 				}
 			} ?>
         </select>
@@ -42,10 +46,12 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
             <option value=''></option>
             <?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
-				$email = get_email($dbc, $id);
-				if($email != '') {
-					echo "<option data-id='".$id."' value='". $email."'>".get_contact($dbc, $id).' : '.$email.'</option>';
-				}
+				$email = explode(',',get_multiple_email($dbc, $id));
+				foreach($email as $each_email) {
+                    if($each_email != '') {
+                        echo "<option data-id='".$id."' value='". $each_email."'>".get_contact($dbc, $id).' : '.$each_email.'</option>';
+                    }
+                }
 			} ?>
         </select>
     </div>
