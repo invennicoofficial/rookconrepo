@@ -1687,6 +1687,58 @@ function reload_checklists() {
 		initInputs('#tab_section_ticket_view_checklist');
 	});
 }
+function startTicketStaff() {
+    var block = $('div.start-ticket-staff').last();
+    destroyInputs('.start-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.start-ticket-staff');
+}
+function deletestartTicketStaff(button) {
+    if($('div.start-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.start-ticket-staff').remove();
+}
+
+
+function internalTicketStaff() {
+    var block = $('div.internal-ticket-staff').last();
+    destroyInputs('.internal-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.internal-ticket-staff');
+}
+function deleteinternalTicketStaff(button) {
+    if($('div.internal-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.internal-ticket-staff').remove();
+}
+
+function customerTicketStaff() {
+    var block = $('div.customer-ticket-staff').last();
+    destroyInputs('.customer-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.customer-ticket-staff');
+}
+function deletecustomerTicketStaff(button) {
+    if($('div.customer-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.customer-ticket-staff').remove();
+}
+
 function addMulti(img, style, clone_location = '') {
 	var multi_block = $(img).closest('.multi-block');
 	var type = multi_block.data('type');
