@@ -131,6 +131,8 @@ function saveFields() {
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_summary, ','."Disable".',') !== false) { echo " checked"; } ?> value="Disable" style="height: 20px; width: 20px;" name="tickets_summary[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Turn off the Summary View entirely."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Disable Summary</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_summary, ','."Time Graph".',') !== false) { echo " checked"; } ?> value="Time Graph" style="height: 20px; width: 20px;" name="tickets_summary[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display a graph for the estimates vs tracked time for <?= TICKET_TILE ?> for the current user for the current day."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>My Time Graph</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_summary, ','."Estimated".',') !== false) { echo " checked"; } ?> value="Estimated" style="height: 20px; width: 20px;" name="tickets_summary[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the total estimated time for all <?= TICKET_TILE ?> assigned to the current user for the current day."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>My Estimated Time Today</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_summary, ','."Tracked".',') !== false) { echo " checked"; } ?> value="Tracked" style="height: 20px; width: 20px;" name="tickets_summary[]">
