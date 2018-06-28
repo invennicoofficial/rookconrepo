@@ -695,6 +695,9 @@ if($_GET['action'] == 'mark_favourite') {
 		case 'cnt1':
 			include ('pos_invoice_contractor_1.php');
 			break;
+		case 'cnt2':
+			include ('pos_invoice_contractor_2.php');
+			break;
         default:
 			include('pos_invoice_1.php');
 			break;
