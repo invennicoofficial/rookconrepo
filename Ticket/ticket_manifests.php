@@ -40,7 +40,7 @@ if($siteid == 'recent') {
 	<?php } else {
 		echo '<h3>No Manifests Found</h3>';
 	}
-} else {
+} else {error_reporting(E_ALL);
 	if(isset($_POST['generate']) || isset($_POST['build_blank'])) {
 		include_once('../tcpdf/tcpdf.php');
 		DEFINE('TICKET_FOOTER',get_config($dbc, 'ticket_pdf_footer'));
@@ -103,7 +103,7 @@ if($siteid == 'recent') {
 			}
 			foreach($_POST['include'] as $i => $line_id) {
 				if($line_id > 0) {
-					$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.IFNULL(NULLIF(`po_num`,''),`tickets`.`purchase_order`) `po_num`,MAX(`origin`.`vendor`) `vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+					$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,MAX(`origin`.`vendor`) `vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
 					if(!empty($manual_qty[$i]) && $row['inventoryid'] > 0) {
 						$old_qty = $row['qty'];
 						$new_qty = $old_qty - $manual_qty[$i];
