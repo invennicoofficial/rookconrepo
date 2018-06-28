@@ -68,6 +68,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_summary_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pos_advanced_daily_sales_summary', 0, WEBSITE_URL.'/Reports/Download/sales_summary_'.$today_date.'.pdf', 'POS Sales Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -144,7 +147,7 @@ if (isset($_POST['printpdf'])) {
 function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
 
     //$report_validation = mysqli_query($dbc, "SELECT payment_type, SUM(`sub_total`) AS sub_total, SUM(`discount_value`) AS discount_value, SUM(`delivery`) AS delivery, SUM(`assembly`) AS assembly, SUM(`total_before_tax`) AS total_before_tax, SUM(`gst`) AS gst, SUM(`pst`) AS pst, SUM(`total_price`) AS total_price FROM point_of_sell WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."')");
-    
+
     $report_validation = mysqli_query($dbc, "SELECT final_price, discount, gst_amt, pst_amt, SUM(final_price + discount - gst_amt - pst_amt - delivery - assembly) sub_total, delivery, assembly, payment_type FROM invoice WHERE deleted=0 AND status='Completed' AND (invoice_date BETWEEN '$starttime' AND '$endtime') GROUP BY invoiceid");
 
     if ( $report_validation->num_rows >0 ) {
@@ -156,7 +159,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $gst_total = 0;
         $pst_total = 0;
         $total = 0;
-        
+
         $amex = 0;
         $cash = 0;
         $cheque = 0;
@@ -167,7 +170,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $visa = 0;
         $uncategorized = 0;
         $other = 0;
-        
+
         $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
         $report_data .= '<tr style="'.$table_row_style.'">
             <th>Daily Sales</th>
@@ -184,7 +187,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
             $gst_total += $row_report['gst_amt'];
             $pst_total += $row_report['pst_amt'];
             $total += $row_report['final_price'];
-            
+
             list($payment_type, $amount) = explode('#*#', $row_report['payment_type']);
             if ( $payment_type=='American Express' ) {
                 $amex += $amount;
@@ -207,7 +210,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
             } else {
                 $other += $amount;
             }
-            
+
             $paid = $amex + $cash + $cheque + $debit + $eft + $master + $visa + $uncategorized;
             $ar = $on + $other;
         }//while
@@ -244,7 +247,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
             $report_data .= '</td>';
         $report_data .= "</tr>";
     } //if num_rows>0
-    
+
     $report_data .= '</table>';
     return $report_data;
 }

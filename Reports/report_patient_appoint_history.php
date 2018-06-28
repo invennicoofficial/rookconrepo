@@ -71,6 +71,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_'.$patientpdf.'.pdf', 'F');
+    track_download($dbc, 'report_patient_appoint_history', 0, WEBSITE_URL.'/Reports/Download/customer_'.$today_date.'.pdf', 'History for Customer Report');
 
     $from = $_POST['from'];
     if($from == 'calendar') {
@@ -144,7 +145,7 @@ if (isset($_POST['printpdf'])) {
             }
             ?>
 
-        
+
 
         </form>
 

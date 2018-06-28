@@ -75,6 +75,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/drop_off_analysis_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_drop_off_analysis', 0, WEBSITE_URL.'/Reports/Download/drop_off_analysis_'.$today_date.'.pdf', 'Drop Off Analysis Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

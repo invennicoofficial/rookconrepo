@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/unbilled_charges_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_unbilled_charges', 0, WEBSITE_URL.'/Reports/Download/unbilled_charges_'.$today_date.'.pdf', 'Unbilled Invoices Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

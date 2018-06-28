@@ -71,12 +71,16 @@ if ( isset($_POST['printpdf']) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/report_pnl_staff_compensation_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/report_pnl_staff_compensation_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pnl_staff_compensation', 0, WEBSITE_URL.'/Reports/Download/report_pnl_staff_compensation_'.$today_date.'.pdf', 'Staff Compensation Report');
+
+    ?>
 
 	<script type="text/javascript" language="Javascript">
         window.open('Download/report_pnl_staff_compensation_<?= $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $search_start  = $search_start_pdf;
     $search_end    = $search_end_pdf;
 } ?>
@@ -89,7 +93,7 @@ if ( isset($_POST['printpdf']) ) {
     <div class="row">
         <div class="col-md-12">
             <?=  reports_tiles($dbc);  ?>
-            
+
             <div class="notice double-gap-bottom popover-examples">
                 <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
                 <div class="col-sm-11">
@@ -97,9 +101,9 @@ if ( isset($_POST['printpdf']) ) {
                     The report displays compensation per staff between two selected dates.</div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
-                
+
                 if ( isset($_POST['search_email_submit']) ) {
                     $search_start  = $_POST['search_start'];
                     $search_end    = $_POST['search_end'];
@@ -112,7 +116,7 @@ if ( isset($_POST['printpdf']) ) {
                 if ( $search_end == 0000-00-00 ) {
                     $search_end = date('Y-m-d');
                 } ?>
-                
+
                 <center><div class="form-group">
 					<div class="form-group col-sm-5">
 						<label class="col-sm-4">From:</label>
@@ -129,7 +133,7 @@ if ( isset($_POST['printpdf']) ) {
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
                 <br /><br /><?php
-                
+
                 echo report_pnl_display($dbc, $search_start, $search_end, '', '', ''); ?>
             </form>
 
@@ -142,10 +146,10 @@ if ( isset($_POST['printpdf']) ) {
 <?php
 function report_pnl_display($dbc, $search_start, $search_end, $table_style, $table_row_style, $grand_total_style) {
     include_once('compensation_function.php');
-    
+
     $startyear = intval(explode('-', $search_start)[0]);
     $endyear   = intval(explode('-', $search_end)[0]);
-    
+
     $staff = mysqli_query ( $dbc, "SELECT `contactid`, `category`, `name`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1" );
     $contactlist = sort_contacts_array(mysqli_fetch_all($staff, MYSQLI_ASSOC));
 
@@ -157,7 +161,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
 		$stat_holidays = implode(',', $stat_holidays);
 		//$stat_holidays = explode(',',get_config($dbc, 'stat_holiday'));
         $totals = [0,0,0,0,0,0,0,0,0,0,0,0];
-        
+
         $report_data2 = '<table class="table table-bordered" style="'. $table_style .'">
             <thead>
                 <tr class="hidden-xs hidden-sm">
@@ -173,19 +177,19 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                     $report_data2 .= '<tr><td data-title="Staff" style="'. $table_row_style .'">'. get_contact($dbc, $contactid) .'</td>';
                     $startmonth   = 0;
                     $endmonth     = 12;
-                    
+
                     if($startyear == $year) {
                         $startmonth = intval(explode('-', $search_start)[1]) - 1;
                     }
                     if($endyear == $year) {
                         $endmonth = intval(explode('-', $search_end)[1]);
                     }
-                    
+
                     for($month = 0; $month < $startmonth; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">-</td>';
                     }
-                    
+
                     for($month = $startmonth; $month < $endmonth; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $date_part = $year."-".$dateObj->format('m');
@@ -198,26 +202,26 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                         if($endyear == $year && $month == $endmonth) {
                             $endtimemonth = $search_end;
                         }
-                        
+
                         $amt = 0;
                         $all_booking = 0;
                         $vacation_pay_perc = 0;
                         $vacation_pay = 0;
                         $grand_stat_total = 0;
                         $avg_per_day_stat = 0;
-                        
+
                         if(strtotime($starttimemonth) <= strtotime('today')) {
                             $starttime = $starttimemonth;
                             $endtime = $endtimemonth;
                             $invoicetype = "'New','Refund','Adjustment'";
-                            
+
                             //$table_style = $table_row_style = $grand_total_style = '';
                             $row = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts`.contactid, `contacts`.scheduled_hours, `contacts`.`schedule_days`, `contacts`.category_contact, IFNULL(`base_pay`,'0*#*0') base_pay FROM contacts LEFT JOIN `compensation` ON `contacts`.`contactid`=`compensation`.`contactid` AND '$starttime' BETWEEN `compensation`.`start_date` AND `compensation`.`end_date` WHERE `contacts`.contactid='$contactid'"));
                             $therapistid = $row['contactid'];
                             $category_contact = $row['category_contact'];
                             $schedule = $row['schedule_days'];
                             $base_pay = explode('*#*',$row['base_pay']);
-                            
+
                             include ('report_compensation_services.php');
                             include ('report_compensation_preformance_logic.php');
                             include ('report_compensation_inventory.php');
@@ -240,14 +244,14 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                         }
                         $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">$'. number_format($amt, 2, '.', ',') .'</td>';
                     }
-                    
+
                     for($month = $endmonth; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">-</td>';
                     }
                     $report_data2 .= '</tr>';
                 }
-                
+
                 $report_data2 .= '<tr style="font-size:1.25em; font-weight:bold;">
                     <td style="'. $table_row_style .'">Monthly Total</td>';
                     for($month = 0; $month < 12; $month++) {
@@ -268,6 +272,6 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             </tbody>
         </table>';
     }
-    
+
     return $report_data2;
 }

@@ -17,7 +17,7 @@ if(isset($_POST['printcsv'])) {
   $fp = fopen('php://output','w');
   header('Content-Type: text/csv; charset=utf-8');
   header('Content-Disposition: attachment; filename='.$file_name);
-  
+
   $data[] = 'Invoice #,Invoice Date,Customer,Amount Owed (Open Balance)';
   $report_service = mysqli_query($dbc,"SELECT * FROM invoice_patient WHERE (paid_date > '$as_at_datepdf' OR IFNULL(`paid`,'') IN ('On Account','')) AND (DATE(invoice_date) >= '".$starttimepdf."' AND DATE(invoice_date) <= '".$endtimepdf."') ORDER BY invoiceid DESC");
   $amt_to_bill = 0;
@@ -109,6 +109,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/invoice_list_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_invoice_list', 0, WEBSITE_URL.'/Reports/Download/invoice_list_'.$today_date.'.pdf', 'Inventory Transported Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

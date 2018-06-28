@@ -348,7 +348,7 @@ $('.close_iframer').click(function(){
             echo '<th>Business</th>';
             }
             if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) {
-            echo '<th>'.ESTIMATE_TILE.' Name<br>Created Date</th>';
+            echo '<th>'.rtrim(ESTIMATE_TILE, 's').' Name<br>Created Date</th>';
             }
             if (strpos($config_fields_dashboard, ','."Total Cost".',') !== FALSE) {
             echo '<th>Total Cost</th>';
