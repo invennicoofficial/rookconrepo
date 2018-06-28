@@ -132,6 +132,7 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	<input type="hidden" id="retrieve_block_type" value="<?= $retrieve_block_type ?>">
 	<input type="hidden" id="retrieve_contact" value="<?= $retrieve_contact ?>">
 	<input type="hidden" id="calendar_view" value="<?= $_GET['view'] ?>">
+	<input type="hidden" id="calendar_mode" value="<?= $_GET['mode'] ?>">
 	<input type="hidden" id="calendar_start" value="<?= $calendar_start ?>">
 	<input type="hidden" id="calendar_dates" value='<?= json_encode($calendar_dates); ?>'>
 	<input type="hidden" id="calendar_type" value="<?= $_GET['type'] ?>">
