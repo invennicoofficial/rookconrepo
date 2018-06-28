@@ -164,7 +164,7 @@ function send_email(task) {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
-	choose_user('email', type, task_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, true);
 }
 
 function send_reminder(task) {
