@@ -743,7 +743,25 @@ var setHeading = function() {
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
-			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?></h3>
+			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+			<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+				$get_ticket['flag_colour'] = '';
+			}
+			if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+				$flag_comment = '';
+				$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+				if(in_array('flag_manual',$quick_action_icons)) {
+					$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+				} else {
+					$ticket_flag_names = [''=>''];
+					$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+					foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+						$ticket_flag_names[$colour] = $flag_names[$i];
+					}
+					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+				} ?>
+				<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
+			<?php } ?></h3>
 			<hr>
 		</div>
 	<?php }
@@ -2162,6 +2180,24 @@ var setHeading = function() {
 			<?php if($_GET['calendar_view'] == 'true') { ?>
 				<div class="col-sm-12">
 					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+						<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+							$get_ticket['flag_colour'] = '';
+						}
+						if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+							$flag_comment = '';
+							$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+							if(in_array('flag_manual',$quick_action_icons)) {
+								$flag_label = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+							} else {
+								$ticket_flag_names = [''=>''];
+								$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+								foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+									$ticket_flag_names[$colour] = $flag_names[$i];
+								}
+								$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+							} ?>
+							<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
+						<?php } ?>
 						<?php if($_GET['action_mode'] == 1) {
 							$get_query = $_GET;
 							unset($get_query['action_mode']); ?>

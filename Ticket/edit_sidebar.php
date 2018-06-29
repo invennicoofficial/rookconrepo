@@ -435,3 +435,21 @@ if(!$current_heading_closed) { ?>
 	</li>
 <?php } ?>
 <li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.($created_date ?: date('Y-m-d')) ?></li>
+<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+	$get_ticket['flag_colour'] = '';
+}
+if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+	$flag_comment = '';
+	$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+	if(in_array('flag_manual',$quick_action_icons)) {
+		$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+	} else {
+		$ticket_flag_names = [''=>''];
+		$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+			$ticket_flag_names[$colour] = $flag_names[$i];
+		}
+		$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+	} ?>
+	<li style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>
+<?php } ?>

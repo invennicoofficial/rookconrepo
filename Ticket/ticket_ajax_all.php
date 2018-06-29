@@ -1837,7 +1837,16 @@ if($_GET['action'] == 'update_fields') {
 		$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
-		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `ticketid`='$id'");
+	} else if($field == 'manual_flag_colour') {
+		$flag_label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+		$flag_start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+		$flag_end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$value', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
+		if(!empty($flag_label)) {
+			mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
+		}
 	} else if($field == 'document') {
 		$folder = 'download';
 		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);
