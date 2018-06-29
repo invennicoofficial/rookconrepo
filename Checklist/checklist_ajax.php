@@ -358,6 +358,14 @@ if($_GET['fill'] == 'checklistreminder') {
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
 }
+if($_GET['fill'] == 'checklistflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `checklistnameid`='$id'");
+}
 if($_GET['fill'] == 'checklistflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];

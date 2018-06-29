@@ -1,4 +1,6 @@
 <div class="form-horizontal"><?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+$task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
+$flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $show_tasks = tile_enabled($dbc, 'tasks');
 $show_tickets = tile_enabled($dbc, 'ticket');
 $show_forms = tile_enabled($dbc, 'intake');
@@ -297,6 +299,41 @@ function task_attach_file(task) {
 	$('[name='+file_id+']').click();
 }
 
+function task_manual_flag_item(task) {
+	var item = $(task).closest('li');
+	item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+	item.find('[name=flag_cancel]').off('click').click(function() {
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		return false;
+	});
+	item.find('[name=flag_off]').off('click').click(function() {
+		item.find('[name=colour]').val('FFFFFF');
+		item.find('[name=label]').val('');
+		item.find('[name=flag_start]').val('');
+		item.find('[name=flag_end]').val('');
+		item.find('[name=flag_it]').click();
+		return false;
+	});
+	item.find('[name=flag_it]').off('click').click(function() {
+		$.ajax({
+			url: '../Tasks/task_ajax_all.php?fill=taskflagmanual',
+			method: 'POST',
+			data: {
+				value: item.find('[name=colour]').val(),
+				label: item.find('[name=label]').val(),
+				start: item.find('[name=flag_start]').val(),
+				end: item.find('[name=flag_end]').val(),
+				id: item.find('[data-task]').data('task')
+			}
+		});
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		item.data('colour',item.find('[name=colour]').val());
+		item.css('background-color','#'+item.find('[name=colour]').val());
+		item.find('.flag-label').text(item.find('[name=label]').val());
+		return false;
+	});
+}
+
 function task_flag_item(task) {
 	task_id = $(task).parents('span').data('task');
 	var type = 'task';
@@ -379,6 +416,41 @@ function task_mark_done(sel) {
 			complete: function(result) {
 				$(intake).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 			}
+		});
+	}
+
+	function intake_manual_flag(intake) {
+		var item = $(intake).closest('li');
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: '../Intake/intake_ajax_all.php?fill=intakeflagmanual',
+				method: 'POST',
+				data: {
+					value: item.find('[name=colour]').val(),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.find('[data-intake]').data('intake')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
 		});
 	}
 
@@ -571,7 +643,8 @@ function task_mark_done(sel) {
 								if (in_array('edit', $quick_actions)) { ?>
 									<span title="Edit Task" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" class="inline-img" onclick="return false;"></span><?php
 								}
-								echo in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="task_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+								echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="task_manual_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+								echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="task_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
 								echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="task_sync_task(this); return false;"><img src="../img/icons/ROOK-sync-icon.png" class="inline-img" onclick="return false;"></span>' : '';
 								echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="task_send_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" class="inline-img" onclick="return false;"></span>' : '';
 								echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="task_send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img" onclick="return false;"></span>' : '';
@@ -583,6 +656,21 @@ function task_mark_done(sel) {
 								echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
 								echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
 							echo '</span>';
+							if(in_array('flag_manual',$quick_actions)) { ?>
+								<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+								<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+								<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+										<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+										<?php foreach($task_colours as $flag_colour) { ?>
+											<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+										<?php } ?>
+									</select></div>
+								<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+								<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+								<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+								<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+								<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+							<?php }
 							echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
 							echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />'; ?>
 							<div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
@@ -717,12 +805,28 @@ function task_mark_done(sel) {
 									echo '<li style="background-color: #'.$colour.'" data-id-field="intakeid" id="'.$row['intakeid'].'" data-table="intake" class="ui-state-default">';
 									echo '<span class="pull-right action-icons" style="width: 100%;" data-intake="'.$row['intakeid'].'">'.
 										'<a href="'.WEBSITE_URL.'/Intake/add_form.php?intakeid='.$row['intakeid'].'&salesid='.$_GET['id'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
-										(in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" onclick="intake_flag(this); return false;" class="inline-img flag-icon" title="Flag This!">' : '').
+										(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" onclick="intake_manual_flag(this); return false;" class="inline-img flag-icon" title="Flag This!">' : '').
+										(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" onclick="intake_flag(this); return false;" class="inline-img flag-icon" title="Flag This!">' : '').
 										(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" onclick="intake_email(this); return false;" class="inline-img email-icon" title="Send Email">' : '').
 										(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" onclick="intake_reminder(this); return false;" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
 										(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" onclick="intake_archive(this); return false;" class="inline-img archive-icon" title="Archive">' : '');
 									echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
 									echo '</span>';
+									if(in_array('flag_manual',$quick_actions)) { ?>
+										<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+										<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+										<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+												<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+												<?php foreach($flag_colours as $flag_colour) { ?>
+													<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+												<?php } ?>
+											</select></div>
+										<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+										<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+										<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+									<?php }
 									echo '<div class="clearfix"></div>';
 									echo '<div class="row"><h4>Intake #'.$row['intakeid'].': '.html_entity_decode($intake_form['form_name']).'</div><div class="clearfix"></div>
 										<input type="hidden" name="comment" value="" data-name="comment" data-table="intake_comments" data-id-field="intakecommid" data-id="" data-type="'.$row['intakeid'].'" data-type-field="intakeid">';

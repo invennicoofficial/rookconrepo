@@ -274,6 +274,14 @@ if($_GET['fill'] == 'taskreminder') {
 	$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
 		VALUES ('$to', '$date', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'task_board', '$id')");
 }
+if($_GET['fill'] == 'taskflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
+}
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];

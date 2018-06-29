@@ -18,9 +18,11 @@ if($type == 'Ticket') {
 	$data = 'data-id="'.$item['ticketid'].'" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid"';
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
+	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$doc_table = "ticket_document";
 	$doc_folder = "../Ticket/download/";
-	$actions = (in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
+	$actions = (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
 		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Activate Alerts &amp; Get Notified">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
@@ -247,11 +249,14 @@ if($type == 'Ticket') {
 	if($colour == 'FFFFFF' || $colour == '') {
 		$colour = 'F2F2F2';
 	}
+	$flag_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 	$flag_label = $ticket_flag_names[$colour];
+	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Tasks/download/";
 	$actions = '<img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
-		(in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
+		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
 		(!in_array('sync',$quick_actions) || substr($_GET['tab'],0,18) == 'path_external_path' ? '' : '<img src="'.WEBSITE_URL.'/img/icons/ROOK-sync-icon.png" data-assigned="'.$item['assign_client'].'" class="inline-img assign-icon" title="Assign to External Path">').
 		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Activate Alerts &amp; Get Notified" data-users="'.$item['alerts_enabled'].'">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
@@ -299,11 +304,14 @@ if($type == 'Ticket') {
 	if($colour == 'FFFFFF' || $colour == '') {
 		$colour = 'FFFFFF';
 	}
+	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$flag_label = $ticket_flag_names[$colour];
+	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Intake/download/";
 	$actions = '<a target="_parent" href="'.WEBSITE_URL.'/Intake/add_form.php?intakeid='.$item['intakeid'].'&projectid='.$_GET['edit'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
-		(in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
+		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
@@ -340,6 +348,21 @@ if($type == 'Ticket') {
 	<?php } ?>
 
 	<?= $contents ?>
+	<?php if(in_array('flag_manual',$quick_actions)) { ?>
+		<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_text ?>' class="form-control" style="display:none;"></div>
+		<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $item['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+				<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+				<?php foreach($flag_colours as $flag_colour) { ?>
+					<option <?= $item['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+				<?php } ?>
+			</select></div>
+		<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $item['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+		<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $item['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+		<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+		<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+	<?php } ?>
 	<input type='text' name='reply' value='' data-table='<?= $type == 'Task' ? 'task_comments' : '' ?>' data-name='<?= $type == 'Task' ? 'comment' : 'comment' ?>' class="form-control" style="display:none;">
 	<input type='text' name='work_time' value='' data-table='<?= $type == 'Task' ? 'tasklist_time' : 'tasklist' ?>' class="form-control timepicker time-field" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">

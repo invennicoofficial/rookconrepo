@@ -96,6 +96,43 @@ function setActions() {
 			}
 		});
 	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: '../Project/projects_ajax.php?action=project_actions',
+				method: 'POST',
+				data: {
+					field: 'flag_manual',
+					colour: item.data('colour'),
+					label: item.data('colour'),
+					start: item.data('colour'),
+					end: item.data('colour'),
+					table: item.data('table'),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
+	});
 	$('.assign-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		item.find('.assign_milestone').show().find('select').off('change').change(function() {
