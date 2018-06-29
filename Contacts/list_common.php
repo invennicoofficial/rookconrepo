@@ -105,6 +105,22 @@ if($status == 'inactive') {
 	$query .= " AND deleted=0 AND `status` > 0";
 }
 
+//Filter by Match Staff
+if($_GET['match_staff'] > 0) {
+	$match_contacts = [];
+	$match_contact_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0 AND CONCAT(',',`staff_contact`,',') LIKE '%,".$_GET['match_staff'].",%' AND `support_contact_category` = '".$category."'");
+	while($match_contact = mysqli_fetch_assoc($match_contact_list)) {
+		foreach(explode(',', $match_contact['support_contact']) as $support_contact) {
+			if(!in_array($support_contact, $match_contacts)) {
+				$match_contacts[] = $support_contact;
+			}
+		}
+	}
+	$match_contacts = implode(',',array_filter($match_contacts));
+	$query_check_credentials .= " AND `contactid` IN (".$match_contacts.")";
+	$query .= " AND `contactid` IN (".$match_contacts.")";
+}
+
 if(!empty(MATCH_CONTACTS)) {
 	$query_check_credentials .= " AND `contactid` IN (".MATCH_CONTACTS.")";
 	$query .= " AND `contactid` IN (".MATCH_CONTACTS.")";
