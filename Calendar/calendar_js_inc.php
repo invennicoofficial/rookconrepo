@@ -549,13 +549,21 @@ function loadShiftView() {
 		$('.shift_btn').show();
 		$('.shift_anchor').addClass('active');
 	}
+	var calendar_type = $('#calendar_type').val();
+	var calendar_view = $('#calendar_view').val();
+	var calendar_mode = $('#calendar_mode').val();
 	<?php if($_GET['view'] == 'monthly') { ?>
-		clear_all_data_month();
-		reload_all_data_month();
+		$.ajax({
+			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			method: 'GET',
+			success: function(response) {
+				$('.calendar_view').html(response);
+				reload_resize_all_month();
+				clear_all_data_month();
+				reload_all_data_month();
+			}
+		});
 	<?php } else { ?>
-		var calendar_type = $('#calendar_type').val();
-		var calendar_view = $('#calendar_view').val();
-		var calendar_mode = $('#calendar_mode').val();
 		$.ajax({
 			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
 			method: 'GET',
@@ -1224,5 +1232,53 @@ function dialogScheduledTime() {
 	        }
 		}
 	});	
+}
+function quickAddShift(a) {
+	var retrieve_collapse = $('#retrieve_collapse').val();
+	var date = $(a).data('date');
+	var staff = $('#'+retrieve_collapse).find('.block-item.active').first().data('contact');
+	if(!(staff > 0)) {
+		staff = $('#'+retrieve_collapse).find('.block-item.active').first().data('staff');
+	}
+	var client = $('#collapse_booking').find('.block-item.active').first().data('contact');
+	var block = $('#dialog-quick-add-shift');
+	$(block).find('[name="quick_add_staff"]').val(staff).trigger('change.select2');
+	$(block).find('[name="quick_add_client"]').val(client).trigger('change.select2');
+	$(block).find('[name="quick_add_time"]').val('');
+    $(block).dialog({
+		resizable: false,
+		height: "auto",
+		width: ($(window).width() <= 500 ? $(window).width() : 500),
+		modal: true,
+		open: function(e, ui) {
+			$(block).find('[name="quick_add_time"]').focus();
+		    $("#dialog-quick-add-shift").unbind('keypress');
+		    $("#dialog-quick-add-shift").keypress(function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					$(this).parent().find("button:eq(0)").trigger("click");
+				}
+		    });
+		},
+		buttons: {
+			"Submit": function() {
+				var time = $(block).find('[name="quick_add_time"]').val();
+				$.ajax({
+					url: '../Calendar/calendar_ajax_all.php?fill=quick_add_shift',
+					method: 'POST',
+					data: { date: date, staff: staff, client: client, time: time },
+					success: function(response) {
+						var anchor = $('#'+retrieve_collapse).find('.block-item[data-contact="'+staff+'"],.block-item[data-staff="'+staff+'"]').closest('a');
+						retrieve_items_month(anchor);
+					}
+				});
+			    $("#dialog-quick-add-shift").unbind('keypress');
+	        	$(this).dialog('close');
+			},
+	        Cancel: function() {
+			    $("#dialog-quick-add-shift").unbind('keypress');
+	        	$(this).dialog('close');
+	        }
+		}
+	});
 }
 </script>

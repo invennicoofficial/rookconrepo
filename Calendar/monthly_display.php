@@ -10,6 +10,8 @@ if(isset($_GET['date'])) {
 }
 $calendar_month = date("n", strtotime($search_month));
 $calendar_year = $search_year;
+$quick_add = get_config($dbc, 'shift_calendar_quick_add');
+$edit_access = vuaed_visible_function($dbc, 'calendar_rook');
 
 $page_query = $_GET;
 $all_contacts = $_POST['all_contacts'];
@@ -107,7 +109,7 @@ for($list_day = 1; $list_day <= $days_in_month + $days_added; $list_day++):
 
     if(in_array($day_of_week, $monthly_days)) {
     	$all_calendar_dates[] = $new_today_date;
-	    echo '<td style="width:'.$column_width.'; min-width: 10em; border-left: 1px solid rgb(221, 221, 221);" class="calendar-day calendarSortable '.$new_today_date.'" data-itemtype="shift" data-date="'.$new_today_date.'">';
+	    echo '<td style="width:'.$column_width.'; min-width: 10em; border-left: 1px solid rgb(221, 221, 221); position: relative; padding-bottom: 2em;" class="calendar-day calendarSortable '.$new_today_date.'" data-itemtype="shift" data-date="'.$new_today_date.'">';
 	    /* add in the day number */
 	    $class = '';
 	    if($new_today_date == date('Y-m-d')) {
@@ -125,6 +127,10 @@ for($list_day = 1; $list_day <= $days_in_month + $days_added; $list_day++):
 
 	    /** QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !!  IF MATCHES FOUND, PRINT THEM !! **/
 	    echo str_repeat('<p> </p>',2);
+
+	    if($_GET['type'] == 'shift' && $quick_add == 1 && $edit_access > 0) {
+    		echo '<span style="position: absolute; bottom: 0.25em; right: 0.25em;"><a href="" onclick="quickAddShift(this); return false" data-date="'.$new_today_date.'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="inline-img" title="Quick Add"></a></span>';
+	    }
 
 	    echo '</td>';
     }

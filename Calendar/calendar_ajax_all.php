@@ -2696,4 +2696,24 @@ if($_GET['fill'] == 'update_ticket_scheduled_time') {
 		mysqli_query($dbc, "UPDATE `$ticket_table` SET $query, `calendar_history` = CONCAT(IFNULL(`calendar_history`,''),'$history') WHERE `$id_field` = '$id'");
 	}
 }
+if($_GET['fill'] == 'quick_add_shift') {
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
+	$client = filter_var($_POST['client'],FILTER_SANITIZE_STRING);
+	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
+
+	$time = explode('-', $time);
+	$time[0] = trim($time[0]);
+	$time[1] = trim($time[1]);
+	$starttime =  date('h:i a', strtotime($time[0]));
+	$endtime = date('h:i a', strtotime($time[1]));
+
+	if(strtotime($starttime) > strtotime($endtime)) {
+		mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`) VALUES ('$staff', '$client', '$date', '$date', '$starttime', '11:59 pm')");
+		$date = date('Y-m-d', strtotime($date.' + 1 day'));
+		mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`) VALUES ('$staff', '$client', '$date', '$date', '12:00 am', '$endtime')");
+	} else {
+		mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`) VALUES ('$staff', '$client', '$date', '$date', '$starttime', '$endtime')");
+	}
+}
 ?>

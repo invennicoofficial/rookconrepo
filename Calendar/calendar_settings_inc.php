@@ -452,6 +452,8 @@ switch($_GET['type']) {
             $mobile_calendar_views['client'] = $shift_client_type;
         }
         $mobile_calendar_view = 'Staff';
+        $selected_staff_icons = get_config($dbc, 'shift_selected_staff_icons');
+        $selected_client_icons = get_config($dbc, 'shift_selected_client_icons');
         break;
     case 'event':
         $config_type = 'event';
