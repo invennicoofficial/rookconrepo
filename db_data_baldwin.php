@@ -158,5 +158,20 @@
     }
     //2018-06-28 - Ticket #7899 - Sessions Additions
 
+    //2018-06-29 - Ticket #7898 - Clients Tile
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `description_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `general_comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `notes_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-29 - Ticket #7898 - Clients Tile
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

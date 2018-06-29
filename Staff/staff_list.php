@@ -85,8 +85,23 @@ if(isset($_POST['search_contacts'])) {
 }
 // $favourites_clause = ' ORDER BY is_favourite DESC, `contactid`';
 
+$match_query = '';
+if($_GET['match_contact'] > 0) {
+	$match_contacts = [];
+	$match_contact_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0 AND CONCAT(',',`support_contact`,',') LIKE '%,".$_GET['match_contact'].",%'");
+	while($match_contact = mysqli_fetch_assoc($match_contact_list)) {
+		foreach(explode(',', $match_contact['staff_contact']) as $staff_contact) {
+			if(!in_array($staff_contact, $match_contacts)) {
+				$match_contacts[] = $staff_contact;
+			}
+		}
+	}
+	$match_contacts = implode(',',array_filter($match_contacts));
+	$match_query .=  " AND `contactid` IN (".$match_contacts.")";
+}
+
 if(!empty(MATCH_CONTACTS)) {
-	$match_query = " AND `contactid` IN (".MATCH_CONTACTS.")";
+	$match_query .= " AND `contactid` IN (".MATCH_CONTACTS.")";
 }
 
 $sql = "SELECT * FROM contacts $filter_clause $query_clause $sea_constraint $staff_cat_query $match_query";
