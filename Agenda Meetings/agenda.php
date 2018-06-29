@@ -175,7 +175,7 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             echo '<th>Date of Meeting</th>';
             echo '<th>Time of Meeting</th>';
             echo '<th>Location</th>';
-            echo '<th>Company Attendees</th>';
+            echo '<th>Staff Members</th>';
             echo '<th>Function</th>';
             echo "</tr>";
         } else {

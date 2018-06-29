@@ -62,11 +62,14 @@ if (isset($_POST['printpdf'])) {
 
 	$today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/daysheet_'.START_DATE.'.pdf', 'F');
+	$pdf->Output('Download/assessment_followup_'.START_DATE.'.pdf', 'F');
+
+    track_download($dbc, 'report_assessment_followup', 0, WEBSITE_URL.'/Reports/Download/assessment_followup_'.$today_date.'.pdf', 'Assessment Followup Report');
+
 	?>
 
 	<script type="text/javascript" language="Javascript">
-	window.open('Download/daysheet_<?php echo START_DATE;?>.pdf', 'fullscreen=yes');
+	window.open('Download/assessment_followup_<?php echo START_DATE;?>.pdf', 'fullscreen=yes');
 	</script>
 	<?php
 	$starttime = $starttimepdf;
@@ -251,7 +254,7 @@ $(document).on('change', 'select.set_followup_onchange', function() { set_follow
 function report_all_followups($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $therapist, $screen_mode = true) {
 	$report_data = ($screen_mode ? '' : '<h3>Assessment Follow Ups: '.get_contact($dbc, $therapist).': '.$starttime.' - '.$endtime.'</h3>');
 	$report_validation = mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, `patient_injury`.`injury_name`, `patient_injury`.`injury_type`, `booking`.`appoint_date`, `booking`.`assessment_followup_date`, `booking`.`bookingid` FROM `booking` LEFT JOIN `contacts` ON `booking`.`patientid`=`contacts`.`contactid` LEFT JOIN `patient_injury` ON `booking`.`injuryid`=`patient_injury`.`injuryid` WHERE `booking`.`therapistsid`='$therapist' AND `booking`.`type` IN ('A','C','F','H','N','U') AND ((`assessment_followup_date` IS NULL AND `booking`.`appoint_date` >= '$starttime' AND `booking`.`appoint_date` <= '$endtime') OR (`assessment_followup_date` >= '$starttime' AND `assessment_followup_date` <= '$endtime')) AND `booking`.`deleted`=0 AND `contacts`.`deleted`=0AND `contacts`.`status`=1 ORDER BY `appoint_date` ASC");
-	
+
 	$data = 0;
 	$html_table = '';
 
@@ -293,7 +296,7 @@ function report_all_followups($dbc, $starttime, $endtime, $table_style, $table_r
 function report_followups($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $therapist, $screen_mode = true) {
 	$report_data = ($screen_mode ? '' : '<h3>Assessment Follow Ups: '.get_contact($dbc, $therapist).': '.$starttime.' - '.$endtime.'</h3>');
 	$report_validation = mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, `patient_injury`.`injury_name`, `patient_injury`.`injury_type`, `booking`.`appoint_date`, `booking`.`assessment_followup_date`, `booking`.`bookingid` FROM `booking` LEFT JOIN `contacts` ON `booking`.`patientid`=`contacts`.`contactid` LEFT JOIN `patient_injury` ON `booking`.`injuryid`=`patient_injury`.`injuryid` WHERE `booking`.`therapistsid`='$therapist' AND `booking`.`type` IN ('A','C','F','H','N','U') AND ((`assessment_followup_date` IS NULL AND `booking`.`appoint_date` >= '$starttime' AND `booking`.`appoint_date` <= '$endtime') OR (`assessment_followup_date` >= '$starttime' AND `assessment_followup_date` <= '$endtime')) AND `booking`.`deleted`=0 AND `contacts`.`deleted`=0 AND `contacts`.`status`=1 ORDER BY `appoint_date` ASC");
-	
+
 	$data = 0;
 	$html_table = '';
 

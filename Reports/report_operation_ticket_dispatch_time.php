@@ -72,6 +72,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/download_tracker_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_operation_ticket_dispatch_time', 0, WEBSITE_URL.'/Reports/Download/download_tracker_'.$today_date.'.pdf', 'Travel Time Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -139,7 +140,7 @@ if (isset($_POST['printpdf'])) {
             <input type="hidden" name="endpdf" value="<?php echo $enddate; ?>">
 
 			<div class="clearfix"></div>
-			
+
 			<?php echo report_tracking($dbc, $startdate, $enddate, '', '', ''); ?>
 		</div>
     </div>
@@ -151,7 +152,7 @@ function report_tracking($dbc, $startdate, $enddate, $table_style, $table_row_st
 	$enddate = date('Y-m-d',strtotime($enddate));
 	$tickets = mysqli_query($dbc, "SELECT `tickets`.*, `tickets`.`to_do_date`, `tickets`.`est_time`, `tickets`.`est_distance`, `tickets`.`completed_time`, SEC_TO_TIME(TIME_TO_SEC(MIN(`next`.`start`)) - TIME_TO_SEC(`tickets`.`completed_time`)) `next_time` FROM `tickets` LEFT JOIN (SELECT `ticket_timer`.`start_time` `start`, `to_do_date` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` WHERE `deleted`=0 UNION SELECT `completed_time` `start`, `to_do_date` FROM `ticket_schedule` WHERE `deleted`=0 UNION SELECT `completed_time` `start`, `to_do_date` FROM `tickets` WHERE `deleted`=0) `next` ON `next`.`start` > `tickets`.`completed_time` AND `next`.`to_do_date`=`tickets`.`to_do_date` WHERE `completed_time` != '' GROUP BY `tickets`.`ticketid` UNION
 		SELECT `tickets`.*, `ticket_schedule`.`to_do_date`, `ticket_schedule`.`est_time`, `ticket_schedule`.`est_distance`, `ticket_schedule`.`completed_time`, SEC_TO_TIME(TIME_TO_SEC(MIN(`next`.`start`)) - TIME_TO_SEC(`ticket_schedule`.`completed_time`)) `next_time` FROM `ticket_schedule` LEFT JOIN `tickets` ON `ticket_schedule`.`ticketid`=`tickets`.`ticketid` LEFT JOIN (SELECT `ticket_timer`.`start_time` `start`, `to_do_date` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` WHERE `deleted`=0 UNION SELECT `completed_time` `start`, `to_do_date` FROM `ticket_schedule` WHERE `deleted`=0 UNION SELECT `completed_time` `start`, `to_do_date` FROM `tickets` WHERE `deleted`=0) `next` ON `next`.`start` > `ticket_schedule`.`completed_time` AND `next`.`to_do_date`=`ticket_schedule`.`to_do_date` WHERE `ticket_schedule`.`completed_time` != '' GROUP BY `ticket_schedule`.`ticketid`");
-	
+
 	if(mysqli_num_rows($tickets) > 0) {
 		$report_data = '<table border="1px" class="table table-bordered" style="'.$table_style.'">
 			<tr style="'.$table_row_style.'" nobr="true">

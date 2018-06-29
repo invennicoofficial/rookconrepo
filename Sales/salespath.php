@@ -173,13 +173,14 @@ function task_send_alert(task) {
 }
 
 function task_send_email(task) {
+	salesid = '<?= $_GET['id'] ?>';
 	task_id = $(task).parents('span').data('task');
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
-	choose_user('email', type, task_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales_task&id='+task_id+'&type='+type+'&salesid='+salesid, 'auto', false, true);
 }
 
 function task_send_reminder(task) {
@@ -384,38 +385,7 @@ function task_mark_done(sel) {
 	function intake_email(intake) {
 		salesid = '<?= $_GET['id'] ?>';
 		intakeid = $(intake).closest('span').data('intake');
-		var item = $(intake).closest('li');
-		var select = item.find('.select_users');
-		select.find('.cancel_button').off('click').click(function() {
-			select.find('select option:selected').removeAttr('selected');
-			select.hide();
-			return false;
-		});
-		select.find('.submit_button').off('click').click(function() {
-			if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-				var users = [];
-				select.find('select option:selected').each(function() {
-					users.push(this.value);
-					$(this).removeAttr('selected');
-					select.find('select').trigger('change.select2');
-				});
-				$.ajax({
-					method: 'POST',
-					url: 'sales_ajax_all.php?fill=intakeEmail',
-					data: {
-						salesid: salesid,
-						id: intakeid,
-						value: users
-					},
-					success: function(result) {
-						select.hide();
-						select.find('select').trigger('change.select2');
-					}
-				});
-			}
-			return false;
-		});
-		select.show();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales_intake&intakeid='+intakeid+'&salesid='+salesid, 'auto', false, true);
 	}
 
 	function intake_reminder(intake) {

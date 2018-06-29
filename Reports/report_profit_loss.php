@@ -97,6 +97,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/validation_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_profit_loss', 0, WEBSITE_URL.'/Reports/Download/validation_'.$today_date.'.pdf', 'Profit Loss Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

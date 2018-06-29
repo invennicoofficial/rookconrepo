@@ -96,12 +96,14 @@ if (isset($_POST['printpdf'])) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/validation_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/validation_'.$today_date.'.pdf', 'F');
 
+    track_download($dbc, 'report_profit_loss_pos_advanced', 0, WEBSITE_URL.'/Reports/Download/validation_'.$today_date.'.pdf', 'Profit Loss Report');
+    ?>
 	<script type="text/javascript" language="Javascript">
         window.open('Download/validation_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
 } ?>
@@ -114,20 +116,20 @@ if (isset($_POST['printpdf'])) {
     <div class="row">
         <div class="col-md-12">
             <?= reports_tiles($dbc);  ?>
-            
+
             <div class="double-gap-top"></div>
 
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
                 <input type="hidden" name="report_type" value="<?= $_GET['type']; ?>">
                 <input type="hidden" name="category" value="<?= $_GET['category']; ?>">
                 <input type="hidden" name="category_or_singles" value="<?= $category_or_singles; ?>"><?php
-                
+
                 if($category_or_singles == 'single') { ?>
                     <button type="button" onclick="location.href='?category_sort&type=sales';" class="btn brand-btn">Sort by Category</button><?php
                 } else { ?>
                     <button type="button" onclick="location.href='?type=sales';" class="btn brand-btn">Sort by Individual Items</button><?php
                 }
-                
+
                 if (isset($_POST['search_email_submit'])) {
                     $starttime = $_POST['starttime'];
                     $endtime = $_POST['endtime'];
@@ -139,9 +141,9 @@ if (isset($_POST['printpdf'])) {
                 if($endtime == 0000-00-00) {
                     $endtime = date('Y-m-d');
                 } ?>
-                
+
                 <div class="double-gap-top"></div>
-                
+
                 <center>
                     <div class="form-group">
                         <div class="form-group col-sm-5">
@@ -160,9 +162,9 @@ if (isset($_POST['printpdf'])) {
                 <input type="hidden" name="endtimepdf" value="<?= $endtime; ?>">
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
-                
+
                 <div class="clearfix double-gap-top"></div>
-                
+
                 <div id="no-more-tables" class="gap-top">
                     <?php echo report_profit_loss($dbc, $starttime, $endtime, '', '', '', $category_or_singles); ?>
                 </div>
@@ -177,7 +179,7 @@ if (isset($_POST['printpdf'])) {
 function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $category_or_singles) {
     if($category_or_singles == 'category') {
         $total = 0;
-        
+
         $report_validation = mysqli_query($dbc, "SELECT `il`.`item_id`, SUM(`il`.`sub_total`) `total_price`, COUNT(`il`.`quantity`) `count_invid` FROM `invoice` `i`, `invoice_lines` `il` WHERE `i`.`invoiceid`=`il`.`invoiceid` AND (`invoice_date` BETWEEN '$starttime' AND '$endtime') AND `i`.`deleted`=0 GROUP BY `il`.`item_id`");
 
         if($report_validation->num_rows > 0) {
@@ -188,7 +190,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                 </tr>';
                 $categ_list = '';
                 $blank = 0;
-                
+
                 while ( $row_report=mysqli_fetch_array($report_validation) ) {
                     $inventoryid = $row_report['item_id'];
                     $total_price = $row_report['total_price'];
@@ -197,7 +199,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                     $total_cdn = $cdn_cpu * $count_invid;
                     $categ = get_inventory($dbc, $inventoryid, 'category');
                     $HiddenProducts = explode(',',$categ_list);
-                    
+
                     if (in_array($categ, $HiddenProducts)) {
                         if($categ == '' || $categ == NULL) {
                             $blank += $total_price - $total_cdn;
@@ -209,11 +211,11 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                         ${$categ.'_123'} = $total_price - $total_cdn;
                     }
                 }
-                
+
                 $i = 0;
                 $totayl = 0;
                 $var = explode(',', $categ_list);
-                
+
                 foreach($var as $categie) {
                     $i++;
                     if($categie == '' || $categie == NULL) {
@@ -230,7 +232,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                         $report_data .= '<td align="right" data-title="Gross Profit">$'.number_format(($total_cate),2) . '</td>';
                     $report_data .= "</tr>";
                 }
-                
+
                 $report_data .= '<tr nobr="true">';
                     $report_data .= '<td class="hidden-xs hidden-sm"><b>Total Profit</b></td>';
                     $report_data .= '<td align="right" data-title="Total Profit"><b>$'.number_format($totayl, 2).'</b></td>';
@@ -238,11 +240,11 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
 
             $report_data .= '</table>';
         }
-    
+
     } else {
         $total = 0;
         $costs = 0;
-        
+
         $report_validation = mysqli_query($dbc, "SELECT `invoiceid`, `inventoryid`, `sell_price`, `quantity`, `payment_type` FROM `invoice` WHERE (`invoice_date` BETWEEN '$starttime' AND '$endtime') AND `deleted`=0");
 
         if($report_validation->num_rows > 0) {
@@ -263,14 +265,14 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                     $payment_type = explode('#*#', $row_report['payment_type']);
                     $payment_type = $payment_type[0];
                     $item_count = count($inventoryids);
-                    
+
                     for($i=0; $i<$item_count; $i++) {
                         $unit_price = get_inventory($dbc, $inventoryids[$i], 'final_retail_price');
                         //$total_price = number_format($sell_prices[$i] * $quantities[$i], 2);
                         $total_price = $unit_price * $quantities[$i];
                         $cdn_cpu = get_inventory($dbc, $inventoryids[$i], 'cdn_cpu');
                         $total_cdn = number_format($cdn_cpu * $quantities[$i], 2);
-                        
+
                         $report_data .= '<tr nobr="true">';
                             $report_data .= '<td data-title="Invoice#">' .$row_report['invoiceid'].'</td>';
                             $report_data .= '<td data-title="Inventory">' . get_inventory($dbc, $inventoryids[$i], 'category'). ': '. get_inventory($dbc, $inventoryids[$i], 'name'). '</td>';

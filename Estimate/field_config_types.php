@@ -41,7 +41,7 @@ function removeType(a) {
 	saveType();
 }
 </script>
-<h3><?= ESTIMATE_TILE ?> Types</h3>
+<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Types</h3>
 <label class="col-sm-10 text-center hide-titles-mob">Type Name (cannot contain commas)</label>
 <label class="col-sm-2 hide-titles-mob"></label>
 <?php foreach($estimate_types as $type) { ?>

@@ -72,6 +72,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_pos_daily_sales_summary', 0, WEBSITE_URL.'/Reports/Download/sales_summary_'.$today_date.'.pdf', 'POS Sales Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -106,7 +108,7 @@ if (isset($_POST['printpdf'])) {
                 $starttime = $_POST['starttime'];
                 $endtime = $_POST['endtime'];
             }
-            
+
             if ( ($starttime == 0000-00-00 || empty($starttime)) && $is_mobile && $rookconnect=='sea' ) {
                 $starttime = date('Y-m-d');
             }

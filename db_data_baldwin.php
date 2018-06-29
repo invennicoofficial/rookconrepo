@@ -152,5 +152,11 @@
     }
     //2018-06-26 - Ticket #7814 - Holidays Update Notifications
 
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_total_time` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -75,6 +75,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/ar_aging_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_ar_aging_summary', 0, WEBSITE_URL.'/Reports/Download/ar_aging_summary_'.$today_date.'.pdf', 'A/R Aging Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -193,7 +195,7 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
 	$report_data = "<h2>Accounts Receivable Summary As At ".date('Y-m-d',strtotime($as_at_date))."</h2>";
-	
+
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="32%">Customer</th>
@@ -267,14 +269,14 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
         } else {
             $report_data .= '<td>$0.00</td>';
         }
-        
+
         if (floatval($total_last3059) != 0) {
             //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last59.'&until='.$last30.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last3059.'</a></td>';
             $report_data .= '<td>$'.$total_last3059.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
-        
+
         if (floatval($total_last6089) != 0) {
             //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last89.'&until='.$last60.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last6089.'</a></td>';
             $report_data .= '<td>$'.$total_last6089.'</td>';

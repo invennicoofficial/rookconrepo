@@ -68,6 +68,12 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 	$_GET['subtabid'] = 'favourites';
 } ?>
 <div class="container bg-white">
+	<div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="checklist_iframe" src=""></iframe>
+		</div>
+	</div>
 	<div class="iframe_holder" style="display:none;">
 		<img src="<?= WEBSITE_URL ?>/img/icons/close.png" class="close_iframer" width="45px" style="position:relative; right:10px; float:right; top:58px; cursor:pointer;">
 		<span class="iframe_title" style="color:white; font-weight:bold; position:relative; top:58px; left:20px; font-size:30px;"></span>

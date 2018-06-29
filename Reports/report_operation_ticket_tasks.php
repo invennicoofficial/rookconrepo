@@ -74,6 +74,8 @@ if (isset($_POST['printpdf'])) {
 	}
     $today_date = date('Y_m_d');
 	$pdf->Output('Download/activity_report_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_operation_ticket_tasks', 0, WEBSITE_URL.'/Reports/Download/activity_report_'.$today_date.'.pdf', 'Activity Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

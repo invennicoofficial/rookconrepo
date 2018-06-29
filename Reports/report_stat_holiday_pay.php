@@ -72,6 +72,7 @@ if(isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/stat_holiday_breakdown_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_stat_holiday_pay', 0, WEBSITE_URL.'/Reports/Download/stat_holiday_breakdown_'.$today_date.'.pdf', 'Statutory Holiday Compensation Breakdown Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

@@ -128,7 +128,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					} else if(shifttype == 'shift') {
 						var shift_url = block.element.closest('a.shift').attr('href');
 						shift_url += '&shift_endtime='+end_time;
-						window.location.href = shift_url;
+						overlayIFrameSlider(shift_url);
 					} else {
 						reload_all_data();
 					}
