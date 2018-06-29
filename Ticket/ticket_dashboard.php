@@ -1271,8 +1271,18 @@ IF(!IFRAME_PAGE) { ?>
 			$block = '<div class="overview-block">
 				<h4>My '.TICKET_TILE.'</h4>';
 				$tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE CONCAT(IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,'')) LIKE CONCAT('%".$_SESSION['contactid']."%') AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`status`");
+                $ticket_status = get_config($dbc, "ticket_status");
+                $ticket_status_color = explode(',', get_config($dbc, "ticket_status_color"));
 				while($ticket = $tickets->fetch_assoc()) {
-					$block .= '<p><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">'.$ticket['status'].'</a>: '.$ticket['count'].'</p>';
+                    $var_count = explode($ticket['status'], $ticket_status);
+                    $occr = substr_count($var_count[0], ",");
+                    $color_apply = '';
+                    if (strpos($ticket_status, $ticket['status']) !== false) {
+                        $color_apply = $ticket_status_color[$occr];
+                    }
+                    $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
+
+					$block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 					$block_length += 17;
 				}
 			$block .= '</div>';

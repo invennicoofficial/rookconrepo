@@ -1361,6 +1361,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_status', filter_var(implode(',',$_POST['tickets']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_status_icons', filter_var(implode(',',$_POST['ticket_status_icons'])));
 	set_config($dbc, 'task_status', filter_var(implode(',',$_POST['tasks']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_status_color', filter_var(implode(',',$_POST['ticket_status_color']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'setting_tile') {
 	// Save the settings for ticket dashboard fields
 	set_config($dbc, filter_var($_POST['field'],FILTER_SANITIZE_STRING), filter_var($_POST['value'],FILTER_SANITIZE_STRING));
