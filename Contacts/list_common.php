@@ -375,15 +375,15 @@ if ( !empty($note) ) { ?>
     echo '<h3 class="double-gap-left">Contact Per Business</h3>';
     $lists = $dbc->query("SELECT contactid, name FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='Business' AND `status`=0");
     while($list = $lists->fetch_assoc()) {
-        echo '<div class="col-sm-6">';
-            echo '<div class="overview-block">';
                 $cid = $list['contactid'];
                 $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `businessid`='$cid' AND `status`=1"));
                 if($active_count['count'] > 0) {
-                    echo decryptIt($list['name']).' : '.$active_count['count'].'<br />';
+                    echo '<div class="col-sm-6">';
+                        echo '<div class="overview-block">';
+                             echo decryptIt($list['name']).' : '.$active_count['count'].'<br />';
+                        echo '</div>';
+                    echo '</div>';
                 }
-            echo '</div>';
-        echo '</div>';
     }
     echo '<div class="clearfix"></div>';
 

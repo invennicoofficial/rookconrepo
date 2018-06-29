@@ -109,7 +109,7 @@ do {
 	$position_rate = 0; ?>
 	<div class="multi-block">
 		<?php if(($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) && !($strict_view > 0)) {
-        if($staff['item_id'] == '') { $staff['item_id'] = $_SESSION['contactid']; }
+        if($staff['item_id'] == '' && !($ticketid > 0)) { $staff['item_id'] = $_SESSION['contactid']; }
         ?>
 			<div class="col-sm-4">
 				<label class="show-on-mob control-label">Staff:</label>
@@ -199,7 +199,7 @@ do {
 				<?php if($field_sort_field == 'Staff Travel') { ?>
 					<div class="col-sm-1" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">
 						<label class="show-on-mob control-label">Travel Time:</label>
-						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" class="form-control" value="<?= $staff['hours_travel'] ?>">
+						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" data-default="<?= get_config($dbc, 'ticket_staff_travel_default') ?>" class="form-control" value="<?= empty($staff['hours_travel']) ? get_config($dbc, 'ticket_staff_travel_default') : $staff['hours_travel'] ?>">
 					</div>
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Subsistence') { ?>
@@ -305,7 +305,7 @@ do {
 						<?= $staff['hours_travel'] ?>
 					</div>
 					<?php if(strpos($value_config,',Staff Travel,') !== FALSE) {
-						$pdf_contents[] = ['Travel', $staff['hours_travel']];
+						$pdf_contents[] = ['Travel Time', $staff['hours_travel']];
 					} ?>
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Subsistence') { ?>

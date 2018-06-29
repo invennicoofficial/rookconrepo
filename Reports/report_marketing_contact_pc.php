@@ -80,6 +80,7 @@ if (isset($_POST['printpdf'])) {
 
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/'.$pdf_url, 'F');
+    track_download($dbc, 'report_marketing_contact_pc', 0, WEBSITE_URL.'/Reports/Download/postalcode_'.$time.'.pdf', 'Postal Code Analysis Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

@@ -80,6 +80,7 @@ if (isset($_POST['printpdf'])) {
 
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/'.$pdf_url, 'F');
+    track_download($dbc, 'report_postalcode', 0, WEBSITE_URL.'/Reports/Download/'.$pdf_url, 'Postal Code Analysis Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -147,7 +148,7 @@ if (isset($_POST['printpdf'])) {
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
             <input type="hidden" name="bookingtype" value="<?= $_GET['bookingtype'] ?>">
             <input type="hidden" name="postalcode" value="<?= $_GET['postalcode'] ?>">
-            
+
             <?php if(!empty($_GET['bookingtype'])) { ?>
                 <a href="?type=marketing&from=<?= $starttime ?>&until=<?= $endtime ?>" class="btn brand-btn pull-left">Back</a>
             <?php } ?>

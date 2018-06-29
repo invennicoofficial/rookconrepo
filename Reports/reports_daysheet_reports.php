@@ -93,6 +93,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/daysheet_report_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'reports_daysheet_reports', 0, WEBSITE_URL.'/Reports/Download/daysheet_report_'.$today_date.'.pdf', 'Daysheet Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

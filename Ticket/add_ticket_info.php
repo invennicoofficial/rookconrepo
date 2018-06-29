@@ -516,6 +516,14 @@ if(!empty($_GET['add_service_iframe'])) { ?>
                                           <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '30 Min') { echo  'selected="selected"'; } ?> value="30 Min">30 Min</option>
                                           <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '45 Min') { echo  'selected="selected"'; } ?> value="45 Min">45 Min</option>
                                           <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '60 Min') { echo  'selected="selected"'; } ?> value="60 Min">60 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 15 Min') { echo  'selected="selected"'; } ?> value="1 Hr 15 Min">1 Hr 15 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 30 Min') { echo  'selected="selected"'; } ?> value="1 Hr 30 Min">1 Hr 30 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 45 Min') { echo  'selected="selected"'; } ?> value="1 Hr 45 Min">1 Hr 45 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr') { echo  'selected="selected"'; } ?> value="2 Hr">2 Hr</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 15 Min') { echo  'selected="selected"'; } ?> value="2 Hr 15 Min">2 Hr 15 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 30 Min') { echo  'selected="selected"'; } ?> value="2 Hr 30 Min">2 Hr 30 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 45 Min') { echo  'selected="selected"'; } ?> value="2 Hr 45 Min">2 Hr 45 Min</option>
+                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '3 Hr') { echo  'selected="selected"'; } ?> value="3 Hr">3 Hr</option>
 										</select>
 									</div>
 								<?php } ?>
@@ -708,13 +716,23 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 							<?php } ?>
 
 							<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
-						<div class="form-group">
-						  <label for="site_name" class="col-sm-4 control-label">Service Heading:</label>
-						  <div class="col-sm-7">
-							<?= $service['heading'] ?>
-						  </div>
-						</div>
+								<div class="form-group">
+								  <label for="site_name" class="col-sm-4 control-label">Service Heading:</label>
+								  <div class="col-sm-7">
+									<?= $service['heading'] ?>
+								  </div>
+								</div>
 								<?php $pdf_contents[] = ['Service Heading', $service['heading']]; ?>
+							<?php } ?>
+
+							<?php if(strpos($value_config,',Service Total Time,') !== FALSE && $field_sort_field == 'Service Total Time') { ?>
+								<div class="form-group">
+								  <label for="site_name" class="col-sm-4 control-label">Total Time:</label>
+								  <div class="col-sm-7">
+									<?= explode(',',$get_ticket['service_total_time'])[$i] ?>
+								  </div>
+								</div>
+								<?php $pdf_contents[] = ['Total Time', explode(',',$get_ticket['service_total_time'])[$i]]; ?>
 							<?php } ?>
 
 							<?php if(strpos($value_config,',Service Estimated Hours,') !== FALSE && $field_sort_field == 'Service Estimated Hours') {

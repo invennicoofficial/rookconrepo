@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receipt_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_receipt_summary', 0, WEBSITE_URL.'/Reports/Download/receipt_summary_'.$today_date.'.pdf', 'Receipt Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

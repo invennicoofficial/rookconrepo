@@ -3309,7 +3309,7 @@ foreach($info_config as $str) {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_abi" ><?= ESTIMATE_TILE ?> Information<span class="glyphicon glyphicon-minus"></span></a>
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_abi" ><?= rtrim(ESTIMATE_TILE, 's') ?> Information<span class="glyphicon glyphicon-minus"></span></a>
 				</h4>
 			</div>
 

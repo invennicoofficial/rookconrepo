@@ -74,6 +74,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_stats_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_demographics', 0, WEBSITE_URL.'/Reports/Download/customer_stats_'.$today_date.'.pdf', 'Customer Stats Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -184,7 +185,7 @@ function report_by_demographic($dbc, $starttime, $endtime, $table_style, $table_
 		}
 		if($row[0] == 'miss') {
 			$total_miss += $row[1];
-		}	
+		}
 		if($row[0] == 'other') {
 			$total_other += $row[1];
 		}

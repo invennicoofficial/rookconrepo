@@ -13,7 +13,25 @@
         if($use_shifts !== '') {
             $shift_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
             if(strpos($shift_fields, ',shifts_report,') !== FALSE) { ?>
-                <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts_report.php?region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right">Shifts Report</a>
+                <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts_report.php?region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Shifts Report</a>
+            <?php }
+            if(strpos($shift_fields, ',export_button,') !== FALSE) { ?>
+                <script type="text/javascript">
+                function exportShifts() {
+                    $.ajax({
+                        type: 'GET',
+                        url: '../Calendar/calendar_ajax_all.php?fill=export_shifts',
+                        dataType: 'html',
+                        success: function(response) {
+                            window.open(response, '_blank');
+                        }
+                    });
+                }
+                </script>
+                <a href="" onclick="exportShifts(); return false;" class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Export Shifts</a>
+            <?php }
+            if(strpos($shift_fields, ',import_button,') !== FALSE) { ?>
+                <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts.php?<?= http_build_query($page_query) ?>&shiftid=IMPORT"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Import Shifts</a>
             <?php }
         }
         if($use_shifts !== '' && $edit_access == 1) {
@@ -34,7 +52,7 @@
             unset($page_query['therapistsid']);
             unset($page_query['equipmentid']);
             unset($page_query['add_reminder']);
-            ?><a href="?<?= http_build_query($page_query) ?>" class="block-label pull-right <?= $_GET['shiftid'] != '' ? 'active' : '' ?>">Shifts</a><?php
+            ?><a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts.php?<?= http_build_query($page_query) ?>"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>New Shift</a><a href="" onclick="loadShiftView(); return false;" class="shift_anchor block-label pull-right" <?= $_GET['type'] == 'shift' ? 'style="display:none;"' : '' ?>>Shifts</a><?php
             $page_query['offline'] = $_GET['offline'];
             $page_query['unbooked'] = $_GET['unbooked'];
             $page_query['teamid'] = $_GET['teamid'];

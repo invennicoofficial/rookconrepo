@@ -75,6 +75,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_ticket_time_summary', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'Ticket Type Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

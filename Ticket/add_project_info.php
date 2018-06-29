@@ -129,11 +129,16 @@ var projectFilter = function() {
 				<div class="col-sm-7">
 					<select name="clientid" id="clientid" data-placeholder="Select a Contact specific to above <?= BUSINESS_CAT ?>..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_business_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_business_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') == 'top') { ?>
+							<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php } ?>
 						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification` FROM `contacts` WHERE (`first_name` != '' OR `last_name` != '') AND `category` NOT IN ('".BUSINESS_CAT."',".STAFF_CATS.") AND `deleted`=0")) as $row) {
 							$selected = ( $clientid==$row['contactid'] ) ? 'selected="selected"' : ($businessid > 0 && $businessid != $row['businessid'] ? 'style="display:none;"' : '');
 							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. ($row['first_name']) . ' ' . ($row['last_name']) .'</option>';
 						} ?>
-						<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') != 'top') { ?>
+							<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php } ?>
 					</select>
 				</div>
 				<div class="col-sm-1">

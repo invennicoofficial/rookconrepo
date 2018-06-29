@@ -141,7 +141,7 @@ if (isset($_POST['submit'])) {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Contact(s) :</td><td>'.get_multiple_contact($dbc, $businesscontactid.',').'</td></tr>';
 			}
 			if($companycontactid != '') {
-				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Company Attendees :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Staff Members :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
 			}
 			if($new_contact != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">New Contact :</td><td>'.$new_contact.'</td></tr>';

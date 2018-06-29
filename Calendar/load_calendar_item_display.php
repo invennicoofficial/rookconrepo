@@ -554,7 +554,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				unset($page_query['unbooked']);
 				unset($page_query['equipment_assignmentid']);
 				unset($page_query['teamid']);
-				$row_html .= ($edit_access == 1 ? "<a href='?".http_build_query($page_query)."' class='shift'>" : "");
+				$row_html .= ($edit_access == 1 ? "<a href='".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;' class='shift'>" : "");
 				$row_html .= "<div class='resizable-shift' data-shifttype='shift' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; opacity: 0;'>";
 				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 				$page_query['shiftid'] = $_GET['shiftid'];
@@ -604,11 +604,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$page_query['shiftid'] = $shift['shiftid'];
 					$page_query['current_day'] = $current_day;
 
-					if(basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']) == 'calendars_mobile.php') {
-						$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
-					} else {
-						$echo_url = "<a href='?".http_build_query($page_query)."'>";
-					}
+					$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
 
 					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$shift_styling."'>";
@@ -631,11 +627,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					$page_query['shiftid'] = $dayoff['shiftid'];
 
-					if(basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']) == 'calendars_mobile.php') {
-						$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
-					} else {
-						$echo_url = "<a href='?".http_build_query($page_query)."'>";
-					}
+					$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
 
 					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$dayoff['shiftid']."' data-recurring='$recurring' data-currentdate='$calendar_row' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; background-color: #aaa;'>";

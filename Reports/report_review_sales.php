@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/monthly_sales_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_review_sales', 0, WEBSITE_URL.'/Reports/Download/monthly_sales_'.$today_date.'.pdf', 'Monthly Sales by Injury Type Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
