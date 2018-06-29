@@ -36,8 +36,12 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `ref_card` TEXT AFTER `rate_card_name`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		// June 27, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_history` ADD `src` TEXT AFTER `userid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
-		set_config($dbc, 'db_version_jonathan', 6);
+		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";

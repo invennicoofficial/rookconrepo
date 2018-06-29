@@ -7,7 +7,7 @@ while($empty_time_card = mysqli_fetch_assoc($empty_time_cards)) {
 	mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$empty_time_card['item_id']."' WHERE `time_cards_id` = '".$empty_time_card['time_cards_id']."'");
 }
 
-error_reporting(0);
+// error_reporting(0);
 
 global $config;
 
@@ -45,6 +45,8 @@ foreach($config['tabs'] as $key => $timesheet_tab) {
 	$ordered_tabs[$key] = $timesheet_tab;
 }
 $config['tabs'] = $ordered_tabs;
+
+$config['hours_types'] = ['REG_HRS','DIRECT_HRS','INDIRECT_HRS','EXTRA_HRS','RELIEF_HRS','SLEEP_HRS','SICK_ADJ','SICK_HRS','STAT_AVAIL','STAT_HRS','VACA_AVAIL','VACA_HRS','TRACKED_HRS','BREAKS'];
 
 
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
@@ -358,7 +360,7 @@ function move_files($files) {
 function prepare_insert($ins_data = array(), $table = '') {
 	$columns = $values = [];
 	foreach($_POST as $field => $value) {
-		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','email','phone','address','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted'])) {
+		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','email','phone','address','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted','name','paid'])) {
 			$columns[] = "`$field`";
 			$values[] = "'".filter_var($value,FILTER_SANITIZE_STRING)."'";
 		}

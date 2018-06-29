@@ -1,5 +1,8 @@
 <?php if(!IFRAME_PAGE) { ?>
 	<ul class='sidebar hide-titles-mob collapsible <?= $tile == 'hr' ? '' : 'collapsed' ?>' style='padding-left: 15px;'>
+		<?php if(count($hr_summary) > 0) { ?>
+			<a href="?tile_name=<?= $tile ?>&tab=summary"><li class="<?= 'summary' == $tab ? 'active blue' : '' ?>">Summary</li></a>
+		<?php } ?>
 		<?php foreach($categories as $cat_id => $label) {
 			if($tab == $cat_id) {
 				$tab_cat = $label;
