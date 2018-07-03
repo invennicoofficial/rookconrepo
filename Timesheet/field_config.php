@@ -862,6 +862,9 @@ if($_GET['tab'] == 'approvals') {
 						<div class="col-sm-8">
 							<?php $timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').','; ?>
 							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Expenses Owed" <?= strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? 'checked' : '' ?>> Expenses Owed</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage" <?= strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? 'checked' : '' ?>> Mileage</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage Rate" <?= strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? 'checked' : '' ?>> Mileage Rate</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage Total" <?= strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? 'checked' : '' ?>> Mileage Total</label>
 						</div>
                     </div>
 
