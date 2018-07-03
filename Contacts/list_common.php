@@ -159,7 +159,7 @@ if($rows > 2500) {
 $i = 0;
 ?>
 <div class="standard-dashboard-body-title">
-<h3 class="gap-left"><?php echo ucwords($category); ?>
+<h3 class="gap-left"><?php //echo ucwords($category); ?>
 <div class="pull-right hide-titles-mob col-sm-8">
 	<form action="" method="POST">
 		<!--
