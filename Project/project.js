@@ -342,3 +342,7 @@ function getProjectLabel(id) {
 		$('.project_name').text(response);
 	});
 }
+function toggleProjectTracking() {
+	$('.time_tracking').text($('.time_tracking').text() == 'Stop Tracking Time' ? 'Get To Work' : 'Stop Tracking Time');
+	$.post('../Project/projects_ajax.php?action=toggle_time_tracking', { projectid: projectid });
+}
