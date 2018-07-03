@@ -2386,7 +2386,7 @@ function checkoutAll(button) {
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
-			$('#collapse_checkout,#tab_section_ticket_checkout').find('.toggle[value=0]').closest('.toggleSwitch').click();
+			$('#collapse_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
 			if($(button).data('recurring-ticket') != undefined && $(button).data('recurring-ticket') == 1) {
 				createRecurringTicket();
 			}
