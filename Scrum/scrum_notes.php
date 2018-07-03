@@ -80,10 +80,12 @@ function saveFieldMethod(field) {
 	</div>
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Track Time:</label>
-		<div class="col-sm-8">
+		<div class="col-sm-6">
 			<input type="text" class="form-control" name="timer" value="<?= $scrum_notes['timer_start'] > 0 ? time() - $scrum_notes['timer_start'] : '' ?>">
-			<button class="btn brand-btn timer start">Start</button>
-			<button class="btn brand-btn timer stop" style="display:none;">Stop</button>
+		</div>
+		<div class="col-sm-2">
+			<button class="btn brand-btn timer start col-sm-12">Start</button>
+			<button class="btn brand-btn timer stop col-sm-12" style="display:none;">Stop</button>
 		</div>
 	</div>
 	<div class="form-group">
