@@ -170,7 +170,7 @@ if (isset($_POST['add_list'])) {
             $('#add_here_new_doc').append(clone);
             return false;
         });
-        
+
         //Open the accordion based on URL parameter
         //e.g. Contacts/add_contacts.php?category=Patient&contactid=1234#patient_accounts_receivable
         var url = document.location.toString();
@@ -206,7 +206,7 @@ function selectHour(obj){
 	$url_category	= $_GET['category'];
 	$intakeid		= ( isset($_GET['intakeid']) ) ? trim($_GET['intakeid']) : '';
 	$project_type	= ( isset($_GET['project_type']) ) ? trim($_GET['project_type']) : '';
-    
+
 	$subtab = (!empty($_POST['subtab']) ? $_POST['subtab'] : (!empty($_GET['subtab']) ? $_GET['subtab'] : ''));
 	if($subtab == '' && !empty($_GET['target'])) {
         $subtab = mysqli_fetch_array(mysqli_query($dbc, "SELECT `subtab` FROM `field_config_vendors` WHERE CONCAT(',',`fields`,',') LIKE '%,".$_GET['target'].",%' AND `tab`='$url_category' UNION (SELECT `subtab` FROM `field_config_vendors` WHERE `tab`='$url_category' AND `fields` IS NOT NULL ORDER BY `order`)"))['subtab'];
@@ -216,7 +216,7 @@ function selectHour(obj){
 
 <div class="container">
     <div class="row">
-        <h1><?= ( empty($contactid) ) ? 'Add' : ''; ?> Vendor <?= ( !empty($contactid) ) ? ' - ' . get_client($dbc, $contactid) : ''; ?></h1>
+        <h1><?= ( empty($contactid) ) ? 'Add' : ''; ?> <?= VENDOR_TILE ?> <?= ( !empty($contactid) ) ? ' - ' . get_client($dbc, $contactid) : ''; ?></h1>
 
 		<?php
 			if ( !empty($intakeid) ) { ?>
@@ -257,7 +257,7 @@ function selectHour(obj){
 			</script>
 			<input type="hidden" id="contactid"	name="contactid" value="<?php echo $contactid ?>" /><?php
         }
-        
+
         //if ( isset($_GET['contactid']) && !empty($_GET['contactid']) ) {
             //$url_category_lower = strtolower($url_category);
             //$subtab_list = get_config($dbc, FOLDER_NAME.'_'.$url_category_lower.'_field_subtabs');
@@ -296,7 +296,7 @@ function selectHour(obj){
         //} ?>
 		<input type="hidden" name="subtab" value="">
 		<input type="hidden" id="url_category"	name="category" value="<?php echo $url_category ?>" />
-        
+
         <div class="panel-group" id="accordion2<?php echo (IFRAME_PAGE ? '_IF' : ''); ?>"><?php
             $query_main = mysqli_query($dbc, "SELECT `accordion`, IFNULL(`subtab`,'Main') `subtab`, `fields` FROM `field_config_vendors` WHERE `tab`='vendor' AND `fields`!='Category,' AND `accordion` IS NOT NULL AND `order` IS NOT NULL ORDER BY IFNULL(`subtab`,'Main')='$subtab', `order`");
 
@@ -304,7 +304,7 @@ function selectHour(obj){
             if(IFRAME_PAGE) {
                 $j = 100;
             }
-        
+
             while ( $row_main=mysqli_fetch_array($query_main) ) {
                 $accordion      = $row_main['accordion'];
                 $value_config   = ','.$row_main['fields'].',';
@@ -339,29 +339,29 @@ function selectHour(obj){
                         </div>
                     </div><!-- .panel .panel-default --><?php
                 }
-                
+
                 if ( $subtab=='Price Lists' ) {
                     include ('price_lists.php');
                     $hide_buttons = 'display:none;';
                     break;
                 }
-                
+
                 if ( $subtab=='Order Lists' ) {
                     include ('order_lists.php');
                     $hide_buttons = 'display:none;';
                     break;
                 }
-                
+
                 if ( $subtab=='Accounts' ) {
                     include ('accounts.php');
                     $hide_buttons = 'display:none;';
                     break;
                 }
-                
+
                 $j++;
-                
+
             } ?>
-            
+
 
             <div class="form-group double-gap-top" style="<?= $hide_buttons; ?>">
                 <p><span class="brand-color"><em>Required Fields *</em></span></p>
@@ -503,7 +503,7 @@ function selectHour(obj){
             </script>
 
             </form>
-            
+
         </div>
     </div>
 </div>

@@ -220,7 +220,7 @@ function go_to_dashboard(target) {
 				}
 				echo $dashboard_name;
 			} else {
-				
+
 			}
 			echo "</div>";
             // echo "<div class='col-sm-4'><center><input type='text' name='x' class='form-control live-search-box' placeholder='Search for a tile...' style='max-width:300px;'></center></div>";
@@ -255,7 +255,7 @@ function go_to_dashboard(target) {
 				}
 			}
 			echo "<div class='clearfix'></div><br />";
-			
+
 			if(stripos(','.ROLE.',',',super,') !== false) {
 				mysqli_query($dbc,"INSERT INTO `tile_security` (`tile_name`) SELECT 'software_config' FROM (SELECT COUNT(*) rows FROM `tile_security` WHERE `tile_name`='software_config') num WHERE num.rows=0");
 				//if($get_config['total_id'] == 0) {

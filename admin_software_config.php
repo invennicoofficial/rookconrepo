@@ -356,7 +356,7 @@ checkAuthorised();
 						</span>
 						<a href="admin_software_config.php?config_differences"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_config . '">Live vs Demo Configurations</button></a>
 					</div>';
-					
+
 				echo '
 					<div class="pull-left tab">
 						<span class="popover-examples no-gap-pad">
@@ -913,7 +913,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'material', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Vendors</td>
+                                        <td data-title="Comment"><?= VENDOR_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'vendors', 'admin'); ?>
                                     </tr>
                                 </table>

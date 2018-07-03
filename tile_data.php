@@ -369,7 +369,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>'Vendors']; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;
