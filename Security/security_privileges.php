@@ -645,7 +645,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',vendors,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('vendors', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Vendors</td>
+				<td data-title="Comment"><?= VENDOR_TILE ?></td>
 				<?php echo security_tile_config_function('vendors', get_privileges($dbc, 'vendors',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>

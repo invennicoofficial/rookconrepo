@@ -230,6 +230,40 @@ function attach_file(checklist) {
 	});
 	$('[name='+file_id+']').click();
 }
+function manual_flag_item(checklist) {
+	var item = $(checklist).closest('li');
+	item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+	item.find('[name=flag_cancel]').off('click').click(function() {
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		return false;
+	});
+	item.find('[name=flag_off]').off('click').click(function() {
+		item.find('[name=colour]').val('FFFFFF');
+		item.find('[name=label]').val('');
+		item.find('[name=flag_start]').val('');
+		item.find('[name=flag_end]').val('');
+		item.find('[name=flag_it]').click();
+		return false;
+	});
+	item.find('[name=flag_it]').off('click').click(function() {
+		$.ajax({
+			url: '../Checklist/checklist_ajax.php?fill=checklistflagmanual',
+			method: 'POST',
+			data: {
+				value: item.find('[name=colour]').val(),
+				label: item.find('[name=label]').val(),
+				start: item.find('[name=flag_start]').val(),
+				end: item.find('[name=flag_end]').val(),
+				id: item.find('[data-checklist]').data('checklist')
+			}
+		});
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		item.data('colour',item.find('[name=colour]').val());
+		item.css('background-color','#'+item.find('[name=colour]').val());
+		item.find('.flag-label').text(item.find('[name=label]').val());
+		return false;
+	});
+}
 function flag_item(checklist) {
 	checklist_id = $(checklist).closest('[data-checklist]').data('checklist');
 	var type = 'checklist';
@@ -453,17 +487,33 @@ if($num_rows > 0) { ?>
             $result = mysqli_query($dbc, "SELECT * FROM checklist_name WHERE checklistid='$checklistid' AND ((checked = 0 AND '".(count(array_filter(explode(',',$checklist['ticketid']))) > 1 ? $_GET['ticketid'] : '')."' = '') OR (CONCAT(',',IFNULL(ticket_checked,''),',') NOT LIKE '%,".$_GET['ticketid'].",%') AND '".$_GET['ticketid']."' != '') AND deleted = 0 ORDER BY priority");
 
             $first_class = 1;
+			$colours = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colours` FROM `field_config_checklist`"))['flag_colours']);
             while($row = mysqli_fetch_array( $result )) {
+				if(strtotime($row['flag_start']) > time() || strtotime($row['flag_end'].' + 1 day') < time()) {
+					$row['flag_colour'] = '';
+				}
                 echo '<li id="'.$row['checklistnameid'].'" class="ui-state-default '. ($first_class==1 ? 'ui-state-default-first' : '') .'" '.($row['flag_colour'] == '' ? '' : 'style="background-color: #'.$row['flag_colour'].';"').'>';
                 $first_class=0;
                     echo '<span class="">
                         <div class="col-sm-1 col-xs-2 middle-valign text-center"><input title="Complete" type="checkbox" onclick="checklistChange(this);" data-ticket="'.(count(array_filter(explode(',',$checklist['ticketid']))) > 1 ? $_GET['ticketid'] : '').'" value="'.$row['checklistnameid'].'" name="checklistnameid[]" /></div>';
 
-                        echo '<span class="col-sm-11 middle-valign" data-checklist="'.$row['checklistnameid'].'">
-							<span class="action-icons inline-img" style="width: 100%;">';
-								echo '<span class=" middle-valign text-center drag_handle-container"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>
-							</span>';
+                        echo '<span class="col-sm-11 middle-valign" data-checklist="'.$row['checklistnameid'].'">';
 
+							if(in_array('flag_manual',$quick_actions)) { ?>
+								<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+								<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+								<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+										<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+										<?php foreach($colours as $flag_colour) { ?>
+											<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+										<?php } ?>
+									</select></div>
+								<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+								<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+								<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+								<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+								<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+							<?php }
                             echo '<input type="text" name="reply_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
                             echo '<input type="text" name="checklist_time_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
                             echo '<input type="text" name="reminder_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
@@ -479,12 +529,11 @@ if($num_rows > 0) { ?>
 							}
 							echo '</span>&nbsp;&nbsp;';
 
-
-
                         echo '<span class="col-sm-11 middle-valign" data-checklist="'.$row['checklistnameid'].'">
 							<span class="action-icons inline-img" style="width: 100%;">';
 								echo $security['edit'] > 0 && in_array('edit',$quick_actions) ? '<span class="" title="Edit" onclick="edit_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
-								echo in_array('flag',$quick_actions) ? '<span class="" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
+								echo in_array('flag_manual',$quick_actions) ? '<span class="" title="Flag This!" onclick="manual_flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
+								echo !in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<span class="" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
 								echo in_array('reply',$quick_actions) ? '<span class="" title="Reply" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
 								echo in_array('attach',$quick_actions) ? '<span class="" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
 								echo in_array('alert',$quick_actions) ? '<span class="" title="Send Alert" onclick="send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
@@ -492,17 +541,12 @@ if($num_rows > 0) { ?>
 								echo in_array('reminder',$quick_actions) ? '<span class="" title="Schedule Reminder" onclick="send_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:100%;" onclick="return false;"></span>': '';
 								echo in_array('time',$quick_actions) ? '<span class="" title="Add Time" onclick="add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
 								echo $security['edit'] > 0 && in_array('archive',$quick_actions) ? '<span class="" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:100%;" onclick="return false;"></span>' : '';
+								echo '<span class=" middle-valign text-center drag_handle-container"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>';
 							echo '</span>';
-
-
-
-
-
 
                             $documents = mysqli_query($dbc, "SELECT * FROM checklist_name_document WHERE checklistnameid='".$row['checklistnameid']."' AND `deleted`=0");
                             while($doc = mysqli_fetch_array($documents)) {
-                                echo '<a href="download/'.$doc['document'].'">'.$doc['document'].' (Uploaded by '.get_staff($dbc, $doc['created_by']).' on '.$doc['created_date'].')</a><br />';
-                                echo '</span>';
+                                echo '<div><a href="download/'.$doc['document'].'">'.$doc['document'].' (Uploaded by '.get_staff($dbc, $doc['created_by']).' on '.$doc['created_date'].')</a></div>';
                             }
 						echo '</span>';
                     // echo '<div class="col-sm-1 middle-valign text-center drag_handle-container"></div>';

@@ -3,7 +3,6 @@
 error_reporting(0);
 include_once ('database_connection.php');
 include_once ('function.php');
-$db_version_jonathan = get_config($dbc, 'db_version_jonathan');
 
 echo "Updating Compiled Procedures...\n";
 include('db_procedures.php');

@@ -624,7 +624,7 @@ if(!$action_mode && !$overview_mode) {
 												<option <?= $type[0] == 'staff' ? 'selected' : '' ?> value="staff">Staff</option>
 											<?php } ?>
 											<?php if(tile_enabled($dbc, 'vendors')) { ?>
-												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors">Vendors</option>
+												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors"><?= VENDOR_TILE ?></option>
 											<?php } ?>
 											<option <?= $type[0] == 'custom' ? 'selected' : '' ?> value="custom">Custom Categories</option>
 										</select>

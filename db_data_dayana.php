@@ -218,6 +218,14 @@ mysqli_query($dbc, "ALTER TABLE `download_tracking` CHANGE `table` `table_name` 
 
 mysqli_query($dbc, "ALTER TABLE `agenda_meeting` ADD `heading` VARCHAR(500) NULL AFTER `location`");
 
+$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='vendor_tile_name'"));
+if($get_config['configid'] > 0) {
+    $query_update_employee = "UPDATE `general_configuration` SET value = 'Vendors' WHERE name='vendor_tile_name'";
+    $result_update_employee = mysqli_query($dbc, $query_update_employee);
+} else {
+    $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('vendor_tile_name', 'Vendors')";
+    $result_insert_config = mysqli_query($dbc, $query_insert_config);
+}
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>

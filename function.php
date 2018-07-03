@@ -37,6 +37,7 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	$_SESSION['TICKET_NOUN'] = $ticket_tile_name[1] ?: ($_SESSION['TICKET_TILE'] == 'Work Orders' ? 'Work Order' : ($_SESSION['TICKET_TILE'] == 'Tickets' ? 'Ticket' : $_SESSION['TICKET_TILE']));
 	$_SESSION['TICKET_LABEL'] = get_config($dbc, 'ticket_label');
 	$_SESSION['ESTIMATE_TILE'] = get_config($dbc, 'estimate_tile_name');
+	$_SESSION['VENDOR_TILE'] = get_config($dbc, 'vendor_tile_name');
 
 	$inc_rep_tile_name = explode('#*#',get_config($dbc, 'inc_rep_tile_name') ?: 'Incident Reports#*#Incident Report');
 	$_SESSION['INC_REP_TILE'] = $inc_rep_tile_name[0] ?: 'Incident Reports';
@@ -92,6 +93,7 @@ DEFINE('AFTER_PROJECT', $_SESSION['AFTER_PROJECT']);
 DEFINE('JOBS_TILE', $_SESSION['JOBS_TILE']);
 DEFINE('TICKET_TILE', $_SESSION['TICKET_TILE']);
 DEFINE('ESTIMATE_TILE', $_SESSION['ESTIMATE_TILE']);
+DEFINE('VENDOR_TILE', $_SESSION['VENDOR_TILE']);
 DEFINE('TICKET_NOUN', $_SESSION['TICKET_NOUN']);
 DEFINE('TICKET_LABEL', $_SESSION['TICKET_LABEL']);
 DEFINE('INC_REP_TILE', $_SESSION['INC_REP_TILE']);
@@ -1690,7 +1692,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Form Builder';
 				break;
 			case 'vendors':
-				$tiles[] = 'Vendors';
+				$tiles[] = VENDOR_TILE;
 				break;
 			case 'reactivation':
 				$tiles[] = 'Follow Up';

@@ -29,4 +29,12 @@
 		$intakeformid = $_GET['intakeformid'];
 		mysqli_query($dbc, "UPDATE `intake_forms` SET `access_code` = '' WHERE `intakeformid` = '$intakeformid'");
 	}
+if($_GET['fill'] == 'intakeflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `intake` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `intakeid`='$id'");
+}
 ?>
