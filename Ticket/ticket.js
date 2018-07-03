@@ -549,6 +549,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
