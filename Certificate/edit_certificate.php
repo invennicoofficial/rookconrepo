@@ -1,3 +1,6 @@
+<?php include_once('../include.php');
+checkAuthorised('certificate');
+$access = get_security($dbc, 'certificate'); ?>
 <script>
 function add_row_doc() {
 	var link = $('.additional_doc').last();
@@ -737,5 +740,7 @@ if(!empty($_GET['edit'])) {
     </div>
   </div>
   <?php } ?>
+  <div class="clearfix"></div>
 </div>
+<div class="clearfix"></div>
 <a href="?" class="btn brand-btn pull-right">Submit</a>

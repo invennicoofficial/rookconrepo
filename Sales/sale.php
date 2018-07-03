@@ -272,12 +272,16 @@ if (isset($_POST['add_sales'])) {
 
 <script type="text/javascript">
 $(document).ready(function() {
-    if($(window).width() > 767) {
-        resizeScreen();
-        $(window).resize(function() {
+    <?php if($_GET['iframe_slider'] == 1) { ?>
+        $('#sales_div .tile-container,#sales_div .tile-content,#sales_div .main-screen-white').height('100%');
+    <?php } else { ?>
+        if($(window).width() > 767) {
             resizeScreen();
-        });
-    }
+            $(window).resize(function() {
+                resizeScreen();
+            });
+        }
+    <?php } ?>
     var $sections = $('.accordion-block-details');
     $('.main-screen-white').on('scroll', function(){
         var currentScroll = $('.main-screen .tile-container').offset().top + $('.main-screen-white').find('.preview-block-header').height();
@@ -447,8 +451,10 @@ function resizeScreen() {
 
 <body>
 <?php
-	include_once ('../navigation.php');
-checkAuthorised('sales');
+    if($_GET['iframe_slider'] != 1) {
+    	include_once ('../navigation.php');
+    }
+    checkAuthorised('sales');
     $statuses     = get_config($dbc, 'sales_lead_status');
     $next_actions = get_config($dbc, 'sales_next_action');
     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sales` FROM `field_config`"));
@@ -465,7 +471,9 @@ checkAuthorised('sales');
     
     <div class="row">
 		<div class="main-screen"><?php
-            include('tile_header.php');
+            if($_GET['iframe_slider'] != 1) {
+                include('tile_header.php');
+            }
             
             $page      = preg_replace('/\PL/u', '', $_GET['p']);
             $salesid   = preg_replace('/[^0-9]/', '', $_GET['id']); ?>
@@ -481,7 +489,7 @@ checkAuthorised('sales');
             
             <div class="tile-container">
                 <!-- Sidebar -->
-                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile">
+                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 ? 'style="display:none;"' : '' ?>>
                     <ul><?php
                         if (strpos($value_config, ',Sales Path,') !== false) { ?>
                             <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Path</li></a><?php
@@ -548,4 +556,6 @@ checkAuthorised('sales');
     </div><!-- .row -->
 </div><!-- .container -->
 
-<?php include ('../footer.php'); ?>
+<?php if($_GET['iframe_slider'] != 1) {
+    include ('../footer.php');
+} ?>

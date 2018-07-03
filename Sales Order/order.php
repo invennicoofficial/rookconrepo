@@ -661,6 +661,9 @@ function updateSalesOrderName() {
                         <!-- Preview Bar -->
                         <?php $detect = new Mobile_Detect;
                         $is_mobile = ( $detect->isMobile() ) ? true : false;
+                        if($_GET['iframe_slider'] == 1) {
+                            $is_mobile = true;
+                        }
                         if(!$is_mobile) { ?>
                             <div class="scalable preview-bar hide-titles-mob" style="<?= $scale_style ?>"><?php
                                 include('details_preview.php'); ?>
