@@ -130,6 +130,19 @@ if($_GET['action'] == 'mark_favourite') {
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
+	} else if($field == 'flag_manual') {
+		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+		$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+		$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+		if($table == 'tickets') {
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
+			if(!empty($label)) {
+				mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$label',DATE(NOW()),'".$_SESSION['contactid']."')");
+			}
+		} else {
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+		}
 	} else if($field == 'work_time') {
 		if($table == 'tasklist') {
 			$time = strtotime($value);
@@ -695,6 +708,9 @@ if($_GET['action'] == 'mark_favourite') {
 		case 'cnt1':
 			include ('pos_invoice_contractor_1.php');
 			break;
+		case 'cnt2':
+			include ('pos_invoice_contractor_2.php');
+			break;
         default:
 			include('pos_invoice_1.php');
 			break;
@@ -1001,5 +1017,29 @@ if($_GET['action'] == 'mark_favourite') {
 		echo get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$_POST['projectid']."'")));
 	} else {
 		echo 'New '.PROJECT_NOUN;
+	}
+} else if($_GET['action'] == 'toggle_time_tracking') {
+	$projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+	$staff = $_SESSION['contactid'];
+	$current_time = $dbc->query("SELECT * FROM `time_cards` WHERE (`projectid`='$projectid' OR `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid')) AND `staff`='$staff' AND `deleted`=0 AND `timer_start` > 0");
+	$seconds = time();
+	$time = date('H:i');
+	$today = date('Y-m-d');
+	$time_minimum = get_config($dbc, 'ticket_min_hours');
+	$time_interval = get_config($dbc, 'timesheet_hour_intervals');
+	if($current_time->num_rows > 0) {
+		$row = $current_rows->fetch_assoc();
+		if($row['ticketid'] > 0) {
+			$dbc->query("UPDATE `ticket_attached` `hours_tracked`=($sceonds - `timer_start`) / 3600, `timer_start`=0, `checked_out`='$time' WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid` AND `deleted`=0) AND `deleted`=0 AND `timer_start` > 0");
+		}
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`type_of_time`='day_tracking',IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`),''), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'");
+	} else {
+		// Sign out of Day Tracking and create a new row to resume Day Tracking
+		mysqli_query($dbc, "INSERT INTO `time_cards` (`timer_start`, `type_of_time`, `start_time`, `staff`, `date`, `day_tracking_type`, `created_by`) SELECT '$seconds', 'day_tracking', '$time', `staff`, '$today', CONCAT('Work:',MAX(`time_cards_id`)), 0 FROM `time_cards` WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='$staff'");
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='$staff'");
+		// Sign into the Project
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='$staff'");
+		mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, '$staff', '$today', '$time', '$seconds', '".PROJECT_NOUN." Time', 'Checked in on ".PROJECT_NOUN." #$projectid', '$staff' FROM `project` WHERE `projectid`='$projectid'");
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `projectid`!='$projectid' AND `staff`='$staff' AND `timer_start` > 0");
 	}
 }

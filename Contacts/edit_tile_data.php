@@ -2192,55 +2192,47 @@
 	<?php } else {
 		echo 'No Treatment Charts Found.';
 	}
-} else if ($field_option == "Match Addition") {
-	$match_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE (CONCAT(',',`support_contact`,',') LIKE '%,$contactid,%' OR CONCAT(',',`staff_contact`,',') LIKE '%,$contactid,%') AND `deleted` = 0");
-	if(mysqli_num_rows($match_list) > 0) { ?>
-		<table class="table table-bordered">
-			<tr class="hidden-sm hidden-xs">
-				<th>Staff</th>
-				<th>Contacts</th>
-				<th>Timeline</th>
-				<th>Follow Up</th>
-				<th>End Date</th>
-				<th>Status</th>
-				<th>Function</th>
-			</tr>
-			<?php while($row = mysqli_fetch_array($match_list)) { ?>
-				<tr>
-					<td data-title="Staff">
-					<?php
-						$staff_list = explode(',',$row['staff_contact']);
-						$staff_list_arr = [];
-						foreach ($staff_list as $staffid) {
-							$staff_list_arr[] = get_contact($dbc, $staffid);
-						}
-						$staff_list = implode(', ', $staff_list_arr);
-						echo $staff_list;
-					?>
-					</td>
-					<td data-title="Contacts">
-					<?php
-						$staff_list = explode(',',$row['support_contact']);
-						$staff_list_arr = [];
-						foreach ($staff_list as $staffid) {
-							$staff_list_arr[] = get_contact($dbc, $staffid);
-						}
-						$staff_list = implode(', ', $staff_list_arr);
-						echo $staff_list;
-					?>
-					</td>
-					<td data-title="Timeline"><?= $row['match_date'] ?></td>
-					<td data-title="Follwo Up"><?= $row['follow_up_date'] ?></td>
-					<td data-title="End Date"><?= $row['end_date'] ?></td>
-					<td data-title="Status"><?= $row['status'] ?></td>
-					<td data-title="Function"><a href="<?= WEBSITE_URL ?>/Match/add_match.php?matchid=<?= $row['matchid'] ?>">Edit</a></td>
-				</tr>
-			<?php } ?>
-		</table>
-	<?php } else {
-		echo 'No Matches Found.';
+} else if ($field_option == "Match Addition") { ?>
+	<script type="text/javascript">
+	function reload_match() {
+		var contactid = $('[name="contactid"]').val();
+		$.ajax({
+			url: '../Contacts/edit_addition_match.php?edit='+contactid,
+			success: function(response) {
+				$('#match_div').html(response);
+				initInputs('#match_div');
+			}
+		});
 	}
-} else if ($field_option == "Customer Rate Card Addition" && vuaed_visible_function($dbc,'rate_card')) {
+	function update_match_status(a) {
+		var matchid = $(a).data('matchid');
+		var status = $(a).data('status');
+		$.ajax({
+			url :'../Match/isp_ajax_all.php?fill=update_match_status&matchid='+matchid+'&status='+status,
+			method: 'GET',
+			success: function(response) {
+				reload_match();
+			}
+		});
+	}
+	function delete_match(a) {
+		if(confirm("Are you sure you want to archive this Match?")) {
+			var matchid = $(a).data('matchid');
+			$.ajax({
+				url :'../Match/isp_ajax_all.php?fill=delete_match&matchid='+matchid,
+				method: 'GET',
+				success: function(response) {
+					$(a).closest('tr').remove();
+				}
+			});
+		}
+	}
+	</script>
+	<div class="form-group pull-right"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Match/edit_match.php?from_tile=contacts&edit=&support_contact=<?= $contactid ?>', 'auto', false, true); return false;" class="btn brand-btn">Add Match</a></div>
+	<div id="match_div">
+		<?php include('../Contacts/edit_addition_match.php'); ?>
+	</div>
+<?php } else if ($field_option == "Customer Rate Card Addition" && vuaed_visible_function($dbc,'rate_card')) {
 	$rate_card_list = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"); ?>
 	<a href="../Rate Card/ratecards.php?type=customer&card=customer&status=add&clientid=<?= $contactid ?>" class="btn brand-btn pull-right" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Add New</a>
 	<?php if(mysqli_num_rows($rate_card_list) > 0) { ?>

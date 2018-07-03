@@ -13,12 +13,23 @@ if($db_config == '') {
 	$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
 }
 $db_config = explode(',',$db_config);
-$ticket_flag_names = [''=>''];
-$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
-foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
-	$ticket_flag_names[$colour] = $flag_names[$i];
-}
-$flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
+$flag_label = '';
+if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
+	if(in_array('flag_manual',$quick_actions)) {
+		if(time() < strtotime($ticket['flag_start']) || time() > strtotime($ticket['flag_end'].' + 1 day')) {
+			$ticket['flag_colour'] = '';
+		} else {
+			$flag_label = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+		}
+	} else {
+		$ticket_flag_names = [''=>''];
+		$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+			$ticket_flag_names[$colour] = $flag_names[$i];
+		}
+		$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+	}
+} ?>
 <div class="dashboard-item" data-id="<?= $ticketid ?>" data-colour="<?= $ticket['flag_colour'] ?>" data-table="tickets" data-id-field="ticketid" style="<?= $ticket['flag_colour'] != '' ? 'background-color: #'.$ticket['flag_colour'].';' : '' ?>">
 	<span class="flag-label"><?= $flag_label ?></span>
 	<?php if(in_array('Extra Billing',$db_config)) {
@@ -52,7 +63,8 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 
 	<?php if($tile_security['edit'] > 0) { ?>
 		<div class="action-icons">
-			<?php echo (in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '');
+			<?php echo (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '');
+			echo (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '');
 			echo (in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Activate Alerts &amp; Get Notified">' : '');
 			echo (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '');
 			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '');
@@ -71,6 +83,22 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 	<?php } ?>
 
 
+	<?php if(in_array('flag_manual',$quick_actions)) {
+		$colours = explode(',', get_config($dbc, "ticket_colour_flags")); ?>
+		<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
+		<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+				<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+				<?php foreach($colours as $flag_colour) { ?>
+					<option <?= $ticket['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+				<?php } ?>
+			</select></div>
+		<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $ticket['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+		<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $ticket['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+		<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+		<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+	<?php } ?>
 	<input type='text' name='reply' value='' class="form-control" style="display:none;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<div class="select_users" style="display:none;">
@@ -83,6 +111,7 @@ $flag_label = $ticket_flag_names[$ticket['flag_colour']]; ?>
 		<button class="cancel_button btn brand-btn pull-right">Cancel</button>
 	</div>
 	<input type='file' name='document' value='' data-table="<?= $doc_table ?>" data-folder="<?= $doc_folder ?>" style="display:none;">
+	<div class="clearfix"></div>
 	<?php if(in_array('Project',$db_config)) {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">'.PROJECT_NOUN.' Information:</label>

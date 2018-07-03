@@ -1,7 +1,7 @@
 <?php
 	//Jonathan's Database Changes
 	echo "Jonathan's DB Changes:<br />\n";
-	
+	$db_version_jonathan = get_config($dbc, 'db_version_jonathan');
 	/*** USE THE FOLLOWING EXAMPLES: ***
 	if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `table_name` (
 		`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -36,9 +36,47 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `ref_card` TEXT AFTER `rate_card_name`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
-    
 		// June 27, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_history` ADD `src` TEXT AFTER `userid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 7);
+	}
+	
+	if($db_version_jonathan < 8) {
+		// June 29, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `checklist_name` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `checklist_name` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `checklist_name` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `intake` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `intake` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `intake` ADD `flag_label` TEXT AFTER `flag_colour`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		

@@ -476,23 +476,7 @@ function changeShiftAvailability() {
 }
 </script>
 
-<?php unset($page_query['shiftid']); ?>
-<?php if (!isset($_GET['hideaddbutton'])) {
-    unset($page_query['shift_startdate']);
-    unset($page_query['shift_enddate']);
-    unset($page_query['shift_starttime']);
-    unset($page_query['shift_endtime']);
-    unset($page_query['shift_staffid']); ?>
-    <a href="?<?= http_build_query($page_query) ?>&shiftid=NEW" class="btn brand-btn pull-right">Add</a>
-    <?php if (strpos($enabled_fields, ',import_button,') !== FALSE) { ?>
-        <a href="?<?= http_build_query($page_query) ?>&shiftid=IMPORT" class="btn brand-btn pull-right">Import</a>
-    <?php } ?>
-    <?php if (strpos($enabled_fields, ',export_button') !== FALSE) { ?>
-        <a href="" onclick="exportShifts(); return false;" class="btn brand-btn pull-right">Export</a>
-    <?php } ?>
-<?php } ?>
-<?php $page_query['shiftid'] = $shiftid;
-$lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+<?php $lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
 
 <h3 class="gap-left"><?= $shift_heading ?></h3>
 

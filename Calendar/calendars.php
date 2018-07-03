@@ -132,6 +132,7 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	<input type="hidden" id="retrieve_block_type" value="<?= $retrieve_block_type ?>">
 	<input type="hidden" id="retrieve_contact" value="<?= $retrieve_contact ?>">
 	<input type="hidden" id="calendar_view" value="<?= $_GET['view'] ?>">
+	<input type="hidden" id="calendar_mode" value="<?= $_GET['mode'] ?>">
 	<input type="hidden" id="calendar_start" value="<?= $calendar_start ?>">
 	<input type="hidden" id="calendar_dates" value='<?= json_encode($calendar_dates); ?>'>
 	<input type="hidden" id="calendar_type" value="<?= $_GET['type'] ?>">
@@ -148,6 +149,41 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	</div>
 	<div id="dialog-staff-add" title="Add Staff or Replace Staff" style="display: none;">
 		Would you like to add this Staff or replace all Staff with the new Staff?
+	</div>
+	<div id="dialog-quick-add-shift" title="Quick Add Shift" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Staff:</label>
+			<div class="col-sm-8">
+				<select name="quick_add_staff" class="chosen-select-deselect form-control">
+					<option></option>
+					<?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC);
+					foreach($contact_list as $contact) {
+						echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+		<?php $shift_client_type = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['contact_category'];
+		if(!empty($shift_client_type)) { ?>
+			<div class="form-group">
+				<label class="col-sm-4 control-label"><?= $shift_client_type ?>:</label>
+				<div class="col-sm-8">
+					<select name="quick_add_client" class="chosen-select-deselect form-control">
+						<option></option>
+						<?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category`='".$shift_client_type."' AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1".$region_query),MYSQLI_ASSOC);
+						foreach($contact_list as $contact) {
+							echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
+						} ?>
+					</select>
+				</div>
+			</div>
+		<?php } ?>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Time:<br><em>(eg. 8am - 4pm)</em></label>
+			<div class="col-sm-8">
+				<input type="text" name="quick_add_time" class="form-control" value="">
+			</div>
+		</div>
 	</div>
 	<div id="dialog-scheduled-time" title="Change Scheduled Time" style="display: none;">
 		<input type="hidden" name="change_ticket_table" value="">

@@ -114,7 +114,7 @@ function send_alert(ticket) {
 }
 function send_email(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
-	choose_user('email', ticket_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+ticket_id, 'auto', false, true, $('#scrum_div').height());
 }
 function send_reminder(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
@@ -222,6 +222,7 @@ function archive(ticket) {
 </div>
 <div class="standard-body-content">
     <?php $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='projects_scrum'"));
+
     $note = $notes['note'];
     if ( !empty($note) ) { ?>
         <div class="notice popover-examples">

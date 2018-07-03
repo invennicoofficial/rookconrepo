@@ -175,6 +175,11 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Time Clock Start Date', $all_config) ? 'checked disabled' : (in_array('Dates Time Clock Start Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Time Clock Start Date">Time Clock Start Date</label>
 	</div>
 	<div class="clearfix"></div>
+	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Reporting<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
+	<div class="block-group col-sm-8">
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Reporting Track Time', $all_config) ? 'checked disabled' : (in_array('Reporting Track Time',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Reporting Track Time">Get To Work / Track Time</label>
+	</div>
+	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Billing<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
 	<div class="block-group col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Billing Ticket Lines', $all_config) ? 'checked disabled' : (in_array('Billing Ticket Lines',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Billing Ticket Lines"><?= TICKET_NOUN ?> Lines</label>

@@ -331,6 +331,43 @@ function setActions() {
 		});
 		item.hide();
 	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+				data: {
+					field: 'manual_flag_colour',
+					value: item.find('[name=colour]').val(),
+					table: item.data('table'),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
+	});
 	$('.flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		$.ajax({
@@ -480,40 +517,7 @@ function setActions() {
 	});
 	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		var select = item.find('.select_users');
-		select.find('.cancel_button').off('click').click(function() {
-			select.find('select option:selected').removeAttr('selected');
-			select.hide();
-			return false;
-		});
-		select.find('.submit_button').off('click').click(function() {
-			if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-				var users = [];
-				select.find('select option:selected').each(function() {
-					users.push(this.value);
-					$(this).removeAttr('selected');
-					select.find('select').trigger('change.select2');
-				});
-				$.ajax({
-					method: 'POST',
-					url: 'ticket_ajax_all.php?action=quick_actions',
-					data: {
-						id: item.data('id'),
-						id_field: item.data('id-field'),
-						table: item.data('table'),
-						field: 'email',
-						value: users
-					},
-					success: function(result) {
-						select.hide();
-						select.find('select').trigger('change.select2');
-						item.find('h4').append(result);
-					}
-				});
-			}
-			return false;
-		});
-		select.show();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
 }
 function setStatus(select) {
@@ -1179,8 +1183,56 @@ IF(!IFRAME_PAGE) { ?>
 <?php if(!in_array('Disable',$db_summary)) {
 	$summary_urls = get_config($dbc, 'ticket_summary_urls'); ?>
 	<div class="summary_div" style="display:none;">
+		<script>
+		google.charts.load("current", {"packages":["corechart"]});
+		</script>
 		<?php $blocks = [];
 		$total_length = 0;
+		if(in_array('Time Graph',$db_summary)) {
+			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
+				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
+					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+				}
+				$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
+				$blocks[] = [350, '<div class="overview-block">
+					<div id="time_chart" style="width: 100%; height: 350px;"></div>
+				</div>
+				<script>
+				google.charts.setOnLoadCallback(drawTimeChart);
+
+				function drawTimeChart() {
+
+				var data = google.visualization.arrayToDataTable([
+						["My Tracked Time", "Hours"],
+						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
+						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
+					]);
+
+					var options = {
+						title: "My Tracked Time",
+						pieHole: 0.5,
+						tooltip: { text: "none" },
+						slices: {
+							0: { color: "#00aeef" },
+							1: { color: "#84C6E4" },
+						}
+					};
+
+					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
+
+					chart.draw(data, options);
+				}
+				</script>'];
+				$total_length += 350;
+			} else {
+				$blocks[] = [68, '<div class="overview-block">
+					<h4>Today\'s Time Graph: No Time Found</h4>
+				</div>'];
+				$total_length += 68;
+			}
+		}
 		if(in_array('Estimated',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
@@ -1256,8 +1308,18 @@ IF(!IFRAME_PAGE) { ?>
 			$block = '<div class="overview-block">
 				<h4>My '.TICKET_TILE.'</h4>';
 				$tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE CONCAT(IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,'')) LIKE CONCAT('%".$_SESSION['contactid']."%') AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`status`");
+                $ticket_status = get_config($dbc, "ticket_status");
+                $ticket_status_color = explode(',', get_config($dbc, "ticket_status_color"));
 				while($ticket = $tickets->fetch_assoc()) {
-					$block .= '<p><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">'.$ticket['status'].'</a>: '.$ticket['count'].'</p>';
+                    $var_count = explode($ticket['status'], $ticket_status);
+                    $occr = substr_count($var_count[0], ",");
+                    $color_apply = '';
+                    if (strpos($ticket_status, $ticket['status']) !== false) {
+                        $color_apply = $ticket_status_color[$occr];
+                    }
+                    $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
+
+					$block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 					$block_length += 17;
 				}
 			$block .= '</div>';
@@ -1379,11 +1441,7 @@ IF(!IFRAME_PAGE) { ?>
 		$displayed_length = 0; ?>
 		<div class="col-sm-6">
 			<?php foreach($blocks as $block_count => $block) {
-				if($block[0] == $displayed_length && $display_column == 0) {
-					$displayed_length = 0;
-					$total_length -= $block[0] + $displayed_length;
-					echo '</div><div class="col-sm-6">'.$block[1].'</div><div class="col-sm-6">';
-				} else if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks))) {
+				if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks) - 1)) {
 					$displayed_length = 0;
 					$display_column = 1;
 					echo '</div><div class="col-sm-6">'.$block[1];

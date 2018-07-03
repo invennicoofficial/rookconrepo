@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_by_product_service_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_sales_by_product_service_category', 0, WEBSITE_URL.'/Reports/Download/report_sales_by_product_service_category'.$today_date.'.pdf', 'Sales by Service Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -167,7 +168,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 
     $report_service = mysqli_query($dbc, "SELECT serviceid, fee FROM invoice WHERE serviceid IS NOT NULL AND (invoice_date >= '".$starttime."' AND invoice_date <= '".$endtime."')");
 
-    
+
     $get_service = '';
     $get_fee = '';
     while($report_validation = mysqli_fetch_array($report_service)) {

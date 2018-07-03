@@ -75,6 +75,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/patient_unpaid_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_patient_unpaid_invoices', 0, WEBSITE_URL.'/Reports/Download/patient_unpaid_'.$today_date.'.pdf', 'Unpaid Invoices Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -158,7 +159,7 @@ if (isset($_POST['printpdf'])) {
                 echo report_daily_validation($dbc, $starttime, $invoice_no, $patient, '', '', '');
             ?>
 
-        
+
 
         </form>
 

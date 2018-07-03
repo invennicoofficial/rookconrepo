@@ -30,7 +30,7 @@ if(!isset($estimate)) {
 					if($page_id == 'table_of_contents') { ?>
 						<li data-value="table_of_contents">Table of Contents<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php } else if($page_id == 'estimate_scope') { ?>
-						<li data-value="estimate_scope"><?= ESTIMATE_TILE ?> Scope<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
+						<li data-value="estimate_scope"><?= rtrim(ESTIMATE_TILE, 's') ?> Scope<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php } else { ?>
 						<li data-value="<?= $page_id ?>"><a href="edit_content_page.php?id=<?= explode('_',$page_id)[1] ?>" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Content Page<img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a><img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
 					<?php }

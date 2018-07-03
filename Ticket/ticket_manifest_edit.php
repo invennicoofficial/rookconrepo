@@ -47,7 +47,30 @@ if(isset($_POST['update'])) {
 	$logo = get_config($dbc, 'ticket_pdf_logo');
 	$row_colour_1 = get_config($dbc, 'report_row_colour_1');
 	$row_colour_2 = get_config($dbc, 'report_row_colour_2');
-	$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) ? 1 : 0) + (in_array('vendor',$manifest_fields) ? 1 : 0) + (in_array('line',$manifest_fields) ? 1 : 0) + (in_array('qty',$manifest_fields) ? 1 : 0) + (in_array('manual qty',$manifest_fields) ? 1 : 0) + (in_array('site',$manifest_fields) ? 1 : 0) + (in_array('notes',$manifest_fields) ? 1 : 0);
+	$lines = [];
+	if(in_array('pdf_collapse',$manifest_fields)) {
+		$columns = ['po'=>0,'vendor'=>0,'line'=>0,'qty'=>0,'manual_qty'=>0,'site'=>0,'notes'=>0];
+	} else {
+		$columns = ['po'=>1,'vendor'=>1,'line'=>1,'qty'=>1,'manual_qty'=>1,'site'=>1,'notes'=>1];
+	}
+	foreach($_POST['include'] as $i => $line_id) {
+		if($line_id > 0) {
+			$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.`po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+		} else {
+			$row = ['qty'=>'','siteid'=>$siteid];
+		}
+		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes']];
+		if(in_array('pdf_collapse',$manifest_fields)) {
+			$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
+			$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
+			$columns['line'] += (!empty($row['po_line']) ? 1 : 0);
+			$columns['qty'] += ($row['qty'] > 0 ? 1 : 0);
+			$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
+			$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
+			$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
+		}
+	}
+	$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) && $columns['po'] > 0 ? 1 : 0) + (in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? 1 : 0) + (in_array('line',$manifest_fields) && $columns['line'] > 0 ? 1 : 0) + (in_array('qty',$manifest_fields) && $columns['qty'] > 0 ? 1 : 0) + (in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? 1 : 0) + (in_array('site',$manifest_fields) && $columns['site'] > 0 ? 1 : 0) + (in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? 1 : 0);
 	$html = '<table style="width:100%;border:none;">
 		<tr>
 			'.(file_exists('download/'.$logo) ? '<td style="width: 120px;"><img src="download/'.$logo.'" style="margin-right:20px;margin-bottom:20px;width:100px;"><br />&nbsp;</td>' : '').'
@@ -59,34 +82,29 @@ if(isset($_POST['update'])) {
 	<table style="width:100%;">
 		<tr>
 			'.(in_array('file',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">FILE #</th>' : '').'
-			'.(in_array('po',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">PO</th>' : '').'
-			'.(in_array('vendor',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">VENDOR / SHIPPER</th>' : '').'
-			'.(in_array('line',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">LINE ITEM #</th>' : '').'
-			'.(in_array('qty',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
-			'.(in_array('manual qty',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
-			'.(in_array('site',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">SITE</th>' : '').'
-			'.(in_array('notes',$manifest_fields) ? '<th style="border:1px solid black; text-align:center;">NOTES</th>' : '').'
+			'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<th style="border:1px solid black; text-align:center;">PO</th>' : '').'
+			'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<th style="border:1px solid black; text-align:center;">VENDOR / SHIPPER</th>' : '').'
+			'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<th style="border:1px solid black; text-align:center;">LINE ITEM #</th>' : '').'
+			'.(in_array('qty',$manifest_fields) && $columns['qty'] > 0 ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
+			'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
+			'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<th style="border:1px solid black; text-align:center;">SITE</th>' : '').'
+			'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<th style="border:1px solid black; text-align:center;">NOTES</th>' : '').'
 		</tr>
 		<tr style="background-color:'.$row_colour_1.'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
 		$site_notes = '';
 		if($siteid > 0) {
 			$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 		}
-		foreach($_POST['include'] as $i => $line_id) {
-			if($line_id > 0) {
-				$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.`po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
-			} else {
-				$row = ['qty'=>'','siteid'=>$siteid];
-			}
+		foreach($lines as $i => $row) {
 			$html .= '<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'">
-				'.(in_array('file',$manifest_fields) ? '<td data-title="FILE #" style="text-align:center;">'.$row['ticket_label'].'</td>' : '').'
-				'.(in_array('po',$manifest_fields) ? '<td data-title="PO" style="text-align:center;">'.$row['po_num'].'</td>' : '').'
-				'.(in_array('vendor',$manifest_fields) ? '<td data-title="VENDOR / SHIPPER" style="text-align:center;">'.get_contact($dbc, $row['vendor'],'name_company').'</td>' : '').'
-				'.(in_array('line',$manifest_fields) ? '<td data-title="LINE ITEM #" style="text-align:center;">'.(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']).'</td>' : '').'
-				'.(in_array('qty',$manifest_fields) ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.($row['qty'] > 0 ? round($row['qty'],3) : '').'</td>' : '').'
-				'.(in_array('manual qty',$manifest_fields) ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$manual_qty[$i].'</td>' : '').'
-				'.(in_array('site',$manifest_fields) ? '<td data-title="SITE" style="text-align:center;">'.($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')).'</td>' : '').'
-				'.(in_array('notes',$manifest_fields) ? '<td data-title="NOTES" style="text-align:center;">'.$row['notes'].'</td>' : '').'
+				'.(in_array('file',$manifest_fields) ? '<td data-title="FILE #" style="text-align:center;">'.$row['file'].'</td>' : '').'
+				'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td data-title="PO" style="text-align:center;">'.$row['po'].'</td>' : '').'
+				'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td data-title="VENDOR / SHIPPER" style="text-align:center;">'.$row['vendor'].'</td>' : '').'
+				'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td data-title="LINE ITEM #" style="text-align:center;">'.$row['line'].'</td>' : '').'
+				'.(in_array('qty',$manifest_fields) && $columns['qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['qty'].'</td>' : '').'
+				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['manual_qty'].'</td>' : '').'
+				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td data-title="SITE" style="text-align:center;">'.$row['site'].'</td>' : '').'
+				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.$row['notes'].'</td>' : '').'
 			</tr>
 			<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
 		}
@@ -171,18 +189,28 @@ if($siteid > 0) {
 }
 $site_name = get_contact($dbc, $siteid, 'name_company');
 $line_item = explode(',',$manifest['line_items']);
-$qty = explode(',',$manifest['qty']); ?>
+$type = $line_item[0] > 0 ? $dbc->query("SELECT `projecttype` FROM `project` LEFT JOIN `tickets` ON `project`.`projectid`=`tickets`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` WHERE `ticket_attached`.`id`='".$line_item[0]."'")->fetch_assoc()['projecttype'] : '';
+$type_label = '';
+foreach(explode(',',get_config($dbc, 'project_tabs')) as $type_name) {
+	if(config_safe_str($type_name) == $type) {
+		$type_label = $type_name;
+	}
+}
+$qty = explode(',',$manifest['qty']);
+$col_count = 2; ?>
 <form class="form-horizontal" action="" method="POST">
 	<button class="btn brand-btn pull-right" name="update" value="update" type="submit">Update Manifest</button>
+	<h4 class="scale-to-fill"><p><?= SITES_CAT ?>: <?= get_contact($dbc, $manifest['siteid']) ?></p><?= empty($type) ? '' : '<p>Type: '.$type_label.'</p>' ?></h4>
+	<div class="clearfix"></div>
 	<table class="table table-bordered">
 		<tr class="hidden-sm hidden-xs">
-			<?php if(in_array('file',$manifest_fields)) { ?><th><?= TICKET_NOUN ?></th><?php } ?>
+			<?php if(in_array('file',$manifest_fields)) { $col_count++; ?><th><?= TICKET_NOUN ?></th><?php } ?>
 			<th><?= SITES_CAT ?></th>
-			<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
-			<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
-			<?php if(in_array('vendor',$manifest_fields)) { ?><th>Vendor / Shipper</th><?php } ?>
-			<?php if(in_array('manual qty',$manifest_fields)) { ?><th>Qty</th><?php } ?>
-			<?php if(in_array('notes',$manifest_fields)) { ?><th>Notes</th><?php } ?>
+			<?php if(in_array('po',$manifest_fields)) { $col_count++; ?><th>PO</th><?php } ?>
+			<?php if(in_array('line',$manifest_fields)) { $col_count++; ?><th>Line Item</th><?php } ?>
+			<?php if(in_array('vendor',$manifest_fields)) { $col_count++; ?><th>Vendor / Shipper</th><?php } ?>
+			<?php if(in_array('manual qty',$manifest_fields)) { $col_count++; ?><th>Qty</th><?php } ?>
+			<?php if(in_array('notes',$manifest_fields)) { $col_count++; ?><th>Notes</th><?php } ?>
 			<th>Include</th>
 		</tr>
 		<?php foreach($line_item as $i => $item) {
@@ -201,7 +229,32 @@ $qty = explode(',',$manifest['qty']); ?>
 					<input type="hidden" name="prior_qty[]" value="<?= $ticket['qty'] ?>">
 				</td>
 			</tr>
-		<?php } ?>
+		<?php }
+		$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
+		$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".filter_var($type,FILTER_SANITIZE_STRING)."')" : '';
+		$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`, `ticket_attached`.`po_line`, MAX(`ticket_schedule`.`vendor`) `vendor` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,$siteid,%' AND `ticket_attached`.`id` NOT IN ('".implode("','",$line_item)."') $filter_inv $ticket_filter $filter_proj $search GROUP BY `ticket_attached`.`id` ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
+		$new_lines = $dbc->query($ticket_sql);
+		if($new_lines->num_rows > 0) { ?>
+			<tr>
+				<th colspan="<?= $col_count ?>"><label>Add New Items to Manifest <input type="checkbox" onchange="$('tr.new_row').toggle();"></label></th>
+			</tr>
+			<?php while($ticket = $new_lines->fetch_assoc()) { ?>
+				<tr class="new_row" style="display:none;">
+					<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+					<td data-title="<?= SITES_CAT ?>"><?= $manifest_label ?></td>
+					<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO"><a href="line_item_views.php?po=<?= $ticket['po_num'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $ticket['po_num'] ?></a></td><?php } ?>
+					<?php if(in_array('line',$manifest_fields)) { ?><td data-title="Line Item"><?= empty($ticket['po_line']) ? 'N/A' : $ticket['po_line'] ?></td><?php } ?>
+					<?php if(in_array('vendor',$manifest_fields)) { ?><td data-title="Vendor / Shipper"><?= $ticket['vendor'] > 0 ? '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$ticket['vendor'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $ticket['vendor'], 'name_company').'</a>' : '<a href="?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\'edit_ticket_tab.php?ticketid='.$ticket['ticketid'].'&tab=ticket_transport_origin\',\'auto\',true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>' ?></td><?php } ?>
+					<?php if(in_array('manual qty',$manifest_fields)) { ?><td data-title="Qty"><input type="number" placeholder="Available: <?= round($ticket['qty']+$qty[$i],3) ?>" name="qty[]" class="form-control" min="0" max="<?= $ticket['qty']+$qty[$i] > 0 ? $ticket['qty']+$qty[$i] : 0 ?>" value="<?= $qty[$i] ?>"></td><?php } ?>
+					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= $ticket['notes'] ?>"></td><?php } ?>
+					<td data-title="Include">
+						<label class="form-checkbox any-width"><input type="checkbox" name="include[]" value="<?= $ticket['id'] ?>">Include</label>
+						<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">
+						<input type="hidden" name="prior_qty[]" value="<?= $ticket['qty'] ?>">
+					</td>
+				</tr>
+			<?php }
+		} ?>
 	</table>
 	<div class="form-group">
 		<label class="col-sm-4">Signature:</label>

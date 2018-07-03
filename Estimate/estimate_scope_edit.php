@@ -287,7 +287,7 @@ function setIncluded(input) {
 					</div>
 				<?php } ?>
 				<div class="form-group">
-					<label class="col-sm-4">Load <?= ESTIMATE_TILE ?> Scope:</label>
+					<label class="col-sm-4">Load <?= rtrim(ESTIMATE_TILE, 's') ?> Scope:</label>
 					<div class="col-sm-8">
 						<select name="prior_estimate" class="chosen-select-deselect" onchange="window.location.replace('?estimateid=<?= $_GET['estimateid'] ?>&scope=<?= $_GET['scope'] ?>&mode<?= $_GET['mode'] ?>=&src=<?= $_GET['src'] ?>&priorid='+this.value+'&rate=<?= $_GET['rate'] ?>');">
 							<option></option>
@@ -340,7 +340,7 @@ function setIncluded(input) {
             <input type="text" class="form-control" name="scope_name" data-table="estimate" data-id-field="estimateid" value="<?= $scope_name ?>">
         </div>
     </div>
-	
+
 	<?php $_GET['rate'] = $current_rate;
 	if($_GET['templateid'] > 0) {
 		$query = mysqli_query($dbc, "SELECT `heading_name`, `id` FROM `estimate_template_headings` WHERE `template_id`='{$_GET['templateid']}' AND `deleted`=0 ORDER BY `sort_order`");

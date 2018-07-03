@@ -114,13 +114,49 @@ $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
             </a>
 
             <?php foreach($lists as $list_name) {
+                $heading = $list_name;
+                if($list_name == 'Vendors') {
+                    $heading = VENDOR_TILE;
+                }
+
+                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE tile_name = '".$folder_name."' AND tab='$list_name' AND accordion IS NULL UNION SELECT contacts_dashboard FROM `field_config_contacts` WHERE tile_name='".$folder_name."'"));
+                $field_display = explode(",",$get_field_config['contacts_dashboard']);
                 //$contact_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) count FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1")); ?>
                 <!--
                 <a href="?list=<?= $list_name ?>&status=<?= $status ?>"><li class="<?= $category == $list_name ? 'active blue' : '' ?>"><b><?= $status == 'inactive' ? 'Inactive ' : ($status == 'archive' ? 'Archived ' : '') ?><?= $list_name ?></b><span class="pull-right"><?= $contact_count['count']; ?></span></li></a>
                 -->
                 <li class="sidebar-higher-level highest-level">
-                    <a class="<?= $_GET['list']==$list_name ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= $list_name ?> <span class="arrow"></span></a>
+                    <a class="<?= $_GET['list']==$list_name ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').first().toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= $heading ?> <span class="arrow"></span></a>
                     <ul style="<?= $_GET['list']==$list_name ? '' : 'display:none;' ?>">
+                        <?php if(in_array("Sort Match Staff",$field_display)) { ?>
+                            <li class="sidebar-higher-level">
+                                <a class="<?= $_GET['list']==$list_name && $_GET['match_staff'] > 0 ? 'active blue cursor-hand' : 'collapsed' ?>" onclick="$(this).closest('li').find('ul').toggle(); $(this).find('img').toggleClass('counterclockwise');">Matched Staff <span class="arrow"></span></a>
+                                <ul style="<?= $_GET['list']==$list_name && $_GET['match_staff'] > 0 ? '' : 'display:none;' ?>">
+                                    <?php $match_contacts = [];
+                                    $sorted_match_contacts = [];
+                                    $match_contacts_query = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0 AND `support_contact_category` = '$list_name'");
+                                    while($match_contacts_result = mysqli_fetch_assoc($match_contacts_query)) {
+                                        foreach(explode(',', $match_contacts_result['staff_contact']) as $staff_contact) {
+                                            foreach(explode(',', $match_contacts_result['support_contact']) as $support_contact) {
+                                                if(!in_array($staff_contact,
+                                                    $sorted_match_contacts)) {
+                                                    $sorted_match_contacts[] = $staff_contact;
+                                                }
+                                                if(!in_array($support_contact, $match_contacts[$staff_contact])) {
+                                                    $match_contacts[$staff_contact][] = $support_contact;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $sorted_match_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` IN (".implode(',', $sorted_match_contacts).")"));
+                                    foreach($sorted_match_contacts as $matched_staff) { ?>
+                                        <a href="?list=<?= $list_name; ?>&match_staff=<?= $matched_staff['contactid'] ?>">
+                                            <li class="<?= $_GET['list']==$list_name && $_GET['match_staff']==$matched_staff['contactid'] ? 'active blue' : '' ?>"><b><?= $matched_staff['full_name'] ?></b><span class="pull-right"><?= count($match_contacts[$matched_staff['contactid']]); ?></span></li>
+                                        </a>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+                        <?php } ?>
                         <?php $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1")); ?>
                         <a href="?list=<?= $list_name; ?>&status=active">
                             <li class="<?= ($_GET['list']==$list_name && $_GET['status']=='active') ? 'active blue' : '' ?>"><b>Active</b><span class="pull-right"><?= $active_count['count']; ?></span></li>

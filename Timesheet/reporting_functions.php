@@ -694,6 +694,9 @@
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Date</div></th>'.
                     (in_array('view_ticket',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>'.TICKET_NOUN.'</div></th>' : '').
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Expenses Owed</div></th>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage</div></th>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage Rate</div></th>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage Total</div></th>' : '').
                     '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Reg. Time</div></th>
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Over Time</div></th>
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Double Time</div></th>
@@ -704,6 +707,9 @@
                 $total_reg = 0;
                 $total_overtime = 0;
                 $total_doubletime = 0;
+                $mileage_total = 0;
+                $mileage_rate_total = 0;
+                $mileage_cost_total = 0;
                 $limits = "AND `staff`='$search_staff'";
                 if($search_site > 0) {
                     $limits .= " AND `business` LIKE '%$search_site%'";
@@ -716,15 +722,45 @@
                 $date = $search_start_date;
                 $i = 0;
                 while(strtotime($date) <= strtotime($search_end_date)) {
+                	$milage = 0;
+                	$mileage_rate = 0;
+                	$mileage_cost = 0;
                     if($result[$i]['date'] == $date) {
                         $row = $result[$i++];
                         $row['row_hours'] = $row['hours'];
                         $total_reg += $row['hours'];
                         $total += $row['hours'];
+
+                        //Mileage
+                        $mileage_start = $date.' 00:00:00';
+                        $mileage_end = $date.' 23:59:59';
+                        $mileage = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`mileage`) `mileage_total` FROM `mileage` WHERE `deleted` = 0 AND `staffid` = '$search_staff' AND `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."' > 0 AND (`start` BETWEEN '$mileage_start' AND '$mileage_end' OR `end` BETWEEN '$mileage_start' AND '$mileage_end')"))['mileage_total'];
+                        $mileage_total += $mileage;
+
+                        //Mileage Rate
+                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."'"))['clientid'];
+                        $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
+                            SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
+                        $mileage_rate_total += $mileage_rate;
+
+                        //Mileage Calculated Cost
+                        $mileage_cost = $mileage * $mileage_rate;
+                        $mileage_cost_total += $mileage_cost;
                     } else {
                         $row = '';
+                        $mileage = 0;
+                        $mileage_rate = 0;
+                        $mileage_cost = 0;
                     }
                     $ticketids = [$row['ticketid']];
+                    $mileages = [];
+                    $mileage_rates = [];
+                    $mileage_costs = [];
+                    if($mileage > 0) {
+	                    $mileages[] = $mileage;
+	                    $mileage_rates[] = $mileage_rate;
+	                    $mileage_costs[] = $mileage_cost;
+	                }
                     if($timesheet_payroll_layout == 'group_days') {
                     	$multidays = false;
                     	while($result[$i]['date'] == $date) {
@@ -734,8 +770,36 @@
                     		$total_reg += $result[$i]['hours'];
                     		$ticketids[] = $result[$i]['ticketid'];
                     		$multidays = true;
+
+	                        //Mileage
+	                        $mileage_start = $date.' 00:00:00';
+	                        $mileage_end = $date.' 23:59:59';
+	                        $mileage = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`mileage`) `mileage_total` FROM `mileage` WHERE `deleted` = 0 AND `staffid` = '$search_staff' AND `ticketid` = '".$result[$i]['ticketid']."' AND '".$result[$i]['ticketid']."' > 0 AND (`start` BETWEEN '$mileage_start' AND '$mileage_end' OR `end` BETWEEN '$mileage_start' AND '$mileage_end')"))['mileage_total'];
+	                        $mileage_total += $mileage;
+
+	                        //Mileage Rate
+	                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$result[$i]['ticketid']."' AND '".$result[$i]['ticketid']."'"))['clientid'];
+	                        $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
+	                            SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
+	                        $mileage_rate_total += $mileage_rate;
+
+	                        //Mileage Calculated Cost
+	                        $mileage_cost = $mileage * $mileage_rate;
+	                        $mileage_cost_total += $mileage_cost;
+
+	                        if($mileage > 0) {
+			                    $mileages[] = $mileage;
+			                    $mileage_rates[] = $mileage_rate;
+			                    $mileage_costs[] = $mileage_cost;
+			                }
+
                     		$i++;
                     	}
+                    }
+                    if(empty($mileages)) {
+                    	$mileages = [''];
+                    	$milage_rates = [''];
+                    	$mileage_costs = [''];
                     }
 	                if($timesheet_payroll_doubletime > 0 && $row['hours'] > $timesheet_payroll_doubletime) {
 	                	$row['doubletime_hours'] = $row['hours'] - $timesheet_payroll_doubletime;
@@ -764,14 +828,25 @@
 		                    	}
 	                    	}
 	                    }
+	                    $mileage_html = [];
+	                    $mileage_rate_html = [];
+	                    $mileage_cost_html = [];
+	                    foreach($mileages as $mileage_i => $mileage) {
+	                    	$mileage_html[] = !empty($mileage) ? number_format($mileage,2) : '0.00';
+	                    	$mileage_rate_html[] = '$'.(!empty($mileage_rates[$mileage_i]) ? number_format($mileage_rates[$mileage_i],2) : '0.00');
+	                    	$mileage_cost_html[] = '$'.(!empty($mileage_costs[$mileage_i]) ? number_format($mileage_costs[$mileage_i],2) : '0.00');
+	                    }
+	                    $mileage_html = implode('<br>',$mileage_html);
+	                    $mileage_rate_html = implode('<br>',$mileage_rate_html);
+	                    $mileage_cost_html = implode('<br>',$mileage_cost_html);
 	                    $view_ticket = implode('<br>',$view_ticket);
                         $report .= '<tr>
                             <td  style=" border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Date">'.$date.'</td>'.
                             (in_array('view_ticket',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="'.TICKET_NOUN.'">'.$view_ticket.'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
-                            (in_array('schedule',$value_config) ? '<td style=" border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Schedule">'.$hours.'</td>' : '').'
-                            '.(in_array('scheduled',$value_config) ? '<td style=" border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Scheduled Hours"></td>' : '').'
-                            ';
+			                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage">'.$mileage_html.'</td>' : '').
+			                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage Rate">'.$mileage_rate_html.'</td>' : '').
+			                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage Total">'.$mileage_cost_html.'</td>' : '');
 
                         $report .= (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Time Tracked">'.$row['timer'].'</td>' : '').'
                             <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Hours">'.(empty($row['hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))).' h</td>
@@ -797,6 +872,9 @@
                     <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="">Totals</td>'.
                     (in_array('view_ticket',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').
+	                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').
                     '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Regular">'.($timesheet_time_format == 'decimal' ? number_format($total_reg,2) : time_decimal2time($total_reg)).' h</td>
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Over Time">'.($timesheet_time_format == 'decimal' ? number_format($total_overtime,2) : time_decimal2time($total_overtime)).' h</td>
                     <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data="Total Double Time">'.($timesheet_time_format == 'decimal' ? number_format($total_doubletime,2) : time_decimal2time($total_doubletime)).' h</td>
@@ -827,7 +905,7 @@
 	$total_columns = 5;
 	if($tab == 'payroll') {
 		$timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
-		$total_columns += count(array_filter(array_unique(explode(',',$timesheet_payroll_fields))));
+		$total_columns += count(array_diff(array_filter(array_unique(explode(',',$timesheet_payroll_fields))),['Mileage','Mileage Rate','Mileage Total']));
 	}
 	$col_width = 100 / $total_columns;
 

@@ -921,6 +921,25 @@ $(document).ready(function(){
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_Mileage" >
+									Mileage<span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_Mileage" class="panel-collapse collapse">
+							<div class="panel-body">
+
+								<input type="checkbox" <?php if (strpos($value_config, ','."Mileage".',') !== FALSE) { echo " checked"; } ?> value="Mileage" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Mileage Rate
+								<br><br>
+								
+							</div>
+						</div>
+					</div>
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
 								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_Other" >
 									Other<span class="glyphicon glyphicon-plus"></span>
 								</a>

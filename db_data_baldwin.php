@@ -152,5 +152,32 @@
     }
     //2018-06-26 - Ticket #7814 - Holidays Update Notifications
 
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_total_time` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+
+    //2018-06-29 - Ticket #7898 - Clients Tile
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `description_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `general_comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `notes_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-29 - Ticket #7898 - Clients Tile
+
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+    if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `mileage` text AFTER `labour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

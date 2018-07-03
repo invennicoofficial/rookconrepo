@@ -86,6 +86,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/reports_scrum_staff_productivity_summary'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'reports_scrum_staff_productivity_summary', 0, WEBSITE_URL.'/Reports/Download/reports_scrum_staff_productivity_summary'.$today_date.'.pdf', 'Staff Productivity Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -291,7 +292,7 @@ function report_receivables($dbc, $starttime, $table_style, $table_row_style, $g
         } else {
             $style2 = 'color:red;';
         }
-		
+
 		$report_data .= '<td>Summary</td><td></td><td style="'.$style2.'">'.$te1.'</td><td style="'.$style2.'">'.$tt1.'</td><td></td>';
         $report_data .= "</tr>";
         $report_data .= "</table>";

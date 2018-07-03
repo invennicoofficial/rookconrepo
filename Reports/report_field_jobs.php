@@ -54,6 +54,7 @@ if(isset($_POST['printpdf'])) {
 
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_field_jobs', 0, WEBSITE_URL.'/Reports/Download/field_jobs_'.$today_date.'.pdf', 'Field Job Report');
     ?>
 
 	<script>

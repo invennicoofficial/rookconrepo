@@ -703,6 +703,20 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_select_all_staff' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_select_all_staff') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_select_all_staff."' WHERE `name`='shift_select_all_staff'");
+	if (!empty($_POST['shift_selected_staff_icons'])) {
+		$shift_selected_staff_icons = $_POST['shift_selected_staff_icons'];
+	} else {
+		$shift_selected_staff_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_staff_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_staff_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_staff_icons."' WHERE `name`='shift_selected_staff_icons'");
+	if (!empty($_POST['shift_selected_client_icons'])) {
+		$shift_selected_client_icons = $_POST['shift_selected_client_icons'];
+	} else {
+		$shift_selected_client_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_client_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_client_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_client_icons."' WHERE `name`='shift_selected_client_icons'");
 
 	// Events Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_day_start') num WHERE num.rows=0");
@@ -2406,6 +2420,20 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $shift_select_all_staff = get_config($dbc, 'shift_select_all_staff'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="shift_select_all_staff" <?= $shift_select_all_staff == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Staff Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_staff_icons = get_config($dbc, 'shift_selected_staff_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_staff_icons" <?= $shift_selected_staff_icons == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Client Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_client_icons = get_config($dbc, 'shift_selected_client_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_client_icons" <?= $shift_selected_client_icons == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

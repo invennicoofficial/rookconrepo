@@ -74,6 +74,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output('Download/blockbooking_on_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_bb_vs_not_bb', 0, WEBSITE_URL.'/Reports/Download/blockbooking_on_'.$today_date.'.pdf', 'Block Booking Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

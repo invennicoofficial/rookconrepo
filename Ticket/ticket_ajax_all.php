@@ -495,6 +495,9 @@ if($_GET['action'] == 'update_fields') {
 			echo 'created_unscheduled_stop';
 		}
 	}
+	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
+		$value = date('Y-m-d H:i:s', strtotime($value));
+	}
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';
 		$id_field = 'note_id';
@@ -1326,6 +1329,8 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	if(is_array($_POST['fields'])) {
 		$value = implode(',',$_POST['fields']);
@@ -1359,6 +1364,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_status', filter_var(implode(',',$_POST['tickets']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_status_icons', filter_var(implode(',',$_POST['ticket_status_icons'])));
 	set_config($dbc, 'task_status', filter_var(implode(',',$_POST['tasks']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_status_color', filter_var(implode(',',$_POST['ticket_status_color']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'setting_tile') {
 	// Save the settings for ticket dashboard fields
 	set_config($dbc, filter_var($_POST['field'],FILTER_SANITIZE_STRING), filter_var($_POST['value'],FILTER_SANITIZE_STRING));
@@ -1837,7 +1843,16 @@ if($_GET['action'] == 'update_fields') {
 		$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
-		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `ticketid`='$id'");
+	} else if($field == 'manual_flag_colour') {
+		$flag_label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+		$flag_start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+		$flag_end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$value', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
+		if(!empty($flag_label)) {
+			mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
+		}
 	} else if($field == 'document') {
 		$folder = 'download';
 		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);

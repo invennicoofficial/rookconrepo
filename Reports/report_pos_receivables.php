@@ -17,7 +17,7 @@ if(isset($_POST['printcsv'])) {
   $fp = fopen('php://output','w');
   header('Content-Type: text/csv; charset=utf-8');
   header('Content-Disposition: attachment; filename='.$file_name);
-  
+
   $total = 0;
   $data[] = 'Invoice#,Invoice Date,Customer,Sub Total,Discount,Delivery,Assembly,Total Before Tax,GST,PST,Total,Status';
 
@@ -132,6 +132,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

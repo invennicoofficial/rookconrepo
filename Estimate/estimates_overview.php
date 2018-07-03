@@ -71,11 +71,11 @@ function remove_follow_up(elem) {
 </script>
 <div class="form-horizontal main-screen fit-to-screen-full full-grey-screen" style="padding:0;">
 	<div class="main-item blue-border">
-		<h3><?= ESTIMATE_TILE ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
+		<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
 		<hr />
         <div class="row">
             <div class="col-sm-<?= empty($_GET['sideview']) ? '6' : '12' ?>">
-                <h4><?= ESTIMATE_TILE ?> Details:</h4>
+                <h4><?= rtrim(ESTIMATE_TILE, 's') ?> Details:</h4>
                 <div class="row form-group">
                     <label class="col-sm-4"><?= ESTIMATE_TILE ?> #:</label>
                     <div class="col-sm-8"><?= $estimate['estimateid'] ?></div>
@@ -103,7 +103,7 @@ function remove_follow_up(elem) {
                         <?php } ?>
                     </div>
                 </div>
-                
+
                 <?php $action_list = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='$estimateid' AND `deleted`=0 AND `completed`=0 ORDER BY `due_date` ASC");
                 while($action = mysqli_fetch_array($action_list)) { ?>
                     <hr />
@@ -137,9 +137,9 @@ function remove_follow_up(elem) {
                         </div>
                     </div>
                 <?php } ?>
-                
+
                 <hr />
-                
+
                 <div class="row form-group">
                     <label class="col-sm-4">Business:</label>
                     <div class="col-sm-8">
@@ -251,7 +251,7 @@ function remove_follow_up(elem) {
             <?php } ?>
         </div><!-- .row -->
 		<div class="col-sm-12">
-			<h4><?= ESTIMATE_TILE ?> Scope:</h4><?php
+			<h4><?= rtrim(ESTIMATE_TILE, 's') ?> Scope:</h4><?php
             $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `scope_name`, `heading`, `sort_order`");
 			$heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 			if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
