@@ -1069,6 +1069,9 @@ if($_GET['action'] == 'update_fields') {
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid`, `internal_qa_contactid`, `deliverable_contactid`, `sign_off_id`, `sign_off_signature`, `projectid`, `ticket_type` FROM `tickets` WHERE `ticketid`='$ticketid'"));
 		include_once('../phpsign/signature-to-image.php');
 		$signature = sigJsonToImage(html_entity_decode($ticket['sign_off_signature']));
+		if(!file_exists('download')) {
+			mkdir('download', 0777, true);
+		}
 		imagepng($signature, 'download/sign_off_'.$ticketid.'_'.$ticket['sign_off_id'].'.png');
 		$auto_status = get_config($dbc, 'auto_archive_complete_tickets');
 		if($auto_status != '') {
