@@ -467,7 +467,7 @@ checkAuthorised('vendors');
   <div class="row add">
 
 <form name="import" method="post" enctype="multipart/form-data">
-				<div class="notice">Steps to Upload Multiple Items into the Vendor Price List (VPL) tile:<br><Br>
+				<div class="notice">Steps to Upload Multiple Items into the <?= VENDOR_TILE ?> Price List (VPL) tile:<br><Br>
 					<b>1.</b> Please download the following Excel(CSV) file to use as a template: <a href='Vendor_price_list.csv' style='color:white !important; text-decoration:underline !important;'>Vendor_price_list.csv</a>.<br><br>
 					<b>2.</b> Fill in the rows (starting from row 2). Please note that each row you fill out will become a separate VPL item in the VPL tile.<br>
 					<span style='color:pink;'><img src='../img/warning.png' style='width:25px;'> NOTE</span>: Do not change/move/delete any of the column titles in the first row.<br> <span style='color:lightgreen'><b>Hint</b>:</span> press CTRL+F on your keyboard to find the fields you would like to populate; this will help you locate them faster. <br><br>
@@ -492,7 +492,7 @@ checkAuthorised('vendors');
 <?php } else if ($type_get == 'edit') { ?>
 	<div class="row edit">
 		<form name="import" method="post" enctype="multipart/form-data">
-			<div class="notice">Steps to Edit Multiple Items in the Vendor Price List (VPL) tile:<br><Br>
+			<div class="notice">Steps to Edit Multiple Items in the <?= VENDOR_TILE ?> Price List (VPL) tile:<br><Br>
 				<b>1.</b> Please download the following Excel (CSV) file, which will be the current list of all of your VPL items: <a href='add_inventory_multiple.php?type=edit&exp=true' style='color:white; text-decoration:underline;'>Export VPL</a><br>
 				<span style='color:lightgreen'><b>Hint:</b></span> if you would like to edit items from a specific category, export the Excel (CSV) file from this page: <a href='add_inventory_multiple.php?type=export' target="_BLANK" style='color:white; text-decoration:underline;'>Export Specific VPL items</a>.<br><br>
 				<b>2.</b> Make your desired changes inside of the Excel file.<br>
@@ -590,6 +590,6 @@ checkAuthorised('vendors');
 		</div>
 <?php } ?>
 
-		
+
   </div>
 <?php include ('../footer.php'); ?>

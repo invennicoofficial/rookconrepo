@@ -1363,7 +1363,7 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 		}
 		</script>
 		<div class="form-group">
-			<label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays all vendors assigned in the vendor sub tab of the contact tile."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Vendors<span class="brand-color">*</span>:<br><em><span id="tax_exemption_fillup"></em></span></label>
+			<label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays all vendors assigned in the vendor sub tab of the contact tile."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?= VENDOR_TILE ?><span class="brand-color">*</span>:<br><em><span id="tax_exemption_fillup"></em></span></label>
 			<div class="col-sm-8">
 				<select id="customerid" name="contactid[]" data-placeholder="Select a Vendor..." class="chosen-select-deselect form-control" width="380">
 					<option value=''></option><?php
@@ -2117,33 +2117,33 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 				<input name="misc_qty[]" id="misc_qty_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_unit_price]').val() * this.value).keyup();" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-		
+
 		<div class="col-sm-1 expand-mobile" id="miscproduct_0" style="width:20%; position:relative; display:inline-block;">
 		<label for="company_name" class="col-sm-4 show-on-mob control-label">Description:</label>
 			<input data-placeholder="Choose a Product..." id="misc_product_0" name="misc_product[]" type="text" class="form-control misc_product" />
 		</div>
-			
+
 		<?php if(strpos($value_config,',miscGrade,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Grade:</label>
 				<input name="misc_grade[]" id="misc_grade_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscTag,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Tag:</label>
 				<input name="misc_tag[]" id="misc_tag_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscDetail,') !== FALSE) { ?>
 			<div class="col-sm-3 expand-mobile" id="price_0" style="width:20%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Detail:</label>
 				<input name="misc_detail[]" id="misc_detail_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscUnitPrice,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Unit Price:</label>
@@ -2445,5 +2445,5 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 	  <div class="form-group">
 		<button type="submit" name="submit_pos" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button>
 	  </div>
-	  
+
 </form>

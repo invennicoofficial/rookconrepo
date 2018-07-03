@@ -97,7 +97,7 @@
   </div>
 
    <?php } ?>
-		
+
 		<?php if (strpos($value_config, ','."Business Sites".',') !== FALSE) { ?>
 		<div class="form-group">
 		  <label for="site_name" class="col-sm-4 control-label">Sites:</label>
@@ -1264,7 +1264,7 @@
 
 		<?php if (strpos($value_config, ','."Vendor GST #".',') !== FALSE) { ?>
             <div class="form-group">
-            <label for="company_name" class="col-sm-4 control-label">Vendor GST #:</label>
+            <label for="company_name" class="col-sm-4 control-label"><?= VENDOR_TILE ?> GST #:</label>
             <div class="col-sm-8">
               <input <?php echo (strpos($edit_config, ','."Vendor GST #".',') === false ? 'readonly' : ''); ?> name="vendor_gst_no" value="<?php echo $vendor_gst_no; ?>" type="text" class="form-control">
             </div>
@@ -1980,7 +1980,7 @@
 
         <?php
             $arr_size  = 1;
-            if (strpos($value_config, ','."Emergency Contact Multiple".',') !== FALSE && sizeof($emergency_first_name_arr) != 0) { 
+            if (strpos($value_config, ','."Emergency Contact Multiple".',') !== FALSE && sizeof($emergency_first_name_arr) != 0) {
               $arr_size = sizeof($emergency_first_name_arr);
             }
             for ($i = 0; $i < $arr_size; $i++) {
@@ -2195,7 +2195,7 @@
 
         <?php
             $arr_size  = 1;
-            if (strpos($value_config, ','."Guardians Multiple".',') !== FALSE && sizeof($guardians_first_name_arr) != 0) { 
+            if (strpos($value_config, ','."Guardians Multiple".',') !== FALSE && sizeof($guardians_first_name_arr) != 0) {
               $arr_size = sizeof($guardians_first_name_arr);
             }
             for ($i = 0; $i < $arr_size; $i++) {
