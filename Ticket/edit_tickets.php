@@ -2099,7 +2099,7 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-				<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
