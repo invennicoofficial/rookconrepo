@@ -157,9 +157,13 @@ if($rows > 2500) {
 		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, $rowsPerPage);
 }
 $i = 0;
+$heading = ucwords($category);
+if(ucwords($category) == 'Vendors') {
+    $heading = VENDOR_TILE;
+}
 ?>
 <div class="standard-dashboard-body-title">
-<h3 class="gap-left"><?php //echo ucwords($category); ?>
+<h3 class="gap-left"><?php echo $heading; ?>
 <div class="pull-right hide-titles-mob col-sm-8">
 	<form action="" method="POST">
 		<!--
