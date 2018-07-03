@@ -2421,7 +2421,7 @@ function resize_image_convert_png($newWidth, $newHeight, $targetFile, $originalF
     $image_save_func($tmp, "$targetFile.$new_image_ext");
     return "$targetFile.$new_image_ext";
 }
-function get_reminder_url($dbc, $reminder) {
+function get_reminder_url($dbc, $reminder, $slider = 0) {
     $check_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `reminder_type`, `body` FROM `reminders` WHERE `reminderid`='".$reminder['reminderid']."' AND (`reminder_type`='QUICK' OR `reminder_type` LIKE 'PROJECT%')"));
     $reminder_projectid = '';
     if ( $check_project['reminder_type']=='QUICK' ) {
@@ -2433,84 +2433,168 @@ function get_reminder_url($dbc, $reminder) {
 
     $reminder_url = '';
     if(!empty($reminder_projectid)) {
-        $reminder_url = '../Project/projects.php?edit='.$reminder_projectid;
+        if($slider == 1) {
+            $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder_projectid;
+        } else {
+            $reminder_url = '../Project/projects.php?edit='.$reminder_projectid;
+        }
     } else if(!empty($reminder['src_table'])) {
-        switch($reminder['src_table']) {
-            case 'tickets':
-                $reminder_url = '../Ticket/index.php?edit='.$reminder['src_tableid'];
-                break;
-            case 'checklist_name':
-                $reminder_url = '../Checklist/checklist.php?checklistid='.$reminder['src_tableid'];
-                break;
-            case 'calllog':
-                $reminder_url = '../Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
-                break;
-            case 'calllog_goals':
-                $reminder_url = '../Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
-                break;
-            case 'client_daily_log_notes':
-                $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
-                break;
-            case 'equipment_insurance':
-            case 'equipment_registration':
-                $reminder_url = '../Equipment/add_equipment.php?equipmentid='.$reminder['src_tableid'];
-                break;
-            case 'projects':
-                $reminder_url = '../Project/projects.php?edit='.$reminder['src_tableid'];
-                break;
-            case 'sales':
-                $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
-                break;
-            case 'task_board':
-                $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'];
-                break;
-            case 'calendar':
-                $reminder_url = '../Calendar/calendars.php';
-                break;
-            case 'staff_reminders':
-                $reminder_url = '../Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
-                break;
-            case 'hr':
-                $reminder_url = '../HR/index.php?hr='.$reminder['src_tableid'];
-                break;
-            case 'manuals':
-                $reminder_url = '../HR/index.php?manual='.$reminder['src_tableid'];
-                break;
-            case 'contacts':
-                $reminder_url = '../'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
-                break;
-            case 'position_rate_table':
-                $reminder_url = '../Rate Card/rate_card.php?card=position&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'staff_rate_table':
-                $reminder_url = '../Rate Card/rate_card.php?card=staff&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'equipment_rate_table':
-                $reminder_url = '../Rate Card/rate_card.php?card=equipment&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'category_rate_table':
-                $reminder_url = '../Rate Card/rate_card.php?card=category&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'tile_rate_card':
-                $rate_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tile_rate_card` WHERE `ratecardid` = '".$reminder['src_tableid']."'"));
-                switch($rate_card['tile_name']) {
-                    case 'labour':
-                        $reminder_url = '../Rate Card/rate_card.php?card=labour&status=add&id='.$reminder['src_tableid'];
-                        break;
-                }
-                break;
-            case 'service_rate_card':
-                $reminder_url = '../Rate Card/rate_card.php?card=services&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'company_rate_card':
-                $reminder_url = '../Rate Card/rate_card.php?card=company&status=add&id='.$reminder['src_tableid'];
-                break;
-            case 'rate_card':
-                $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
-                break;
-            case 'holidays_update':
-                $reminder_url = '../Timesheet/holidays.php';
-                break;
+        if($slider == 1) {
+            switch($reminder['src_table']) {
+                case 'tickets':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'];
+                    break;
+                case 'checklist_name':
+                    $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?iframe_slider=1&view='.$reminder['src_tableid'];
+                    break;
+                case 'calllog':
+                    $reminder_url = '../Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
+                    break;
+                case 'calllog_goals':
+                    $reminder_url = '../Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
+                    break;
+                case 'client_daily_log_notes':
+                    $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
+                    break;
+                case 'equipment_insurance':
+                case 'equipment_registration':
+                    $reminder_url = '../Equipment/add_equipment.php?equipmentid='.$reminder['src_tableid'];
+                    break;
+                case 'projects':
+                    $reminder_url = '../Project/projects.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'sales':
+                    $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
+                    break;
+                case 'task_board':
+                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'];
+                    break;
+                case 'calendar':
+                    $reminder_url = '../Calendar/calendars.php';
+                    break;
+                case 'staff_reminders':
+                    $reminder_url = '../Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
+                    break;
+                case 'hr':
+                    $reminder_url = '../HR/index.php?hr='.$reminder['src_tableid'];
+                    break;
+                case 'manuals':
+                    $reminder_url = '../HR/index.php?manual='.$reminder['src_tableid'];
+                    break;
+                case 'contacts':
+                    $reminder_url = '../'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
+                    break;
+                case 'position_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=position&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'staff_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=staff&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'equipment_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=equipment&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'category_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=category&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'tile_rate_card':
+                    $rate_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tile_rate_card` WHERE `ratecardid` = '".$reminder['src_tableid']."'"));
+                    switch($rate_card['tile_name']) {
+                        case 'labour':
+                            $reminder_url = '../Rate Card/rate_card.php?card=labour&status=add&id='.$reminder['src_tableid'];
+                            break;
+                    }
+                    break;
+                case 'service_rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=services&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'company_rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=company&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                    break;
+                case 'holidays_update':
+                    $reminder_url = '../Timesheet/holidays.php';
+                    break;
+            }
+        } else {
+            switch($reminder['src_table']) {
+                case 'tickets':
+                    $reminder_url = '../Ticket/index.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'checklist_name':
+                    $reminder_url = '../Checklist/checklist.php?view='.$reminder['src_tableid'];
+                    break;
+                case 'calllog':
+                    $reminder_url = '../Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
+                    break;
+                case 'calllog_goals':
+                    $reminder_url = '../Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
+                    break;
+                case 'client_daily_log_notes':
+                    $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
+                    break;
+                case 'equipment_insurance':
+                case 'equipment_registration':
+                    $reminder_url = '../Equipment/add_equipment.php?equipmentid='.$reminder['src_tableid'];
+                    break;
+                case 'projects':
+                    $reminder_url = '../Project/projects.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'sales':
+                    $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
+                    break;
+                case 'task_board':
+                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'];
+                    break;
+                case 'calendar':
+                    $reminder_url = '../Calendar/calendars.php';
+                    break;
+                case 'staff_reminders':
+                    $reminder_url = '../Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
+                    break;
+                case 'hr':
+                    $reminder_url = '../HR/index.php?hr='.$reminder['src_tableid'];
+                    break;
+                case 'manuals':
+                    $reminder_url = '../HR/index.php?manual='.$reminder['src_tableid'];
+                    break;
+                case 'contacts':
+                    $reminder_url = '../'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
+                    break;
+                case 'position_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=position&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'staff_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=staff&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'equipment_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=equipment&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'category_rate_table':
+                    $reminder_url = '../Rate Card/rate_card.php?card=category&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'tile_rate_card':
+                    $rate_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tile_rate_card` WHERE `ratecardid` = '".$reminder['src_tableid']."'"));
+                    switch($rate_card['tile_name']) {
+                        case 'labour':
+                            $reminder_url = '../Rate Card/rate_card.php?card=labour&status=add&id='.$reminder['src_tableid'];
+                            break;
+                    }
+                    break;
+                case 'service_rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=services&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'company_rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=company&status=add&id='.$reminder['src_tableid'];
+                    break;
+                case 'rate_card':
+                    $reminder_url = '../Rate Card/rate_card.php?card=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                    break;
+                case 'holidays_update':
+                    $reminder_url = '../Timesheet/holidays.php';
+                    break;
+            }
         }
     }
 

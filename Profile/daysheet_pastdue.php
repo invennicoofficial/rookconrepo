@@ -49,11 +49,11 @@
                     } else if ($daysheet_reminder['type'] == 'project') {
                         $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name`, `p`.`status` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
                         $status_label = '<h5 style="font-weight: normal; font-style: italic; display: inline;"> currently in '.$reminder['status'].' - '.$reminder['due_date'].'</h5>';
-                        $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">'.$daysheet_reminder['date'].' - '.'Follow Up Project: '.$reminder['project_name'].($daysheet_styling == 'card' ? $status_label : '').'</a>';
+                        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">'.$daysheet_reminder['date'].' - '.'Follow Up Project: '.$reminder['project_name'].($daysheet_styling == 'card' ? $status_label : '').'</a>';
                     } else if ($daysheet_reminder['type'] == 'project_followup') {
                         $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
                         $status_label = '<h5 style="font-weight: normal; font-style: italic; display: inline;"> currently in '.$reminder['status'].' - '.$reminder['followup'].'</h5>';
-                        $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">'.$daysheet_reminder['date'].' - '.'Follow Up Project: '.$reminder['project_name'].($daysheet_styling == 'card' ? $status_label : '').'</a>';
+                        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">'.$daysheet_reminder['date'].' - '.'Follow Up Project: '.$reminder['project_name'].($daysheet_styling == 'card' ? $status_label : '').'</a>';
                     } else if ($daysheet_reminder['type'] == 'certificate') {
                         $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `certificate` WHERE `certificateid` = '".$daysheet_reminder['reminderid']."'"));
                         $reminder_label = '<a href="../Certificate/index.php?edit='.$reminder['certificateid'].'" style="color: black;">'.$daysheet_reminder['date'].' - '.'Certificate Reminder: '.$reminder['title'].'</a>';
@@ -136,7 +136,7 @@
                 }
                 $label = '';
                 while($task = mysqli_fetch_array($past_due_tasks)) {
-                    echo $row_open.'<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" ><span style="color: black;">'.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>'.$row_close;
+                    echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>'.$row_close;
                 }
                 if($daysheet_styling != 'card') {
                     echo '</ul>';
