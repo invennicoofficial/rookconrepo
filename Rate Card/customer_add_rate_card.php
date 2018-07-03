@@ -213,13 +213,15 @@ if (isset($_POST['submit'])) {
         }
     }
 
+    $mileage = filter_var($_POST['mileageprice'],FILTER_SANITIZE_STRING);
+
     if(empty($_POST['ratecardid'])) {
-        $query_insert_customer = "INSERT INTO `rate_card` (`clientid`, `rate_card_name`, `ref_card`, `frequency_type`, `frequency_interval`, `package`, `promotion`, `services`, `products`, `sred`, `client`, `customer`, `inventory`, `equipment`, `equipment_category`, `staff`, `staff_position`, `contractor`, `expense`, `vendor`, `custom`, `material`, `labour`, `other`, `total_price`, `who_added`, `when_added`, `start_date`, `end_date`, `alert_date`, `alert_staff`, `created_by`) VALUES ('$clientid', '$rate_card_name', '$ref_card', '$frequency_type', '$frequency_interval', '$package' , '$promotion', '$services', '$products', '$sred', '$client', '$customer', '$inventory', '$equipment', '$equipment_category', '$staff', '$staff_position', '$contractor', '$expense', '$vendor', '$custom', '$material', '$labour', '$other', '$total_price', '$who_added', '$when_added', '$start_date', '$end_date', '$alert_date', '$alert_staff', '".$_SESSION['contactid']."')";
+        $query_insert_customer = "INSERT INTO `rate_card` (`clientid`, `rate_card_name`, `ref_card`, `frequency_type`, `frequency_interval`, `package`, `promotion`, `services`, `products`, `sred`, `client`, `customer`, `inventory`, `equipment`, `equipment_category`, `staff`, `staff_position`, `contractor`, `expense`, `vendor`, `custom`, `material`, `labour`, `other`, `mileage`, `total_price`, `who_added`, `when_added`, `start_date`, `end_date`, `alert_date`, `alert_staff`, `created_by`) VALUES ('$clientid', '$rate_card_name', '$ref_card', '$frequency_type', '$frequency_interval', '$package' , '$promotion', '$services', '$products', '$sred', '$client', '$customer', '$inventory', '$equipment', '$equipment_category', '$staff', '$staff_position', '$contractor', '$expense', '$vendor', '$custom', '$material', '$labour', '$other', '$mileage', '$total_price', '$who_added', '$when_added', '$start_date', '$end_date', '$alert_date', '$alert_staff', '".$_SESSION['contactid']."')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $url = 'Added';
     } else {
         $ratecardid = $_POST['ratecardid'];
-        $query_update_vendor = "UPDATE `rate_card` SET `rate_card_name` = '$rate_card_name', `ref_card` = '$ref_card', `frequency_type` = '$frequency_type', `frequency_interval` = '$frequency_interval', `package` = '$package', `promotion` = '$promotion', `services` = '$services', `products` = '$products', `sred` = '$sred', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `equipment_category` = '$equipment_category', `staff` = '$staff', `staff_position` = '$staff_position', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `material` = '$material', `labour` = '$labour', `other` = '$other', `total_price` = '$total_price', `who_added` = '$who_added', `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff' WHERE `ratecardid` = '$ratecardid'";
+        $query_update_vendor = "UPDATE `rate_card` SET `rate_card_name` = '$rate_card_name', `ref_card` = '$ref_card', `frequency_type` = '$frequency_type', `frequency_interval` = '$frequency_interval', `package` = '$package', `promotion` = '$promotion', `services` = '$services', `products` = '$products', `sred` = '$sred', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `equipment_category` = '$equipment_category', `staff` = '$staff', `staff_position` = '$staff_position', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `material` = '$material', `labour` = '$labour', `other` = '$other', `mileage` = '$mileage', `total_price` = '$total_price', `who_added` = '$who_added', `start_date` = '$start_date', `end_date` = '$end_date', `alert_date` = '$alert_date', `alert_staff` = '$alert_staff' WHERE `ratecardid` = '$ratecardid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
     }
@@ -288,6 +290,7 @@ function deleteRatecard(sel, hide, blank) {
         $other = '';
         $disabled = '';
         $selected_contact_cat = '';
+        $mileage = '';
 
         if(!empty($_GET['ratecardid'])) {
             $ratecardid = $_GET['ratecardid'];
@@ -323,6 +326,7 @@ function deleteRatecard(sel, hide, blank) {
             $other = $ratecard['other'];
             $disabled = 'disabled';
             $selected_contact_cat = get_contact($dbc, $clientid, 'category');
+            $mileage = $ratecard['mileage'];
             ?>
         <input type="hidden" id="ratecardid" name="ratecardid" value="<?php echo $ratecardid ?>" />
         <input type="hidden" name="ratecardclientid" value="<?php echo $clientid ?>" />
@@ -754,6 +758,24 @@ function deleteRatecard(sel, hide, blank) {
                 <div class="panel-body">
                     <?php
                     include ('add_rate_card_equipment_category.php');
+                    ?>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if (strpos($value_config, ','."Mileage".',') !== FALSE) { ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_mileage" >Mileage<span class="glyphicon glyphicon-plus"></span></a>
+                </h4>
+            </div>
+
+            <div id="collapse_mileage" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <?php
+                    include ('add_rate_card_mileage.php');
                     ?>
                 </div>
             </div>
