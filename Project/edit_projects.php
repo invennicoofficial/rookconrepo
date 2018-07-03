@@ -59,8 +59,11 @@ foreach($query_count as $query_label => $query_value) {
 	}
 }
 $project_counts['documents'] = intval(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) docs FROM `project_document` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted` = 0"))['docs']);
-if(!IFRAME_PAGE) { ?>
-	<div id='project_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12 form-horizontal'>
+if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
+	<?php if($_GET['iframe_slider'] == 1) { ?>
+		<h1><?= $label ?></h1>
+	<?php } ?>
+	<div id='project_accordions' class='sidebar <?= $_GET['iframe_slider'] == 1 ? '' : 'show-on-mob' ?> panel-group block-panels col-xs-12 form-horizontal'>
 		<div class="panel panel-default" style='<?= in_array('Summary',$tab_config) && $projectid > 0 ? '' : 'display:none;' ?>'>
 			<div class="panel-heading mobile_load">
 				<h4 class="panel-title">
@@ -1455,7 +1458,7 @@ if(!IFRAME_PAGE) { ?>
 	</ul>
 </div>
 <?php } ?>
-<div class='scale-to-fill has-main-screen <?= IFRAME_PAGE ? '' : 'hide-titles-mob' ?>'>
+<div class='scale-to-fill has-main-screen <?= IFRAME_PAGE && $_GET['iframe_slider'] != 1 ? '' : 'hide-titles-mob' ?>'>
 	<div class='main-screen search_results form-horizontal standard-body' style="display:none;"></div>
 	<div class='main-screen default_screen form-horizontal standard-body'>
 		<?php $include_files = [];

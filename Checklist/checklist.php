@@ -67,6 +67,7 @@ $tab_counts['inventory'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*
 if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && empty($_GET['reports'])) {
 	$_GET['subtabid'] = 'favourites';
 } ?>
+<?php if($_GET['iframe_slider'] != 1) { ?>
 <div class="container bg-white">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
@@ -378,6 +379,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<?php if($security['edit'] > 0) { ?><a href="?edittab=NEW"><li>Add New Category</li></a><?php } ?>
 				</ul>
 			</div>
+<?php } ?>
 			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?>">
 				<div class="checklist_screen main-screen" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'>
 				<?php if(!empty($_GET['view'])) {
