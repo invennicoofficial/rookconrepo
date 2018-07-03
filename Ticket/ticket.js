@@ -3,6 +3,7 @@ ticket_lock_interval = '';
 ticket_reload_tabs = '';
 ticket_excess_confirm = true;
 ticket_reloading_service_checklist = '';
+finishing_ticket = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
@@ -1506,18 +1507,20 @@ function reload_checkin() {
 	});
 }
 function reload_summary() {
-	destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
-	$.ajax({
-		url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
-		dataType: 'html',
-		success: function(response) {
-			$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
-			initInputs('#tab_section_ticket_summary');
-			initInputs('#collapse_summary');
-			initSelectOnChanges();
-			reload_complete();
-		}
-	});
+	if(!finishing_ticket) {
+		destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
+		$.ajax({
+			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+			dataType: 'html',
+			success: function(response) {
+				$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
+				initInputs('#tab_section_ticket_summary');
+				initInputs('#collapse_summary');
+				initSelectOnChanges();
+				reload_complete();
+			}
+		});
+	}
 }
 function reload_documents() {
 	destroyInputs($('.document_table'));
@@ -2380,9 +2383,13 @@ function toggleAll(button) {
 	$(button).closest('.panel-body,.tab-section,.has-main-screen .main-screen').find('.toggle[value=0]').closest('.toggleSwitch').click();
 }
 function checkoutAll(button) {
+	if($(button).hasClass('finish_btn')) {
+		finishing_ticket = true;
+	}
 	reload_summary();
 	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '') && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == '')) {
 		alert("A signature is required.");
+		finishing_ticket = false;
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
