@@ -269,8 +269,9 @@ if($siteid == 'recent') {
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><th>Vendor / Shipper</th><?php } ?>
 					<?php if(in_array('manual qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) { ?><th>Qty</th><?php } ?>
+					<?php if(in_array('group pieces',$manifest_fields)) { ?><th style="min-width:8em;width:auto;">Qty</th><?php } ?>
 					<?php if(in_array('notes',$manifest_fields)) { ?><th>Notes</th><?php } ?>
-					<?php if(!in_array('req site',$manifest_fields) || $siteid > 0) { ?><th>Add <button class="btn brand-btn pull-right" onclick="$('input[type=checkbox]').prop('checked',true); return false;">Select All<br />(from current page)</button></th><?php } ?>
+					<?php if((!in_array('req site',$manifest_fields) || $siteid > 0) && !in_array('group pieces',$manifest_fields)) { ?><th>Add <button class="btn brand-btn pull-right" onclick="$('input[type=checkbox]').prop('checked',true); return false;">Select All<br />(from current page)</button></th><?php } ?>
 				</tr>
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
@@ -297,7 +298,7 @@ if($siteid == 'recent') {
 								</div>
 							</td><?php } ?>
 						<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= $ticket['notes'] ?>"></td><?php } ?>
-						<?php if(!in_array('req site',$manifest_fields) || $siteid > 0) { ?><td data-title="Add">
+						<?php if((!in_array('req site',$manifest_fields) || $siteid > 0) && !in_array('group pieces',$manifest_fields)) { ?><td data-title="Add">
 							<label class="form-checkbox any-width"><input type="checkbox" name="include[]" value="<?= $ticket['id'] ?>">Include</label>
 							<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">
 						</td><?php } ?>
