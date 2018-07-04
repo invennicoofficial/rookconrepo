@@ -15,11 +15,14 @@ foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
 	$ticket_types[config_safe_str($ticket_type)] = $ticket_type;
 }
 $ticket_type = $_GET['ticket_type'];
-if(!empty($get_ticketid['ticket_type'])) {
+if(!empty($get_ticket['ticket_type'])) {
 	$ticket_type = $get_ticket['ticket_type'] ?: get_config($dbc, 'default_ticket_type');
 }
 if($ticket_type == '') {
-	$value_config .= get_config($dbc, 'ticket_fields_%', true).',';
+	// $value_config .= get_config($dbc, 'ticket_fields_%', true).',';
+	foreach($ticket_types as $type_i => $type_label) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
+	}
 } else {
 	$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
