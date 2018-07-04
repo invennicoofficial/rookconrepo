@@ -28,6 +28,9 @@ if(empty($_GET['tab'])) {
 				$('.scrum_tickets ul').css('display','inline-block').css('overflow-y','auto').outerHeight(height);
 			}
 		}).resize();
+		$('.search_list').change(function() {
+			window.location.replace('?tab=search&q='+encodeURIComponent(this.value));
+		});
 	});
 <?php } ?>
 function submitForm(thisForm) {
@@ -65,15 +68,46 @@ function submitForm(thisForm) {
 			<?php IF(!IFRAME_PAGE) { ?>
 				<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
 					<ul>
-						<!--<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search Scrum"></li>-->
-						<a href="?tab=notes"><li class="<?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>">Notes</li></a>
-						<a href="?tab=personal"><li class="<?= $_GET['tab'] == 'personal' ? 'active blue' : '' ?>"><?= TICKET_TILE ?></li></a>
-						<a href="?tab=company"><li class="<?= $_GET['tab'] == 'company' ? 'active blue' : '' ?>">Company <?= TICKET_TILE ?></li></a>
+						<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" value="<?= $_GET['q'] ?>" placeholder="Search Scrum Notes"></li>
+						<a href="?tab=notes"><li class="sidebar-higher-level <?= $_GET['tab'] == 'notes' ? 'active' : '' ?>">Notes</li></a>
+						<li class="sidebar-higher-level <?= $_GET['tab'] == 'all' ? 'active' : '' ?>"><a class="<?= $_GET['tab'] == 'all' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#list_all">View All<span class="arrow"></span></a></li>
+							<ul class="collapse <?= $_GET['tab'] == 'all' ? 'in' : '' ?>" id="list_all">
+								<?php if(tile_enabled($dbc, 'ticket')['user_enabled'] > 0) {
+									echo '<li class="sidebar-lower-level"><a class="'.('all' == $_GET['tab'] && 'tickets' == $_GET['subtab'] ? 'active' : '').'" href="?tab=all&subtab=tickets">'.TICKET_TILE.'</a></li>';
+								}
+								if(tile_enabled($dbc, 'tasks')['user_enabled'] > 0) {
+									echo '<li class="sidebar-lower-level"><a class="'.('all' == $_GET['tab'] && 'tasks' == $_GET['subtab'] ? 'active' : '').'" href="?tab=all&subtab=tasks">Tasks</a></li>';
+								} ?>
+							</ul>
+						</li>
+						<li class="sidebar-higher-level <?= $_GET['tab'] == 'staff' ? 'active' : '' ?>"><a class="<?= $_GET['tab'] == 'staff' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#list_staff">Staff<span class="arrow"></span></a></li>
+							<ul class="collapse <?= $_GET['tab'] == 'staff' ? 'in' : '' ?>" id="list_staff">
+								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`,`first_name`,`last_name`,`name` FROM `contacts` WHERE `deleted`=0 AND `status`>0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY)) as $staff) {
+									echo '<li class="sidebar-lower-level"><a class="'.('staff' == $_GET['tab'] && $staff['contactid'] == $_GET['subtab'] ? 'active' : '').'" href="?tab=staff&subtab='.$staff['contactid'].'">'.$staff['full_name'].'</a></li>';
+								} ?>
+							</ul>
+						</li>
+						<li class="sidebar-higher-level <?= $_GET['tab'] == 'status' ? 'active' : '' ?>"><a class="<?= $_GET['tab'] == 'status' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#list_status">Status<span class="arrow"></span></a></li>
+							<ul class="collapse <?= $_GET['tab'] == 'status' ? 'in' : '' ?>" id="list_status">
+								<?php foreach(array_filter(array_unique(explode(',',get_config($dbc,'ticket_status').','.get_config($dbc,'task_status')))) as $status) {
+									$id = config_safe_str($status);
+									echo '<li class="sidebar-lower-level"><a class="'.('status' == $_GET['tab'] && $id == $_GET['subtab'] ? 'active' : '').'" href="?tab=status&subtab='.$id.'">'.$status.'</a></li>';
+								} ?>
+							</ul>
+						</li>
+						<li class="sidebar-higher-level <?= $_GET['tab'] == 'project' ? 'active' : '' ?>"><a class="<?= $_GET['tab'] == 'project' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#list_project"><?= PROJECT_TILE ?><span class="arrow"></span></a></li>
+							<ul class="collapse <?= $_GET['tab'] == 'project' ? 'in' : '' ?>" id="list_project">
+								<?php $project_list = $dbc->query("SELECT * FROM `project` WHERE `deleted`=0 AND `status` != 'Archive' ORDER BY `projectid` DESC");
+								while($project = $project_list->fetch_assoc()) {
+									echo '<li class="sidebar-lower-level"><a class="'.('project' == $_GET['tab'] && $project['projectid'] == $_GET['subtab'] ? 'active' : '').'" href="?tab=project&subtab='.$project['projectid'].'">'.get_project_label($dbc,$project).'</a></li>';
+								} ?>
+							</ul>
+						</li>
 					</ul>
 				</div>
 			<?php } ?>
 			<div class="scale-to-fill has-main-screen">
-				<div class="main-screen standard-body form-horizontal">
+				<div class="main-screen standard-body form-horizontal" id="no-more-tables">
 					<?php include('scrum_display.php'); ?>
 				</div>
 			</div>
