@@ -38,7 +38,7 @@ checkAuthorised('match');
 	                    // echo "<div class='pull-right gap-left'><a href='?&settings=payroll'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 	                // }
                     if($edit_access == 1) {
-						echo "<div class='pull-right gap-left'><a href='?edit=' class='new-btn'><button class='btn brand-btn hide-titles-mob'>New Match</button></a></div>";
+						echo "<div class='pull-right gap-left'><a href='?edit=' class='new-btn'><button class='btn brand-btn'>New Match</button></a></div>";
                     } ?>
                 </div>
                 <div class="scale-to-fill">
