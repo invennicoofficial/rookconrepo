@@ -37,7 +37,19 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 6);
+		set_config($dbc, 'db_version_jonathan', 7);
+	}
+	
+	if($db_version_jonathan < 8) {
+		// July 4, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `file` TEXT AFTER `comment`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `manual` VARCHAR(20) AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";
