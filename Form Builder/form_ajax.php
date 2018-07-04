@@ -51,7 +51,11 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'insert_field') {
     $field_id = mysqli_insert_id($dbc);
     mysqli_query($dbc, "UPDATE `user_form_fields` SET `name` = 'field_".$field_id."' WHERE `field_id` = '$field_id'");
 
-    $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Form Builder/edit_form_field_details.php?field_id='.$field_id.'\', \'auto\', true, true, $(\'.main-screen\').height()); return false;">'.$description.': </a>&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    if($field_type == 'HR') {
+        $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;Horizontal Row&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    } else {
+        $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Form Builder/edit_form_field_details.php?field_id='.$field_id.'\', \'auto\', true, true, $(\'.main-screen\').height()); return false;">'.$description.': </a>&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    }
     echo $block_html;
 }
 

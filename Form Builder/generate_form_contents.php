@@ -638,6 +638,9 @@ function checkMandatoryFields() {
                                             <?php } ?>
                                         </table>
                                         <?php break;
+                                    case 'HR': ?>
+                                        <hr />
+                                        <?php break;
                                     default:
                                         echo '<input type="text" name="'.$field_post.'" class="form-control" value="'.$default.'">';
                                         break;
