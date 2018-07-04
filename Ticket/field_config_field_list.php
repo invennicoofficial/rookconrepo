@@ -229,6 +229,10 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Name", $all_config) ? 'checked disabled' : (in_array("PI Name", $value_config) ? "checked" : '') ?> value="PI Name" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?>, excluding <?= BUSINESS_CAT ?> or <?= CONTACTS_TILE ?> attached to the selected <?= BUSINESS_CAT ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Contact</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'PI Guardian') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Guardian", $all_config) ? 'checked disabled' : (in_array("PI Guardian", $value_config) ? "checked" : '') ?> value="PI Guardian" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?> based on the selected category below, which is the Parent/Guardian of the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Parent/Guardian</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'PI AFE') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI AFE", $all_config) ? 'checked disabled' : (in_array("PI AFE", $value_config) ? "checked" : '') ?> value="PI AFE" name="tickets[]"> AFE #</label>
 							<?php } ?>
@@ -341,6 +345,18 @@ if(!$action_mode && !$overview_mode) {
 									<select name="ticket_business_contact_add_pos" data-placeholder="Select Category" class="chosen-select-deselect">
 										<option <?= $ticket_business_contact_add_pos != 'top' ? 'selected' : ''?>>Bottom</option>
 										<option value="top" <?= $ticket_business_contact_add_pos == 'top' ? 'selected' : '' ?>>Top</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the Parent/Guardian in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Parent/Guardian<?= $ticket_guardian_contact != '' && $tab != '' ? ' (Default: '.$ticket_guardian_contact.')' : '' ?>:</label>
+								<div class="col-sm-8">
+									<select name="ticket_guardian_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<?php $tab_ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'.($tab == '' ? '' : '_'.$tab));
+										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
+											<option <?= $category == $tab_ticket_guardian_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
+										<?php } ?>
 									</select>
 								</div>
 							</div>

@@ -437,8 +437,8 @@
 <?php } else if($field_option == 'Gender' || $field_option == 'Profile Gender') { ?>
 	<label class="col-sm-4 control-label">Gender:</label>
 	<div class="col-sm-8">
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts" class="form-control"> Female</label>
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts" class="form-control"> Male</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts"> Female</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Male' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts"> Male</label>
 	</div>
 <?php } else if($field_option == 'License') { ?>
 	<label class="col-sm-4 control-label">Licence #:</label>
