@@ -375,6 +375,11 @@ function remove_follow_up(elem) {
 				}
 			}
 		}
+		function createTemplate() {
+			$.post('estimates_ajax.php?action=copy_as_template', { estimate: '<?= $estimateid ?>' }, function(response) {
+				window.location.href = 'estimates.php?template='+response;
+			});
+		}
 		</script>
 		<?php if($edit_access > 0) { ?>
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Edit</a>
@@ -385,6 +390,7 @@ function remove_follow_up(elem) {
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" onclick="attach_to_project();$(this).hide();return false;" class="btn brand-btn">Attach to <?= PROJECT_NOUN ?></a>
 			<?php } ?>
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy <?= ESTIMATE_TILE ?></a>
+			<a onclick="createTemplate(); return false;" class="btn brand-btn">Create Template from <?= ESTIMATE_TILE ?></a>
 		<?php } ?>
 
         <?php $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
