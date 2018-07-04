@@ -495,4 +495,16 @@ if($_GET['action'] == 'save_template_field') {
     
     set_config($dbc, $name, $status);
     echo '$status_type: '.$status_type.' | $status: '.$status.' | $name:'.$name.'<br>'.mysqli_error($dbc);
+} else if($_GET['action'] == 'copy_as_template') {
+	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	$template = 'Template - Copy of '.ESTIMATE_TILE.' '.$estimateid;
+	mysqli_query($dbc, "INSERT INTO `estimate_templates` (`template_name`) VALUES ('$template')");
+	$templateid = mysqli_insert_id($dbc);
+	$headings = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading`");
+	while($heading = mysqli_fetch_assoc($headings)['heading']) {
+		mysqli_query($dbc, "INSERT INTO `estimate_template_headings` (`template_id`, `heading_name`) VALUES ('$templateid','$heading')");
+		$headingid = mysqli_insert_id($dbc);
+		mysqli_query($dbc, "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `description`, `src_id`, `qty`, `sort_order`) SELECT '$headingid', `src_table`, `description`, `src_id`, `qty`, `sort_order` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `heading`='$heading' AND `deleted`=0");
+	}
+	echo $templateid;
 }

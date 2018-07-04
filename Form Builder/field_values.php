@@ -22,7 +22,8 @@ $field_types = [
 	'SLIDER' => 'Slider',
 	'SLIDER_TOTAL' => 'Slider Total',
 	'SERVICES' => 'Services',
-	'ACCORDION' => 'New Form Section (Accordion)'
+	'ACCORDION' => 'New Form Section (Accordion)',
+	'HR' => 'Horizontal Row'
 ];
 $field_note = [
 	'TEXT' => "This field displays a line of text in the Form (no input from the user).",
@@ -47,6 +48,7 @@ $field_note = [
 	'SLIDER' => "This field will create a slider with min and max values.",
 	'SLIDER_TOTAL' => "This field will create a text value of the total of all selected Sliders.",
 	'SERVICES' => "This field will create a list of checkboxes for Services to choose from.",
-	'ACCORDION' => "This field creates a new Accordion for the Form as a way to organize the Form better (no input from the user)."
+	'ACCORDION' => "This field creates a new Accordion for the Form as a way to organize the Form better (no input from the user).",
+	'HR' => "This field will create a horizontal line across the form as a way to organize the Form better (hr tag in html)."
 ];
 ?>

@@ -97,9 +97,18 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                 $no_records = true;
                 if (in_array('Reminders', $daysheet_fields_config)) {
                     foreach ($reminders_result as $reminder) {
-                        $reminder_url = get_reminder_url($dbc, $reminder);
+                        $reminder_url = get_reminder_url($dbc, $reminder, 1);
+                        $slider = 1;
+                        if(empty($reminder_url)) {
+                            $slider = 0;
+                            $reminder_url = get_reminder_url($dbc, $reminder);
+                        }
                         if(!empty($reminder_url)) {
-                            $reminder_label = '<a href="'.$reminder_url.'">Reminder: '.$reminder['subject'].'</a>';
+                            if($slider == 1) {
+                                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">Reminder: '.$reminder['subject'].'</a>';
+                            } else {
+                                $reminder_label = '<a href="'.$reminder_url.'">Reminder: '.$reminder['subject'].'</a>';
+                            }
                         } else {
                             $reminder_label = '<div class="daysheet-span">Reminder: '.$reminder['subject'].'</div>';
                         }
@@ -107,7 +116,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($sales_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Sales/sale.php?p=preview&id='.$reminder['salesid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($so_reminders_result as $reminder) {
@@ -123,15 +132,15 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($projects_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Project/projects.php?edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($pfu_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Project/projects.php?edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($cert_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Certificate/index.php?edit='.$reminder['certificateid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($alerts_reminders_result as $reminder) {
@@ -139,7 +148,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($inc_rep_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }
@@ -173,7 +182,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                 if (in_array('Tasks', $daysheet_fields_config)) {
                     foreach ($tasks_result as $task) {
 						$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-                        echo $row_open.'<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }

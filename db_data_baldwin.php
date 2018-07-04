@@ -173,5 +173,11 @@
     }
     //2018-06-29 - Ticket #7898 - Clients Tile
 
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+    if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `mileage` text AFTER `labour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

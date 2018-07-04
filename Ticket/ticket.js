@@ -639,6 +639,9 @@ function saveFieldMethod(field) {
 						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff') {
 							$(field).closest('.multi-block').find('[name="hours_travel"]').change();
 						}
+						if(table_name == 'mileage') {
+							$(field).closest('.multi-block').find('[name="start"],[name="end"]').change();
+						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
@@ -829,6 +832,9 @@ function saveFieldMethod(field) {
 					}
 					if($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() != undefined && $('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() > 0 && !($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().data('id') > 0)) {
 						$('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().change();
+					}
+					if(table_name == 'mileage' && field_name == 'mileage') {
+						$(field).closest('.multi-block').find('[name="double_mileage"]').val(parseFloat(save_value)*2).change();
 					}
 					doneSaving();
 				}

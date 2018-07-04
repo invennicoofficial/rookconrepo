@@ -198,6 +198,9 @@ if (isset($_POST['submit_btn'])) {
 		case 'cnt2':
 			include ('pos_invoice_contractor_2.php');
 			break;
+		case 'cnt3':
+			include ('pos_invoice_contractor_3.php');
+			break;
 	}
 
     if($_POST['survey'] != '') {

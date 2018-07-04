@@ -11,44 +11,17 @@ $link = '?';
 if(!empty($_GET['tab'])) {
 	$link = '?tab='.$_GET['tab'].'&';
 }
-$scrum_tab = (empty($_GET['scrum_tab']) ? 'notes' : $_GET['scrum_tab']);
+$scrum_tab = (empty($_GET['tab']) ? 'notes' : $_GET['tab']);
 
 $title = "Scrum Board";
 switch($scrum_tab) {
-	case 'notes': $title = 'Scrum Notes'; break;
+	case 'search': $title = 'Search Scrum Notes<a href="?tab=notes&date=today" class="btn brand-btn pull-right">Add Notes</a>'; break;
+	case 'notes': $title = 'Scrum Notes<a href="?tab=notes&date=today" class="btn brand-btn pull-right">Add Notes</a>'; break;
 	case 'personal': $title = TICKET_TILE; break;
 	case 'company': $title = "Company ".TICKET_TILE; break;
 }
 ?>
 <script>
-setTimeout(function() {
-
-var maxWidth = Math.max.apply( null, $( '.ui-sortable' ).map( function () {
-    return $( this ).outerWidth( true );
-}).get() );
-
-var maxHeight = -1;
-
-$('.ui-sortable').each(function() {
-  maxHeight = maxHeight > $(this).height() ? maxHeight : $(this).height();
-
-});
-
-$(function() {
-  $(".connectedSortable").width(maxWidth).height(maxHeight);
-});
-$( '.connectedSortable' ).each(function () {
-    this.style.setProperty( 'height', maxHeight, 'important' );
-	this.style.setProperty( 'width', maxWidth, 'important' );
-
-	<?php if($check_table_orient == 1) { ?>
-		$(this).attr('style', 'height:'+maxHeight+'px !important; width:'+maxWidth+'px !important');
-	<?php } else { ?>
-		$(this).attr('style', 'height:'+maxHeight+'px !important;');
-	<?PHP } ?>
-});
-
-}, 200);
 $(document).ready(function() {
 	$('.close_iframer').click(function(){
 		$('.iframe_holder').hide();
@@ -217,36 +190,12 @@ function archive(ticket) {
 	}
 }
 </script>
-<div class="container" id="scrum_div">
-	<div class="iframe_overlay" style="display:none;">
-		<div class="iframe">
-			<div class="iframe_loading">Loading...</div>
-			<iframe name="scrum_iframe" src=""></iframe>
-		</div>
-	</div>
-	<div class='iframe_holder' style='display:none;'>
+<div class="standard-body-title pad-top">
+    <h1 class="single-pad-bottom"><?php echo $title; ?></h1>
+</div>
+<div class="standard-body-content">
+    <?php $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='projects_scrum'"));
 
-		<img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframer' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
-		<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left: 20px; font-size: 30px;'></span>
-		<iframe id="iframe_instead_of_window" style='width: 100%;' height="1000px; border:0;" src=""></iframe>
-    </div>
-	<div class="row hide_on_iframe">
-
-    <h1 class="single-pad-bottom"><?php echo $title; ?><img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
-    <div class="clearfix"></div><?php
-
-    echo '<div class="tab-container1 double-gap-top"><div class="pull-left tab"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to see the shared Scrum Notes for the day."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-	echo "<a href='".$link."scrum_tab=notes'><button type='button' class='btn brand-btn mobile-100 mobile-block ".($scrum_tab == 'notes' ? 'active_tab' : '')."'>Notes</button></a></div>";
-
-    echo '<div class="tab-container1 double-gap-top"><div class="pull-left tab"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to see your personal task board for the day."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-	echo "<a href='".$link."scrum_tab=personal'><button type='button' class='btn brand-btn mobile-100 mobile-block ".($scrum_tab == 'personal' ? 'active_tab' : '')."'>".TICKET_TILE."</button></a></div>";
-
-	echo '<div class="pull-left tab"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to see everyone\'s tasks for the day."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-    echo "<a href='".$link."scrum_tab=company'><button type='button' class='btn brand-btn mobile-100 mobile-block ".($scrum_tab == 'company' ? 'active_tab' : '')."'>Company ".TICKET_TILE."</button></a></div>";
-
-	echo '<div class="clearfix"></div></div>';
-
-    $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='projects_scrum'"));
     $note = $notes['note'];
     if ( !empty($note) ) { ?>
         <div class="notice popover-examples">
@@ -257,8 +206,10 @@ function archive(ticket) {
         </div><?php
     }
 
-	if($scrum_tab != 'notes') {
+	if(!in_array($scrum_tab, ['notes','search'])) {
 		$query_clause = '';
+		$ticket_query = '';
+		$task_query = '';
 		$search_client = '';
 		$search_customer = '';
 		$search_user = '';
@@ -272,10 +223,20 @@ function archive(ticket) {
 		}
 		if(!empty($_POST['search_user'])) {
 			$search_user = $_POST['search_user'];
-			$query_clause .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+			$ticket_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+			$task_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
 		} else if($scrum_tab == 'personal') {
 			$search_user = $_SESSION['contactid'];
-			$query_clause .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+			$ticket_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+			$task_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+		} else if($scrum_tab == 'staff') {
+			$search_user = filter_var($_GET['subtab'],FILTER_SANITIZE_STRING);
+			$ticket_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+			$task_query .= " AND (CONCAT(',',`contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$search_user.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$search_user.",%')";
+		}
+		if($scrum_tab == 'project') {
+			$search_project = filter_var($_GET['subtab'],FILTER_SANITIZE_STRING);
+			$query_clause .= " AND `projectid`='$search_project'";
 		}
 		?>
 
@@ -313,7 +274,7 @@ function archive(ticket) {
 							</select>
 						</div>
 					</div>
-					<?php if($scrum_tab != 'personal'): ?>
+					<?php if($scrum_tab != 'personal' && $scrum_tab != 'staff'): ?>
 						<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 							<div class="col-sm-4">
 								<label for="site_name" class="control-label">Search By Staff:</label>
@@ -335,26 +296,20 @@ function archive(ticket) {
 						<!-- <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button> -->
 						<button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
 					</div>
+					<a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=0&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true); return false;" class="btn brand-btn pull-right" style="width:auto;"> Add <?= TICKET_NOUN ?></a>
 				</div><!-- .form-group -->
 				<div class="clearfix"></div>
 			</div>
 		</form>
-		<div class="col-sm-2">
-			<span style='padding:5px; font-weight:bold;'>Vertical View: </span><input onclick="handleClick(this);" type='radio' style='width:20px; height:20px;' <?php if($check_table_orient !== 1) { echo 'checked'; } ?> name='horizo_vert' class='horizo_vert' value=''>
-		</div>
-		<div class="col-sm-3">
-			<span style='padding:5px; font-weight:bold;'>Horizontal View (Mobile): </span><input onclick="handleClick(this);" <?php if($check_table_orient == 1) { echo 'checked'; } ?> type='radio' style='width:20px; height:20px;' name='horizo_vert' class='horizo_vert' value='1'>
-		</div>
-		<a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=0&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" class="btn brand-btn pull-right" style="width:auto;"> Add <?= TICKET_NOUN ?></a>
 		<div class="clearfix"></div>
     <?php }
 	
 	switch($scrum_tab) {
+		case 'search': include('scrum_search.php'); break;
 		case 'notes': include('scrum_notes.php'); break;
 		case 'personal': include('scrum_personal.php'); break;
 		case 'company': include('scrum_tickets.php'); break;
+		default: include('scrum_tickets.php'); break;
 	} ?>
 
 </div>
-
-<?php include ('../footer.php'); ?>

@@ -97,6 +97,8 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Status', $all_config) ? 'checked disabled' : (in_array('SUMM Status',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Status"><?= PROJECT_NOUN ?> Status</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Business', $all_config) ? 'checked disabled' : (in_array('SUMM Business',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Business"><?= BUSINESS_CAT ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Contacts', $all_config) ? 'checked disabled' : (in_array('SUMM Contacts',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Contacts">Contacts</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Piece', $all_config) ? 'checked disabled' : (in_array('SUMM Piece',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Piece">Piece Work <?= TICKET_NOUN ?></label>
+
 	</div>
 	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_TILE ?> Dashboard<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>

@@ -495,6 +495,9 @@ if($_GET['action'] == 'update_fields') {
 			echo 'created_unscheduled_stop';
 		}
 	}
+	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
+		$value = date('Y-m-d H:i:s', strtotime($value));
+	}
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';
 		$id_field = 'note_id';

@@ -99,6 +99,7 @@ $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_n
 $businesses = sort_contacts_query(mysqli_query($dbc, "SELECT `name`, `contactid` FROM `contacts` WHERE `contactid` IN (SELECT `businessid` FROM `project` WHERE `deleted`=0) AND `deleted`=0"));
 $leads = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON `project`.`project_lead`=`contacts`.`contactid` AND `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `project`.`projectid` IS NOT NULL"));
 $coleads = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON `project`.`project_colead`=`contacts`.`contactid` AND `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `project`.`projectid` IS NOT NULL"));
+
 $uncategorized_sql = "SELECT `projectid`, `businessid`, `clientid`, `project_name` FROM `project` WHERE `deleted`=0 AND `status` NOT IN ('Archive'".($pending_projects == 'disable' ? '' : ",'Pending'").") AND '$tile' = 'project' AND `projecttype` NOT IN ('".implode("','",$tab_list)."') ORDER BY REPLACE(`favourite`,',','') LIKE ',".$_SESSION['contactid'].",' DESC, `project_name` ASC, `projectid` DESC";
 $project_list = mysqli_query($dbc, $uncategorized_sql); ?>
 project_list['uncategorized'] = [<?php while($project_line = mysqli_fetch_assoc($project_list)) {
@@ -684,6 +685,25 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
+
+				if(in_array('SUMM Piece', $summ_config)) {
+					$block_length = 68;
+					$block = '<div class="overview-block">
+						<h4>'.TICKET_TILE.' by Piece Work</h4>';
+
+                        $piece_work = $dbc->query("SELECT `ticketid`, `piece_work` FROM `tickets` WHERE `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done') AND piece_work != '' AND piece_work IS NOT NULL");
+
+                        while($piece = $piece_work->fetch_assoc()) {
+                                $block .= '<label class="control-label"><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$piece['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">#'.$piece['ticketid'].'</a></label> : '.$piece['piece_work'].'<br />';
+							    $block_length += 23;
+                        }
+
+					$block .= '</div>';
+					$blocks[] = [$block_length, $block];
+					$total_length += $block_length;
+				}
+
+
 				$display_column = 0;
 				$displayed_length = 0; ?>
 				<div class="col-sm-6">
