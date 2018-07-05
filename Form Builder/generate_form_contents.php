@@ -689,6 +689,16 @@ function checkMandatoryFields() {
                                             <?php } ?>
                                         </table>
                                         <?php break;
+                                    case 'FILE': ?>
+                                        <?php if(!empty($default)) { ?>
+                                            <div class="existing_file">
+                                                <a href="<?= $default ?>" target="_blank">View</a> | <a href="" onclick="$(this).closest('.existing_file').find('[name=<?= $field_post ?>_delete]').val(1); $(this).closest('.existing_file').hide(); return false;">Delete</a>
+                                                <input type="hidden" name="<?= $field_post ?>_delete" value="0">
+                                                <input type="hidden" name="<?= $field_post ?>_existing" value="<?= $default ?>">
+                                            </div>
+                                        <?php } ?>
+                                        <input type="file" name="<?= $field_post ?>" data-filename-placement="inside" class="form-control" onchange="$(this).closest('user_form_field').find('[name=<?= $field_post ?>_delete]').val(0);">
+                                        <?php break;
                                     case 'HR': ?>
                                         <hr />
                                         <?php break;

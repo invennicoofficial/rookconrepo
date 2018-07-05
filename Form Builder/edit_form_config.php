@@ -50,8 +50,8 @@ function changeAssignedTile() {
 	});
 }
 </script>
-<div class="collapsible tile-sidebar" style="height: 100%;">
-	<ul class="sidebar" style="padding-top: 1em;">
+<div class="standard-collapsible tile-sidebar" style="height: 100%;">
+	<ul class="sidebar">
 		<a href="" onclick="return false;"><li class="active">Form Builder Configuration</li></a>
 	</ul>
 </div>
