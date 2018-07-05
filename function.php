@@ -523,6 +523,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '25';
 		} else if($name == 'recent_inventory') {
 			return '25';
+		} else if($name == 'company_rate_card_sections') {
+			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
 		}
 	}
 

@@ -28,13 +28,13 @@ if (isset($_POST['submit'])) {
 		}
 	} else if($_POST['submit'] == 'company' || $_POST['submit'] == 'universal') {
 		//Field Labels and Order
-		$labels = [];
-		foreach($_POST['estimate_field_name'] as $key => $name) {
-			$labels[] = $name.'***'.$_POST['estimate_field_label'][$key];
-		}
-		$label_config = implode('#*#',$labels);
-		$result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_field_order' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_field_order') num WHERE num.rows=0");
-		$result = mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$label_config' WHERE `name`='estimate_field_order'");
+		// $labels = [];
+		// foreach($_POST['estimate_field_name'] as $key => $name) {
+			// $labels[] = $name.'***'.$_POST['estimate_field_label'][$key];
+		// }
+		// $label_config = implode('#*#',$labels);
+		// $result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimate_field_order' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimate_field_order') num WHERE num.rows=0");
+		// $result = mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$label_config' WHERE `name`='estimate_field_order'");
 	}
 	if($_POST['submit'] == 'company') {
 		$field_config = ','.implode(',',$_POST['company_fields']).',';
@@ -46,6 +46,8 @@ if (isset($_POST['submit'])) {
 		}
 		$result = mysqli_query($dbc, $field_sql);
 
+		set_config($dbc,'estimate_field_order',implode('#*#',$_POST['field_sort']));
+		set_config($dbc,'company_rate_card_sections',','.implode(',',$_POST['company_sections']).',');
 		$db_config = ','.implode(',',$_POST['company_db']).',';
 		$get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configid`) config FROM `general_configuration` WHERE `name`='company_db_rate_fields'"));
 		if($get_config['config'] > 0) {
@@ -378,7 +380,7 @@ $(document).ready(function(){
 						$estimate_field_order = explode('#*#', $estimate_field_order);
 					}
 					$estimate_field_order = array_map('ucwords',$estimate_field_order);
-					$defaults = 'Type,Heading,Category***Category (If Applicable),Description,Detail,Billing Frequency,Item Type,Daily,Hourly,Customer Price,UOM,Quantity,Cost,Margin,Profit,Estimate Price,Total,';
+					$defaults = 'Type#*#Heading#*#Category***Category (If Applicable)#*#Description#*#Detail#*#Billing Frequency#*#Item Type#*#Daily#*#Hourly#*#Customer Price#*#Dollarsaving#*#Percentsaving#*#UOM#*#Quantity#*#Cost#*#Margin#*#Profit#*#Estimate Price#*#Total';
 					foreach($estimate_field_order as $value) {
 						$defaults = trim(str_replace(','.explode('***',$value)[0].',',',',','.$defaults.','),',');
 					}
@@ -417,6 +419,44 @@ $(document).ready(function(){
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',alert_date,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="alert_date"/>Alert Date</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',alert_staff,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="alert_staff"/>Alert Staff</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',total_cost,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="total_cost"/>Total Cost</label>
+				<h4>Select the Sections to display.</h4>
+				<?php $company_sections = ','.get_config($dbc,'company_rate_card_sections').',';
+				if(tile_enabled($dbc, 'tasks')['user_enabled'] || tile_enabled($dbc,'tickets')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',tasks,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="tasks"/>Tasks</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'material')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',material,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="material"/>Material</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'services')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',services,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="services"/>Services</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'products')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',products,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="products"/>Products</label>
+				<?php } ?>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',staff,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="staff"/>Staff</label>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',position,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="position"/>Position</label>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',contractor,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="contractor"/>Contractor</label>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',clients,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="clients"/>Clients</label>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',customer,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="customer"/>Customer</label>
+				<?php if(tile_enabled($dbc, 'vpl')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',vpl,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="vpl"/>Vendor Pricelist</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'inventory')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',inventory,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="inventory"/>Inventory</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'equipment')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',equipment,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="equipment"/>Equipment</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'labour')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',labour,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="labour"/>Labour</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'timesheet')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',timesheet,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="timesheet"/>Time Sheet</label>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'driving_log')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',driving_log,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="driving_log"/>Mileage</label>
+				<?php } ?>
+				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',other,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="other"/>Other</label>
 				<h4>The following fields will be shown or hidden within the Company rate cards.</h4>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',category,') !== FALSE ? "checked" : "" ?> type="checkbox" value="category"/>Rate Card Category</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',ref_card,') !== FALSE ? "checked" : "" ?> type="checkbox" value="ref_card"/>Primary Rate Card</label>
@@ -424,22 +464,70 @@ $(document).ready(function(){
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',reminder_alerts,') !== FALSE ? " checked" : "" ?> type="checkbox" value="reminder_alerts"/>Reminder Alerts (Date and Staff)</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',email_alerts,') !== FALSE ? " checked" : "" ?> type="checkbox" value="email_alerts"/>Email Reminder Alerts</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',tile,') !== FALSE ? "checked" : "" ?> type="checkbox" value="tile"/>Tile Name</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',type,') !== FALSE ? "checked" : "" ?> type="checkbox" value="type"/>Type</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',heading,') !== FALSE ? "checked" : "" ?> type="checkbox" value="heading"/>Heading</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',description,') !== FALSE ? "checked" : "" ?> type="checkbox" value="description"/>Description</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',itemtype,') !== FALSE ? "checked" : "" ?> type="checkbox" value="itemtype"/>Item Type</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',daily,') !== FALSE ? "checked" : "" ?> type="checkbox" value="daily"/>Daily Rate</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',hourly,') !== FALSE ? "checked" : "" ?> type="checkbox" value="hourly"/>Hourly Rate</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',uom,') !== FALSE ? "checked" : "" ?> type="checkbox" value="uom"/>UOM</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',cost,') !== FALSE ? "checked" : "" ?> type="checkbox" value="cost"/>Cost</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',estimate,') !== FALSE ? "checked" : "" ?> type="checkbox" value="estimate"/>Estimate Price</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',customer,') !== FALSE ? "checked" : "" ?> type="checkbox" value="customer"/>Customer Price</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',quantity,') !== FALSE ? "checked" : "" ?> type="checkbox" value="quantity"/>Quantity</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',total,') !== FALSE ? "checked" : "" ?> type="checkbox" value="total"/>Total</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',profit,') !== FALSE ? "checked" : "" ?> type="checkbox" value="profit"/>Profit</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',margin,') !== FALSE ? "checked" : "" ?> type="checkbox" value="margin"/>Margin</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',dollarsaving,') !== FALSE ? "checked" : "" ?> type="checkbox" value="dollarsaving"/>$ Savings</label>
-				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',percentsaving,') !== FALSE ? "checked" : "" ?> type="checkbox" value="percentsaving"/>% Savings</label>
+				<div class="sortable block-group">
+					<script>
+					$(document).ready(function() {
+						$('.sortable').sortable({
+						  connectWith: '.sortable',
+						  items: 'label'
+						});
+					});
+					</script>
+					<h4>Sortable Fields</h4>
+					<em><p>These fields can be dragged to change the order in which they will display</p></em>
+					<?php foreach(array_unique(explode('#*#',get_config($dbc,'estimate_field_order').'#*#Type#*#Heading#*#Description#*#Item Type#*#Daily#*#Hourly#*#Customer Price#*#Dollarsaving#*#Percentsaving#*#UOM#*#Quantity#*#Cost#*#Margin#*#Profit#*#Estimate Price#*#Total')) as $field_row) {
+						switch(explode('***',$field_row)[0]) {
+							case 'Type': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',type,') !== FALSE ? "checked" : "" ?> type="checkbox" value="type"/><input type="hidden" name="field_sort[]" value="Type">Type</label>
+								<?php break;
+							case 'Heading': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',heading,') !== FALSE ? "checked" : "" ?> type="checkbox" value="heading"/><input type="hidden" name="field_sort[]" value="Heading">Heading</label>
+								<?php break;
+							case 'Description': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',description,') !== FALSE ? "checked" : "" ?> type="checkbox" value="description"/><input type="hidden" name="field_sort[]" value="Description">Description</label>
+								<?php break;
+							case 'Item Type': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',itemtype,') !== FALSE ? "checked" : "" ?> type="checkbox" value="itemtype"/><input type="hidden" name="field_sort[]" value="Item Type">Item Type</label>
+								<?php break;
+							case 'Daily': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',daily,') !== FALSE ? "checked" : "" ?> type="checkbox" value="daily"/><input type="hidden" name="field_sort[]" value="Daily">Daily Rate</label>
+								<?php break;
+							case 'Hourly': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',hourly,') !== FALSE ? "checked" : "" ?> type="checkbox" value="hourly"/><input type="hidden" name="field_sort[]" value="Hourly">Hourly Rate</label>
+								<?php break;
+							case 'UOM': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',uom,') !== FALSE ? "checked" : "" ?> type="checkbox" value="uom"/><input type="hidden" name="field_sort[]" value="UOM">UOM</label>
+								<?php break;
+							case 'Cost': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',cost,') !== FALSE ? "checked" : "" ?> type="checkbox" value="cost"/><input type="hidden" name="field_sort[]" value="Cost">Cost</label>
+								<?php break;
+							case 'Estimate Price': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',estimate,') !== FALSE ? "checked" : "" ?> type="checkbox" value="estimate"/><input type="hidden" name="field_sort[]" value="Estimate Price">Estimate Price</label>
+								<?php break;
+							case 'Customer Price': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',customer,') !== FALSE ? "checked" : "" ?> type="checkbox" value="customer"/><input type="hidden" name="field_sort[]" value="Customer Price">Customer Price</label>
+								<?php break;
+							case 'Quantity': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',quantity,') !== FALSE ? "checked" : "" ?> type="checkbox" value="quantity"/><input type="hidden" name="field_sort[]" value="Quantity">Quantity</label>
+								<?php break;
+							case 'Total': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',total,') !== FALSE ? "checked" : "" ?> type="checkbox" value="total"/><input type="hidden" name="field_sort[]" value="Total">Total</label>
+								<?php break;
+							case 'Profit': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',profit,') !== FALSE ? "checked" : "" ?> type="checkbox" value="profit"/><input type="hidden" name="field_sort[]" value="Profit">Profit</label>
+								<?php break;
+							case 'Margin': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',margin,') !== FALSE ? "checked" : "" ?> type="checkbox" value="margin"/><input type="hidden" name="field_sort[]" value="Margin">Margin</label>
+								<?php break;
+							case 'Dollarsaving': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',dollarsaving,') !== FALSE ? "checked" : "" ?> type="checkbox" value="dollarsaving"/><input type="hidden" name="field_sort[]" value="Dollarsaving">$ Savings</label>
+								<?php break;
+							case 'Percentsaving': ?>
+								<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',percentsaving,') !== FALSE ? "checked" : "" ?> type="checkbox" value="percentsaving"/><input type="hidden" name="field_sort[]" value="Percentsaving">% Savings</label>
+								<?php break;
+						}
+					} ?>
+				</div>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',sort_order,') !== FALSE ? "checked" : "" ?> type="checkbox" value="sort_order"/>Sort Order</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',breakdown,') !== FALSE ? "checked" : "" ?> type="checkbox" value="breakdown"/>Breakdown</label>
 			<?php } else if($tab == 'customer') { ?>
