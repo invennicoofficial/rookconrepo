@@ -73,7 +73,7 @@ if (isset($_POST['submit'])) {
 			$ids[] = $id;
 			$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 			if($time_card['type_of_time'] == 'Vac Hrs.') {
-				if($total_hrs_vac != $time_card['total_hrs']) {
+				if(number_format($total_hrs_vac,1) != number_format($time_card['total_hrs'],1)) {
 					$comment_history[$id] .= $session_user.' updated Vacation Hours from '.$time_card['total_hrs'].' to '.$total_hrs_vac.'.<br>';
 				}
 				$_SERVER['DBC']->query("UPDATE `time_cards` SET `total_hrs`='$total_hrs_vac', `type_of_time`='Vac Hrs.', `comment_box`='$comment_box', `deleted` = '$deleted' WHERE `time_cards_id`='$id'");
@@ -84,16 +84,16 @@ if (isset($_POST['submit'])) {
 				}
 			} else if($total_hrs > 0 || $deleted == 1) {
 				$_SERVER['DBC']->query("UPDATE `time_cards` SET `total_hrs`='$total_hrs', `type_of_time`='$type_of_time', `start_time`='$start_time', `end_time`='$end_time', `comment_box`='$comment_box', `deleted` = '$deleted' WHERE `time_cards_id`='$id'");
-				if($total_hrs != $time_card['total_hrs']) {
+				if(number_format($total_hrs,1) != number_format($time_card['total_hrs'],1)) {
 					$comment_history[$id] .= $session_user.' updated Hours from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
 				}
 				if($type_of_time != $time_card['type_of_time']) {
 					$comment_history[$id] .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
 				}
-				if($start_time != $time_card['start_time']) {
+				if(strtotime($start_time) != strtotime($time_card['start_time'])) {
 					$comment_history[$id] .= $session_user.' updated Start Time from '.$time_card['start_time'].' to '.$start_time.'.<br>';
 				}
-				if($end_time != $time_card['end_time']) {
+				if(strtotime($end_time) != strtotime($time_card['end_time'])) {
 					$comment_history[$id] .= $session_user.' updated End Time from '.$time_card['end_time'].' to '.$end_time.'.<br>';
 				}
 				if($total_hrs_vac > 0 && $deleted != 1) {
