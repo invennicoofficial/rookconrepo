@@ -29,7 +29,7 @@ function reports_tiles($dbc) { ?>
 
     $active56 = $active56a = $active57 = $active58 = $active59 = $active60 = $active61 = $active62 = $active63 = $active64 = $active65 = $active66 = $active67 = $active68 = $active69 = $active70 = $active71 = $active72 = $active73 = $active74 = $active75 = $active76 = $active77 = $active78 = $active101 = '';
 
-    $active79 = $active80 = $active81 = $active82 = $active83 = $active84 = $active85 = $active86 = $active87 = $active89 = $active90 = $active91 = $active92 = $active93 = $active94 = $active95 = $active96 = $active97 = $active98 = $active100 = '';
+    $active79 = $active80 = $active81 = $active82 = $active83 = $active84 = $active85 = $active86 = $active87 = $active89 = $active90 = $active91 = $active92 = $active93 = $active94 = $active95 = $active96 = $active97 = $active98 = $active100 = $active102 = '';
 
     if($file_name == 'report_daysheet.php') {
         $active1 = 'active_tab';
@@ -295,6 +295,7 @@ function reports_tiles($dbc) { ?>
     $active82 = ( $file_name=='report_pnl_expenses.php' ) ? 'active_tab' : '';
     $active83 = ( $file_name=='report_pnl_costs.php' ) ? 'active_tab' : '';
     $active84 = ( $file_name=='report_pnl_summary.php' ) ? 'active_tab' : '';
+    $active102 = ( $file_name=='report_pnl_labour.php' ) ? 'active_tab' : '';
 
 	// Stat Holiday Pay Breakdown
     $active85 = ( $file_name=='report_stat_holiday_pay.php' ) ? 'active_tab' : '';
@@ -666,6 +667,10 @@ function reports_tiles($dbc) { ?>
 					}
 					if ( strpos($value_config, ',Summary,') !== false && check_subtab_persmission($dbc, 'report', ROLE, 'summary') === true ) { ?>
 						<option value="report_pnl_summary.php?type=pnl" <?= 'active_tab' == $active84 ? 'selected' : '' ?>>Summary</option><?php
+					}
+
+					if ( strpos($value_config, ',Labour Report,') !== false && check_subtab_persmission($dbc, 'report', ROLE, 'Labour Report') === true ) { ?>
+						<option value="report_pnl_labour.php?type=pnl" <?= 'active_tab' == $active102 ? 'selected' : '' ?>>Labour Report</option><?php
 					}
 				}
 				// Marketing

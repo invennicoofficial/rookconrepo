@@ -1091,6 +1091,30 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</ul>
 				<?php }
 			}
+
+            if(check_subtab_persmission($dbc, 'project', ROLE, 'view_projection') && (count($sub_tabs) > 0 || count($user_forms) > 0)) {
+			$ticket_bypass = false;
+			$show_sub = in_array($_GET['tab'],['services','products','ptasks','inventory','admin']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
+			$no_sub_shown = false; ?>
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=services" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Projections<span class="arrow"></span></li></a>
+			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'services' : $_GET['tab']); $next_tab = (!$next_set ? 'services' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'services' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'services'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=services"><li class="sidebar-lower-level <?= $_GET['tab'] == 'services' ? 'active blue' : '' ?>">Services</li></a>
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'products' : $_GET['tab']); $next_tab = (!$next_set ? 'products' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'products' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'products'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=products"><li class="sidebar-lower-level <?= $_GET['tab'] == 'products' ? 'active blue' : '' ?>">Products</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>">Tasks</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'inventory' : $_GET['tab']); $next_tab = (!$next_set ? 'inventory' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'inventory' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'inventory'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=inventory"><li class="sidebar-lower-level <?= $_GET['tab'] == 'inventory' ? 'active blue' : '' ?>">Inventory</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'admin' : $_GET['tab']); $next_tab = (!$next_set ? 'admin' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'admin' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'admin'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=admin"><li class="sidebar-lower-level <?= $_GET['tab'] == 'admin' ? 'active blue' : '' ?>">Admin</li></a>
+
+			</ul>
+		<?php }
+
+
+
+
+
 			$sub_tabs = ['Information','Estimate Info','Details','Notes','Documents','Dates'];
 			foreach($sub_tabs as $i => $tab) {
 				if(!in_array($tab,$tab_config)) {
@@ -1536,6 +1560,32 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'time_clock':
 				$body_title = 'Time Clock';
 				$include_files[] = 'edit_project_scope_time.php'; break;
+
+			case 'services':
+			case 'products':
+			case 'ptasks':
+			case 'inventory':
+			case 'admin':
+				$body_title = 'Projections';
+				$include_files[] = 'edit_project_projections.php';
+                ?>
+				<script>
+				$(document).ready(function() {
+					$('#ul_comm').find('a').off('click').click(function() {
+						var tab = this.href.split('tab=')[1];
+						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop());
+						return false;
+					});
+					$('.main-screen .default_screen').scroll(function() {
+						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
+						$('#ul_comm li.active.blue').removeClass('active blue');
+						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
+					});
+					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
+				});
+				</script>
+                <?php
+                break;
 			case 'email':
 			case 'phone':
 			case 'agendas':
