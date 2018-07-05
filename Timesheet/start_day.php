@@ -212,7 +212,7 @@ function disableClient(chk) {
 						<?php } ?>
 						<?php foreach($start_time_list as $staff) { ?>
 							<div class="staff_block col-xs-12 col-sm-6 col-md-4 col-lg-2">
-								<label class="form-checkbox"><input type="checkbox" name="staff_start[]" <?= $_SESSION['contactid'] == $staff['contactid'] ? 'checked' : '' ?> value="<?= $staff['contactid'] ?>"> <?= $staff['first_name'].' '.$staff['last_name'].(empty($staff['finished']) ? '' : ' <small>(Signed Out Since '.date('Y-m-d g:i A',strtotime($staff['finished'])).')</small>') ?></label>
+								<label class="form-checkbox"><input type="checkbox" name="staff_start[]" <?= $_SESSION['contactid'] == $staff['contactid'] ? 'checked' : '' ?> value="<?= $staff['contactid'] ?>"> <?= $staff['first_name'].' '.$staff['last_name'].(empty($staff['finished']) ? '' : ' <small>(Signed Out Since '.(!empty($staff['finished']) ? date('Y-m-d g:i A',strtotime($staff['finished'])) : ' N/A').')</small>') ?></label>
 								<?php if($timesheet_track_clients == 1) { ?>
 									<div class="client_block" style="display: none;">
 										<select name="client_start[]" class="chosen-select-deselect form-control" data-placeholder="Select a Client...">

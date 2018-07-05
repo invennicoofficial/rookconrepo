@@ -113,16 +113,16 @@ else if($_GET['action'] == 'task_time') {
 	if($id > 0) {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs', `type_of_time`='$type_of_time', `comment_box`='$comment_box', `start_time` = '$start_time', `end_time` = '$end_time' WHERE `time_cards_id`='$id'");
-		if($total_hrs != $time_card['total_hrs']) {
+		if(number_format($total_hrs,1) != number_format($time_card['total_hrs'],1)) {
 			$comment_history[$id] .= $session_user.' updated Hours from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
 		}
 		if($type_of_time != $time_card['type_of_time']) {
 			$comment_history[$id] .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
 		}
-		if($start_time != $time_card['start_time']) {
+		if(strtotime($start_time) != strtotime($time_card['start_time'])) {
 			$comment_history[$id] .= $session_user.' updated Start Time from '.$time_card['start_time'].' to '.$start_time.'.<br>';
 		}
-		if($end_time != $time_card['end_time']) {
+		if(strtotime($end_time) != strtotime($time_card['end_time'])) {
 			$comment_history[$id] .= $session_user.' updated End Time from '.$time_card['end_time'].' to '.$end_time.'.<br>';
 		}
 		if(!empty($date_editable) && $date != $date_editable) {
@@ -137,7 +137,7 @@ else if($_GET['action'] == 'task_time') {
 	if($id_vac > 0) {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id_vac'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs_vac', `type_of_time`='Vac Hrs.', `comment_box`='$comment_box' WHERE `time_cards_id`='$id_vac'");
-		if($total_hrs_vac != $time_card['total_hrs']) {
+		if(number_format($total_hrs_vac,1) != number_format($time_card['total_hrs'],1)) {
 			$comment_history[$id_vac] .= $session_user.' updated Vacation Hours from '.$time_card['total_hrs'].' to '.$total_hrs_vac.'.<br>';
 		}
 		if(!empty($date_editable) && $date != $date_editable) {
@@ -178,6 +178,7 @@ else if($_GET['action'] == 'task_time') {
 				$comment_hist = '<br>'.$comment_hist;
 			}
 			mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_hist)."' WHERE `time_cards_id` = '$id'");
+			echo "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_hist)."' WHERE `time_cards_id` = '$id'";
 		}
 	}
 }
