@@ -37,7 +37,6 @@ if(!empty($_POST['complete_form'])) {
 	} else {
 		$pdf_name = preg_replace('/([^a-z])/', '', strtolower($form['name'])).'_preview.pdf';
 	}
-
 	include('../Form Builder/generate_form_pdf.php');
 
 	$pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
