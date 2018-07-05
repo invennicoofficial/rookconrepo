@@ -38,7 +38,7 @@ if (isset($_POST['printpdf'])) {
 
             $this->setCellHeightRatio(1.30);
             $this->SetFont('helvetica', '', 10);
-            $footer_text = "NOTE : This displays how much has been Invoiced, Paid and is Due from each Patient and Insurer and how old it is (Current [under 30 days], 30-59 days, 60-89 days, 90-119 days, 120 + days).";
+            $footer_text = "NOTE : This displays how much has been Invoiced, Paid and is Due from each Customer and how old it is (Current [under 30 days], 30-59 days, 60-89 days, 90-119 days, 120 + days).";
             $this->writeHTMLCell(0, 0, 10 , 45, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -75,6 +75,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/ar_aging_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_ar_aging_summary', 0, WEBSITE_URL.'/Reports/Download/ar_aging_summary_'.$today_date.'.pdf', 'A/R Aging Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -94,7 +96,13 @@ if (isset($_POST['printpdf'])) {
 <?php include_once ('../navigation.php');
 ?>
 
-<div class="container triple-pad-bottom">
+<div id="invoice_div" class="container triple-pad-bottom">
+    <div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
     <div class="row">
         <div class="col-md-12">
 
@@ -112,7 +120,7 @@ if (isset($_POST['printpdf'])) {
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            This displays how much has been Invoiced, Paid and is Due from each Patient and Insurer and how old it is (Current [under 30 days], 30-59 days, 60-89 days, 90-119 days, 120 + days) relative to the Report As At date. Clicking the customer name will redirect you to their Profile/Injury/Account dashboard. Clicking the insurer name will redirect you to their Profile dashboard. Clicking the outstanding $ amount will redirect you to their Accounts Receivable dashboard, where payment can be applied to the outstanding invoice.</div>
+            This displays how much has been Invoiced, Paid and is Due from each Customer and how old it is (Current [under 30 days], 30-59 days, 60-89 days, 90-119 days, 120 + days) relative to the Report As At date. Clicking the customer name will redirect you to their Profile/Injury/Account dashboard. Clicking the insurer name will redirect you to their Profile dashboard. Clicking the outstanding $ amount will redirect you to their Accounts Receivable dashboard, where payment can be applied to the outstanding invoice.</div>
             <div class="clearfix"></div>
         </div>
 
@@ -187,10 +195,10 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
 	$report_data = "<h2>Accounts Receivable Summary As At ".date('Y-m-d',strtotime($as_at_date))."</h2>";
-	
+
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
-    <th width="32%">Patient</th>
+    <th width="32%">Customer</th>
     <th width="10%">Invoiced</th>
     <th width="10%">Paid</th>
     <th width="10%">Total Due</th>
@@ -250,37 +258,42 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
         $total_last120 = $total_120['all_payment'];
 
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row_report['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.$patientid.' : '.get_contact($dbc, $patientid).'</a></td>';
+        $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.$patientid.' : '.get_contact($dbc, $patientid).'</a></td>';
         $report_data .= '<td>'.(is_numeric($total_invoiced) ? '$'.number_format($total_invoiced,2) : '-').'</td>';
         $report_data .= '<td>'.(is_numeric($total_paid) ? '$'.number_format($total_paid,2) : '-').'</td>';
         $report_data .= '<td>'.(is_numeric($total_due) ? '$'.number_format($total_due,2) : '-').'</td>';
 
         if (floatval($total_last30) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last29.'&until='.$today_date.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last30.'</a></td>';
+            //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last29.'&until='.$today_date.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last30.'</a></td>';
+            $report_data .= '<td>$'.$total_last30.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
-        
+
         if (floatval($total_last3059) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last59.'&until='.$last30.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last3059.'</a></td>';
+            //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last59.'&until='.$last30.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last3059.'</a></td>';
+            $report_data .= '<td>$'.$total_last3059.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
-        
+
         if (floatval($total_last6089) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last89.'&until='.$last60.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last6089.'</a></td>';
+            //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last89.'&until='.$last60.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last6089.'</a></td>';
+            $report_data .= '<td>$'.$total_last6089.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
 
         if (floatval($total_last90119) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last119.'&until='.$last90.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last90119.'</a></td>';
+            //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from='.$last119.'&until='.$last90.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last90119.'</a></td>';
+            $report_data .= '<td>$'.$total_last90119.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
 
         if (floatval($total_last120) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from=2016-01-01&until='.$last120.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last120.'</a></td>';
+            //$report_data .= '<td><a href="../Account Receivables/patient_account_receivables.php?from=2016-01-01&until='.$last120.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last120.'</a></td>';
+            $report_data .= '<td>$'.$total_last120.'</td>';
         } else {
             $report_data .= '<td>$0.00</td>';
         }
@@ -307,7 +320,7 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $report_data .= "</tr>";
     $report_data .= '</table><br><br><br>';
 
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    /* $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="32%">Insurer</th>
     <th width="10%">Invoiced</th>
@@ -318,13 +331,13 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     <th width="7%">60-89</th>
     <th width="7%">90-119</th>
     <th width="7%">120+</th>
-    </tr>';
+    </tr>'; */
 
     //$report_service = mysqli_query($dbc,"SELECT invoiceid, insurerid, insurance_payment, service_date, invoice_date FROM invoice WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND paid='Waiting on Insurer' AND insurance_payment != '#*#' ORDER BY insurerid");
 
     //$report_service = mysqli_query($dbc,"SELECT * FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND paid!='Yes' ORDER BY invoiceid");
 
-	$report_service = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name` FROM `contacts` WHERE `contactid` IN (SELECT `insurerid` FROM `invoice_insurer`)"),MYSQLI_ASSOC));
+	/* $report_service = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name` FROM `contacts` WHERE `contactid` IN (SELECT `insurerid` FROM `invoice_insurer`)"),MYSQLI_ASSOC));
 
     $total1 = 0;
     $total2 = 0;
@@ -415,7 +428,7 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $report_data .= '<tr nobr="true">';
     $report_data .= '<td><b>Total</b></td><td><b>$'.number_format($total1, 2).'</b></td><td><b>$'.number_format($total2, 2).'</b></td><td><b>$'.number_format($total3, 2).'</b></td><td><b>$'.number_format($total4, 2).'</b></td><td><b>$'.number_format($total5, 2).'</b></td><td><b>$'.number_format($total6, 2).'</b></td><td><b>$'.number_format($total7, 2).'</b></td><td><b>$'.number_format($total8, 2).'</b></td>';
     $report_data .= "</tr>";
-    $report_data .= '</table><br>';
+    $report_data .= '</table><br>'; */
 
     return $report_data;
 }

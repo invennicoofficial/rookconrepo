@@ -74,6 +74,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/transaction_list_by_customer_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_transaction_list_by_customer', 0, WEBSITE_URL.'/Reports/Download/transaction_list_by_customer_'.$today_date.'.pdf', 'Transaction List by Customer Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

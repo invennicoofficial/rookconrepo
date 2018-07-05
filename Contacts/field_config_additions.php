@@ -380,6 +380,11 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="PO Addition" name="contact_field[]" <?= in_array('PO Addition', $field_config) ? 'checked' : '' ?> onchange="save_options();"> Enable <span class="show-on-mob"> in Profile</span></label></div>
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="purchase_order" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
                         <div class="clearfix"></div>
+                        <?php $tile_enabled = tile_enabled($dbc, 'form_builder'); ?>
+                        <div class="col-sm-4">Attached Contact Forms as Subtabs:</div>
+                        <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="Attached Contact Forms as Subtabs" name="contact_field[]" <?= in_array('Attached Contact Forms as Subtabs', $field_config) ? 'checked' : '' ?> onchange="save_options();"> Enable <span class="show-on-mob"> in Profile</span></label></div>
+                        <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="form_builder" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>

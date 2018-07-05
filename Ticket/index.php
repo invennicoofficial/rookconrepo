@@ -3,6 +3,7 @@ include_once('../include.php');
 include_once('../Ticket/field_list.php');
 $strict_view = strictview_visible_function($dbc, 'ticket');
 $ticket_layout = get_config($dbc, 'ticket_layout'); ?>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <?php if(!IFRAME_PAGE) { ?>
 <script>
 $(document).ready(function() {

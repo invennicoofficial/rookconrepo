@@ -88,7 +88,8 @@ foreach ($inc_rep_reminders_result as $reminder) {
 
 //If reminders not found, mark it as deleted
 $reminderids = "'".implode("','",$reminderids)."'";
-mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1 WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$daily_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `done` = 0 AND `deleted` = 0");
+        $date_of_archival = date('Y-m-d');
+mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$daily_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `done` = 0 AND `deleted` = 0");
 
 //Tickets
 $equipment = [];
@@ -159,15 +160,24 @@ $(document).ready(function () {
             $reminder_label = '';
             if ($daysheet_reminder['type'] == 'reminder') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `reminderid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_url = get_reminder_url($dbc, $reminder);
+                $reminder_url = get_reminder_url($dbc, $reminder, 1);
+                $slider = 1;
+                if(empty($reminder_url)) {
+                    $slider = 0;
+                    $reminder_url = get_reminder_url($dbc, $reminder);
+                }
                 if(!empty($reminder_url)) {
-                    $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
+                    if($slider == 1) {
+                        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">'.$reminder['subject'].'</a>';
+                    } else {
+                        $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
+                    }
                 } else {
                     $reminder_label = '<div class="daysheet-span">'.$reminder['subject'].'</div>';
                 }
             } else if ($daysheet_reminder['type'] == 'sales') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Sales/sale.php?p=preview&id='.$reminder['salesid'].'" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
             } else if ($daysheet_reminder['type'] == 'sales_order') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order` WHERE `posid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="../Sales Order/index.php?p=preview&id='.$reminder['posid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' #'.$reminder['posid']).'</a>';
@@ -179,19 +189,19 @@ $(document).ready(function () {
                 $reminder_label = '<a href="../Estimate/estimates.php?view='.$reminder['estimateid'].'" style="color: black;">Follow Up Estimate: '.$reminder['estimate_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'project') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'project_followup') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'certificate') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `certificate` WHERE `certificateid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Certificate/index.php?edit='.$reminder['certificateid'].'" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
             } else if ($daysheet_reminder['type'] == 'alert') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `alerts` WHERE `alertid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="'.$reminder['alert_link'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Alert: '.$reminder['alert_text'].' - '.$reminder['alert_link'].'</a>';
             } else if ($daysheet_reminder['type'] == 'incident_report') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
             }
             if(!empty($reminder_label)) {
                 if($daysheet_styling == 'card') {
@@ -331,7 +341,7 @@ $(document).ready(function () {
                 echo '<div class="block-group-daysheet">';
             }
 			$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-            echo '<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
+            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
             }
@@ -363,7 +373,7 @@ $(document).ready(function () {
             }
 
             $checklist_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` AS `cn` LEFT JOIN `checklist` AS `c`ON `c`.`checklistid` = `cn`.`checklistid` WHERE `checklistnameid` = '".$checklist_action['checklistnameid']."'"));
-			$label = ($checklist_name['businessid'] > 0 ? get_contact($dbc, $checklist_name['businessid'], 'name').', ' : '').($checklist_name['projectid'] > 0 ? PROJECT_NOUN.' #'.$checklist_name['projectid'].' '.get_project($dbc,$checklist_name['projectid'],'project_name') : '');
+            $label = ($checklist_name['businessid'] > 0 ? get_contact($dbc, $checklist_name['businessid'], 'name').', ' : '').($checklist_name['projectid'] > 0 ? PROJECT_NOUN.' #'.$checklist_name['projectid'].' '.get_project($dbc,$checklist_name['projectid'],'project_name') : '');
             echo '<a href="../Checklist/checklist.php?view='.$checklist_name['checklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;'.($checklist_action['done'] == 1 ? 'text-decoration: line-through;' : '').'">'.($label != '' ? $label.'<br />' : '').'Checklist: '.$checklist_name['checklist_name'].' - Item: '.explode('&lt;p&gt;', $checklist_name['checklist'])[0].'</a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
@@ -377,6 +387,62 @@ $(document).ready(function () {
     } else {
         echo '<ul id="checklists_daily">';
         echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Shifts', $daysheet_fields_config)) { ?>
+    <?php include_once ('../Calendar/calendar_functions_inc.php'); ?>
+    <h4 style="font-weight: normal;">Shifts</h4>
+    <?php
+    $day_of_week = date('l', strtotime($daily_date));
+    $shifts = checkShiftIntervals($dbc, $_SESSION['contactid'], $day_of_week, $daily_date, 'all');
+    if (!empty($shifts)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="shifts_daily">';
+        }
+        $total_booked_time = 0;
+        foreach($shifts as $shift) {
+            if($daysheet_styling == 'card') {
+                echo '<div class="block-group-daysheet" style="padding: 5px;">';
+            } else {
+                echo '<li>';
+            }
+            if(!empty($shift['dayoff_type'])) {
+                echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
+                echo 'Day Off Type: '.$shift['dayoff_type'];
+            } else {
+                $total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
+                echo 'Shift: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+                if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
+                    echo '<br>';
+                    echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
+                }
+                if(!empty($shift['clientid'])) {
+                    echo '<br>';
+                    echo get_contact($dbc, $shift['clientid'], 'category').': ';
+                    echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
+                }
+            }
+
+            if($daysheet_styling == 'card') {
+                echo '</div>';
+            } else {
+                echo '</li>';
+            }
+        }
+        if($daysheet_styling == 'card') {
+            echo '<div class="block-group-daysheet" style="padding: 5px;">Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'</div>';
+        } else {
+            echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="shifts_daily">';
+        echo 'No shifts found.';
         echo '</ul>';
     } ?>
     <hr>

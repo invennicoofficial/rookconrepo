@@ -9,6 +9,7 @@ checkAuthorised('tasks');
 $contactide = $_SESSION['contactid'];
 $taskboardid = preg_replace('/[^0-9]/', '', $_GET['category']);
 $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+$task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
@@ -18,7 +19,9 @@ if(empty($url_tab)) {
 $dbc->query("INSERT INTO `taskboard_seen` (`taskboardid`, `tab`, `contactid`) SELECT '$taskboardid', '$url_tab', '{$_SESSION['contactid']}' FROM (SELECT COUNT(*) `rows` FROM `taskboard_seen` WHERE `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."') = '$url_tab' AND `contactid`='{$_SESSION['contactid']}') `num` WHERE `num`.`rows`=0");
 $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `contactid`='{$_SESSION['contactid']}' AND `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."')='$url_tab'");
 ?>
-
+<style>
+.note_block ul, .note_block ul li { margin-left:0; padding-left:0; }
+</style>
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
@@ -80,6 +83,11 @@ $(document).ready(function() {
             success: function(response) {}
         });
     });
+    
+    $('li.t_item').each(function() {
+        $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
+    });
+    
 });
 $(document).on('change', 'select[name="change_milestone"]', function() { changeMilestone(this); });
 
@@ -295,7 +303,7 @@ function send_email(task) {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
-	choose_user('email', type, task_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, true);
 }
 
 function send_reminder(task) {
@@ -412,6 +420,41 @@ function attach_file(task) {
 	$('[name='+file_id+']').click();
 }
 
+function flag_item_manual(task) {
+	var item = $(task).closest('li');
+	item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+	item.find('[name=flag_cancel]').off('click').click(function() {
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		return false;
+	});
+	item.find('[name=flag_off]').off('click').click(function() {
+		item.find('[name=colour]').val('FFFFFF');
+		item.find('[name=label]').val('');
+		item.find('[name=flag_start]').val('');
+		item.find('[name=flag_end]').val('');
+		item.find('[name=flag_it]').click();
+		return false;
+	});
+	item.find('[name=flag_it]').off('click').click(function() {
+		$.ajax({
+			url: '../Tasks/task_ajax_all.php?fill=taskflagmanual',
+			method: 'POST',
+			data: {
+				value: item.find('[name=colour]').val(),
+				label: item.find('[name=label]').val(),
+				start: item.find('[name=flag_start]').val(),
+				end: item.find('[name=flag_end]').val(),
+				id: item.find('[data-task]').data('task')
+			}
+		});
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		item.data('colour',item.find('[name=colour]').val());
+		item.css('background-color','#'+item.find('[name=colour]').val());
+		item.find('.flag-label').text(item.find('[name=label]').val());
+		return false;
+	});
+}
+
 function flag_item(task) {
 	task_id = $(task).parents('span').data('task');
 	var type = 'task';
@@ -436,7 +479,7 @@ function flag_item(task) {
 
 function task_archive(task) {
 	task_id = $(task).parents('span').data('task');
-    alert(task_id);
+    //alert(task_id);
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task board';
@@ -453,7 +496,7 @@ function task_archive(task) {
 			}
 		});
 	}
-	else if(confirm("Are you sure you want to archive this task board?")) {
+	if(type=='task board' && confirm("Are you sure you want to archive this task board?")) {
 		$.ajax({
 			type: "GET",
 			url: "task_ajax_all.php?fill=delete_board&boardid="+task_id,
@@ -508,7 +551,7 @@ function clearCompleted(task) {
 	}
 }
 function savePathName(name) {
-	$.post('task_ajax_all.php?action=set_path_name', {name:name,taskboard:<?= $taskboardid ?>});
+	$.post('task_ajax_all.php?action=set_path_name', {name:name,taskboard:<?= $taskboardid > 0 ? $taskboardid : 0 ?>});
 }
 </script>
 
@@ -574,14 +617,14 @@ function savePathName(name) {
                     <br /><input type="text" name="reminder_board_<?php echo $_GET['category']; ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
                 </span>
                 -->
-                <div class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
+                <span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
                     <!-- <span style="cursor:pointer;"><img src="../img/icons/pie-chart.png" class="gap-right" onclick="milestone_reporting(this);" /></span> -->
                     <a href=""><img src="../img/clear-checklist.png" class="" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a><?php
                     if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
                         <span class="" style="cursor:pointer; padding: 0.25em 0.5em;" title="Edit Task Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" style="height:2em;"></span>
                     <?php }
 					if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
-                        <span class="" style="cursor:pointer; padding: 0.25em 0.5em;" title="Archive Task Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" style="height:2em;"></span><?php
+                        <span class="" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Archive Task Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" style="height:2em;"></span><?php
                     } ?><br />
                     <select class="milestone_select" style="display:none; margin-top:10px; width:100%;">
                         <option value="" disabled selected>Select Milestone...</option><?php
@@ -593,7 +636,7 @@ function savePathName(name) {
                             }
                         } ?>
                     </select>
-                </div>
+                </span>
                 <div class="clearfix"></div>
                 <input type="file" name="attach_board_<?php echo $_GET['category']; ?>" style="display:none;" />
 
@@ -726,8 +769,8 @@ function savePathName(name) {
 							echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.$status.' '.$class_on.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
 							<div class="info-block-header">
-								<h4><?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'">'. $label .'</a>'. $alert ?><!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
-									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left" src="../img/icons/ROOK-edit-icon.png">
+								<h4 class="pad-top"><?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'" class="pull-left">'. $label .'</a>'. $alert ?><!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
+									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left gap-left" src="../img/icons/ROOK-edit-icon.png">
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
@@ -763,7 +806,7 @@ function savePathName(name) {
 								}
 
                                 if ( $row['task_milestone_timeline']==$cat_tab ) {
-                                    echo '<li id="'.$row['tasklistid'].'" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                                    echo '<li id="'.$row['tasklistid'].'" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; '.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
                                     $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                                     $clientid = $url_tab=='Client' ? $row['clientid'] : '';
@@ -779,51 +822,31 @@ function savePathName(name) {
 
 
 
-                                    echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
-
-
-                                    //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
-                                    echo '</span>';
-
-                                    echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-                                    echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />'; ?>
-                                    <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Timer:</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-                                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-                                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
-                                            </div>
-                                        </div>
-                                    </div><?php
-                                    echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-                                    echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
-                                    echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
-                                    foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
-                                            <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
-                                    <?php }
-                                    echo '</select></div><div class="clearfix"></div>';
-                                    //echo '<a href="add_tasklist.php?type='.$row['status'].'&tasklistid='.$row['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">';
-                                    //echo limit_text($row['heading'], 5 ).'</a><img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" /><span class="pull-right">'; ?>
-                                    <div class="row">
-
-                                        <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?= $row['heading']; ?>
-                                            <?php
-                                            echo '<span class="pull-right small">';
-                                            if ( $row['company_staff_sharing'] ) {
-                                                foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
-                                                    profile_id($dbc, $staffid);
-                                                }
-                                            } else {
-                                                profile_id($dbc, $row['contactid']);
+                                    //echo '<span class="pull-right action-icons gap-top" data-task="'.$row['tasklistid'].'">';
+                                        //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
+                                    //echo '</span>'; ?>
+                                    <div class="row pull-left t_name">
+                                        <h4 style="<?= $style_strikethrough ?>">
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                                            <div class="pull-left gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a></div>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><span><?= $row['heading']; ?></span>
+                                        </h4>
+                                    </div>
+                                    <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
+                                        <img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />
+                                    </span>
+                                    <div class="small pull-right offset-top-5 t_staff"><?php
+                                        if ( $row['company_staff_sharing'] ) {
+                                            foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
+                                                profile_id($dbc, $staffid);
                                             }
-                                            echo '</span></h4></span></div>';
+                                        } else {
+                                            profile_id($dbc, $row['contactid']);
+                                        } ?>
+                                    </div>
+                                    <div class="clearfix"></div><?php
 
 
-
-                                    echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
                                             <span style="display:inline-block; text-align:center; width:11%"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">►</a></span><?php
@@ -831,7 +854,8 @@ function savePathName(name) {
                                         if (in_array('edit', $quick_actions)) { ?>
                                             <span title="Edit Task" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" class="inline-img" onclick="return false;"></span><?php
                                         }
-                                        echo in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                                        echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                                        echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img src="../img/icons/ROOK-sync-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img" onclick="return false;"></span>' : '';
@@ -842,7 +866,42 @@ function savePathName(name) {
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                     echo '</span>';
-                                    ?>
+									if(in_array('flag_manual',$quick_actions)) { ?>
+										<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+										<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+										<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+												<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+												<?php foreach($task_colours as $flag_colour) { ?>
+													<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+												<?php } ?>
+											</select></div>
+										<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+										<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+										<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+									<?php }
+                                    echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
+                                    echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />'; ?>
+                                    <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">Timer:</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
+                                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
+                                            </div>
+                                        </div>
+                                    </div><?php
+                                    echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
+                                    echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
+                                    echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
+                                    foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
+                                            <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+                                    <?php }
+                                    echo '</select></div><div class="clearfix"></div>';
+                                    //echo '<a href="add_tasklist.php?type='.$row['status'].'&tasklistid='.$row['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">';
+                                    //echo limit_text($row['heading'], 5 ).'</a><img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" /><span class="pull-right">'; ?>
                                     <!--
                                         <div class="form-group gap">
                                             <div class="col-sm-3">Assign Staff:</div>
@@ -867,8 +926,8 @@ function savePathName(name) {
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
                                                     <div class="note_block row">
-                                                        <div class="col-xs-2"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-                                                        <div class="col-xs-10" style="<?= $style_strikethrough ?>">
+                                                        <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
+                                                        <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
                                                         </div>
@@ -886,8 +945,8 @@ function savePathName(name) {
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 while ( $row_comment=mysqli_fetch_assoc($comments) ) { ?>
                                                     <div class="note_block row">
-                                                        <div class="col-xs-2"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-                                                        <div class="col-xs-10" style="<?= $style_strikethrough ?>">
+                                                        <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
+                                                        <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><?= html_entity_decode($row_comment['comment']); ?></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
                                                         </div>

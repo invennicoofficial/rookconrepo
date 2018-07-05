@@ -26,10 +26,13 @@ if($summarized != '') {
 }
 $summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) total, SUM(`total_price`) value FROM `estimate` WHERE `deleted`=0"));
 $summary_total = $summary['total'];
+$dashboard = filter_var($_GET['dashboard'], FILTER_SANITIZE_STRING);
+if(empty($dashboard)) {
+	$dashboard = $_SESSION['contactid'];
+}
 $closed_status = preg_replace('/[^a-z]/','',strtolower(get_config($dbc, 'estimate_project_status')));
 $closed_date = get_user_settings()['estimate_closed'];
-$closed_date = strtotime($closed_date) > date('Y-m-01') ? $closed_date : date('Y-m-01');
-$summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
+$closed_date = strtotime($closed_date) > date('Y-m-01') ? $closed_date : date('Y-m-01'); ?>
 <div class="collapsible-horizontal collapsed hide-titles-mob">
 	<div class="col-xs-12 col-sm-6 col-md-3 gap-top">
 		<div class="summary-block">
@@ -122,11 +125,11 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
 	<?php $statuses = $set_status = [];
 	foreach($status as $status_name) {
 		$name = preg_replace('/[^a-z]/','',strtolower($status_name));
-		$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` IN ('$name') AND `deleted`=0 GROUP BY `status`"))['estimates'];
+		$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` IN ('$name') AND `deleted`=0".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")." GROUP BY `status`"))['estimates'];
 		$statuses[$name] = $status_name.'<span class="pull-right">'.($sqlstatuses > 0 ? $sqlstatuses : 0).'</span>';
 		$set_status[] = "'".$name."'";
 	}
-	$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0"))['estimates'];
+	$sqlstatuses = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) estimates FROM `estimate` WHERE `status` NOT IN ('',".implode(',',$set_status).") AND `deleted`=0".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")))['estimates'];
 	if($sqlstatuses > 0) {
 		$statuses['misc'] = 'Uncategorized<span class="pull-right">'.$sqlstatuses.'</span>';
 	}
@@ -150,17 +153,14 @@ $summary_view = explode(',',get_config($dbc, 'estimate_summary_view')); ?>
 </div>
 <div class="sidebar-override tile-sidebar inherit-height standard-collapsible hide-titles-mob overflow-y">
     <ul>
-		<?php if(array_filter($summary_view)) {
-			if(!isset($_GET['status'])) {
-				$_GET['status'] = 'summary_view';
-			} ?>
+		<?php if(array_filter($summary_view)) { ?>
 			<a href="?view=summary"><li class="<?= $_GET['status'] == 'summary_view' ? 'active blue' : '' ?>">Summary</li></a>
 		<?php } ?>
-        <a href="?status="><li class="<?= $_GET['status'] == '' && $_GET['status'] != 'summary_view' ? 'active blue' : '' ?>">Dashboard</li></a>
+        <a href="?dashboard=<?= $_GET['dashboard'] ?>&status="><li class="<?= $_GET['status'] == '' && $_GET['status'] != 'summary_view' ? 'active blue' : '' ?>">Dashboard</li></a>
         <li class="sidebar-higher-level highest-level"><a class="cursor-hand <?= $_GET['status'] != '' && $_GET['status'] != 'summary_view' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#collapse_status_list">Status<span class="arrow"></a>
 			<ul id="collapse_status_list" class="collapse <?= $_GET['status'] != '' && $_GET['status'] != 'summary_view' ? 'in' : '' ?>">
 				<?php foreach($statuses as $status_id => $status_name) { ?>
-					<a href="?status=<?= $status_id ?>"><li class="<?= $_GET['status'] == $status_id || $_GET['status'] == 'all' ? 'active blue' : '' ?>"><?= $status_name ?></li></a>
+					<a href="?dashboard=<?= $_GET['dashboard'] ?>&status=<?= $status_id ?>"><li class="<?= $_GET['status'] == $status_id || $_GET['status'] == 'all' ? 'active blue' : '' ?>"><?= $status_name ?></li></a>
 				<?php } ?>
 			</ul>
 		</li>

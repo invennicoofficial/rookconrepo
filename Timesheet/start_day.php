@@ -85,7 +85,8 @@ if($_POST['submit'] == 'start_day') {
 				}
 
 				//End Paused Day Tracking
-				$dbc->query("UPDATE `time_cards` SET `day_tracking_type`='Unresumed Day Tracking', `deleted`=1, `timer_start`=0 WHERE `staff`='$staff' AND `deleted`=0 AND `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` LIKE 'Work:%'");
+		    $date_of_archival = date('Y-m-d');
+			$dbc->query("UPDATE `time_cards` SET `day_tracking_type`='Unresumed Day Tracking', `deleted`=1, `date_of_archival` = '$date_of_archival', `timer_start`=0 WHERE `staff`='$staff' AND `deleted`=0 AND `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` LIKE 'Work:%'");
 
 				//End Day
 				$shifts = checkShiftIntervals($dbc, $staff, $day_of_week, $date);
@@ -109,7 +110,7 @@ if($_POST['submit'] == 'start_day') {
 					mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'");
 				}
 			}
-			
+
 			// Go on Break or Resume from Break
 			if($_POST['submit'] == 'day_break') {
 				$dbc->query("INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `day_tracking_type`) VALUES ('$staff','$date','$hour','day_tracking','$time','Break:$tracking_id')");

@@ -136,7 +136,7 @@ if($_GET['type'] == '' || $_GET['view'] == '') {
         }
     }
     if($_GET['view'] == '') {
-    switch($default[1]) {
+        switch($default[1]) {
             case 'wk': $_GET['view'] = 'weekly'; break;
             case 'mon': $_GET['view'] = 'monthly'; break;
             case '30': $_GET['view'] = '30day'; break;
@@ -375,6 +375,8 @@ switch($_GET['type']) {
         if($_GET['mode'] == 'staff') {
             $mobile_calendar_view = 'Staff';
         }
+        $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
+        $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -450,6 +452,8 @@ switch($_GET['type']) {
             $mobile_calendar_views['client'] = $shift_client_type;
         }
         $mobile_calendar_view = 'Staff';
+        $selected_staff_icons = get_config($dbc, 'shift_selected_staff_icons');
+        $selected_client_icons = get_config($dbc, 'shift_selected_client_icons');
         break;
     case 'event':
         $config_type = 'event';

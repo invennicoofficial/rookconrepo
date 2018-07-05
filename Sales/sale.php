@@ -447,8 +447,10 @@ $(document).ready(function() {
 
 <body>
 <?php
-	include_once ('../navigation.php');
-checkAuthorised('sales');
+    if($_GET['iframe_slider'] != 1) {
+    	include_once ('../navigation.php');
+    }
+    checkAuthorised('sales');
     $statuses     = get_config($dbc, 'sales_lead_status');
     $next_actions = get_config($dbc, 'sales_next_action');
     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sales` FROM `field_config`"));
@@ -456,7 +458,7 @@ checkAuthorised('sales');
 ?>
 
 <div id="sales_div" class="container">
-    <div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
+    <div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>
 			<iframe src=""></iframe>
@@ -465,7 +467,9 @@ checkAuthorised('sales');
     
     <div class="row">
 		<div class="main-screen"><?php
-            include('tile_header.php');
+            if($_GET['iframe_slider'] != 1) {
+                include('tile_header.php');
+            }
             
             $page      = preg_replace('/\PL/u', '', $_GET['p']);
             $salesid   = preg_replace('/[^0-9]/', '', $_GET['id']); ?>
@@ -481,7 +485,7 @@ checkAuthorised('sales');
             
             <div class="tile-container">
                 <!-- Sidebar -->
-                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile">
+                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 ? 'style="display:none;"' : '' ?>>
                     <ul><?php
                         if (strpos($value_config, ',Sales Path,') !== false) { ?>
                             <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Path</li></a><?php
@@ -548,4 +552,6 @@ checkAuthorised('sales');
     </div><!-- .row -->
 </div><!-- .container -->
 
-<?php include ('../footer.php'); ?>
+<?php if($_GET['iframe_slider'] != 1) {
+    include ('../footer.php');
+} ?>

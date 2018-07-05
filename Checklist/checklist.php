@@ -6,7 +6,8 @@ include ('../include.php');
 error_reporting(0);
 if($_GET['archivetab'] > 0) {
 	$tabid = $_GET['archivetab'];
-	mysqli_query($dbc, "UPDATE `checklist_subtab` SET `deleted`=1 WHERE `subtabid`='$tabid'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `checklist_subtab` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `subtabid`='$tabid'");
 	unset($_GET['archivetab']);
 }
 $security = get_security($dbc, 'checklist'); ?>
@@ -66,7 +67,14 @@ $tab_counts['inventory'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*
 if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && empty($_GET['reports'])) {
 	$_GET['subtabid'] = 'favourites';
 } ?>
+<?php if($_GET['iframe_slider'] != 1) { ?>
 <div class="container bg-white">
+	<div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="checklist_iframe" src=""></iframe>
+		</div>
+	</div>
 	<div class="iframe_holder" style="display:none;">
 		<img src="<?= WEBSITE_URL ?>/img/icons/close.png" class="close_iframer" width="45px" style="position:relative; right:10px; float:right; top:58px; cursor:pointer;">
 		<span class="iframe_title" style="color:white; font-weight:bold; position:relative; top:58px; left:20px; font-size:30px;"></span>
@@ -114,12 +122,12 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<label class="filter_box" style="display:none;">Type to Filter Checklists by Name, User, <?= $_GET['subtabid'] == 'project' ? 'Project, ' : '' ?>or Category:</label>
 					<input type="text" class="filter_box form-control pull-right" style="display:none;" onkeyup="filter_checklists(this.value);" />
 					<div class="clearfix"></div>
-				
+
 				</h1><?php
-                
+
                 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='checklist_checklist'"));
                 $note = $notes['note'];
-                    
+
                 if ( !empty($note) && !$_GET['reports'] ) { ?>
                     <div class="notice double-gap-bottom popover-examples">
                         <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -130,7 +138,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
                         <div class="clearfix"></div>
                     </div><?php
                 } ?>
-                
+
                 <!--
 				<div class="notice double-gap-bottom popover-examples">
 					<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -371,6 +379,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<?php if($security['edit'] > 0) { ?><a href="?edittab=NEW"><li>Add New Category</li></a><?php } ?>
 				</ul>
 			</div>
+<?php } ?>
 			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?>">
 				<div class="checklist_screen main-screen" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'>
 				<?php if(!empty($_GET['view'])) {

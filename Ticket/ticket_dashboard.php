@@ -46,7 +46,8 @@ if($db_sort != '') {
 $match_business = '';
 if(!empty(MATCH_CONTACTS)) {
 	$match_business = " AND `tickets`.`businessid` IN (".MATCH_CONTACTS.")";
-} ?>
+}
+$recent_manifests = get_config($dbc, 'recent_manifests'); ?>
 <script>
 var ajax_loads = [];
 $(document).ready(function() {
@@ -330,6 +331,43 @@ function setActions() {
 		});
 		item.hide();
 	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+				data: {
+					field: 'manual_flag_colour',
+					value: item.find('[name=colour]').val(),
+					table: item.data('table'),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
+	});
 	$('.flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		$.ajax({
@@ -479,40 +517,7 @@ function setActions() {
 	});
 	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		var select = item.find('.select_users');
-		select.find('.cancel_button').off('click').click(function() {
-			select.find('select option:selected').removeAttr('selected');
-			select.hide();
-			return false;
-		});
-		select.find('.submit_button').off('click').click(function() {
-			if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-				var users = [];
-				select.find('select option:selected').each(function() {
-					users.push(this.value);
-					$(this).removeAttr('selected');
-					select.find('select').trigger('change.select2');
-				});
-				$.ajax({
-					method: 'POST',
-					url: 'ticket_ajax_all.php?action=quick_actions',
-					data: {
-						id: item.data('id'),
-						id_field: item.data('id-field'),
-						table: item.data('table'),
-						field: 'email',
-						value: users
-					},
-					success: function(result) {
-						select.hide();
-						select.find('select').trigger('change.select2');
-						item.find('h4').append(result);
-					}
-				});
-			}
-			return false;
-		});
-		select.show();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
 }
 function setStatus(select) {
@@ -804,30 +809,47 @@ IF(!IFRAME_PAGE) { ?>
 				</li>
 			<?php } ?>
 			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) {
-				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields')); ?>
+				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
+				$recent_inventory = get_config($dbc, 'recent_inventory'); ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
 					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
 						<?php if(in_array('sort_top',$manifest_fields)) { ?>
-							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Top 25 Line Items</a></li>
+							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
 						<?php } ?>
-						<?php $project_type_list = [''];
+						<?php $project_type_list = [''=>''];
 						if(in_array('sort_project',$manifest_fields)) {
 							$project_type_list = $project_types;
 						}
+						$ticket_filter = '';
+						if(in_array_starts('type ',$manifest_fields)) {
+							$type_filters = [];
+							foreach($manifest_fields as $config_field) {
+								$config_field = explode(' ',$config_field);
+								if($config_field[0] == 'type' && count($config_field) == 2) {
+									$type_filters[] = $config_field[1];
+								}
+							}
+							$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+						}
 						foreach($project_type_list as $type_id => $type_name) {
-							if(!empty($type_name)) { ?>
-								<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
-									<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
-							<?php } ?>
-							<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) { ?>
-								<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?></a></li>
-							<?php }
-							if(!empty($type_name)) { ?>
-									</ul>
-								</li>
-							<?php }
+							if(in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields)) {
+								if(!empty($type_name)) { ?>
+									<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
+										<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
+								<?php } ?>
+								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) {
+									$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
+									$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type_id) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".$type_id."')" : '';
+									$piece_count = $dbc->query("SELECT COUNT(DISTINCT `ticket_attached`.`id`) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,".$site['contactid'].",%' $filter_inv $ticket_filter $filter_proj")->fetch_assoc(); ?>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?><span class="pull-right"><?= $piece_count['numrows'] ?></span></a></li>
+								<?php }
+								if(!empty($type_name)) { ?>
+										</ul>
+									</li>
+								<?php }
+							}
 						} ?>
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Top 25 Manifests</a></li>
 					</ul>
 				</li>
 			<?php } ?>
@@ -845,7 +867,7 @@ IF(!IFRAME_PAGE) { ?>
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
 		<div class="standard-dashboard-body-title">
-			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Top 25 Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
+			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
 					<div class="notice popover-examples ticket_note_div" data-type="ticket_summary" style="display: none;">
@@ -1161,8 +1183,56 @@ IF(!IFRAME_PAGE) { ?>
 <?php if(!in_array('Disable',$db_summary)) {
 	$summary_urls = get_config($dbc, 'ticket_summary_urls'); ?>
 	<div class="summary_div" style="display:none;">
+		<script>
+		google.charts.load("current", {"packages":["corechart"]});
+		</script>
 		<?php $blocks = [];
 		$total_length = 0;
+		if(in_array('Time Graph',$db_summary)) {
+			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
+				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
+					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+				}
+				$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
+				$blocks[] = [350, '<div class="overview-block">
+					<div id="time_chart" style="width: 100%; height: 350px;"></div>
+				</div>
+				<script>
+				google.charts.setOnLoadCallback(drawTimeChart);
+
+				function drawTimeChart() {
+
+				var data = google.visualization.arrayToDataTable([
+						["My Tracked Time", "Hours"],
+						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
+						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
+					]);
+
+					var options = {
+						title: "My Tracked Time",
+						pieHole: 0.5,
+						tooltip: { text: "none" },
+						slices: {
+							0: { color: "#00aeef" },
+							1: { color: "#84C6E4" },
+						}
+					};
+
+					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
+
+					chart.draw(data, options);
+				}
+				</script>'];
+				$total_length += 350;
+			} else {
+				$blocks[] = [68, '<div class="overview-block">
+					<h4>Today\'s Time Graph: No Time Found</h4>
+				</div>'];
+				$total_length += 68;
+			}
+		}
 		if(in_array('Estimated',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
@@ -1238,8 +1308,18 @@ IF(!IFRAME_PAGE) { ?>
 			$block = '<div class="overview-block">
 				<h4>My '.TICKET_TILE.'</h4>';
 				$tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE CONCAT(IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,'')) LIKE CONCAT('%".$_SESSION['contactid']."%') AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`status`");
+                $ticket_status = get_config($dbc, "ticket_status");
+                $ticket_status_color = explode(',', get_config($dbc, "ticket_status_color"));
 				while($ticket = $tickets->fetch_assoc()) {
-					$block .= '<p><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">'.$ticket['status'].'</a>: '.$ticket['count'].'</p>';
+                    $var_count = explode($ticket['status'], $ticket_status);
+                    $occr = substr_count($var_count[0], ",");
+                    $color_apply = '';
+                    if (strpos($ticket_status, $ticket['status']) !== false) {
+                        $color_apply = $ticket_status_color[$occr];
+                    }
+                    $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
+
+					$block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 					$block_length += 17;
 				}
 			$block .= '</div>';
@@ -1361,11 +1441,7 @@ IF(!IFRAME_PAGE) { ?>
 		$displayed_length = 0; ?>
 		<div class="col-sm-6">
 			<?php foreach($blocks as $block_count => $block) {
-				if($block[0] == $displayed_length && $display_column == 0) {
-					$displayed_length = 0;
-					$total_length -= $block[0] + $displayed_length;
-					echo '</div><div class="col-sm-6">'.$block[1].'</div><div class="col-sm-6">';
-				} else if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks))) {
+				if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks) - 1)) {
 					$displayed_length = 0;
 					$display_column = 1;
 					echo '</div><div class="col-sm-6">'.$block[1];

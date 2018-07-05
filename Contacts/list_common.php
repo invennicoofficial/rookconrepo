@@ -105,6 +105,22 @@ if($status == 'inactive') {
 	$query .= " AND deleted=0 AND `status` > 0";
 }
 
+//Filter by Match Staff
+if($_GET['match_staff'] > 0) {
+	$match_contacts = [];
+	$match_contact_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0 AND CONCAT(',',`staff_contact`,',') LIKE '%,".$_GET['match_staff'].",%' AND `support_contact_category` = '".$category."'");
+	while($match_contact = mysqli_fetch_assoc($match_contact_list)) {
+		foreach(explode(',', $match_contact['support_contact']) as $support_contact) {
+			if(!in_array($support_contact, $match_contacts)) {
+				$match_contacts[] = $support_contact;
+			}
+		}
+	}
+	$match_contacts = implode(',',array_filter($match_contacts));
+	$query_check_credentials .= " AND `contactid` IN (".$match_contacts.")";
+	$query .= " AND `contactid` IN (".$match_contacts.")";
+}
+
 if(!empty(MATCH_CONTACTS)) {
 	$query_check_credentials .= " AND `contactid` IN (".MATCH_CONTACTS.")";
 	$query .= " AND `contactid` IN (".MATCH_CONTACTS.")";
@@ -141,9 +157,13 @@ if($rows > 2500) {
 		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, $rowsPerPage);
 }
 $i = 0;
+$heading = ucwords($category);
+if(ucwords($category) == 'Vendors') {
+    $heading = VENDOR_TILE;
+}
 ?>
 <div class="standard-dashboard-body-title">
-<h3 class="gap-left"><?php echo ucwords($category); ?>
+<h3 class="gap-left"><?php echo $heading; ?>
 <div class="pull-right hide-titles-mob col-sm-8">
 	<form action="" method="POST">
 		<!--
@@ -233,6 +253,11 @@ if ( !empty($note) ) { ?>
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
 				<div class="dashboard-item set-relative">
+                        <?php if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
+						<div class="col-sm-6">
+							<?php echo '<b>'.$row['category'].'</b>'; ?>
+						</div>
+                        <?php } ?>
 					<div class="col-sm-6">
 						<img src="../img/person.PNG" class="inline-img"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
@@ -244,6 +269,11 @@ if ( !empty($note) ) { ?>
 					<?php if(in_array('Email Address', $field_display)): ?>
 						<div class="col-sm-6">
 							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img"><?= decryptIt($row['email_address']) ?></a>
+						</div>
+					<?php endif; ?>
+					<?php if(in_array('Site', $field_display)): ?>
+						<div class="col-sm-6">
+							<img src="../img/project-path.PNG" class="inline-img"><?= $row['site_name'] ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Address', $field_display)): ?>
@@ -365,15 +395,15 @@ if ( !empty($note) ) { ?>
     echo '<h3 class="double-gap-left">Contact Per Business</h3>';
     $lists = $dbc->query("SELECT contactid, name FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='Business' AND `status`=0");
     while($list = $lists->fetch_assoc()) {
-        echo '<div class="col-sm-6">';
-            echo '<div class="overview-block">';
                 $cid = $list['contactid'];
                 $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `businessid`='$cid' AND `status`=1"));
                 if($active_count['count'] > 0) {
-                    echo decryptIt($list['name']).' : '.$active_count['count'].'<br />';
+                    echo '<div class="col-sm-6">';
+                        echo '<div class="overview-block">';
+                             echo decryptIt($list['name']).' : '.$active_count['count'].'<br />';
+                        echo '</div>';
+                    echo '</div>';
                 }
-            echo '</div>';
-        echo '</div>';
     }
     echo '<div class="clearfix"></div>';
 

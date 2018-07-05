@@ -244,13 +244,16 @@ if($_GET['action'] == 'save_template_field') {
 } else if($_GET['action'] == 'estimate_add_heading') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
 	$scope_name = filter_var($_POST['scope'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Details ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name'");
+	if(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0"))['count'] == 0) {
+		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0");
+	}
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Heading ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0");
 } else if($_GET['action'] == 'estimate_add_scope') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
-	if(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate_scope` WHERE `estimateid`='$estimateid'"))['count'] == 0) {
-		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid'");
+	if(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0"))['count'] == 0) {
+		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
 	}
-	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid'");
+	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
 } else if($_GET['action'] == 'estimate_fields') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
@@ -277,6 +280,9 @@ if($_GET['action'] == 'save_template_field') {
 			mysqli_query($dbc, "INSERT INTO `estimate_notes` (`estimateid`, `heading`, `notes`, `created_by`) VALUES ('$estimate', 'Follow Up Completed', '$value', '{$_SESSION['contactid']}')");
 			$value = 1;
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a'));
+        } else if($field == 'delete') {
+            mysqli_query($dbc, "UPDATE `estimate_actions` SET `deleted`=1 WHERE `id`='$id'");
+            $history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." deleted follow up action $id on ".date('Y-m-d h:i a'));
 		} else if($field == '') {
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a'));
 		} else {
@@ -289,7 +295,8 @@ if($_GET['action'] == 'save_template_field') {
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a'));
 	}
 	if($table == 'estimate' && $field == 'status' && $value == 'archived') {
-		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1 WHERE `estimateid`='$id'");
+    $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$id'");
 	} else if($table == 'estimate' && $field == 'status') {
 		mysqli_query($dbc, "UPDATE `estimate` SET `status_date`=DATE(NOW())");
 	}
@@ -355,7 +362,8 @@ if($_GET['action'] == 'save_template_field') {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$alerts' WHERE `name`='estimate_report_alerts'");
 } else if($_GET['action'] == 'deleteStyle') {
 	$id = filter_var($_GET['styleid'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1 WHERE `pdfsettingid`='$id'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `pdfsettingid`='$id'");
 } else if($_GET['action'] == 'clearEstimates') {
 	set_user_settings($dbc, 'estimate_closed', date('Y-m-d'));
 } else if($_GET['action'] == 'addContentPage') {
@@ -451,4 +459,52 @@ if($_GET['action'] == 'save_template_field') {
 			<div class="col-sm-2"><label class="show-on-mob">Qty:</label><input type="number" class="form-control" name="qty[]" value=""></div>
 		</div>';
 	}
+} else if($_GET['action'] == 'cost_analysis') {
+	$id = filter_var($_GET['id'],FILTER_VALIDATE_INT);
+    $estimateid = filter_var($_GET['estimateid'],FILTER_VALIDATE_INT);
+    $qty = filter_var($_GET['qty'],FILTER_VALIDATE_INT);
+    $profit = filter_var($_GET['profit'],FILTER_SANITIZE_STRING);
+    $margin = filter_var($_GET['margin'],FILTER_SANITIZE_STRING);
+    $price = filter_var($_GET['price'],FILTER_SANITIZE_STRING);
+    $retail = filter_var($_GET['retail'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `price`='$price', `retail`='$retail' WHERE `id`='$id'");
+    
+    $total_price = 0;
+    $total_cost = 0;
+    $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail`, `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+	$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+    while( $row=mysqli_fetch_assoc($query) ) {
+        $total_price += $row['retail'];
+        $total_cost += $row['qty'] * ($row['pricing'] == 'usd_cpu' ? $row['cost'] * $us_rate : $row['cost']);
+    }
+    $margin = number_format(($total_cost > 0 ? ($total_price - $total_cost) / $total_cost * 100 : 0),2, '.', '');
+    $profit = number_format($total_price - $total_cost,2, '.', '');
+    $total = number_format($total_price,2, '.', '');
+    echo $margin.'%' .'*#*'. '$'.$profit .'*#*'. '$'.$total;
+
+} else if($_GET['action'] == 'save_status_for_archive') {
+    $status_type = filter_var($_POST['status_type'],FILTER_SANITIZE_STRING);
+    $status = filter_var($_POST['status'],FILTER_SANITIZE_STRING);
+    $name = '';
+    if ( $status_type=='closed' ) {
+        $name = 'estimate_status_closed';
+    } else if ( $status_type=='abandoned' ) {
+        $name = 'estimate_status_abandoned';
+    }
+    
+    set_config($dbc, $name, $status);
+    echo '$status_type: '.$status_type.' | $status: '.$status.' | $name:'.$name.'<br>'.mysqli_error($dbc);
+} else if($_GET['action'] == 'copy_as_template') {
+	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
+	$template = 'Template - Copy of '.ESTIMATE_TILE.' '.$estimateid;
+	mysqli_query($dbc, "INSERT INTO `estimate_templates` (`template_name`) VALUES ('$template')");
+	$templateid = mysqli_insert_id($dbc);
+	$headings = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading`");
+	while($heading = mysqli_fetch_assoc($headings)['heading']) {
+		mysqli_query($dbc, "INSERT INTO `estimate_template_headings` (`template_id`, `heading_name`) VALUES ('$templateid','$heading')");
+		$headingid = mysqli_insert_id($dbc);
+		mysqli_query($dbc, "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `description`, `src_id`, `qty`, `sort_order`) SELECT '$headingid', `src_table`, `description`, `src_id`, `qty`, `sort_order` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `heading`='$heading' AND `deleted`=0");
+	}
+	echo $templateid;
 }

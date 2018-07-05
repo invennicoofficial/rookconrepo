@@ -45,7 +45,7 @@ function saveFields() {
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Submission Email Recipient:</label>
 		<div class="col-sm-8">
-			<input class="form-control" name="safety_manual_completed_email" value="<?= get_config($dbc, "safety_manual_completed_email") ?>">
+			<input class="form-control" name="safety_manual_completed_email" value="<?= !empty(get_config($dbc, "safety_manual_completed_email")) ? get_config($dbc, "safety_manual_completed_email") : EMAIL_ADDRESS ?>">
 		</div>
 	</div>
 	<div class="form-group">

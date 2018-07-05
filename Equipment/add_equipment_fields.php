@@ -1217,3 +1217,19 @@ foreach ($classification as $single_classification) { ?>
 </div>
 </div>
 <?php } ?>
+
+<?php if (strpos($value_config, ','."Equipment Image".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="travel_task" class="col-sm-4 control-label">Equipment Image:</label>
+<div class="col-sm-8">
+  <?php if($equipment_image != '' && file_exists('download/'.$equipment_image)) { ?>
+    <span class="image_functions">
+      <a href="download/<?= $equipment_image ?>" target="_blank">View</a> | <a href="" onclick="$(this).closest('.form-group').find('[name=equipment_image_delete]').val(1); $(this).closest('.image_functions').remove(); return false;">Delete</a>
+    </span>
+  <?php } ?>
+  <input type="hidden" name="equipment_image_delete" class="form-control" value="0"s>
+  <input type="file" name="equipment_image" class="form-control">
+</div>
+</div>
+<div class="clearfix"></div>
+<?php } ?>

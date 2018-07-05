@@ -503,6 +503,20 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_multi_class_admin' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_multi_class_admin') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_multi_class_admin."' WHERE `name`='scheduling_multi_class_admin'");
+	if (!empty($_POST['scheduling_combine_warehouse'])) {
+		$scheduling_combine_warehouse = $_POST['scheduling_combine_warehouse'];
+	} else {
+		$scheduling_combine_warehouse = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_summary_view'])) {
+		$scheduling_summary_view = $_POST['scheduling_summary_view'];
+	} else {
+		$scheduling_summary_view = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_summary_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_summary_view') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_summary_view."' WHERE `name`='scheduling_summary_view'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -689,6 +703,20 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_select_all_staff' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_select_all_staff') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_select_all_staff."' WHERE `name`='shift_select_all_staff'");
+	if (!empty($_POST['shift_selected_staff_icons'])) {
+		$shift_selected_staff_icons = $_POST['shift_selected_staff_icons'];
+	} else {
+		$shift_selected_staff_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_staff_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_staff_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_staff_icons."' WHERE `name`='shift_selected_staff_icons'");
+	if (!empty($_POST['shift_selected_client_icons'])) {
+		$shift_selected_client_icons = $_POST['shift_selected_client_icons'];
+	} else {
+		$shift_selected_client_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_client_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_client_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_client_icons."' WHERE `name`='shift_selected_client_icons'");
 
 	// Events Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_day_start') num WHERE num.rows=0");
@@ -1936,6 +1964,20 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_multi_class_admin" <?= $scheduling_multi_class_admin == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_warehouse" <?= $scheduling_combine_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will enable the Summary tab, which is a monthly view of all assigned Equipment in a Summary view with no functionality.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Enable Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_summary_view" <?= $scheduling_summary_view == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -2378,6 +2420,20 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $shift_select_all_staff = get_config($dbc, 'shift_select_all_staff'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="shift_select_all_staff" <?= $shift_select_all_staff == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Staff Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_staff_icons = get_config($dbc, 'shift_selected_staff_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_staff_icons" <?= $shift_selected_staff_icons == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Client Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_client_icons = get_config($dbc, 'shift_selected_client_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_client_icons" <?= $shift_selected_client_icons == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

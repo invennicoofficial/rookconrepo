@@ -47,6 +47,7 @@ var opt_location = '<?= $_GET['location'] ?>';
 var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
+var ticket_list = [];
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -66,10 +67,11 @@ function filterClass() {
 	get_ticket_list();
 }
 function get_ticket_list() {
+	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
-	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
+	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
 	initOptions();
 }
@@ -92,9 +94,12 @@ function setTicketSave() {
 	initInputs();
 }
 function initOptions() {
+	try {
+		$('.assign_list_box').sortable('destroy');
+	} catch(e) { }
 	$( ".assign_list_box" ).sortable({
 		beforeStop: function(e, ticket) {
-			ticket.helper.css('width','auto');
+			$('.draw_sort').empty();
 			var block = $('.block-item.equipment.active').first();
 			if(block.length > 0) {
 				$.post('optimize_ajax.php?action=assign_ticket', {
@@ -104,26 +109,54 @@ function initOptions() {
 					id: ticket.item.data('id'),
 					date: $('[name=date]').val()
 				}, function(response) {
-					// console.log(response);
 					get_ticket_list();
 				});
 			}
 		},
-		delay: 0,
 		handle: ".drag-handle",
-		items: "span.block-item.ticket",
-		sort: function(e, ticket) {
+		items: "span.ticket",
+		sort: function(e) {
+			block = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.block-item.equipment').not('.ui-sortable-helper').first();
+			$('.block-item.equipment.active').removeClass('active');
+			block.addClass('active');
+		}
+	});
+}
+function initDraw() {
+	try {
+		$('.draw_sort').sortable('destroy');
+	} catch(e) { }
+	$( ".draw_sort" ).sortable({
+		beforeStop: function(e) {
+			$('.draw_sort').empty();
+			var block = $('.block-item.equipment.active').first();
+			var delay_load = '';
+			if(block.length > 0) {
+				ticket_list.forEach(function(ticket) {
+					$.post('optimize_ajax.php?action=assign_ticket', {
+						equipment: block.data('id'),
+						table: $(ticket).closest('span').data('table'),
+						id_field: $(ticket).closest('span').data('id-field'),
+						id: $(ticket).closest('span').data('id'),
+						date: $('[name=date]').val()
+					}, function(response) {
+						clearTimeout(delay_load);
+						delay_load = setTimeout(get_ticket_list(),1000);
+					});
+				});
+				ticket_list = [];
+			}
+		},
+		sort: function(e) {
 			block = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.block-item.equipment').not('.ui-sortable-helper').first();
 			$('.block-item.equipment.active').removeClass('active');
 			block.addClass('active');
 		},
-		start: function(e, ticket) {
-			ticket.helper.css('width','18em');
-		}
+		items: "img.drag_handle"
 	});
-	console.log('INITED');
 }
 </script>
+<div class="draw_sort" style="position:absolute;top:0;left:0;z-index:1;overflow:visible;height:0px;width:0px;"></div>
 <div class="main-screen standard-body override-main-screen form-horizontal">
 	<div class="standard-body-title">
 		<h3>Assign <?= TICKET_TILE ?></h3>
@@ -175,7 +208,7 @@ function initOptions() {
 			</div>
 		</div>
 		<div class="clearfix"></div>
-		<div class="assign_list_box" style="height: 20em;position:relative;">
+		<div class="assign_list_box" style="height: 20em;position:relative;overflow-x:hidden;overflow-y:hidden;">
 			<div class="equip_list" style="display:inline-block; height:100%; width:20%; float:left; overflow-y:auto;"></div>
 			<div class="map_view" style="display:inline-block; height:100%; width:60%; overflow:hidden;"></div>
 			<div class="ticket_list" style="display:inline-block; height:100%; width:20%; overflow-y:auto; float:right;"></div>

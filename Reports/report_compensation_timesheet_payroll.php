@@ -80,6 +80,8 @@ if(isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/timesheet_payroll_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_compensation_timesheet_payroll', 0, WEBSITE_URL.'/Reports/Download/timesheet_payroll_'.$today_date.'.pdf', 'Timesheet Payroll Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">

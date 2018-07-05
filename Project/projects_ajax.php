@@ -18,6 +18,45 @@ if($_GET['action'] == 'mark_favourite') {
 		$favourites[] = $favourite[0];
 	}
 	echo json_encode($favourites);
+
+} else if($_GET['action'] == 'quick_actions') {
+
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+
+    if($field == 'reminder') {
+            $sender = get_email($dbc, $_SESSION['contactid']);
+            $subject = "A reminder about a ".PROJECT_TILE;
+            foreach($_POST['users'] as $i => $user) {
+                $user = filter_var($user,FILTER_SANITIZE_STRING);
+                $contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$user'");
+                $body = filter_var(htmlentities("This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
+                    <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />
+                    $item"), FILTER_SANITIZE_STRING);
+                mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$user' AND `src_table` = 'project' AND `src_tableid` = '".$id."' AND `src_table` != '' AND `src_table` IS NOT NULL");
+                $result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
+                    VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'project', '".$id."')");
+            }
+    } else if($field == 'document') {
+		$folder = 'download/';
+		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);
+		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', $basename);
+		for($i = 1; file_exists($folder.$filename); $i++) {
+			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.$i.')$1', $basename);
+		}
+		move_uploaded_file($_FILES['file']['tmp_name'],$folder.$filename);
+		mysqli_query($dbc, "INSERT INTO `project_document` (`projectid`,`upload`,`created_by`) VALUES ('$id','$filename','".$_SESSION['contactid']."')");
+	} else if($field == 'email') {
+		$sender = get_email($dbc, $_SESSION['contactid']);
+		$subject = "A reminder about a ".PROJECT_TILE;
+		foreach($_POST['value'] as $user) {
+			$user = get_email($dbc,$user);
+			$body = "This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
+                    <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />";
+			send_email($sender, $user, '', '', $subject, $body, '');
+		}
+	}
 } else if($_GET['action'] == 'setting_status') {
 	$status = filter_var(implode('#*#',array_filter($_POST['status'])),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'project_status' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='project_status') num WHERE num.rows=0");
@@ -91,6 +130,19 @@ if($_GET['action'] == 'mark_favourite') {
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
+	} else if($field == 'flag_manual') {
+		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+		$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+		$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+		if($table == 'tickets') {
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
+			if(!empty($label)) {
+				mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$label',DATE(NOW()),'".$_SESSION['contactid']."')");
+			}
+		} else {
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+		}
 	} else if($field == 'work_time') {
 		if($table == 'tasklist') {
 			$time = strtotime($value);
@@ -399,6 +451,10 @@ if($_GET['action'] == 'mark_favourite') {
         mysqli_query($dbc, "UPDATE task_board SET task_path='$pathid' WHERE taskboardid='$taskboardid'");
 	}
 	mysqli_query($dbc, "UPDATE `project` SET `$path`='$path_list' WHERE `projectid`='$projectid'");
+}  else if($_GET['action'] == 'archive') {
+	$date_of_archival = date('Y-m-d');
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
@@ -579,8 +635,8 @@ if($_GET['action'] == 'mark_favourite') {
 				if($serviceid > 0) {
 					$qty = explode(',',$ticket['service_qty'])[$i];
 					$price = $dbc->query("SELECT `cust_price` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$serviceid' AND `tile_name`='Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) ORDER BY `start_date`")->fetch_assoc()['cust_price'];
-					mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-						VALUES ('$invoiceid', '$serviceid', 'services', '".TICKET_TILE."', '$description', '$qty', '$price', 'each', '".($qty * $price)."')");
+					mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`,`total`)
+						VALUES ('$invoiceid', '$serviceid', 'services', '".TICKET_TILE."', '$description', '$qty', '$price', 'each', '".($qty * $price)."', '".($qty * $price)."')");
 						$services .= $serviceid.',';
 						$service_fee .= $price.',';
 				}
@@ -597,8 +653,8 @@ if($_GET['action'] == 'mark_favourite') {
 				} else if($ticket_line['src_table'] == 'equipment') {
 					$item = $dbc->query("SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label, 0 `price` FROM `equipment` WHERE `equipmentid`='{$ticket_line['item_id']}'")->fetch_assoc();
 				}
-				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-					VALUES ('$invoiceid', '{$ticket_line['item_id']}', '{$ticket_line['src_table']}', '".TICKET_TILE."', '{$item['label']}', '{$ticket_line['qty']}', '{$item['price']}', 'Each', '".($ticket_line['qty'] * $item['price'])."')");
+				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `total`)
+					VALUES ('$invoiceid', '{$ticket_line['item_id']}', '{$ticket_line['src_table']}', '".TICKET_TILE."', '{$item['label']}', '{$ticket_line['qty']}', '{$item['price']}', 'Each', '".($ticket_line['qty'] * $item['price'])."', '".($ticket_line['qty'] * $item['price'])."')");
 			}
 			$dbc->query("UPDATE `invoice` SET `ticketid`='{$ticket['ticketid']}', `patientid`='".(explode(',',$ticket['clientid'])[0])."', `service_date`='".date('Y-m-d',strtotime($ticket['created_date']))."', `therapistsid`='".(trim(explode(',',$ticket['contactid']),',')[0])."', `serviceid`='$services', `fee`='$service_fee', `$inventoryid`='$inventory', `sell_price`='$inv_price', `quantity`='$inv_qty' WHERE `invoiceid`='$invoiceid");
 		} else {
@@ -614,13 +670,55 @@ if($_GET['action'] == 'mark_favourite') {
 				if(empty($description)) {
 					$description = $billable['description'];
 				}
-				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`)
-					VALUES ('$invoiceid', '{$billable['item_id']}', '{$billable['category']}', '{$billable['description']}', '$description', '{$billable['qty']}', '{$billable['price']}', '{$billable['uom']}', '{$billable['retail']}')");
+				mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `total`)
+					VALUES ('$invoiceid', '{$billable['item_id']}', '{$billable['category']}', '{$billable['description']}', '$description', '{$billable['qty']}', '{$billable['price']}', '{$billable['uom']}', '{$billable['retail']}', '{$billable['retail']}')");
 		}
 		$final_price += $billable['retail'];
 	}
 	$final_price = number_format($final_price, 2);
 	mysqli_query($dbc, "UPDATE `invoice` SET `total_price` = '$total_price', `final_price` = '$final_price' WHERE `invoiceid` = '$invoiceid'");
+
+	// PDF
+	$invoice_design = get_config($dbc, 'invoice_design');
+	switch($invoice_design) {
+		case 1:
+			include('pos_invoice_1.php');
+			break;
+		case 2:
+			include('pos_invoice_2.php');
+			break;
+		case 3:
+			include('pos_invoice_3.php');
+			break;
+		case 4:
+			include ('patient_invoice_pdf.php');
+			if($insurerid != '') {
+				include ('insurer_invoice_pdf.php');
+			}
+			break;
+		case 5:
+			include ('pos_invoice_small.php');
+			break;
+		case 'service':
+			include ('pos_invoice_service.php');
+			break;
+		case 'pink':
+			include ('pos_invoice_pink.php');
+			break;
+		case 'cnt1':
+			include ('pos_invoice_contractor_1.php');
+			break;
+		case 'cnt2':
+			include ('pos_invoice_contractor_2.php');
+			break;
+		case 'cnt3':
+			include ('pos_invoice_contractor_3.php');
+			break;
+        default:
+			include('pos_invoice_1.php');
+			break;
+	}
+	ob_clean();
 	echo WEBSITE_URL."/Project/projects.php?edit=".$projectid."&tab=".$type;
 } else if($_GET['action'] == 'approve_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
@@ -777,9 +875,16 @@ if($_GET['action'] == 'mark_favourite') {
 	if($project_form_id > 0) {
 		mysqli_query($dbc, "DELETE FROM `field_config_project_form` WHERE `id` = '$project_form_id'");
 	}
+} else if($_GET['action'] == 'saveNote') {
+	$projectid = $_GET['projectid'];
+	$note = $_GET['note'];
+    $created_date = date('Y-m-d');
+    $who_added = $_SESSION['contactid'];
+    mysqli_query($dbc, "INSERT INTO `project_comment` (`projectid`, `comment`, `created_date`, `created_by`, `type`) VALUES ('$projectid', '$note', '$created_date', '$who_added', 'project_note')");
 } else if($_GET['action'] == 'archive_project_form') {
 	$projectform = $_POST['projectform'];
-	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1 WHERE `id` = '$projectform'");
+        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `project_form` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$projectform'");
 } else if($_GET['action'] == 'get_category_list') {
 	$category = filter_var(($_POST['category'] ?: $_GET['category']),FILTER_SANITIZE_STRING);
 	echo '<option></option>';
@@ -844,7 +949,8 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'remove_custom_field') {
 	$id = $_POST['id'];
 	if($id > 0) {
-		mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1 WHERE `id` = '$id'");
+	        $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `project_custom_details` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `id` = '$id'");
 	}
 } else if($_GET['action'] == 'add_custom_field_upload') {
 	$id = $_POST['id'];
@@ -914,5 +1020,29 @@ if($_GET['action'] == 'mark_favourite') {
 		echo get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$_POST['projectid']."'")));
 	} else {
 		echo 'New '.PROJECT_NOUN;
+	}
+} else if($_GET['action'] == 'toggle_time_tracking') {
+	$projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+	$staff = $_SESSION['contactid'];
+	$current_time = $dbc->query("SELECT * FROM `time_cards` WHERE (`projectid`='$projectid' OR `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid')) AND `staff`='$staff' AND `deleted`=0 AND `timer_start` > 0");
+	$seconds = time();
+	$time = date('H:i');
+	$today = date('Y-m-d');
+	$time_minimum = get_config($dbc, 'ticket_min_hours');
+	$time_interval = get_config($dbc, 'timesheet_hour_intervals');
+	if($current_time->num_rows > 0) {
+		$row = $current_rows->fetch_assoc();
+		if($row['ticketid'] > 0) {
+			$dbc->query("UPDATE `ticket_attached` `hours_tracked`=($sceonds - `timer_start`) / 3600, `timer_start`=0, `checked_out`='$time' WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid` AND `deleted`=0) AND `deleted`=0 AND `timer_start` > 0");
+		}
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`type_of_time`='day_tracking',IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`),''), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'");
+	} else {
+		// Sign out of Day Tracking and create a new row to resume Day Tracking
+		mysqli_query($dbc, "INSERT INTO `time_cards` (`timer_start`, `type_of_time`, `start_time`, `staff`, `date`, `day_tracking_type`, `created_by`) SELECT '$seconds', 'day_tracking', '$time', `staff`, '$today', CONCAT('Work:',MAX(`time_cards_id`)), 0 FROM `time_cards` WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='$staff'");
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='$staff'");
+		// Sign into the Project
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='$staff'");
+		mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, '$staff', '$today', '$time', '$seconds', '".PROJECT_NOUN." Time', 'Checked in on ".PROJECT_NOUN." #$projectid', '$staff' FROM `project` WHERE `projectid`='$projectid'");
+		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `projectid`!='$projectid' AND `staff`='$staff' AND `timer_start` > 0");
 	}
 }

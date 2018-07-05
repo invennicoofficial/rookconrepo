@@ -15,28 +15,30 @@ $(document).ready(function() {
 		}
 	}).resize();
 });
-function saveField() {
-	syncUnsaved(this.name);
-	syncSaving();
-	name = this.name;
-	if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
-		$.ajax({
-			url: 'estimates_ajax.php?action=estimate_fields',
-			method: 'POST',
-			data: {
-				id: $(this).data('id'),
-				id_field: $(this).data('id-field'),
-				table: $(this).data('table'),
-				field: this.name,
-				value: this.value,
-				estimate: '<?= $estimateid ?>'
-			},
-			success: function(response) {
-				syncDone(name);
-			}
-		});
+<?php if(empty($_GET['view'])) { ?>
+	function saveField() {
+		syncUnsaved(this.name);
+		syncSaving();
+		name = this.name;
+		if($(this).is('[data-table]') != '' && (this.name != 'completed' || $(this).closest('div').find('[name=check_completed]').is(':checked'))) {
+			$.ajax({
+				url: 'estimates_ajax.php?action=estimate_fields',
+				method: 'POST',
+				data: {
+					id: $(this).data('id'),
+					id_field: $(this).data('id-field'),
+					table: $(this).data('table'),
+					field: this.name,
+					value: this.value,
+					estimate: '<?= $estimateid ?>'
+				},
+				success: function(response) {
+					syncDone(name);
+				}
+			});
+		}
 	}
-}
+<?php } ?>
 function add_follow_up() {
 	$.ajax({
 		url: 'estimates_ajax.php?action=estimate_fields',
@@ -54,14 +56,34 @@ function add_follow_up() {
 		}
 	});
 }
+function remove_follow_up(elem) {
+	var result = confirm("Are you sure you want to delete this follow up?");
+	if (result) {
+		$.ajax({
+            url: 'estimates_ajax.php?action=estimate_fields',
+            method: 'POST',
+            data: {
+                table: 'estimate_actions',
+                id: $(elem).data('id'),
+                id_field: 'id',
+                estimate: '<?= $estimateid ?>',
+                value: '',
+                field: 'delete'
+            },
+            success: function(response) {
+                window.location.reload();
+            }
+        });
+	}
+}
 </script>
 <div class="form-horizontal main-screen fit-to-screen-full full-grey-screen" style="padding:0;">
 	<div class="main-item blue-border">
-		<h3><?= ESTIMATE_TILE ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
+		<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
 		<hr />
         <div class="row">
             <div class="col-sm-<?= empty($_GET['sideview']) ? '6' : '12' ?>">
-                <h4><?= ESTIMATE_TILE ?> Details:</h4>
+                <h4><?= rtrim(ESTIMATE_TILE, 's') ?> Details:</h4>
                 <div class="row form-group">
                     <label class="col-sm-4"><?= ESTIMATE_TILE ?> #:</label>
                     <div class="col-sm-8"><?= $estimate['estimateid'] ?></div>
@@ -89,12 +111,10 @@ function add_follow_up() {
                         <?php } ?>
                     </div>
                 </div>
-                <div class="row form-group">
-                    <label class="col-sm-4">Follow Up:</label>
-                    <div class="col-sm-8"><a href="javascript:void(0);" onclick="add_follow_up(); return false;"><img src="../img/icons/ROOK-add-icon.png" alt="Add Folow Up" width="25" /></a></div>
-                </div>
+
                 <?php $action_list = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='$estimateid' AND `deleted`=0 AND `completed`=0 ORDER BY `due_date` ASC");
                 while($action = mysqli_fetch_array($action_list)) { ?>
+                    <hr />
                     <div class="action-group">
                         <div class="row form-group">
                             <label class="col-sm-4">Next Action:</label>
@@ -113,15 +133,21 @@ function add_follow_up() {
                             </div>
                         </div>
                         <div class="row form-group">
-                            <label class="col-sm-4">Completed:</label>
+                            <label class="col-sm-4">Mark Completed:</label>
                             <div class="col-sm-8">
                                 <input type="checkbox" name="check_completed" class="form-checkbox" value="1" onchange="$(this).closest('div').find('[name=completed]').focus();" style="margin-left:0;" />
                                 <input type="text" name="completed" class="checkbox-text form-control" data-table="estimate_actions" data-id="<?= $action['id'] ?>" data-estimate="<?= $estimateid ?>" data-id-field="id" placeholder="Follow Up Details" onblur="if(this.value == '') { $(this).closest('.form-group').find('[name=check_completed]').removeAttr('checked'); alert('You must provide details about the follow up.'); }">
                             </div>
                         </div>
+                        <div class="row form-group">
+                            <label class="pull-right"><a href="javascript:void(0);" data-id="<?= $action['id'] ?>" onclick="remove_follow_up(this); return false;"><img src="../img/remove.png" class="inline-img" alt="Remove Folow Up" width="25" /></a>
+                            <label class="pull-right"><a href="javascript:void(0);" onclick="add_follow_up(); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img" alt="Add Folow Up" width="25" /></a>
+                        </div>
                     </div>
                 <?php } ?>
-                <div class="clearfix"></div>
+
+                <hr />
+
                 <div class="row form-group">
                     <label class="col-sm-4">Business:</label>
                     <div class="col-sm-8">
@@ -233,8 +259,8 @@ function add_follow_up() {
             <?php } ?>
         </div><!-- .row -->
 		<div class="col-sm-12">
-			<h4><?= ESTIMATE_TILE ?> Scope:</h4><?php
-            $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `sort_order`");
+			<h4><?= rtrim(ESTIMATE_TILE, 's') ?> Scope:</h4><?php
+            $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `scope_name`, `heading`, `sort_order`");
 			$heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 			if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 				$heading_order[] = 'Detail***Scope Detail';
@@ -257,7 +283,10 @@ function add_follow_up() {
 						break;
 				}
 			}
-			$col_width = 1 / ($col_width + 1) * 100; ?>
+			$col_width = 1 / ($col_width + 1) * 100;
+
+			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+			$us_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v']; ?>
 			<div id="no-more-tables" class="responsive-table">
 				<table class="table table-bordered">
 					<tr class="hidden-xs hidden-sm">
@@ -297,7 +326,12 @@ function add_follow_up() {
 							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
 						} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
 							$scope_description = get_contact($dbc, $scope_line['src_id']);
-						} ?>
+						}
+						if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
+							$scope_line['price'] = $scope_line['cost'] * $us_rate;
+							$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+						}
+						?>
 						<tr>
 							<td data-title="Heading"><?= $scope_line['heading'] ?></td>
 							<?php foreach($heading_order as $order_info) {
@@ -349,6 +383,11 @@ function add_follow_up() {
 				}
 			}
 		}
+		function createTemplate() {
+			$.post('estimates_ajax.php?action=copy_as_template', { estimate: '<?= $estimateid ?>' }, function(response) {
+				window.location.href = 'estimates.php?template='+response;
+			});
+		}
 		</script>
 		<?php if($edit_access > 0) { ?>
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Edit</a>
@@ -359,6 +398,7 @@ function add_follow_up() {
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" onclick="attach_to_project();$(this).hide();return false;" class="btn brand-btn">Attach to <?= PROJECT_NOUN ?></a>
 			<?php } ?>
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy <?= ESTIMATE_TILE ?></a>
+			<a onclick="createTemplate(); return false;" class="btn brand-btn">Create Template from <?= ESTIMATE_TILE ?></a>
 		<?php } ?>
 
         <?php $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");

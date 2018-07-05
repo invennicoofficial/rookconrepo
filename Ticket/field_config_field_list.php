@@ -229,6 +229,10 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Name", $all_config) ? 'checked disabled' : (in_array("PI Name", $value_config) ? "checked" : '') ?> value="PI Name" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?>, excluding <?= BUSINESS_CAT ?> or <?= CONTACTS_TILE ?> attached to the selected <?= BUSINESS_CAT ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Contact</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'PI Guardian') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Guardian", $all_config) ? 'checked disabled' : (in_array("PI Guardian", $value_config) ? "checked" : '') ?> value="PI Guardian" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?> based on the selected category below, which is the Parent/Guardian of the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Parent/Guardian</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'PI AFE') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI AFE", $all_config) ? 'checked disabled' : (in_array("PI AFE", $value_config) ? "checked" : '') ?> value="PI AFE" name="tickets[]"> AFE #</label>
 							<?php } ?>
@@ -330,6 +334,28 @@ if(!$action_mode && !$overview_mode) {
 										<?php $tab_ticket_business_contact = get_config($dbc, 'ticket_business_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_business_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_business_contact_add_pos = get_config($dbc, 'ticket_business_contact_add_pos'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the position of the Add New Contact option in the dropdown for the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Add New Main Contact Position In Dropdown:</label>
+								<div class="col-sm-8">
+									<select name="ticket_business_contact_add_pos" data-placeholder="Select Category" class="chosen-select-deselect">
+										<option <?= $ticket_business_contact_add_pos != 'top' ? 'selected' : ''?>>Bottom</option>
+										<option value="top" <?= $ticket_business_contact_add_pos == 'top' ? 'selected' : '' ?>>Top</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the Parent/Guardian in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Parent/Guardian<?= $ticket_guardian_contact != '' && $tab != '' ? ' (Default: '.$ticket_guardian_contact.')' : '' ?>:</label>
+								<div class="col-sm-8">
+									<select name="ticket_guardian_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<?php $tab_ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'.($tab == '' ? '' : '_'.$tab));
+										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
+											<option <?= $category == $tab_ticket_guardian_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
 										<?php } ?>
 									</select>
 								</div>
@@ -614,7 +640,7 @@ if(!$action_mode && !$overview_mode) {
 												<option <?= $type[0] == 'staff' ? 'selected' : '' ?> value="staff">Staff</option>
 											<?php } ?>
 											<?php if(tile_enabled($dbc, 'vendors')) { ?>
-												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors">Vendors</option>
+												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors"><?= VENDOR_TILE ?></option>
 											<?php } ?>
 											<option <?= $type[0] == 'custom' ? 'selected' : '' ?> value="custom">Custom Categories</option>
 										</select>
@@ -863,6 +889,13 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
 							<?php } ?>
 						<?php } ?>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4">Default Travel Time:</label>
+							<div class="col-sm-8">
+								<?php $ticket_staff_travel_default = get_config($dbc, 'ticket_staff_travel_default'); ?>
+								<input type="number" name="ticket_staff_travel_default" class="form-control" value="<?= $ticket_staff_travel_default ?>">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -2166,11 +2199,17 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Inventory General Piece Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Type" name="tickets[]"> Piece Type</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number", $value_config) ? "checked" : '') ?> value="Inventory General PO Number" name="tickets[]"> Purchase Order Number</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Line Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Line Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Line Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Line Item" name="tickets[]"> Purchase Order Line Item</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Dropdown') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Dropdown" name="tickets[]"> Dropdown PO Line Item</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Line Read') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Line Read", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Line Read", $value_config) ? "checked" : '') ?> value="Inventory General PO Line Read" name="tickets[]"> Read Only PO Line Item</label>
@@ -2201,6 +2240,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Shipment Count Weight') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Shipment Count Weight", $all_config) ? 'checked disabled' : (in_array("Inventory General Shipment Count Weight", $value_config) ? "checked" : '') ?> value="Inventory General Shipment Count Weight" name="tickets[]"> Shipment Count & Weight</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General Notes') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Notes", $all_config) ? 'checked disabled' : (in_array("Inventory General Notes", $value_config) ? "checked" : '') ?> value="Inventory General Notes" name="tickets[]"> Piece Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Total Count Weight') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Total Count Weight", $all_config) ? 'checked disabled' : (in_array("Inventory General Total Count Weight", $value_config) ? "checked" : '') ?> value="Inventory General Total Count Weight" name="tickets[]"> Total Shipment Count & Weight</label>
@@ -2545,6 +2587,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Warehouse Only') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Warehouse Only", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Warehouse Only", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Warehouse Only" name="tickets[]"> Multi-Stop Warehouse Only</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Populate Warehouse Address') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Populate Warehouse Address" name="tickets[]"> Multi-Stop Populate Warehouse Address</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Status", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Status", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Status" name="tickets[]"> Multi-Stop Status</label>

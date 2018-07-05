@@ -288,6 +288,10 @@ $(document).ready(function() {
 								Pink<br /><a target="_blank" href="../img/invoice_design_pink.png"><img src="../img/invoice_design_pink.png" width="100" height="100" border="0" alt=""></a></label>
 							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt1">
 								Contractor Design 1<br /><a target="_blank" href="../img/invoice_contractor1.png"><img src="../img/invoice_contractor1.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt2">
+								Contractor Design 2<br /><a target="_blank" href="../img/invoice_contractor2.png"><img src="../img/invoice_contractor2.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt3">
+								Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
 						</div>
 					</div>
 

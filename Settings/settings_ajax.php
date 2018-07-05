@@ -44,7 +44,7 @@ else if($fill == 'dashboard_sort') {
 		$history = "$current tile added by $user_full_name.<br />";
 	}
 	$result = mysqli_query($dbc, "UPDATE `tile_dashboards` SET `tile_sort`='$tile_sort', `history`=CONCAT(IFNULL(`history`,''), '$history') WHERE `dashboard_id`='$dashboard'");
-	
+
 	$source = $_POST['source'];
 	if($source != 'all' && $source != $dashboard) {
 		$tile_sort = '*#*'.(mysqli_fetch_array(mysqli_query($dbc,"SELECT `tile_sort` FROM `tile_dashboards` WHERE `dashboard_id`='$source'"))['tile_sort']).'*#*';
@@ -75,8 +75,9 @@ else if($fill == 'dashboard_add') {
 	}
 }
 else if($fill == 'dashboard_remove') {
+    $date_of_archival = date('Y-m-d');
 	$dashboard = $_POST['dashboard'];
-	mysqli_query($dbc, "UPDATE `tile_dashboards` SET `deleted`=1, `history`=CONCAT(IFNULL(`history`,''), 'Removed by $user_full_name.<br />') WHERE `dashboard_id`='$dashboard'");
+	mysqli_query($dbc, "UPDATE `tile_dashboards` SET `deleted`=1, `date_of_archival` = '$date_of_archival', `history`=CONCAT(IFNULL(`history`,''), 'Removed by $user_full_name.<br />') WHERE `dashboard_id`='$dashboard'");
 }
 else if($fill == 'dashboard_rename') {
 	$dashboard = $_POST['dashboard'];

@@ -46,6 +46,8 @@ if (isset($_POST['add_shifts'])) {
     }
 
     mysqli_query($dbc, "UPDATE `field_config_contacts_shifts_pdf` SET `header_logo_align` = '$header_logo_align', `header_text` = '$header_text', `header_align` = '$header_align', `footer_logo_align` = '$footer_logo_align', `footer_text` = '$footer_text', `footer_align` = '$footer_align'");
+
+    set_config($dbc, 'shift_calendar_quick_add', filter_var($_POST['shift_calendar_quick_add'],FILTER_SANITIZE_STRING));
 }
 ?>
 <script type="text/javascript">
@@ -112,6 +114,24 @@ $contact_category = $get_field_config['contact_category'];
 ?>
 <h3>Staff Shifts</h3>
 <div class="panel-group" id="accordion2">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_calendar">Calendar Settings</a>
+            </h4>
+        </div>
+        <div id="collapse_calendar" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Monthly View Quick Add Icon:</label>
+                    <div class="col-sm-8">
+                        <?php $shift_calendar_quick_add = get_config($dbc, 'shift_calendar_quick_add'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="shift_calendar_quick_add" value="1" <?= $shift_calendar_quick_add == 1 ? 'checked' : '' ?>></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">

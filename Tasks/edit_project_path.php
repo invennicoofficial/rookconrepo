@@ -10,9 +10,10 @@ $projectid = $_GET['edit'];
 $project = $dbc->query("SELECT * FROM `project` WHERE `projectid`='$projectid'")->fetch_assoc();
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
+        $date_of_archival = date('Y-m-d');
 	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1 where projectid=$editid and status='".$status_complete."'";
+	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
 	$update_clear_completed = mysqli_query($dbc, $query);
 	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
 }
@@ -412,40 +413,8 @@ if($_GET['tab'] != 'scrum_board') {
 		});
 		$('.email-icon').off('click').click(function() {
 			var item = $(this).closest('.dashboard-item');
-			var select = item.find('.select_users');
-			select.find('.cancel_button').off('click').click(function() {
-				select.find('select option:selected').removeAttr('selected');
-				select.hide();
-				return false;
-			});
-			select.find('.submit_button').off('click').click(function() {
-				if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-					var users = [];
-					select.find('select option:selected').each(function() {
-						users.push(this.value);
-						$(this).removeAttr('selected');
-						select.find('select').trigger('change.select2');
-					});
-					$.ajax({
-						method: 'POST',
-						url: '../Project/projects_ajax.php?action=project_actions',
-						data: {
-							id: item.data('id'),
-							id_field: item.data('id-field'),
-							table: item.data('table'),
-							field: 'email',
-							value: users
-						},
-						success: function(result) {
-							select.hide();
-							select.find('select').trigger('change.select2');
-							item.find('h4').append(result);
-						}
-					});
-				}
-				return false;
-			});
-			select.show();
+			var id = $(item).data('id');
+			overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true);
 		});
 		$('.new_task').off('keyup').keyup(function(e) {
 			if(e.which == 13) {

@@ -68,6 +68,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/validation_advanced_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pos_advanced_daily_validation', 0, WEBSITE_URL.'/Reports/Download/validation_advanced_'.$today_date.'.pdf', 'POS Validation & Sales Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -144,7 +147,7 @@ if (isset($_POST['printpdf'])) {
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
 
         $total = 0;
-        
+
         $report_validation = mysqli_query($dbc, "SELECT `invoiceid`, `invoice_date`, `patientid`, SUM(`final_price` - `gst_amt` - `pst_amt` - `delivery` - `assembly` + `discount`) `sub_total`, `discount`, `delivery`, `assembly`, SUM(`final_price` - `gst_amt` - `pst_amt`) `total_before_tax`, `gst_amt`, `pst_amt`, `final_price`, `status` FROM `invoice` WHERE (`invoice_date` BETWEEN '$starttime' AND '$endtime') GROUP BY `invoiceid` ORDER BY `invoiceid`");
         $num_rows = mysqli_num_rows($report_validation);
 
@@ -189,7 +192,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
                     $report_data .= '<td data-title="Total" align="right">' . number_format($row_report['final_price'], 2) . '</td>';
                     $report_data .= '<td data-title="Status">' . $row_report['status'] . '</td>';
                 $report_data .= "</tr>";
-                
+
                 $sub_total += $row_report['sub_total'];
                 $discount_value += $row_report['discount'];
                 $delivery += $row_report['delivery'];

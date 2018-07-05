@@ -371,7 +371,7 @@ if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 //Check if only using today's data
 $query_daily = "";
 if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
-	$query_daily = " AND `date_stamp`='".date('Y-m-d')."' ";
+	$query_daily = " AND (`date_stamp`='".date('Y-m-d')."' OR IFNULL(`checked_out`,'') = '')";
 }
 if(isset($_GET['min_view'])) {
 	$value_config = $min_view;
@@ -379,7 +379,7 @@ if(isset($_GET['min_view'])) {
 
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
-$ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 $query_daily");
+$ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted` = 0 $query_daily");
 $access_any = (vuaed_visible_function($dbc, 'ticket') + vuaed_visible_function($dbc, 'ticket_type_'.$get_ticket['ticket_type'])) > 0;
 $access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 $access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
@@ -485,6 +485,9 @@ if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket E
 	$access_complete = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'complete');
 	$access_services = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
 	$access_all = $access_any == 0 ? false : check_subtab_persmission($dbc, 'ticket', ROLE, 'all_access');
+}
+if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
+	$query_daily = " AND `date_stamp`='".date('Y-m-d')."' ";
 }
 
 
@@ -740,7 +743,25 @@ var setHeading = function() {
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
-			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?></h3>
+			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+			<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+				$get_ticket['flag_colour'] = '';
+			}
+			if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+				$flag_comment = '';
+				$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+				if(in_array('flag_manual',$quick_action_icons)) {
+					$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+				} else {
+					$ticket_flag_names = [''=>''];
+					$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+					foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+						$ticket_flag_names[$colour] = $flag_names[$i];
+					}
+					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+				} ?>
+				<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
+			<?php } ?></h3>
 			<hr>
 		</div>
 	<?php }
@@ -2078,7 +2099,7 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-				<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
@@ -2159,6 +2180,24 @@ var setHeading = function() {
 			<?php if($_GET['calendar_view'] == 'true') { ?>
 				<div class="col-sm-12">
 					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+						<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+							$get_ticket['flag_colour'] = '';
+						}
+						if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+							$flag_comment = '';
+							$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+							if(in_array('flag_manual',$quick_action_icons)) {
+								$flag_label = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+							} else {
+								$ticket_flag_names = [''=>''];
+								$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+								foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+									$ticket_flag_names[$colour] = $flag_names[$i];
+								}
+								$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+							} ?>
+							<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
+						<?php } ?>
 						<?php if($_GET['action_mode'] == 1) {
 							$get_query = $_GET;
 							unset($get_query['action_mode']); ?>
@@ -2614,7 +2653,7 @@ var setHeading = function() {
 			<div class="clearfix"></div>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-					<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>

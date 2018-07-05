@@ -24,6 +24,8 @@ if(!empty($_GET['export'])) {
 	}
 	$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 	$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
+	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 	
 	$mode = $_GET['export'];
 	$search_staff = $_GET['search_staff'];
@@ -79,7 +81,7 @@ if(!empty($_GET['export'])) {
 		if($layout == 'multi_line') {
 			$sql .= ", `time_cards_id`";
 		}
-		$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+		$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 		$date = $search_start_date;
 		$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
 		
@@ -294,6 +296,21 @@ if(!empty($_GET['export'])) {
 				$end_time = '';
 				$approval_status = '';
 				if($row['date'] == $date) {
+					foreach($config['hours_types'] as $hours_type) {
+						if($row[$hours_type] > 0) {
+							switch($timesheet_rounding) {
+								case 'up':
+									$row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+								case 'down':
+									$row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+								case 'nearest':
+									$row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+									break;
+							}
+						}
+					}
 					$hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRECT_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
 						'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'TRACKED_HRS'=>$row['TRACKED_HRS'],'BREAKS'=>$row['BREAKS']];
 					$comments = '';
@@ -774,6 +791,8 @@ function addSignature(chk) {
 			$current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
 			$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 			$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+			$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+			$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 
 			$value_config = explode(',',get_field_config($dbc, 'time_cards'));
 			if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
@@ -1059,7 +1078,7 @@ function addSignature(chk) {
 						if($layout == 'multi_line') {
 							$sql .= ", `time_cards_id`";
 						}
-						$sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
@@ -1074,6 +1093,21 @@ function addSignature(chk) {
 							$end_time = '';
 							if($row['date'] == $date) {
 								$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
+								foreach($config['hours_types'] as $hours_type) {
+									if($row[$hours_type] > 0) {
+										switch($timesheet_rounding) {
+											case 'up':
+												$row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+											case 'down':
+												$row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+											case 'nearest':
+												$row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+												break;
+										}
+									}
+								}
 								$hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRECT_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
 									'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'TRACKED_HRS'=>$row['TRACKED_HRS'],'BREAKS'=>$row['BREAKS']];
 								$comments = '';
@@ -1272,8 +1306,10 @@ function addSignature(chk) {
 			<?php elseif($layout == 'position_dropdown' || $layout == 'ticket_task'): ?>
 				<script>
 				$(document).ready(function() {
+					checkTimeOverlaps();
 					initLines();
 				});
+				$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
 				function getTasks(sel) {
 					var tasks = $(sel).find('option:selected').data('tasks');
 					var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -1325,11 +1361,52 @@ function addSignature(chk) {
 						line.find('[name^=comment_box]').show().focus();
 					});
 				}
+				function checkTimeOverlaps() {
+					<?php if(in_array('time_overlaps',$value_config)) { ?>
+						$('.timesheet_div table tr').css('background-color', '');
+						var time_list = [];
+						var date_list = [];
+						$('.timesheet_div table').each(function() {
+							$(this).find('tr').each(function() {
+								var date = $(this).find('[name="date[]"]').val();
+								if(time_list[date] == undefined) {
+									time_list[date] = [];
+								}
+								if(date_list.indexOf(date) == -1) {
+									date_list.push(date);
+								}
+
+								var start_time = '';
+								var end_time = '';
+								if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+									time_list[date].push($(this));
+								}
+							});
+						});
+						date_list.forEach(function(date) {
+							time_list[date].forEach(function(tr) {
+								$(tr).data('current_row', 1);
+								start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+								end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+								time_list[date].forEach(function(tr2) {
+									if($(tr2).data('current_row') != 1) {
+										start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+										end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+										if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+											$(tr).css('background-color', 'red');
+										}
+									}
+								});
+								$(tr).data('current_row', 0);
+							});
+						});
+					<?php } ?>
+				}
 				</script>
 				<div id="no-more-tables">
-					<table class='table table-bordered'>
+					<table class='table table-bordered timesheet_table'>
 						<tr class='hidden-xs hidden-sm'>
-							<th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
+							<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
 							<?php $total_colspan = 2; ?>
 							<?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
 							<?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
@@ -1428,7 +1505,7 @@ function addSignature(chk) {
 								<input type="hidden" name="time_cards_id_vac[]" value="<?= $row['type_of_time'] == 'Vac Hrs.' ? $row['id'] : '' ?>">
 								<input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
 								<input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-								<td data-title="Date" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $date ?></td>
+								<td data-title="Date" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
 								<?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $hours ?></td><?php } ?>
 								<?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"></td><?php } ?>
 								<?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $row['start_time'] ?></td><?php } ?>
@@ -1783,7 +1860,7 @@ function addSignature(chk) {
 					</script>
 				<?php } else if($layout == 'position_dropdown') { ?>
 					<script>
-						$('[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="comment_box[]"]').change(saveField);
+						$('[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="comment_box[]"],[name="date_editable[]"]').change(saveField);
 						function saveFieldMethod(field) {
 							var line = $(field).closest('tr');
 							$.post('time_cards_ajax.php?action=position_time', {
@@ -1792,6 +1869,7 @@ function addSignature(chk) {
 								id: line.find('[name="time_cards_id[]"]').val(),
 								id_vac: line.find('[name="time_cards_id_vac[]"]').val(),
 								date: line.find('[name="date[]"]').val(),
+								date_editable: line.find('[name="date_editable[]"]').val(),
 								staff: line.find('[name="staff[]"]').val(),
 								type_of_time: line.find('[name="type_of_time[]"]').val(),
 								total_hrs: line.find('[name="total_hrs[]"]').val(),
@@ -1813,7 +1891,7 @@ function addSignature(chk) {
 					</script>
 				<?php } else if($layout == 'ticket_task') { ?>
 					<script>
-						$('[name="start_time[]"],[name="end_time[]"],[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="ticketid[]"],[name="comment_box[]"]').change(saveField);
+						$('[name="start_time[]"],[name="end_time[]"],[name="total_hrs[]"],[name="total_hrs_vac[]"],[name="type_of_time[]"],[name="ticketid[]"],[name="comment_box[]"],[name="date_editable[]"]').change(saveField);
 						function saveFieldMethod(field) {
 							var line = $(field).closest('tr');
 							$.post('time_cards_ajax.php?action=task_time', {
@@ -1822,6 +1900,7 @@ function addSignature(chk) {
 								id: line.find('[name="time_cards_id[]"]').val(),
 								id_vac: line.find('[name="time_cards_id_vac[]"]').val(),
 								date: line.find('[name="date[]"]').val(),
+								date_editable: line.find('[name="date_editable[]"]').val(),
 								start_time: line.find('[name="start_time[]"]').val(),
 								end_time: line.find('[name="end_time[]"]').val(),
 								staff: line.find('[name="staff[]"]').val(),
@@ -1831,6 +1910,9 @@ function addSignature(chk) {
 								total_hrs_vac: line.find('[name="total_hrs_vac[]"]').val(),
 								comment_box: line.find('[name="comment_box[]"]').val()
 							}, function(response) {
+								if(line.find('[name="date_editable[]"]').val() != undefined && line.find('[name="date_editable[]"]').val() != '' && line.find('[name="date_editable[]"]').val() != line.find('[name="date[]"]').val()) {
+									line.find('[name="date[]"]').val(line.find('[name="date_editable[]"]').val());
+								}
 								if(response != '') {
 									ids = response.split(',');
 									if(ids[0] > 0) {

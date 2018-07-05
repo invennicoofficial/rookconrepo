@@ -82,16 +82,17 @@ if((!empty($_GET['wtsend'])) && (!empty($_GET['contactid']))) {
 
 if((!empty($_GET['jobid'])) && (!empty($_GET['action']))) {
 	$jobid = $_GET['jobid'];
-	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+        $date_of_archival = date('Y-m-d');
+	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_job	= mysqli_query($dbc, $query_update_job);
 
-	$query_update_po = "UPDATE `field_po` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_po = "UPDATE `field_po` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_po	= mysqli_query($dbc, $query_update_po);
 
-	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_fs	= mysqli_query($dbc, $query_update_fs);
 
-	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1 WHERE	`jobid` = '$jobid'";
+	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_in	= mysqli_query($dbc, $query_update_in);
 
 	header('Location: field_jobs.php');
@@ -246,10 +247,11 @@ function actionDate(sel) {
                 ".(strpos($dashboard_config,',date,') !== false ? "<th>Date</th>" : "")."
                 ".(strpos($dashboard_config,',contact,') !== false ? "<th>Contact</th>" : "")."
                 ".(strpos($dashboard_config,',crew') !== false ? "<th>Crew Info<br><em>(".
-					(strpos($edit_config,',crew_name,') !== false ? "Name - " : "").
-					(strpos($edit_config,',crew_pos,') !== false ? "Position - " : "").
-					(strpos($edit_config,',crew_reg,') !== false ? "Reg Hour - " : "").
-					(strpos($edit_config,',crew_ot,') !== false ? "OT Hour" : "").")</em></th>" : "")."
+					(strpos($edit_config,',crew_name,') !== false ? "Name" : "").
+					(strpos($edit_config,',crew_pos,') !== false ? " - Position" : "").
+					(strpos($edit_config,',crew_reg,') !== false ? " - Reg Hour" : "").
+					(strpos($edit_config,',crew_ot,') !== false ? " - OT Hour" : "").
+					(strpos($edit_config,',crew_travel,') !== false ? " - Travel" : "").")</em></th>" : "")."
 				<th>Function</th>
 				<th>Supervisor Process</th>
 				<th>Office Process</th>
@@ -288,6 +290,7 @@ function actionDate(sel) {
 				$positionname = explode(',',$row['positionname']);
 				$crew_reg_hour = explode(',',$row['crew_reg_hour']);
 				$crew_ot_hour = explode(',',$row['crew_ot_hour']);
+				$crew_travel = explode(',',$row['crew_travel_hour']);
 
 				$crew = '';
 				for($emp_loop=0; $emp_loop<=$total_count; $emp_loop++) {
@@ -299,6 +302,9 @@ function actionDate(sel) {
 						}
 						if(isset($crew_ot_hour[$emp_loop])) {
 							$crew .= (strpos($edit_config,',crew_ot,') !== false ? ' - ' . $crew_ot_hour[$emp_loop] : '');
+						}
+						if(isset($crew_travel[$emp_loop])) {
+							$crew .= (strpos($edit_config,',crew_travel,') !== false ? ' - ' . $crew_travel[$emp_loop] : '');
 						}
 						$crew .= '<br>';
 					}
@@ -320,7 +326,7 @@ function actionDate(sel) {
             // echo '<a href=\'../delete_restore.php?action=delete&subtab=foreman&fsid='.$row['fsid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
             echo '</td>';
 
-            if($row['deleted'] == 1) { 
+            if($row['deleted'] == 1) {
 				echo '<td>Archived</td>';
 			}
             else if($row['supervisor_status'] == 'Pending') {
@@ -332,7 +338,7 @@ function actionDate(sel) {
                 echo '</td>';
             }
 
-			if($row['deleted'] == 1) { 
+			if($row['deleted'] == 1) {
 				echo '<td>Archived</td>';
 			}
             else if($row['office_status'] == 'Pending') {

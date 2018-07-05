@@ -99,6 +99,7 @@ $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_n
 $businesses = sort_contacts_query(mysqli_query($dbc, "SELECT `name`, `contactid` FROM `contacts` WHERE `contactid` IN (SELECT `businessid` FROM `project` WHERE `deleted`=0) AND `deleted`=0"));
 $leads = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON `project`.`project_lead`=`contacts`.`contactid` AND `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `project`.`projectid` IS NOT NULL"));
 $coleads = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON `project`.`project_colead`=`contacts`.`contactid` AND `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `project`.`projectid` IS NOT NULL"));
+
 $uncategorized_sql = "SELECT `projectid`, `businessid`, `clientid`, `project_name` FROM `project` WHERE `deleted`=0 AND `status` NOT IN ('Archive'".($pending_projects == 'disable' ? '' : ",'Pending'").") AND '$tile' = 'project' AND `projecttype` NOT IN ('".implode("','",$tab_list)."') ORDER BY REPLACE(`favourite`,',','') LIKE ',".$_SESSION['contactid'].",' DESC, `project_name` ASC, `projectid` DESC";
 $project_list = mysqli_query($dbc, $uncategorized_sql); ?>
 project_list['uncategorized'] = [<?php while($project_line = mysqli_fetch_assoc($project_list)) {
@@ -542,12 +543,14 @@ $(document).ready(function() {
 
 							$count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$type_name' = 'pending' OR '$type_name' = 'favourite' OR `status` != 'Pending' OR '$pending_projects' = 'disable') AND ('$tile' = 'project' OR `projecttype`='$tile') AND (`projecttype`='$type_name' OR ('$type_name' = 'favourite' AND `favourite` LIKE '%,".$_SESSION['contactid'].",%') OR ('$type_name' = 'pending' AND `status`='Pending'))"))[0];
 
-                            if(in_array('SUMM Colors', $summ_config)) {
-                                $c_a = 'style="background-color:'.$color_apply.';height: 20px;width: 20px;margin-top: 5px;"';
-							    $block .= '<div class="row"><div class="col-sm-2"><div '. $c_a .'></div></div><div class="col-sm-8"><a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a></div></div><br />';
-                            } else {
-                                $c_a = '';
-                                $block .= '<a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a><br />';
+                            if($count > 0) {
+                                if(in_array('SUMM Colors', $summ_config)) {
+                                    $c_a = 'style="background-color:'.$color_apply.';height: 20px;width: 20px;margin-top: 5px;"';
+                                    $block .= '<div class="row"><div class="col-sm-2"><div '. $c_a .'></div></div><div class="col-sm-8"><a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a></div></div><br />';
+                                } else {
+                                    $c_a = '';
+                                    $block .= '<a href="?tile_name='.$tile.'&type='.$type_name.'" onclick="selectType(\''.$type_name.'\'); return false;"><label class="control-label cursor-hand">'.$project_label.':</label> '.$count.'</a><br />';
+                                }
                             }
 
 							$block_length += 23;
@@ -566,9 +569,11 @@ $(document).ready(function() {
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_TILE.' by Region</h4>';
 						foreach($region_list as $region_name => $region_projects) {
-							$region_string = config_safe_str($region_name);
-							$block .= '<a href="?tile_name='.$tile.'&type=region_'.$region_string.'" onclick="selectType(\'region_'.$region_string.'\'); return false;"><label class="cursor-hand control-label">'.($region_name == '' ? 'No Region' : $region_name).':</label> '.count(array_unique($region_projects)).'</a><br />';
-							$block_length += 23;
+                            if(count(array_unique($region_projects)) > 0) {
+                                $region_string = config_safe_str($region_name);
+                                $block .= '<a href="?tile_name='.$tile.'&type=region_'.$region_string.'" onclick="selectType(\'region_'.$region_string.'\'); return false;"><label class="cursor-hand control-label">'.($region_name == '' ? 'No Region' : $region_name).':</label> '.count(array_unique($region_projects)).'</a><br />';
+                                $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];
@@ -585,8 +590,10 @@ $(document).ready(function() {
 						<h4>'.PROJECT_TILE.' by Status</h4>';
 						foreach($status_list as $status_name) {
 							$status_count = $dbc->query("SELECT `status`, COUNT(*) `count` FROM `project` WHERE `deleted`=0 AND `status`='$status_name'")->fetch_assoc()['count'];
-							$block .= '<label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
-							$block_length += 23;
+                            if($status_count > 0) {
+							    $block .= '<label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
+							    $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];
@@ -669,13 +676,34 @@ $(document).ready(function() {
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Actual Time</h4>';
 						while($time = $total_tracked_time->fetch_assoc()) {
-							$block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
-							$block_length += 23;
+                            if($time['time'] > 0) {
+							    $block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
+							    $block_length += 23;
+                            }
 						}
 					$block .= '</div>';
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
+
+				if(in_array('SUMM Piece', $summ_config)) {
+					$block_length = 68;
+					$block = '<div class="overview-block">
+						<h4>'.TICKET_TILE.' by Piece Work</h4>';
+
+                        $piece_work = $dbc->query("SELECT `ticketid`, `piece_work` FROM `tickets` WHERE `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done') AND piece_work != '' AND piece_work IS NOT NULL");
+
+                        while($piece = $piece_work->fetch_assoc()) {
+                                $block .= '<label class="control-label"><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$piece['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">#'.$piece['ticketid'].'</a></label> : '.$piece['piece_work'].'<br />';
+							    $block_length += 23;
+                        }
+
+					$block .= '</div>';
+					$blocks[] = [$block_length, $block];
+					$total_length += $block_length;
+				}
+
+
 				$display_column = 0;
 				$displayed_length = 0; ?>
 				<div class="col-sm-6">

@@ -39,11 +39,19 @@ function save_sort() {
 function set_headings() {
 	$('[name=heading][data-init]').each(function() {
 		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
+		var heading_name = this.value;
+		$(this).closest('table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&heading=[a-zA-Z0-9_]*/,'&heading='+heading_name.replace(/[^a-zA-Z0-9]/,'_'));
+		});
 	});
 }
 function set_scopes() {
 	$('[name=scope_name][data-init]').each(function() {
 		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
+		var scope_name = this.value;
+		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&scope=[a-zA-Z0-9_]*/,'&scope='+scope_name.replace(/[^a-zA-Z0-9]/,'_'));
+		});
 	});
 }
 function getLock(tab_name) {
@@ -215,10 +223,10 @@ function add_line() {
         $scope_name = '';
         if(mysqli_num_rows($query) > 0) {
             while($row = mysqli_fetch_array($query)) {
-                $scope_list[preg_replace('/[^a-z0-9]*/','',strtolower($row[0]))] = $row[0];
+                $scope_list[config_safe_str($row[0])] = $row[0];
             }
         } else {
-            $scope_list['scope'] = 'Scope 1';
+            $scope_list['scope_1'] = 'Scope 1';
         } ?>
         
         <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->

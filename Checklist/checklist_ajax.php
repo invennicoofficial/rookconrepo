@@ -48,7 +48,7 @@ if($_GET['fill'] == 'checklist') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' '.($checked ? 'Completed' : 'Marked Incomplete').' Checklist Item '.$item.' in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
 	foreach(alerts_enabled($dbc, $id, 'checklist_name') as $user) {
 		$link = WEBSITE_URL."/Checklist/checklist.php?view=".$checklistid;
 		$text = "Checklist: $checklist_name";
@@ -129,7 +129,8 @@ if($_GET['fill'] == 'add_checklist') {
 
 if($_GET['fill'] == 'delete_checklist') {
 	$id = $_GET['checklistid'];
-	$query = "UPDATE `checklist_name` SET `deleted`=1 WHERE `checklistnameid`=$id";
+    $date_of_archival = date('Y-m-d');
+	$query = "UPDATE `checklist_name` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistnameid`=$id";
 	$result = mysqli_query($dbc,$query);
 
     $get_item = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$id'"));
@@ -141,7 +142,7 @@ if($_GET['fill'] == 'delete_checklist') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Archived Checklist Item '.$item.' in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
 	foreach(alerts_enabled($dbc, $id, 'checklist_name') as $user) {
 		$link = WEBSITE_URL."/Checklist/checklist.php?view=".$checklistid;
 		$text = "Checklist: $checklist_name";
@@ -160,7 +161,7 @@ if($_GET['fill'] == 'checklistreply') {
 	$reply = filter_var(htmlentities('<p>'.$_POST['reply'].'</p>'),FILTER_SANITIZE_STRING);
 	$query = "UPDATE `checklist_name` SET `checklist`=CONCAT(`checklist`,'$reply') WHERE `checklistnameid`='$id'";
 	$result = mysqli_query($dbc,$query);
-    
+
     $item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$id'"));
     $checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -171,7 +172,7 @@ if($_GET['fill'] == 'checklistreply') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Replied to Checklist Item <b>'.$item_name[0].'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
 	foreach(alerts_enabled($dbc, $id, 'checklist_name') as $user) {
 		$link = WEBSITE_URL."/Checklist/checklist.php?view=".$checklistid;
 		$text = "Checklist: $checklist_name";
@@ -194,7 +195,7 @@ if($_GET['fill'] == 'checklistedit') {
 	$checklist = filter_var(htmlentities($line.implode('<p>',$checklist)),FILTER_SANITIZE_STRING);
 	$query = "UPDATE `checklist_name` SET `checklist`='$checklist' WHERE `checklistnameid`='$id'";
 	$result = mysqli_query($dbc,$query);
-    
+
     $item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$id'"));
     $checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -205,7 +206,7 @@ if($_GET['fill'] == 'checklistedit') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Item <b>'.$item_name[0].'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
 	foreach(alerts_enabled($dbc, $id, 'checklist_name') as $user) {
 		$link = WEBSITE_URL."/Checklist/checklist.php?view=".$checklistid;
 		$text = "Checklist: $checklist_name";
@@ -251,7 +252,7 @@ if($_GET['fill'] == 'checklistalert') {
     //foreach ((array)$user as $singleuser) {
     //    $sql = mysqli_query($dbc, "INSERT INTO `alerts` (`alert_date`, `alert_link`, `alert_text`, `alert_user`) VALUES ('$date', '$link', '$text', '$singleuser')");
     //}
-    
+
     //$item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$item_id'"));
     //$checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -302,7 +303,7 @@ if($_GET['fill'] == 'checklistemail') {
             }
         }
     }
-    
+
     $item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$item_id'"));
     $checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -344,7 +345,7 @@ if($_GET['fill'] == 'checklistreminder') {
         VALUES ('$singleto', '$date', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'checklist_name', '$id')");
         $result2 = mysqli_query($dbc, "INSERT INTO `checklist_actions` (`checklistnameid`, `contactid`, `action_date`) VALUES ('$item_id', '$singleto', '$date')");
     }
-    
+
     $item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$item_id'"));
     $checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -355,7 +356,15 @@ if($_GET['fill'] == 'checklistreminder') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Scheduled Reminder in Checklist Item <b>'.$item_name[0].'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
+}
+if($_GET['fill'] == 'checklistflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `checklistnameid`='$id'");
 }
 if($_GET['fill'] == 'checklistflag') {
 	$item_id = $_POST['id'];
@@ -394,7 +403,7 @@ if($_GET['fill'] == 'checklist_upload') {
 		$query_insert = "INSERT INTO `checklist_document` (`checklistid`, `type`, `document`, `created_date`, `created_by`) VALUES ('$id', 'Support Document', '$filename', '".date('Y/m/d')."', '".$_SESSION['contactid']."')";
 		$result_insert = mysqli_query($dbc, $query_insert);
 	}
-    
+
     $item_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` WHERE `checklistnameid`='$id'"));
     $checklistid = $item_query['checklistid'];
     $get_subtab = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
@@ -405,7 +414,7 @@ if($_GET['fill'] == 'checklist_upload') {
     $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added File in Checklist Item <b>'.$item_name[0].'</b> on '.date('Y-m-d');
     $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
     $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-	
+
 	foreach(alerts_enabled($dbc, $id, 'checklist_name') as $user) {
 		$link = WEBSITE_URL."/Checklist/checklist.php?view=".$checklistid;
 		$text = "Checklist: $checklist_name";
@@ -433,7 +442,7 @@ if($_GET['fill'] == 'subtab_change') {
 
     echo "<option value=''></option>";
     echo "<option value='ALL'>Share with Everyone</option>";
-    
+
     $query_retrieve_subtabs = mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 ORDER BY `category`");
     // while($row = mysqli_fetch_array($query_retrieve_subtabs)) {
     //     echo "<option ".((strpos($subtab_shared, ','.$row['contactid'].',') !== false) ? 'selected' : '')." value='".$row['contactid']."'>".decryptIt($row['first_name']).' '.decryptIt($row['last_name'])."</option>";
@@ -471,8 +480,9 @@ if($_GET['fill'] == 'mark_hidden') {
 	mysqli_query($dbc, "UPDATE `user_settings` SET `checklist_hidden`='$hidden' WHERE `contactid`='".$_SESSION['contactid']."'");
 }
 if($_GET['fill'] == 'checklist_doc_remove') {
+    $date_of_archival = date('Y-m-d');
 	$docid = $_POST['doc'];
-	mysqli_query($dbc, "UPDATE `checklist_document` SET `deleted`='1' WHERE `checklistdocid`='$docid'");
+	mysqli_query($dbc, "UPDATE `checklist_document` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `checklistdocid`='$docid'");
 }
 
 if($_GET['action'] == 'item_priority') {
@@ -637,7 +647,8 @@ if($_GET['action'] == 'item_flag') {
 }
 if($_GET['action'] == 'item_delete') {
 	$id = $_GET['checklistid'];
-	$query = "UPDATE `item_checklist_line` SET `deleted`=1 WHERE `checklistlineid`='$id'";
+    $date_of_archival = date('Y-m-d');
+	$query = "UPDATE `item_checklist_line` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `checklistlineid`='$id'";
 	$result = mysqli_query($dbc,$query);
 }
 if($_GET['fill'] == 'delete_checklist_board') {

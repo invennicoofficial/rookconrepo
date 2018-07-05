@@ -81,7 +81,12 @@ $(document).ready(function() {
 	loadSite();
 });
 var current_fields = [];
-var site_id = '<?= $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid'")->fetch_assoc()['contactid'] ?>';
+var site_ids = [];
+<?php $main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$contactid'"))['main_siteid'];
+$site_query = mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` = '".$main_siteid."' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` != '".$main_siteid."'");
+while($site_result = mysqli_fetch_assoc($site_query)) { ?>
+	site_ids.push('<?= $site_result['contactid'] ?>');
+<?php } ?>
 function jumpTab(tab_name, sub_class) {
 	edit_profile();
 	if(sub_class == undefined) {
@@ -110,20 +115,31 @@ function loadPanel() {
 		if ($(this).parentsUntil($(this),'#view_checklist').length == 0 && $(this).parentsUntil($(this),'#collapse_profile').length == 0) {
 			$(this).html('Loading...');
 			var panel = this;
-			$.ajax({
-				url: '../Contacts/edit_section.php?edit=<?= $_GET['edit'] ?>',
-				data: { folder: '<?= $folder_name ?>', type: $('[name=category]').val(), tab_label: $(panel).data('tab-label'), tab_name: $(panel).data('tab-name') },
-				method: 'POST',
-				response: 'html',
-				success: function(response) {
-					$('div[data-locked=held]').each(function() {
-						releaseLock([$(this).data('tab-name')]);
-					});
-					$(panel).html(response);
-					getLock([$(panel).data('tab-name')]);
-					$('[data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
-				}
-			});
+			if($(this).data('url') != undefined && $(this).data('url') != '') {
+				$.ajax({
+					url: '../Contacts/'+$(this).data('url'),
+					method: 'POST',
+					response: 'html',
+					success: function(response) {
+						$(panel).html(response);
+					}
+				});
+			} else {
+				$.ajax({
+					url: '../Contacts/edit_section.php?edit=<?= $_GET['edit'] ?>',
+					data: { folder: '<?= $folder_name ?>', type: $('[name=category]').val(), tab_label: $(panel).data('tab-label'), tab_name: $(panel).data('tab-name') },
+					method: 'POST',
+					response: 'html',
+					success: function(response) {
+						$('div[data-locked=held]').each(function() {
+							releaseLock([$(this).data('tab-name')]);
+						});
+						$(panel).html(response);
+						getLock([$(panel).data('tab-name')]);
+						$('[data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
+					}
+				});
+			}
 		} else if ($(this).parentsUntil($(this),'#collapse_profile').length == 1) {
             $('#collapse_profile button').hide();
             $('#collapse_profile .col-sm-6').css('font-size', '0.8em');
@@ -158,17 +174,76 @@ function scrollScreen() {
 		getLock(profile_tab);
 	}
 }
+var first_site = true;
+var still_loading_site = false;
+var load_site_list = [];
 function loadSite() {
-	if(site_id > 0) {
-		$.post('../Contacts/edit_section.php?edit='+site_id, {
+	$('.site_address:not(:first)').remove();
+	first_site = true;
+	still_loading_site = false;
+	load_site_list = [];
+	site_ids.forEach(function(site_id) {
+		if(site_id > 0) {
+			if(still_loading_site) {
+				load_site_list.push(function() { loadSiteHtml(site_id); });
+			} else {
+				still_loading_site = true;
+				loadSiteHtml(site_id);
+			}
+		}
+	});
+	if(site_ids.length > 0) {
+		$('.add_another_site').show();
+	} else {
+		$('.add_another_site').hide();
+	}
+}
+function loadSiteHtml(site_id) {
+	$.ajax({
+		url: '../Contacts/edit_section.php?edit='+site_id,
+		method: 'POST',
+		data: {
 			folder: '<?= $folder_name ?>',
 			type: '<?= SITES_CAT ?>',
 			tab_label: 'Site Address',
 			tab_name: 'ALL_FIELDS'
-		}, function(response) {
-			$('.site_address').html(response);
-		});
-	}
+		},
+		success: function(response) {
+			if(!first_site) {
+				var clone = $('.site_address').first().clone();
+				clone.data('contactid', site_id);
+				clone.data('nosync', 1);
+				clone.html(response);
+				$('.site_address').last().after(clone);
+			} else {
+				if($('[name="address_site_sync"]').is(':checked')) {
+					$('[data-tab-name="address"] .form-group').hide();
+					$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
+				}
+				$('.site_address').html(response);
+				$('.site_address').data('contactid', site_id);
+				setMainSite(site_id);
+			}
+			first_site = false;
+			still_loading_site = false;
+			if(load_site_list.length > 0) {
+				load_site_list.shift()();
+			}
+		}
+	});
+}
+function setMainSite(site_id) {
+	var contactid = $('[name=contactid]').val();
+	$.ajax({
+		type: 'POST',
+		url: '../Contacts/contacts_ajax.php?action=set_main_site',
+		data: {
+			contactid: contactid,
+			site_id: site_id
+		},
+		success: function(response) {
+		}
+	});
 }
 function saveFieldMethod(field) {
 	if(($('[name=contactid]').val() == 'new' || $('[name=contactid]').val() == '' || $('[name=contactid]').val() == undefined) && field.name != 'category' && window.previous_field == undefined) {
@@ -298,6 +373,11 @@ function saveFieldMethod(field) {
 					label = label.substring(0,label.length - 1);
 				}
 				field_info.append('label', label);
+				if($(field).closest('.site_address') != undefined) {
+					if($(field).closest('.site_address').data('nosync') == 1) {
+						field_info.append('contactid',$(field).closest('.site_address').data('contactid'));
+					}
+				}
 				var ajax_data = {
 					processData: false,
 					contentType: false,
@@ -660,7 +740,55 @@ function calculateAllocatedHours() {
 	});
 	$('[name="total_allocated_hours_calc"]').val(total_hours);
 }
+function addAnotherSite() {
+	$('#dialog_add_site').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		buttons: {
+			"Add Site": function() {
+				var contactid = $('[name=contactid]').val();
+				var another_site_id = $('[name="add_another_site"]').val();
+				$.ajax({
+					type: 'POST',
+					url: '../Contacts/contacts_ajax.php?action=add_another_site',
+					data: {
+						contactid: contactid,
+						another_site_id: another_site_id
+					},
+					success: function(response) {
+						site_ids.push(another_site_id);
+						loadSite();
+					}
+				});
+				$(this).dialog('close');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+		}
+	});
+}
+function addContactForm(form_id) {
+	var contactid = $('[name=contactid]').val();
+	overlayIFrameSlider('../Contacts/fill_contact_form.php?contactid='+contactid+'&form_id='+form_id, 'auto', false, true);
+}
 </script>
+<div id="dialog_add_site" title="Add a Site" style="display:none;">
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Site:</label>
+		<div class="col-sm-8">
+			<select name="add_another_site" class="chosen-select-deselect form-control">
+				<option></option>
+				<?php $list_sites = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '".SITES_CAT."' AND `deleted` = 0 AND `status` > 0"));
+				foreach($list_sites as $list_site) {
+					echo '<option value="'.$list_site['contactid'].'">'.$list_site['full_name'].'</option>';
+				} ?>
+			</select>
+		</div>
+	</div>
+</div>
 <?php //if(!IFRAME_PAGE && !isset($_GET['fields'])) {
 	if(!isset($mandatory_config)) {
 		if(IFRAME_PAGE) { ?>
@@ -762,6 +890,26 @@ function calculateAllocatedHours() {
 					</div>
 				<?php }
 			} ?>
+			<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
+				$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
+				while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_contactform_<?= $contact_form['form_id'] ?>">
+									<?= $contact_form['name'] ?><span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_contactform_<?= $contact_form['form_id'] ?>" class="panel-collapse collapse">
+							<div class="panel-body" data-tab-name="contactform_<?= $contact_form['form_id'] ?>" data-tab-label="<?= $contact_form['name'] ?>" data-url="edit_addition_contact_forms.php?edit=<? $contactid ?>&user_form_id=<?= $contact_form['form_id'] ?>">
+								Loading...
+							</div>
+						</div>
+					</div>
+				<?php }
+			} ?>
 		</div>
 		<?php if(IFRAME_PAGE) { ?>
 				</div>
@@ -796,6 +944,12 @@ function calculateAllocatedHours() {
 						<?php foreach($tab_list as $tab_label => $tab_data) {
 							if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information' && $tab_label != 'Checklist' && $edit_access > 0 && !in_array($tab_data[0], $subtabs_hidden) && (in_array($tab_data[0], $contact_subtabs) || empty($contact_subtabs))) { ?>
 								<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
+							<?php }
+						} ?>
+						<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
+							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
+							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
+								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
 						} ?>
 					</ul>
@@ -914,6 +1068,16 @@ function calculateAllocatedHours() {
 								<div data-tab-name='<?= $tab_data[0] ?>' data-locked='' id="<?= $tab_data[0] ?>" class="scroll-section">
 									<hr>
 									<?php include('edit_section.php'); ?>
+								</div>
+							<?php }
+						}
+						if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
+							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%'AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' AND `is_template` = 0 ORDER BY `name`");
+							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
+								<div data-tab-name='contactform_<?= $contact_form['form_id'] ?>' data-locked='' id="contactform_<?= $contact_form['form_id'] ?>" class="scroll-section">
+									<hr>
+									<?php $_GET['user_form_id'] = $contact_form['form_id'];
+									include('../Contacts/edit_addition_contact_forms.php'); ?>
 								</div>
 							<?php }
 						} ?>

@@ -1,3 +1,136 @@
+<script>
+	$('.archive-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		$.ajax({
+			url: 'projects_ajax.php?action=archive',
+			method: 'POST',
+			data: { id: item.data('id') },
+            success: function(result) {
+						alert('Project Archived');
+					}
+		});
+		item.hide();
+	});
+
+	$('.email-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		var select = item.find('.select_users');
+		select.find('.cancel_button').off('click').click(function() {
+			select.find('select option:selected').removeAttr('selected');
+			select.hide();
+			return false;
+		});
+		select.find('.submit_button').off('click').click(function() {
+			if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
+				var users = [];
+				select.find('select option:selected').each(function() {
+					users.push(this.value);
+					$(this).removeAttr('selected');
+					select.find('select').trigger('change.select2');
+				});
+				$.ajax({
+					method: 'POST',
+					url: 'projects_ajax.php?action=quick_actions',
+					data: {
+						id: item.data('id'),
+						id_field: item.data('id-field'),
+						table: item.data('table'),
+						field: 'email',
+						value: users
+					},
+					success: function(result) {
+						select.hide();
+						select.find('select').trigger('change.select2');
+						item.find('h4').append(result);
+					}
+				});
+			}
+			return false;
+		});
+		select.show();
+	});
+
+	$('.attach-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[type=file]').off('change').change(function() {
+			var fileData = new FormData();
+			fileData.append('file',$(this)[0].files[0]);
+			fileData.append('field','document');
+			fileData.append('table','project_document');
+			fileData.append('folder','download');
+			fileData.append('id',item.data('id'));
+			fileData.append('id_field','ticketid');
+			$.ajax({
+				contentType: false,
+				processData: false,
+				method: "POST",
+				url: "projects_ajax.php?action=quick_actions",
+				data: fileData
+			});
+                $(this).hide().val('');
+		}).click();
+	});
+
+$('.reminder-icon').off('click').click(function() {
+    var item = $(this).closest('.dashboard-item');
+    item.find('[name=reminder]').change(function() {
+        var reminder = $(this).val();
+        var select = item.find('.select_users');
+        select.find('.cancel_button').off('click').click(function() {
+            select.find('select option:selected').removeAttr('selected');
+            select.find('select').trigger('change.select2');
+            select.hide();
+            return false;
+        });
+        select.find('.submit_button').off('click').click(function() {
+            if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+                var users = [];
+                select.find('select option:selected').each(function() {
+                    users.push(this.value);
+                    $(this).removeAttr('selected');
+                });
+                $.ajax({
+                    method: 'POST',
+                    url: 'projects_ajax.php?action=quick_actions',
+                    data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'reminder',
+                        value: reminder,
+                        users: users,
+                        ref_id: item.data('id'),
+                        ref_id_field: item.data('id-field')
+                    },
+                    success: function(result) {
+                        select.hide();
+                        select.find('select').trigger('change.select2');
+                        item.find('h4').append(result);
+                        alert("Reminder set");
+                    }
+                });
+            }
+            return false;
+        });
+        select.show();
+    }).focus();
+});
+
+function saveNote(sel) {
+    var projectid = $(sel).data('projectid');
+    var note = sel.value;
+    if (note!='') {
+        $.ajax({
+            url: 'projects_ajax.php?action=saveNote&projectid='+projectid+'&note='+note,
+            success: function(response) {
+               alert("Note saved.");
+            }
+        });
+    }
+}
+
+</script>
+
 <?php error_reporting(0);
 include_once('../include.php');
 ob_clean();
@@ -183,6 +316,24 @@ foreach($_POST['projectids'] as $projectid) {
 				</div>
 			<?php } ?>
 
+
+			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label class="col-sm-4">Total Tickets:</label>
+						<div class="col-sm-8">
+                        <?php
+                                    $projectid = $project['projectid'];
+								    $active_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"));
+                                    echo 'Active - '.$active_ticket['total_id'].' : ';
+								    $inactive_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` IN ('Archive','Archived','Done')"));
+                                    echo 'Archived/Done - '.$inactive_ticket['total_id'];
+                         ?>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if(in_array('DB Milestones',$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
@@ -237,7 +388,50 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
+
 			<div class="clearfix"></div>
+
+            <div class="action-icons">
+                <!-- All icons -->
+                <!-- Email -->
+
+                <a href="Add Email" onclick="$(this).closest('.dashboard-item').find('.select_users').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email"></a>
+                <!-- Email -->
+
+                <a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note" /></a>
+                <!-- Note -->
+
+                 <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=reminder]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder"></a>
+                <!-- reminder -->
+
+                <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=document]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File"></a>
+                <!-- document -->
+
+                <!-- archive -->
+                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">
+                <!-- archive -->
+
+                 <!-- All icons -->
+            </div>
+
+            <!-- Note -->
+            <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="project_comment" data-projectid="<?= $projectid; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
+
+            <!-- reminder -->
+            <input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
+            <div class="select_users" style="display:none;">
+                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+                <?php foreach($staff_list as $staff) { ?>
+                    <option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
+                <?php } ?>
+                </select>
+                <button class="submit_button btn brand-btn pull-right">Submit</button>
+                <button class="cancel_button btn brand-btn pull-right">Cancel</button>
+            </div>
+
+            <!-- document -->
+            <input type='file' name='document' value='' style="display:none;">
+
 		</div>
 	<?php }
 }

@@ -99,5 +99,100 @@
     }
     //2018-06-19 - Ticket #7952 - Staff Subtabs & Fields
 
+    //2018-06-20 - TIcket #7967 - Multiple Sites
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `main_siteid` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-20 - TIcket #7967 - Multiple Sites
+
+    //2018-06-21 - Ticket #8000 - HR Default Email
+    $updated_already = get_config($dbc, 'updated_ticket8000_emails');
+    if(empty($updated_already)) {
+        $manual_emails = mysqli_query($dbc, "SELECT * FROM `general_configuration` WHERE `name` LIKE 'manual_%_email'");
+        while($manual_email = mysqli_fetch_assoc($manual_emails)) {
+            if($manual_email['value'] == 'dayanasanjay@yahoo.com') {
+                set_config($dbc, $manual_email['name'], '');
+            }
+        }
+        set_config($dbc, 'updated_ticket8000_emails', 1);
+    }
+
+    //2018-06-21 - Ticket #8000 - HR Default Email
+
+    //2018-06-21 - Ticket #7736 - Shift Reports & My Shifts
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contacts` text NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `user_form_pdf` ADD `attached_contactid` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-21 - Ticket #7736 - Shift Reports & My Shifts
+
+    //2018-06-26 - Ticket #7370 - Equipment Styling
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `equipment_image` VARCHAR(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-26 - Ticket #7370 - Equipment Styling
+
+    //2018-06-26 - Ticket #7814 - Holidays Update Notifications
+    if(!mysqli_query($dbc, "CREATE TABLE `holiday_update_reminders` (
+        `reminderid` int(11) NOT NULL,
+        `date` date NOT NULL,
+        `sent` int(1) NOT NULL DEFAULT 1,
+        `log` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        ADD PRIMARY KEY (`reminderid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        MODIFY `reminderid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-26 - Ticket #7814 - Holidays Update Notifications
+
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_total_time` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-28 - Ticket #7899 - Sessions Additions
+
+    //2018-06-29 - Ticket #7898 - Clients Tile
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `description_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `general_comments_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_upload` ADD `notes_attachment` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-06-29 - Ticket #7898 - Clients Tile
+
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+    if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `mileage` text AFTER `labour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-03 - Ticket #7549 - Mileage Sheet
+
+    //2018-07-04 - Ticket #7868 - Incident Reports Form Builder
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `user_form_id` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `pdf_id` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-04 - Ticket #7868 - Incident Reports Form Builder
+
+    //2018-07-04 - Ticket #8009 - Sessions Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `guardianid` int(11) NOT NULL DEFAULT 0 AFTER `clientid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-04 - Ticket #8009 - Sessions Additions
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

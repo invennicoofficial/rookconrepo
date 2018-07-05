@@ -40,6 +40,26 @@ function add_follow_up() {
 		}
 	});
 }
+function remove_follow_up(elem) {
+	var result = confirm("Are you sure you want to delete this follow up?");
+	if (result) {
+		$.ajax({
+            url: 'estimates_ajax.php?action=estimate_fields',
+            method: 'POST',
+            data: {
+                table: 'estimate_actions',
+                id: $(elem).data('id'),
+                id_field: 'id',
+                estimate: '<?= $estimateid ?>',
+                value: '',
+                field: 'delete'
+            },
+            success: function(response) {
+                window.location.reload();
+            }
+        });
+	}
+}
 function filterContacts(select) {
 	if(select.name == 'businessid') {
 		$('[name=clientid]').find('option').hide().filter('[data-businessid='+select.value+']').show();
@@ -50,7 +70,7 @@ function filterContacts(select) {
 }
 </script>
 <div class="form-horizontal col-sm-12" data-tab-name="information">
-	<h3><?= ESTIMATE_TILE ?> Information</h3>
+	<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Information</h3>
 	<?php if(in_array('Business',$config)) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">Business:</label>
@@ -100,7 +120,7 @@ function filterContacts(select) {
 	<?php } ?>
 	<?php foreach(explode(',',$estimate['estimatetype']) as $current_type) { ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= ESTIMATE_TILE ?> Type:</label>
+			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Type:</label>
 			<div class="col-sm-7">
 				<select class="chosen-select-deselect" name="estimatetype[]" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>">
 					<option></option>
@@ -116,7 +136,7 @@ function filterContacts(select) {
 		</div>
 	<?php } ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= ESTIMATE_TILE ?> Name:</label>
+			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Name:</label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="estimate_name" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" value="<?= $estimate['estimate_name'] ?>">
 			</div>
@@ -163,7 +183,9 @@ function filterContacts(select) {
 	<?php } ?>
 	<?php $actions = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='$estimateid' AND `deleted`=0 ORDER BY `due_date` ASC");
 	while($action = mysqli_fetch_array($actions)) { ?>
-		<div class="action-group">
+		<hr />
+
+        <div class="action-group">
 			<div class="form-group">
 				<label class="col-sm-4">Next Action:</label>
 				<div class="col-sm-8">
@@ -189,7 +211,7 @@ function filterContacts(select) {
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-sm-4">Completed:</label>
+				<label class="col-sm-4">Mark Completed:</label>
 				<div class="col-sm-8">
 					<?php if($action['completed']) { ?>
 						<input type="checkbox" name="check_completed" class="form-checkbox" value="1" checked disabled>
@@ -199,9 +221,13 @@ function filterContacts(select) {
 					<?php } ?>
 				</div>
 			</div>
+            <div class="form-group">
+                <a class="pull-right" href="javascript:void(0);" onclick="add_follow_up(); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img image-btn" alt="Add Follow Up" /></a>
+                <a class="pull-right" href="javascript:void(0);" data-id="<?= $action['id'] ?>" onclick="remove_follow_up(this); return false;"><img src="../img/remove.png" class="inline-img" alt="Remove Folow Up" width="25" /></a>
+            </div>
 		</div>
 	<?php } ?>
-	<button class="pull-right btn brand-btn" onclick="add_follow_up(); return false;">Add Follow Up</button>
+
     <div class="clearfix"></div>
     <hr />
 </div>

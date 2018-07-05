@@ -644,8 +644,9 @@ if($_GET['fill'] == 'quote_status') {
     if($status == 'Move To Estimate') {
         $status = 'Submitted';
     }
+    $date_of_archival = date('Y-m-d');
 
-	$query_update_project = "UPDATE `bid` SET deleted='$deleted', status='$status', `history` = CONCAT(history,'$history') WHERE `estimateid` = '$estimateid'";
+	$query_update_project = "UPDATE `bid` SET deleted='$deleted', `date_of_archival` = '$date_of_archival', status='$status', `history` = CONCAT(history,'$history') WHERE `estimateid` = '$estimateid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
 
     $start_date = date('Y-m-d');

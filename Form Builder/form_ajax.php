@@ -3,7 +3,8 @@ ob_clean();
 
 if(isset($_GET['action']) && $_GET['action'] == 'archive') {
 	$id = $_POST['form'];
-	mysqli_query($dbc, "UPDATE `user_forms` SET `deleted`=1 WHERE `form_id`='$id'");
+    $date_of_archival = date('Y-m-d');
+	mysqli_query($dbc, "UPDATE `user_forms` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `form_id`='$id'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
@@ -50,7 +51,11 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'insert_field') {
     $field_id = mysqli_insert_id($dbc);
     mysqli_query($dbc, "UPDATE `user_form_fields` SET `name` = 'field_".$field_id."' WHERE `field_id` = '$field_id'");
 
-    $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Form Builder/edit_form_field_details.php?field_id='.$field_id.'\', \'auto\', true, true, $(\'.main-screen\').height()); return false;">'.$description.': </a>&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    if($field_type == 'HR') {
+        $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;Horizontal Row&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    } else {
+        $block_html = '<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">&nbsp;<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Form Builder/edit_form_field_details.php?field_id='.$field_id.'\', \'auto\', true, true, $(\'.main-screen\').height()); return false;">'.$description.': </a>&nbsp;<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="float: right; width: 2em;"">*#*'.$field_id;
+    }
     echo $block_html;
 }
 
@@ -143,7 +148,7 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
             if(!empty($field_name)) {
                 mysqli_query($dbc, "UPDATE `user_form_page_detail` SET `field_name` = '$field_name'WHERE `page_detail_id` = '".$page_detail['page_detail_id']."'");
             }
-        }   
+        }
     }
 
 
@@ -169,7 +174,8 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
                 $sort_order++;
             }
         }
-        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($fields_keep)");
+        $date_of_archival = date('Y-m-d');
+        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($fields_keep)");
     } else if($field_type == 'TABLEADV') {
         //Table Advanced
         $option_row_fields = json_decode($_POST['option_row_fields']);
@@ -189,7 +195,8 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
             $option_row_ids[] = $option_row_id;
         }
         $option_row_ids_keep = "'".implode("','", $option_row_ids)."'";
-        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($option_row_ids_keep)");
+         $date_of_archival = date('Y-m-d');
+       mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($option_row_ids_keep)");
         if(!empty($option_row_ids) && !$echoed_already) {
             echo 'tableadv_ids*#*'.implode('*#*', $option_row_ids);
         }
@@ -214,7 +221,8 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
             $sort_order++;
         }
         $fields_keep = "'".implode("','", $fields_keep)."'";
-        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($fields_keep)");
+         $date_of_archival = date('Y-m-d');
+       mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($fields_keep)");
     } else {
         //Options Fields
         $option_fields = json_decode($_POST['option_fields']);
@@ -239,7 +247,8 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
             }
         }
         $options_keep = "'".implode("','", $options_keep)."'";
-        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($options_keep)");
+        $date_of_archival = date('Y-m-d');
+        mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$formid' AND `type` = 'OPTION' AND `name` = '$name' AND `field_id` NOT IN ($options_keep)");
     }
 
     //Replace form contents names if name changed
@@ -259,14 +268,15 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
     mysqli_query($dbc, "UPDATE `user_forms` SET `contents` = '$contents', `header` = '$header', `footer` = '$footer' WHERE `form_id` = '$formid'");
 }
 
-if(isset($_GET['fill']) && $_GET['fill'] == 'delete_field'){ 
+if(isset($_GET['fill']) && $_GET['fill'] == 'delete_field'){
     $field_id = filter_var($_POST['field_id'],FILTER_SANITIZE_STRING);
     $field = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `field_id` = '$field_id'"));
     $form_id = $field['form_id'];
     $name = $field['name'];
+        $date_of_archival = date('Y-m-d');
 
-    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `field_id` = '$field_id'");
-    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1 WHERE `form_id` = '$form_id' AND `type` = 'OPTION' and `name` = '$name'");
+    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `field_id` = '$field_id'");
+    mysqli_query($dbc, "UPDATE `user_form_fields` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `form_id` = '$form_id' AND `type` = 'OPTION' and `name` = '$name'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'sort_fields') {
@@ -333,7 +343,7 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_styling') {
         mysqli_query($dbc, "UPDATE `user_forms` SET `header_logo` = '$header_logo' WHERE `form_id`='$formid'");
         echo "header_logo*#*download/".$header_logo;
     }
-    
+
     if(!empty($_FILES['footer_logo']['name'])) {
         $footer_logo = $basename = preg_replace('/[^a-z0-9.]*/','',strtolower($_FILES['footer_logo']['name']));
         $j = 0;
@@ -350,10 +360,11 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_config') {
     $formid = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
     $intake_field = filter_var($_POST['intake_field'],FILTER_SANITIZE_STRING);
     $assigned_tiles = filter_var(implode(',', json_decode($_POST['assigned_tiles'])),FILTER_SANITIZE_STRING);
+    $attached_contacts = filter_var(implode(',', json_decode($_POST['attached_contacts'])),FILTER_SANITIZE_STRING);
     $subtab = filter_var($_POST['subtab'],FILTER_SANITIZE_STRING);
     $form_layout = filter_var($_POST['form_layout'],FILTER_SANITIZE_STRING);
 
-    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout' WHERE `form_id` = '$formid'");
+    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `attached_contacts` = '$attached_contacts', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout' WHERE `form_id` = '$formid'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'delete_logo') {
@@ -418,13 +429,15 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_page_detail') {
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'delete_page_detail') {
     $page_detail_id = $_POST['page_detail_id'];
-    mysqli_query($dbc, "UPDATE `user_form_page_detail` SET `deleted` = 1 WHERE `page_detail_id` = '$page_detail_id'");
+         $date_of_archival = date('Y-m-d');
+   mysqli_query($dbc, "UPDATE `user_form_page_detail` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `page_detail_id` = '$page_detail_id'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'delete_page') {
     $page_id = $_POST['page_id'];
     $form_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `user_form_page` WHERE `page_id` = '$page_id'"))['form_id'];
-    mysqli_query($dbc, "UPDATE `user_form_page` SET `deleted` = 1 WHERE `page_id` = '$page_id'");
+        $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE `user_form_page` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `page_id` = '$page_id'");
 
     $pages = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_form_page` WHERE `form_id` = '$form_id' AND `deleted` = 0 ORDER BY `page`"),MYSQLI_ASSOC);
     $page_i = 1;

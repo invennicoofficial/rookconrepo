@@ -309,9 +309,9 @@ $(document).ready(function(){
 		<li class="<?php echo ($tab == 'tabs' ? ' active blue' : ''); ?>"><a href="?settings=tabs">Available Tabs</a></li>
 		<li class="<?php echo ($tab == 'rate_types' ? ' active blue' : ''); ?>"><a href="?settings=rate_types">Rate Card Types</a></li>
 		<li class="<?php echo ($tab == 'field_sort' ? ' active blue' : ''); ?>"><a href="?settings=field_sort">Field Display Order</a></li>
-		<li class="<?php echo ($tab == 'universal' ? ' active blue' : ''); ?>"><a href="?settings=universal">Universal Rates</a></li>
-		<li class="<?php echo ($tab == 'company' ? ' active blue' : ''); ?>"><a href="?settings=company">Company</a></li>
 		<li class="<?php echo ($tab == 'customer' ? ' active blue' : ''); ?>"><a href="?settings=customer">Customer</a></li>
+		<li class="<?php echo ($tab == 'company' ? ' active blue' : ''); ?>"><a href="?settings=company">Company</a></li>
+		<li class="<?php echo ($tab == 'universal' ? ' active blue' : ''); ?>"><a href="?settings=universal">Universal Rates</a></li>
 		<li class="<?php echo ($tab == 'position' ? ' active blue' : ''); ?>"><a href="?settings=position">Position</a></li>
 		<li class="<?php echo ($tab == 'staff' ? ' active blue' : ''); ?>"><a href="?settings=staff">Staff</a></li>
 		<li class="<?php echo ($tab == 'equipment' ? ' active blue' : ''); ?>"><a href="?settings=equipment">Equipment</a></li>
@@ -471,7 +471,7 @@ $(document).ready(function(){
 						<div class="panel-heading">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_Customer_Fields" >
-									Customer Fields<span class="glyphicon glyphicon-plus"></span>
+									Rate Card Fields<span class="glyphicon glyphicon-plus"></span>
 								</a>
 							</h4>
 						</div>
@@ -479,9 +479,11 @@ $(document).ready(function(){
 						<div id="collapse_Customer_Fields" class="panel-collapse collapse">
 							<div class="panel-body">
 
-								<input type="checkbox" <?php if (strpos($value_config, ','."start_end_dates".',') !== FALSE) { echo " checked"; } ?> value="start_end_dates" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Start &amp; End Dates&nbsp;&nbsp;
-								<input type="checkbox" <?php if (strpos($value_config, ','."reminder_alerts".',') !== FALSE) { echo " checked"; } ?> value="reminder_alerts" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Reminder Alerts (Date and Staff)&nbsp;&nbsp;
-								<input type="checkbox" <?php if (strpos($value_config, ','."email_alerts".',') !== FALSE) { echo " checked"; } ?> value="email_alerts" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Email Alerts&nbsp;&nbsp;
+								<label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."ref_card".',') !== FALSE) { echo " checked"; } ?> value="ref_card" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Reference Rate Card&nbsp;&nbsp;</label>
+								<label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."start_end_dates".',') !== FALSE) { echo " checked"; } ?> value="start_end_dates" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Start &amp; End Dates&nbsp;&nbsp;</label>
+								<label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."reminder_alerts".',') !== FALSE) { echo " checked"; } ?> value="reminder_alerts" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Reminder Alerts (Date and Staff)&nbsp;&nbsp;</label>
+								<label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."email_alerts".',') !== FALSE) { echo " checked"; } ?> value="email_alerts" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Email Alerts&nbsp;&nbsp;</label>
+								<label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."savings".',') !== FALSE) { echo " checked"; } ?> value="savings" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Rate Card Savings&nbsp;&nbsp;</label>
 
 							</div>
 						</div>
@@ -724,6 +726,24 @@ $(document).ready(function(){
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_position" >
+									Position<span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_position" class="panel-collapse collapse">
+							<div class="panel-body">
+
+								<input type="checkbox" <?php if (strpos($value_config, ','."Position".',') !== FALSE) { echo " checked"; } ?> value="Position" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Position Rates
+
+							</div>
+						</div>
+					</div>
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
 								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_Contractor" >
 									Contractor<span class="glyphicon glyphicon-plus"></span>
 								</a>
@@ -894,6 +914,25 @@ $(document).ready(function(){
 
 								<input disabled type="checkbox" <?php if (strpos($value_config, ','."Expenses Type".',') !== FALSE) { echo " checked"; } ?> value="Expenses Type" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Type&nbsp;&nbsp;
 								<input disabled type="checkbox" <?php if (strpos($value_config, ','."Expenses Category".',') !== FALSE) { echo " checked"; } ?> value="Expenses Category" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
+							</div>
+						</div>
+					</div>
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_Mileage" >
+									Mileage<span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_Mileage" class="panel-collapse collapse">
+							<div class="panel-body">
+
+								<input type="checkbox" <?php if (strpos($value_config, ','."Mileage".',') !== FALSE) { echo " checked"; } ?> value="Mileage" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Mileage Rate
+								<br><br>
+								
 							</div>
 						</div>
 					</div>

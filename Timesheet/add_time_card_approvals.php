@@ -48,6 +48,7 @@ if (isset($_POST['submit'])) {
 	$timesheet_record_history = get_config($dbc, 'timesheet_record_history');
 	foreach($_POST['time_cards_id'] as $i => $id) {
 		$date = filter_var($_POST['date'][$i],FILTER_SANITIZE_STRING);
+		$date_editable = filter_var($_POST['date_editable'][$i],FILTER_SANITIZE_STRING);
 		$staff = filter_var($_POST['staff'][$i],FILTER_SANITIZE_STRING);
 		$type_of_time = filter_var($_POST['type_of_time'][$i],FILTER_SANITIZE_STRING);
 		$start_time = filter_var($_POST['start_time'][$i],FILTER_SANITIZE_STRING);
@@ -116,6 +117,11 @@ if (isset($_POST['submit'])) {
 				$_POST['approve_date_id'][$i] = $id;
 			}
 		}
+		foreach($ids as $id) {
+			if($id > 0 && !empty($date_editable) && $date != $date_editable) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `date` = '$date_editable' WHERE `time_cards_id` = '$id'");
+			}
+		}
 		if($layout == 'ticket_task') {
 			$ticketid = filter_var($_POST['ticketid'][$i],FILTER_SANITIZE_STRING);
 			foreach($ids as $id) {
@@ -154,7 +160,7 @@ if (isset($_POST['submit'])) {
 			}
 			$file_name .= '.png';
 			imagepng($img, $file_name);
-			
+
 			foreach($_POST['approve_date'] as $date) {
 				if($super_type == 'Manager') {
 					$sql_approval = "UPDATE `time_cards` SET `manager_name`='".get_contact($dbc,$supervisor)."', `date_manager`='".date('Y-m-d')."', `manager_signature`='".$file_name."', `manager_approvals` = IF(CONCAT(',',IFNULL(`manager_approvals`,''),',') LIKE '%,$supervisor,%', `manager_approvals`, CONCAT(`manager_approvals`,',$supervisor')) WHERE `date`='$date' AND `staff`='$staff' AND `business`='$site' AND `deleted`=0";
@@ -173,7 +179,7 @@ if (isset($_POST['submit'])) {
 				}
 				$result_approval = mysqli_query($dbc, $sql_approval);
 			}
-			
+
 			$tab_config = get_config($dbc, 'timesheet_tabs');
 			if(strpos(','.$tab_config.',',',Coordinator Approvals,') !== FALSE && strpos(','.$tab_config.',',',Manager Approvals,') !== FALSE) {
 				$sql_final_approval = "UPDATE `time_cards` SET `approv`='Y' WHERE `manager_name` IS NOT NULL AND `date_manager` IS NOT NULL AND `coordinator_name` IS NOT NULL AND `date_coordinator` IS NOT NULL AND `deleted`=0";
@@ -201,7 +207,8 @@ if (isset($_POST['submit'])) {
 		if($name == 'delete_time_cards') {
 			foreach($value as $delete_id) {
 				if($delete_id > 0) {
-					mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `time_cards_id` = '$delete_id'");
+					        $date_of_archival = date('Y-m-d');
+                        mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `time_cards_id` = '$delete_id'");
 				}
 			}
 			continue;
@@ -309,7 +316,7 @@ if (isset($_POST['submit'])) {
 		}
 		$file_name .= '.png';
 		imagepng($img, $file_name);
-		
+
 		foreach($_POST['approve_date'] as $date) {
 			if($super_type == 'Manager') {
 				$sql_approval = "UPDATE `time_cards` SET `manager_name`='".get_contact($dbc,$supervisor)."', `date_manager`='".date('Y-m-d')."', `manager_signature`='".$file_name."', `manager_approvals` = IF(CONCAT(',',IFNULL(`manager_approvals`,''),',') LIKE '%,$supervisor,%', `manager_approvals`, CONCAT(`manager_approvals`,',$supervisor')) WHERE `date`='$date' AND `staff`='$staff' AND `business`='$site' AND `deleted`=0";
@@ -326,7 +333,7 @@ if (isset($_POST['submit'])) {
 			}
 			$result_approval = mysqli_query($dbc, $sql_approval);
 		}
-		
+
 		$tab_config = get_config($dbc, 'timesheet_tabs');
 		if(strpos(','.$tab_config.',',',Coordinator Approvals,') !== FALSE && strpos(','.$tab_config.',',',Manager Approvals,') !== FALSE) {
 			$sql_final_approval = "UPDATE `time_cards` SET `approv`='Y' WHERE `manager_name` IS NOT NULL AND `date_manager` IS NOT NULL AND `coordinator_name` IS NOT NULL AND `date_coordinator` IS NOT NULL AND `deleted`=0 AND `approv`!='P'";
@@ -427,7 +434,7 @@ if(isset($value['config_field'])) {
           </div>
         </div>
 
-        
+
 
     </form>
 

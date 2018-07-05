@@ -19,14 +19,16 @@ if($_GET['fill'] == 'project_path_milestone') {
 
 if($_GET['fill'] == 'delete_task') {
     $tasklistid = $_GET['taskid'];
-	$query_update_project = "UPDATE `tasklist` SET `deleted`=1 WHERE `tasklistid` = '$tasklistid'";
+	    $date_of_archival = date('Y-m-d');
+$query_update_project = "UPDATE `tasklist` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `tasklistid` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
 	echo "deleted";
 }
 if($_GET['fill'] == 'delete_board') {
     $boardid = $_GET['boardid'];
 	if($boardid > 0) {
-		$query_update_project = "UPDATE `task_board` SET `deleted`=1 WHERE `taskboardid` = '$boardid'";
+    $date_of_archival = date('Y-m-d');
+		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `taskboardid` = '$boardid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
 	}
 	echo "deleted";
@@ -112,7 +114,7 @@ if($_GET['fill'] == 'fillcontact') {
 		echo "<option value='".$row['contactid']."'>".decryptIt($row['first_name']).' '.decryptIt($row['last_name']).' : '.decryptIt($row['email_address']).'</option>';
 	}
     echo '*FFM*';
-	
+
 	$project_tabs = get_config($dbc, 'project_tabs');
 	if($project_tabs == '') {
 		$project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly';
@@ -134,7 +136,7 @@ if($_GET['fill'] == 'fillcontact') {
 				echo "<option value='". $row['projectid']."'>".$project_tabs[$key].' :  '.$row['project_name'].'</option>';
 			}
 		}
-        
+
     }
 }
 
@@ -153,12 +155,12 @@ if($_GET['fill'] == 'taskreply') {
     $reply = filter_var(htmlentities($_POST['reply']),FILTER_SANITIZE_STRING);
 	//$query = "UPDATE `tasklist` SET `task`=CONCAT(`task`,'$reply') WHERE `tasklistid`='$id'";
 	//$result = mysqli_query($dbc,$query);
-    
+
     if ( isset($_POST['user']) ) {
         $user = preg_replace('/[^0-9]/', '', $_POST['user']);
         $reply .= get_contact($dbc, $user);
     }
-    
+
     $contactid = $_SESSION['contactid'];
     $created_date = date('Y-m-d');
     $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
@@ -166,13 +168,13 @@ if($_GET['fill'] == 'taskreply') {
 }
 if($_GET['fill'] == 'addtaskreply') {
 	$id = preg_replace('/[^0-9]/', '', $_POST['taskid']);
-    $reply = filter_var(htmlentities($_POST['reply']),FILTER_SANITIZE_STRING);    
+    $reply = filter_var(htmlentities($_POST['reply']),FILTER_SANITIZE_STRING);
     $contactid = $_SESSION['contactid'];
     $created_date = date('Y-m-d');
     $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
     //echo mysqli_error($dbc);
     $last_id = mysqli_insert_id($dbc);
-    
+
     $comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `taskcommid`='$last_id'");
     if ( $comments->num_rows > 0 ) {
         $output .= '<div class="col-sm-12 double-gap-top">';
@@ -191,7 +193,7 @@ if($_GET['fill'] == 'addtaskreply') {
     } else {
         $output .= 'Not added.';
     }
-    echo $output;    
+    echo $output;
 }
 if($_GET['fill'] == 'taskalert') {
 	$item_id = $_POST['id'];
@@ -271,6 +273,14 @@ if($_GET['fill'] == 'taskreminder') {
     mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$to' AND `src_table` = 'task_board' AND `src_tableid` = '$id'");
 	$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
 		VALUES ('$to', '$date', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'task_board', '$id')");
+}
+if($_GET['fill'] == 'taskflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
 }
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
@@ -352,12 +362,14 @@ if($_GET['fill'] == 'taskexternal') {
 }
 if($_GET['fill'] == 'clear_completed') {
 	$task_board_id = filter_var($_GET['task_board_id'],FILTER_SANITIZE_STRING);
+    $date_of_archival = date('Y-m-d');
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
-	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1' WHERE `task_board`='$task_board_id' AND `status`='$status'");
+	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `task_board`='$task_board_id' AND `status`='$status'");
 }
 if($_GET['fill'] == 'clear_completed_auto') {
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
-	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1' WHERE `task_board`='$task_board_id' AND `status`='$status'");
+    $date_of_archival = date('Y-m-d');
+	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `task_board`='$task_board_id' AND `status`='$status'");
 }
 
 if($_GET['fill'] == 'insert_fields') {
@@ -370,7 +382,7 @@ if($_GET['fill'] == 'insert_fields') {
     }
     $created_by = preg_replace('/[^0-9]/', '', $_POST['created_by']);
     $created_date = date('Y-m-d');
-    
+
     $result = mysqli_query($dbc, "INSERT INTO `$table` (`$field`, `created_date`, `created_by`) VALUES ('$field_value', '$created_date', '$created_by')");
     echo mysqli_insert_id($dbc);
 }
@@ -386,7 +398,7 @@ if($_GET['fill'] == 'update_fields') {
     $id_value = preg_replace('/[^0-9]/', '', $_POST['id_value']);
     $updated_by = preg_replace('/[^0-9]/', '', $_POST['created_by']);
     $updated_date = date('Y-m-d');
-    
+
     $result = mysqli_query($dbc, "UPDATE `$table` SET `$field`='$field_value', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `$id_field`='$id_value'");
 }
 
@@ -396,13 +408,13 @@ if($_GET['fill'] == 'stop_timer') {
     $timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
-    
+
     if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
         $query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
-        
+
         insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : $timer_value");
-        
+
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$timer_value') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
     }
@@ -433,13 +445,13 @@ if($_GET['fill'] == 'stop_timer_project') {
     $time_dec = number_format(($time_arr[0] + ($time_arr[1]/60) + ($time_arr[2]/3600)), 4);
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
-    
+
     if($timer_value_project != '0' && $timer_value_project != '00:00:00' && $timer_value_project != '') {
         $query_add_time = "INSERT INTO `time_cards` (`projectid`, `staff`, `date`, `type_of_time`, `total_hrs`, `timer_tracked`, `comment_box`) VALUES ('$projectid', '$contactid', '$timer_date', 'Regular Hrs.', '$time_dec', '$time_dec', 'Time Tracked To Project #$projectid on Task #$taskid')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
-        
+
         insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Tracked Time To Project #$projectid: $timer_value_project");
-        
+
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$timer_value_project') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
     }
@@ -454,13 +466,13 @@ if($_GET['fill'] == 'stop_timer_contact') {
     $time_dec = number_format(($time_arr[0] + ($time_arr[1]/60) + ($time_arr[2]/3600)), 4);
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
-    
+
     if($timer_value_contact != '0' && $timer_value_contact != '00:00:00' && $timer_value_contact != '') {
         $query_add_time = "INSERT INTO `time_cards` (`business`, `customer`, `staff`, `date`, `type_of_time`, `total_hrs`, `timer_tracked`, `comment_box`) VALUES ('$businessid', '$clientid', '$contactid', '$timer_date', 'Regular Hrs.', '$time_dec', '$time_dec', 'Time Tracked To Contact on Task #$taskid')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
-        
+
         insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Tracked Time To Contact: $timer_value_contact");
-        
+
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$timer_value_contact') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
     }
@@ -477,7 +489,7 @@ if($_GET['fill'] == 'manual_add_time') {
     $time_dec = number_format(($time_arr[0] + ($time_arr[1]/60) + ($time_arr[2]/3600)), 4);
     $contactid = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
-    
+
     if($time != '0' && $time != '00:00:00' && $time != '') {
         if ( !empty($projectid) ) {
             $query_add_time = "INSERT INTO `time_cards` (`projectid`, `staff`, `date`, `type_of_time`, `total_hrs`, `timer_tracked`, `comment_box`) VALUES ('$projectid', '$contactid', '$timer_date', 'Regular Hrs.', '$time_dec', '$time_dec', 'Time Added To Project #$projectid on Task #$taskid')";
@@ -486,10 +498,10 @@ if($_GET['fill'] == 'manual_add_time') {
             $query_add_time = "INSERT INTO `time_cards` (`business`, `customer`, `staff`, `date`, `type_of_time`, `total_hrs`, `timer_tracked`, `comment_box`) VALUES ('$businessid', '$clientid', '$contactid', '$timer_date', 'Regular Hrs.', '$time_dec', '$time_dec', 'Time Added To Contact on Task #$taskid')";
         }
         $result_add_time = mysqli_query($dbc, $query_add_time);
-        
+
         $description = 'Updated Task #'.$taskid.' - Added Time To '.(!empty($projectid) ? 'Project #'.$projectid : 'Contact').' : '.$time;
         insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', $description);
-        
+
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$time') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
     }

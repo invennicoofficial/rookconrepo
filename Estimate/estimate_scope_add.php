@@ -4,22 +4,18 @@ $estimateid = 0;
 if($_GET['estimateid'] > 0) {
 	$estimateid = $_GET['estimateid'];
 }
-if(!empty($_GET['scope'])) {
-	$scope_name = '';
-	$scope_names = $dbc->query("SELECT `scope_name` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND IFNULL(`scope_name`,'') != '' GROUP BY `scope_name`");
-	while($scope_name_row = $scope_names->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($scope_name_row)) == $_GET['scope']) {
-			$scope_name = $scope_name_row;
-		}
+$scope_name = '';
+$scope_names = $dbc->query("SELECT `scope_name` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND IFNULL(`scope_name`,'') != '' GROUP BY `scope_name` UNION SELECT 'Scope 1' `scope_name`");
+while($scope_name_row = $scope_names->fetch_array()[0]) {
+	if(config_safe_str($scope_name_row) == $_GET['scope']) {
+		$scope_name = $scope_name_row;
 	}
 }
-if(!empty($_GET['heading'])) {
-	$heading = '';
-	$headings = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND IFNULL(`heading`,'') != '' GROUP BY `heading`");
-	while($heading_row = $headings->fetch_array()[0]) {
-		if(preg_replace('/[^a-z]*/','',strtolower($heading_row)) == $_GET['heading']) {
-			$heading = $heading_row;
-		}
+$heading = '';
+$headings = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND IFNULL(`heading`,'') != '' GROUP BY `heading` UNION SELECT 'Heading 1' `heading`");
+while($heading_row = $headings->fetch_array()[0]) {
+	if((empty($_GET['heading']) && $heading_row == 'Heading 1' && empty($heading)) || config_safe_str($heading_row) == $_GET['heading'] || $heading_row == $_GET['heading']) {
+		$heading = $heading_row;
 	}
 }
 $rates = [];
@@ -35,13 +31,21 @@ $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 if(isset($_POST['submit'])) {
 	$scope_name = filter_var($_POST['scope_name'],FILTER_SANITIZE_STRING);
 	$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
+    $date_of_archival = date('Y-m-d');
+	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
 	if($_GET['type'] == 'vpl') {
 		$pricing = filter_var($_POST['productpricing'],FILTER_SANITIZE_STRING);
+		$exchange_rate = 1;
+		if($pricing == 'usd_cpu') {
+			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+			$exchange_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v'];
+		}
         foreach($_POST['inventoryid'] as $i => $value) {
         	$cost = $_POST['vpl_price'][$i];
         	$qty = $_POST['vpl_quantity'][$i];
+			$retail = $cost * $exchange_rate * $qty;
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'USD Cost Per Unit' ? 0 : $cost)."','$pricing','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'usd_cpu' ? 0 : $cost)."','$pricing','$qty','$retail','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'inventory') {
@@ -51,7 +55,7 @@ if(isset($_POST['submit'])) {
         	$qty = $_POST['qty'][$i];
 			$retail = $price * $qty;
         	if($value > 0 && $qty > 0) {
-				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','inventory','$value','$cost','$price','$qty','$price','$i')");
+				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','inventory','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
 	} else if($_GET['type'] == 'services') {
@@ -356,12 +360,12 @@ function setIncluded(input) {
             <?= $heading ?>
         </div>
     </div>
-	
+
 	<input type="hidden" name="estimateid" value="<?= $estimateid ?>">
 	<input type="hidden" name="scope_name" value="<?= $scope_name ?>">
 	<input type="hidden" name="heading" value="<?= $heading ?>">
 	<input type="hidden" name="type" value="<?= $$_GET['type'] ?>">
-	
+
 	<?php $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 	if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
 		$heading_order[] = 'Detail***Scope Detail';

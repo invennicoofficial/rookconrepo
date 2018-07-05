@@ -92,6 +92,32 @@ function getClassificationLogo($dbc, $classification, $logo_url) {
 	}
 	return $logo_img;
 }
+function getContactLogo($dbc, $contactid) {
+	if(!(intval($contactid) > 0)) {
+		$contactid = 0;
+	} else {
+		$contactid = intval($contactid);
+	}
+	$contact_name = !empty(get_client($dbc, $contactid)) ? get_client($dbc, $contactid) : get_contact($dbc, $contactid);
+	// Check for an avatar chosen by the user
+	$profile_photo = WEBSITE_URL."/Profile/download/profile_pictures/".$contactid.".jpg";
+	// Check if an image has been uploaded
+	if(url_exists($profile_photo)) {
+		$output = '<img data-contact="'.$contactid.'" class="id-circle" src="'.$profile_photo.'" title="'.$contact_name.'">';
+	} else {
+		// If no image has been uploaded, and an avatar has been selected, use the avatar
+		$user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `preset_profile_picture`, `first_name`, `last_name`, `initials`, `calendar_color` FROM `contacts` LEFT JOIN `user_settings` ON `contacts`.`contactid`=`user_settings`.`contactid` WHERE `contacts`.`contactid` = '$contactid'"));
+		if(!empty($user['preset_profile_picture']) && url_exists(WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'])) {
+			$output = '<img data-contact="'.$contactid.'" class="id-circle" src="'.WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'].'" title="'.$contact_name.'">';
+		// If nothing else has been set, use the contact's initials
+		} else {
+			$initials = ($user['initials'] == '' ? ($user['first_name'].$user['last_name'] == '' ? $user : substr(decryptIt($user['first_name']),0,1).substr(decryptIt($user['last_name']),0,1)) : $user['initials']);
+			$colour = ($user['calendar_color'] == '' ? '#6DCFF6' : $user['calendar_color']);
+			$output = '<span data-contact="'.$contactid.'" class="id-circle" style="background-color:'.$colour.'; font-family: \'Open Sans\';" title="'.$contact_name.'">'.$initials.'</span>';
+		}
+	}
+	return $output;
+}
 function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '', $new_endtime = '', $shiftid = '', $clientid = '') {
 	$day_of_week = date('l', strtotime($calendar_date));
 	if(!empty($contact_id)) {

@@ -72,6 +72,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y_m_d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/'.TICKET_NOUN.'_by_task_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_operation_ticket_by_task', 0, WEBSITE_URL.'/Reports/Download/'.TICKET_NOUN.'_by_task_'.$today_date.'.pdf', 'Tickets by task Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

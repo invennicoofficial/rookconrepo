@@ -760,6 +760,12 @@ $(document).ready(function() {
 										<label><input type="checkbox" value="vendor"<?php echo (strpos($field_list,',vendor,') !== false ? " checked" : ""); ?>
 										name="field_po[]" style="margin:0.5em;">Vendor</label>
 
+										<label><input type="checkbox" value="3rd party"<?php echo (strpos($field_list,',3rd party,') !== false ? " checked" : ""); ?>
+										name="field_po[]" style="margin:0.5em;">3rd Party Invoice #</label>
+
+										<label><input type="checkbox" value="invoice"<?php echo (strpos($field_list,',invoice,') !== false ? " checked" : ""); ?>
+										name="field_po[]" style="margin:0.5em;">Invoice</label>
+
 										<label><input type="checkbox" value="date"<?php echo (strpos($field_list,',date,') !== false ? " checked" : ""); ?>
 										name="field_po[]" style="margin:0.5em;">Date</label>
 

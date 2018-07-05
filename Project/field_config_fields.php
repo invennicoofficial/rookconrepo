@@ -97,6 +97,8 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Status', $all_config) ? 'checked disabled' : (in_array('SUMM Status',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Status"><?= PROJECT_NOUN ?> Status</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Business', $all_config) ? 'checked disabled' : (in_array('SUMM Business',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Business"><?= BUSINESS_CAT ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Contacts', $all_config) ? 'checked disabled' : (in_array('SUMM Contacts',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Contacts">Contacts</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('SUMM Piece', $all_config) ? 'checked disabled' : (in_array('SUMM Piece',$field_config) && $projecttype == 'ALL' ? 'checked' : ($projecttype != 'ALL' ? 'disabled' : '')) ?> name="project_fields[]" value="SUMM Piece">Piece Work <?= TICKET_NOUN ?></label>
+
 	</div>
 	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_TILE ?> Dashboard<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
@@ -116,7 +118,10 @@ function remDetail(img) {
 
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Milestones', $all_config) ? 'checked disabled' : (in_array('DB Milestones',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Milestones"><?= PROJECT_NOUN ?> Milestones</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Status List', $all_config) ? 'checked disabled' : (in_array('DB Status List',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Status List">Scrum Board</label>
-		<select class="chosen-select-deselect" name="project_sorting"><?php $sorting = get_config($dbc, 'project_sorting'); ?>
+
+        <label class="form-checkbox"><input type="checkbox" <?= in_array('DB Total Tickets', $all_config) ? 'checked disabled' : (in_array('DB Total Tickets',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Total Tickets">Total Tickets</label>
+
+        <select class="chosen-select-deselect" name="project_sorting"><?php $sorting = get_config($dbc, 'project_sorting'); ?>
 			<option <?= $sorting == 'newest' ? 'selected' : '' ?> value="newest">Newest to Oldest</option>
 			<option <?= $sorting == 'oldest' ? 'selected' : '' ?> value="oldest">Oldest to Newest</option>
 			<option <?= $sorting == 'project' ? 'selected' : '' ?> value="project">Alphabetical by Project Name</option>
@@ -170,6 +175,11 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Estimate Completion Date', $all_config) ? 'checked disabled' : (in_array('Dates Estimate Completion Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Estimate Completion Date">Estimated Completion Date</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Effective Date', $all_config) ? 'checked disabled' : (in_array('Dates Effective Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Effective Date">Effective Date</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Time Clock Start Date', $all_config) ? 'checked disabled' : (in_array('Dates Time Clock Start Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Time Clock Start Date">Time Clock Start Date</label>
+	</div>
+	<div class="clearfix"></div>
+	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Reporting<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
+	<div class="block-group col-sm-8">
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Reporting Track Time', $all_config) ? 'checked disabled' : (in_array('Reporting Track Time',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Reporting Track Time">Get To Work / Track Time</label>
 	</div>
 	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Billing<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>

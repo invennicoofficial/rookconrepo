@@ -135,6 +135,7 @@ function calculatePrices(input) {
 	<?php while($rate_name = mysqli_fetch_array($rate_results)) {
 		echo "<option".($rate_name['rate_card_name'] == $ratecard['rate_card_name'] ? ' selected' : '')." value='{$rate_name['rate_card_name']}' title='{$rate_name['rate_card_name']}'>{$rate_name['rate_card_name']}</option>";
 	} ?>
+	</select></div></div>
 
 	<?php if(strpos($field_config, ',labour_type,') !== FALSE) { ?>
 		<div class="form-group">

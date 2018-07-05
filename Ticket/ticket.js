@@ -3,6 +3,7 @@ ticket_lock_interval = '';
 ticket_reload_tabs = '';
 ticket_excess_confirm = true;
 ticket_reloading_service_checklist = '';
+finishing_ticket = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
@@ -437,7 +438,7 @@ function saveFieldMethod(field) {
 			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'Staff') {
 				var staff_ids = [];
 				$('#collapse_staff [name=item_id] option:selected,#tab_section_ticket_staff_list [name=item_id] option:selected').each(function() {
-					if(this.value > 0) {
+					if(this.value > 0 && $(this).closest('.multi-block').find('[name="deleted"]').val() != 1) {
 						staff_ids.push(this.value);
 					}
 				});
@@ -474,6 +475,11 @@ function saveFieldMethod(field) {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
 					if($(field).find('option:selected').data('set-time') != '' && $(field).find('option:selected').data('set-time') != undefined) {
 						$(field).closest('.scheduled_stop').find('[name=to_do_start_time]').val($(field).find('option:selected').data('set-time')).change();
+					}
+					if($(field).find('option:selected').data('address') != '' && $(field).find('option:selected').data('address') != undefined) {
+						$(field).closest('.scheduled_stop').find('[name=address]').val($(field).find('option:selected').data('address')).change();
+						$(field).closest('.scheduled_stop').find('[name=city]').val($(field).find('option:selected').data('city')).change();
+						$(field).closest('.scheduled_stop').find('[name=postal_code]').val($(field).find('option:selected').data('postal')).change();
 					}
 				} else if(field.type == 'select') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value != 'warehouse' }).first().prop('checked',true);
@@ -544,6 +550,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
@@ -625,6 +632,15 @@ function saveFieldMethod(field) {
 							}
 						} else if(table_name == 'ticket_attached' && $(field).closest('.tab-section').attr('id') != undefined && $(field).closest('.tab-section').attr('id').substr(0,27) == 'tab_section_general_detail_') {
 							$(field).closest('.tab-section').attr('id','tab_section_general_detail_'+response);
+						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff' && field_name != 'item_id') {
+							$(field).closest('.multi-block').find('[name="item_id"]').change();
+						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Staff') {
+							$(field).closest('.multi-block').find('[name="hours_travel"]').change();
+						}
+						if(table_name == 'mileage') {
+							$(field).closest('.multi-block').find('[name="start"],[name="end"]').change();
 						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
@@ -813,6 +829,12 @@ function saveFieldMethod(field) {
 					}
 					if(table_name == 'ticket_schedule' && field_name == 'status' && $(field).data('id') > 0) {
 						$('[name="status"][data-table="ticket_schedule"][data-id="'+$(field).data('id')+'"]').val(save_value).trigger('change.select2');
+					}
+					if($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() != undefined && $('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().val() > 0 && !($('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().data('id') > 0)) {
+						$('[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').first().change();
+					}
+					if(table_name == 'mileage' && field_name == 'mileage') {
+						$(field).closest('.multi-block').find('[name="double_mileage"]').val(parseFloat(save_value)*2).change();
 					}
 					doneSaving();
 				}
@@ -1491,18 +1513,20 @@ function reload_checkin() {
 	});
 }
 function reload_summary() {
-	destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
-	$.ajax({
-		url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
-		dataType: 'html',
-		success: function(response) {
-			$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
-			initInputs('#tab_section_ticket_summary');
-			initInputs('#collapse_summary');
-			initSelectOnChanges();
-			reload_complete();
-		}
-	});
+	if(!finishing_ticket) {
+		destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
+		$.ajax({
+			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+			dataType: 'html',
+			success: function(response) {
+				$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
+				initInputs('#tab_section_ticket_summary');
+				initInputs('#collapse_summary');
+				initSelectOnChanges();
+				reload_complete();
+			}
+		});
+	}
 }
 function reload_documents() {
 	destroyInputs($('.document_table'));
@@ -1684,6 +1708,58 @@ function reload_checklists() {
 		initInputs('#tab_section_ticket_view_checklist');
 	});
 }
+function startTicketStaff() {
+    var block = $('div.start-ticket-staff').last();
+    destroyInputs('.start-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.start-ticket-staff');
+}
+function deletestartTicketStaff(button) {
+    if($('div.start-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.start-ticket-staff').remove();
+}
+
+
+function internalTicketStaff() {
+    var block = $('div.internal-ticket-staff').last();
+    destroyInputs('.internal-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.internal-ticket-staff');
+}
+function deleteinternalTicketStaff(button) {
+    if($('div.internal-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.internal-ticket-staff').remove();
+}
+
+function customerTicketStaff() {
+    var block = $('div.customer-ticket-staff').last();
+    destroyInputs('.customer-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.customer-ticket-staff');
+}
+function deletecustomerTicketStaff(button) {
+    if($('div.customer-ticket-staff').length <= 1) {
+        addContact();
+    }
+    $(button).closest('div.customer-ticket-staff').remove();
+}
+
 function addMulti(img, style, clone_location = '') {
 	var multi_block = $(img).closest('.multi-block');
 	var type = multi_block.data('type');
@@ -1700,6 +1776,9 @@ function addMulti(img, style, clone_location = '') {
 	destroyInputs(panel);
 	var block = source.clone();
 	block.find('input,select,textarea').val('');
+	block.find('[data-default]').each(function() {
+		$(this).val($(this).data('default'));
+	});
 	block.find('[type=checkbox]').removeAttr('checked');
 	block.find('.general_piece_details').hide();
 	block.find('[id]').each(function() {
@@ -2063,6 +2142,14 @@ function sortScheduledStops() {
 		$(this).closest('.scheduled_stop').find('.block_count').html(i);
 	});
 }
+function remScheduledStop(input) {
+	var block = $(input).closest('.scheduled_stop');
+	if($('.scheduled_stop:visible').length <= 1) {
+		addScheduledStop();
+	}
+	block.find('[name=deleted]').val(1).change();
+	block.remove();
+}
 function addScheduledStop() {
 	destroyInputs($('.scheduled_stop'));
 	var clone = $('.scheduled_stop:visible').last().clone();
@@ -2204,9 +2291,9 @@ function add_staff_task(checkin) {
 		for(var i = 0; i < staff_list.length; i++) {
 			var staff = staff_list[i];
 			var task = task_list[i].replace('|EXTRA','');
-			if(task != task_list[i]) {
+			// if(task != task_list[i]) {
 				extra_billing.push(task);
-			}
+			// }
 			if(checkin != 'checkin') {
 				$('#collapse_staff_task,#tab_section_ticket_staff_tasks').find('hr').last().before('<label class="col-sm-6">Staff: '+$('[name=staff_task_contact][value='+staff+']').closest('label').text()+'</label><label class="col-sm-6">Task: '+task+'</label>');
 			}
@@ -2302,13 +2389,17 @@ function toggleAll(button) {
 	$(button).closest('.panel-body,.tab-section,.has-main-screen .main-screen').find('.toggle[value=0]').closest('.toggleSwitch').click();
 }
 function checkoutAll(button) {
+	if($(button).hasClass('finish_btn')) {
+		finishing_ticket = true;
+	}
 	reload_summary();
 	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '') && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == '')) {
 		alert("A signature is required.");
+		finishing_ticket = false;
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
-			$('#collapse_checkout,#tab_section_ticket_checkout').find('.toggle[value=0]').closest('.toggleSwitch').click();
+			$('#collapse_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
 			if($(button).data('recurring-ticket') != undefined && $(button).data('recurring-ticket') == 1) {
 				createRecurringTicket();
 			}
@@ -2371,6 +2462,12 @@ function saveNewTicketFromCalendar(element) {
 	var milestone = $('[name="milestone_timeline"]').val();
 
 	var scheduled_stop = 0;
+	var stop_equipmentid = '';
+	var stop_to_do_date = '';
+	var stop_to_do_start_time = '';
+	var stop_address = '';
+	var stop_city = '';
+	var stop_postal_code = '';
 	if($('.scheduled_stop').length > 0) {
 		var block = $('.scheduled_stop').first();
 		scheduled_stop = 1;

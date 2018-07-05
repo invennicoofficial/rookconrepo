@@ -137,7 +137,8 @@ $html = '<div style="height:80%;"><table cellspacing="'.$left_margin.'px" style=
 	<tr>
 		<td style="padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$heading_color.';font-size:'.$font_size.'px;'.($font_type == 'bold' || $font_type == 'bold_italic' ? 'font-weight:900;' : '').($font_type == 'italic' || $font_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font.';width:10%;vertical-align:top;">Cost Estimate #'.$estimateid.':</td>
 		<td rowspan="2" style="padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';width:25%;vertical-align:top;">
-			'.get_client($dbc, $estimate['businessid']).'<br>
+			'.(!empty($estimate['clientid']) ? get_contact($dbc, $estimate['clientid']).'<br>' : '').'
+            '.get_client($dbc, $estimate['businessid']).'<br>
 			'.get_address($dbc, $estimate['businessid']).'
 		</td>
 		<td style="padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$heading_color.';font-size:'.$font_size.'px;'.($font_type == 'bold' || $font_type == 'bold_italic' ? 'font-weight:900;' : '').($font_type == 'italic' || $font_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font.';width:10%;vertical-align:top;">Date:</td>

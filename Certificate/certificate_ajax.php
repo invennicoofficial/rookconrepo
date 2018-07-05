@@ -12,7 +12,7 @@ if($_GET['action'] == 'update_field') {
 	if($id > 0) {
 		mysqli_query($dbc, "UPDATE `$table` SET `$field`='$value' WHERE `$id_field`='$id'");
 	} else {
-		mysqli_query($dbc, "INSERT INTO `$table` (`$field`".($attach > 0 ? ",`$attach_field`" : '').($table == 'certificate_uploads' ? ",`type`" : '').") VALUES ('$value'".($attach > 0 ? ",'$attach_field'" : '').($table == 'certificate_uploads' ? ",'Link'" : '').")");
+		mysqli_query($dbc, "INSERT INTO `$table` (`$field`".($attach > 0 ? ",`$attach_field`" : '').($table == 'certificate_uploads' ? ",`type`" : '').") VALUES ('$value'".($attach > 0 ? ",'$attach'" : '').($table == 'certificate_uploads' ? ",'Link'" : '').")");
 		echo mysqli_insert_id($dbc);
 	}
 } else if($_GET['action'] == 'add_file') {

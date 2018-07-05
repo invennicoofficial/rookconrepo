@@ -16,8 +16,12 @@ if(!isset($estimate)) {
 	$current_rate = $_GET['rate'];
 	$scope_list = [];
 	$query = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
-	while($row = mysqli_fetch_array($query)) {
-		$scope_list[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+	if($query->num_rows > 0) {
+		while($row = mysqli_fetch_array($query)) {
+			$scope_list[config_safe_str($row[0])] = $row[0];
+		}
+	} else {
+		$scope_list['scope_1'] = 'Scope 1';
 	}
 	$scope_id = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 	$scope = $scope_list[$scope_id];
@@ -199,48 +203,58 @@ $col_spanned = $columns; ?>
 			<?php $heading_list = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 			$heading = $heading_list->fetch_assoc();
 			do {
-				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'USD Cost Per Unit' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
-				<table class="table table-bordered">
-					<tr>
-						<td colspan="<?= $col_spanned ?>">
-							<h3 class="no-margin"><input type="text" name="heading" value="<?= empty($heading['heading']) ? 'Scope Details' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
-						</td>
-						<td>
-							<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle">
-							<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_heading('<?= $scope ?>');">
-							<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_heading(this);">
-							<?php if($_GET['tab'] != 'scope') { ?>
-								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
-							<?php } ?>
-						</td>
-					</tr>
-					<tr class="hidden-sm hidden-xs">
-						<?php foreach($heading_order as $order_info) {
-							$order_info = explode('***',$order_info);
-							if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'])) {
-								continue;
-							}
-							echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-							if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
-								echo "<th>USD Price</th>";
-							}
-						} ?>
-						<th data-columns='<?= $columns ?>' data-width='1'></th>
-					</tr>
-					<?php $lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `src_table` != '' AND `deleted`=0 ORDER BY `sort_order`");
-					$line = mysqli_fetch_array($lines);
-					do { ?>
+				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'usd_cpu' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
+			<table class="table table-bordered">
+				<tr>
+					<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
+						<h3 class="no-margin"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
+					</td>
+					<td>
+						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle">
+						<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_heading('<?= $scope ?>');">
+						<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_heading(this);">
+						<?php if($_GET['tab'] != 'scope') { ?>
+							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
+						<?php } ?>
+					</td>
+				</tr>
+				<tr class="hidden-sm hidden-xs">
+					<?php foreach($heading_order as $order_info) {
+						$order_info = explode('***',$order_info);
+						if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'])) {
+							continue;
+						}
+						echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
+            if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+              echo "<th>USD Price</th>";
+            }
+					} ?>
+					<th data-columns='<?= $columns ?>' data-width='1'></th>
+				</tr>
+				<?php $lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `deleted`=0 ORDER BY `sort_order`");
+				$line = mysqli_fetch_array($lines);
+				do {
+					if(empty($line['src_table'])) { ?>
+						<tr>
+							<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="sort_order" value="<?= $line['sort_order'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<input type="hidden" name="deleted" value="<?= $line['deleted'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+							<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
+								<em>Please add details</em>
+							</td>
+							<td data-title="Function" align="center">
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
+							</td>
+						</tr>
+					<?php } else { ?>
 						<tr>
 							<input type="hidden" name="scope_name" value="<?= $scope ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<input type="hidden" name="heading" value="<?= $heading['heading'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<input type="hidden" name="sort_order" value="<?= $line['sort_order'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 							<?php if($line['src_table'] == 'notes') { ?>
-								<td colspan="<?= $col_spanned ?>">
+								<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
 									<?= html_entity_decode($line['description']) ?>
-								</td>
-							<?php } else if($line['src_table'] == '') { ?>
-								<td colspan="<?= $col_spanned ?>">
-									<em>Please add details</em>
 								</td>
 							<?php } else {
 								foreach($heading_order as $order_info) {
@@ -265,9 +279,13 @@ $col_spanned = $columns; ?>
 														echo $label.': ';
 													}
 												}
-												foreach($src_options as $option) {
-													if($option['tile_name'] == $line['src_table'] && $option['id'] == $line['src_id']) {
-														echo $option['label'];
+												if($line['src_id'] > 0 && in_array($line['src_table'],['staff','clients','contractor','customer'])) {
+													echo get_contact($dbc, $line['src_id']);
+												} else {
+													foreach($src_options as $option) {
+														if($option['tile_name'] == $line['src_table'] && $option['id'] == $line['src_id']) {
+															echo $option['label'];
+														}
 													}
 												}
 											} ?>
@@ -292,11 +310,11 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'USD Cost Per Unit' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2) ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php if($us_pricing > 0) { ?>
 												</td><td data-title="US Pricing">
-												<?php if($line['pricing'] == 'USD Cost Per Unit') { ?>
-													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2) ?> CAD)
+												<?php if($line['pricing'] == 'usd_cpu') { ?>
+													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD)
 													<?php if(!($line['price'] > 0)) {
 														$line['price'] = $line['cost'] * $us_rate;
 													}
@@ -306,7 +324,7 @@ $col_spanned = $columns; ?>
 											}
 											break;
 										case 'Total': ?>
-											<input type="text" name="retail" class="form-control" value="<?= round($line['retail']) != round($line['qty'] * $line['price']) ? number_format($line['qty'] * $line['price'],2) : $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="retail" class="form-control" value="<?= round($line['retail']) != round($line['qty'] * $line['price']) ? number_format($line['qty'] * $line['price'],2,'.','') : $line['retail'] ?>" readonly data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;
 									}
 									echo "</td>";
@@ -315,12 +333,13 @@ $col_spanned = $columns; ?>
 							<td data-title="Function" align="center">
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
-								<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="overlayIFrameSlider('estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= preg_replace('/[^a-z]*/','',strtolower($heading['heading'])) ?>', '75%', true, false, 'auto', true);" width="20">
+								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
 								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
-								</td>
+							</td>
 						</tr>
-					<?php } while($line = mysqli_fetch_array($lines)); ?>
-				</table>
+					<?php } ?>
+				<?php } while($line = mysqli_fetch_array($lines)); ?>
+			</table>
 			<?php } while($heading = $heading_list->fetch_assoc()); ?>
 		</div>
 	</div>

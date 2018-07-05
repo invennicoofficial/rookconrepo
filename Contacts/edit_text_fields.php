@@ -395,6 +395,19 @@
 			<?php } ?>
 		</select>
 	</div>
+<?php } else if($field_option == 'Attached Contact') { ?>
+	<label class="col-sm-4 control-label">Attached Contact:</label>
+	<div class="col-sm-8">
+		<select name="businessid" value="<?= $contact['businessid'] ?>" data-field="businessid" data-table="contacts" class="form-control chosen-select-deselect">
+			<option></option>
+			<?php $customer_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted`=0 AND `status`>0"));
+			foreach($customer_list as $customer) {
+				if(!empty($customer['full_name']) && $customer['full_name'] != '-') { ?>
+					<option <?= $customer['contactid'] == $contact['businessid'] ? 'selected' : '' ?> value="<?= $customer['contactid'] ?>"><?= $customer['full_name'] ?></option>
+				<?php }
+			} ?>
+		</select>
+	</div>
 <?php } else if($field_option == 'Site Number') { ?>
 	<label class="col-sm-4 control-label">Site #:</label>
 	<div class="col-sm-8">
@@ -424,8 +437,8 @@
 <?php } else if($field_option == 'Gender' || $field_option == 'Profile Gender') { ?>
 	<label class="col-sm-4 control-label">Gender:</label>
 	<div class="col-sm-8">
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts" class="form-control"> Female</label>
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts" class="form-control"> Male</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts"> Female</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Male' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts"> Male</label>
 	</div>
 <?php } else if($field_option == 'License') { ?>
 	<label class="col-sm-4 control-label">Licence #:</label>

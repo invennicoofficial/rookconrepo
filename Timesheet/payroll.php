@@ -42,6 +42,23 @@ function filterStaff(sel) {
     }
   }
 }
+function unapproveTimeSheet(a) {
+    var staff = $(a).data('staff');
+    var type = $(a).data('type');
+    var date = $(a).data('date');
+    var id = $(a).data('timesheetid');
+    if(confirm('Are you sure you want to unapprove this time?')) {
+        $.ajax({
+            url: '../Timesheet/time_cards_ajax.php?action=unapprove_time',
+            method: 'POST',
+            data: { staff: staff, type: type, date: date, id: id },
+            success: function(response) {
+                console.log(response);
+                $(a).closest('tr').remove();
+            }
+        });
+    }
+}
 </script>
 
 </head>
@@ -112,6 +129,8 @@ function viewTicket(a) {
                 $timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
                 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
                 $timesheet_time_format = get_config($dbc, 'timesheet_time_format');
+                $timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+                $timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
                 $current_period = !empty($_GET['pay_period']) || $_GET['pay_period'] == 0 ? $_GET['pay_period'] : -1;
                 $_GET['pay_period'] = $current_period;
                 include('pay_period_dates.php');
@@ -331,6 +350,9 @@ function viewTicket(a) {
                         <?php if(in_array('breaks',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(in_array('view_ticket',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
                         <td colspan="2"></td>
                     </tr>
                     <tr class='hidden-xs hidden-sm'>
@@ -357,6 +379,9 @@ function viewTicket(a) {
                         <?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Breaks</th><?php } ?>
                         <?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Expenses Owed</div></th><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage</div></th><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
+                        <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
                         <th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
                         <th style="width:6em;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
                             data-original-title="Check the boxes on multiple lines, then click Sign and click Mark Paid."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Paid</th>
@@ -375,9 +400,12 @@ function viewTicket(a) {
                         $sql .= ", `time_cards_id`";
                         $post_i = 0;
                     }
-                    $sql .= " ORDER BY `date`, `start_time`, `end_time` ASC";
+                    $sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
                     $result = mysqli_query($dbc, $sql);
                     $date = $search_start_date;
+                    $mileage_total = 0;
+                    $mileage_rate_total = 0;
+                    $mileage_cost_total = 0;
                     $row = mysqli_fetch_array($result);
                     $total = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
                     while(strtotime($date) <= strtotime($search_end_date)) {
@@ -388,7 +416,25 @@ function viewTicket(a) {
                         $start_time = '';
                         $end_time = '';
                         $approv = '';
+                        $mileage = 0;
+                        $mileage_rate = 0;
+                        $mileage_cost = 0;
                         if($row['date'] == $date) {
+                            foreach($config['hours_types'] as $hours_type) {
+                                if($row[$hours_type] > 0) {
+                                    switch($timesheet_rounding) {
+                                        case 'up':
+                                            $row[$hours_type] = ceil($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                        case 'down':
+                                            $row[$hours_type] = floor($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                        case 'nearest':
+                                            $row[$hours_type] = round($row[$hours_type] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+                                            break;
+                                    }
+                                }
+                            }
                             $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
                             $hrs = ['REG'=>$row['REG_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
                                 'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS']];
@@ -418,11 +464,30 @@ function viewTicket(a) {
                             } else {
                                 $hrs['TRAINING'] = 0;
                             }
+
+                            //Mileage
+                            $mileage_start = $date.' 00:00:00';
+                            $mileage_end = $date.' 23:59:59';
+                            $mileage = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`mileage`) `mileage_total` FROM `mileage` WHERE `deleted` = 0 AND `staffid` = '$search_staff' AND `ticketid` = '$attached_ticketid' AND '$attached_ticketid' > 0 AND (`start` BETWEEN '$mileage_start' AND '$mileage_end' OR `end` BETWEEN '$mileage_start' AND '$mileage_end')"))['mileage_total'];
+                            $mileage_total += $mileage;
+
+                            //Mileage Rate
+                            $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '$attached_ticketid' AND '$attached_ticketid' > 0"))['clientid'];
+                            $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
+                                SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
+                            $mileage_rate_total += $mileage_rate;
+
+                            //Mileage Calculated Cost
+                            $mileage_cost = $mileage * $mileage_rate;
+                            $mileage_cost_total += $mileage_cost;
                             
                             $row = mysqli_fetch_array($result);
                         } else {
                             $hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
                             $comments = '';
+                            $mileage = 0;
+                            $mileage_rate = 0;
+                            $mileage_cost = 0;
                         }
                         $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
                         $hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(`dayoff_type` != '',`dayoff_type`,CONCAT(`starttime`,' - ',`endtime`)) FROM `contacts_shifts` WHERE `deleted`=0 AND `contactid`='$search_staff' AND '$date' BETWEEN `startdate` AND `enddate` ORDER BY `startdate` DESC"))[0];
@@ -466,6 +531,9 @@ function viewTicket(a) {
                             '.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
                             '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_tickets.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
                             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
+                            '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
+                            '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
+                            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
                             <td data-title="Comments"><input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control"></td>
                             <td data-title="Select to Mark Paid"><label '.($approv == 'P' ? 'class="readonly-block"' : '').'>';
                             if($layout == 'multi_line') {
@@ -519,6 +587,9 @@ function viewTicket(a) {
                         '.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS'])).'</td>' : '').'
                         '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
                         <td data-title="" colspan="2"></td>
                     </tr>';
                     echo '<tr>
@@ -538,6 +609,9 @@ function viewTicket(a) {
                         '.(in_array('breaks',$value_config) ? '<td data-title="Breaks"></td>' : '').'
                         '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title=""></td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title=""></td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title=""></td>' : '').'
+                        '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title=""></td>' : '').'
                         <td colspan="2"></td>
                     </tr>'; ?>
                     <?php while($row = mysqli_fetch_array( $result ))
@@ -590,8 +664,10 @@ function viewTicket(a) {
                     echo '<button type="submit" name="approve_position" value="paid_btn" class="btn brand-btn pull-right">Update and Mark Selected Paid</button>'; ?>
                     <script>
                     $(document).ready(function() {
+                        checkTimeOverlaps();
                         initLines();
                     });
+                    $(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
                     function getTasks(sel) {
                         var tasks = $(sel).find('option:selected').data('tasks');
                         var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
@@ -625,19 +701,61 @@ function viewTicket(a) {
                             line.find('[name^=comment_box]').show().focus();
                         });
                     }
+                    function checkTimeOverlaps() {
+                        <?php if(in_array('time_overlaps',$value_config)) { ?>
+                            $('.timesheet_div table tr').css('background-color', '');
+                            var time_list = [];
+                            var date_list = [];
+                            $('.timesheet_div table').each(function() {
+                                $(this).find('tr').each(function() {
+                                    var date = $(this).find('[name="date[]"]').val();
+                                    if(time_list[date] == undefined) {
+                                        time_list[date] = [];
+                                    }
+                                    if(date_list.indexOf(date) == -1) {
+                                        date_list.push(date);
+                                    }
+
+                                    var start_time = '';
+                                    var end_time = '';
+                                    if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+                                        time_list[date].push($(this));
+                                    }
+                                });
+                            });
+                            date_list.forEach(function(date) {
+                                time_list[date].forEach(function(tr) {
+                                    $(tr).data('current_row', 1);
+                                    start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+                                    end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+                                    time_list[date].forEach(function(tr2) {
+                                        if($(tr2).data('current_row') != 1) {
+                                            start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+                                            end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+                                            if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+                                                $(tr).css('background-color', 'red');
+                                            }
+                                        }
+                                    });
+                                    $(tr).data('current_row', 0);
+                                });
+                            });
+                        <?php } ?>
+                    }
                     </script>
                     <div id="no-more-tables">
                         <table class='table table-bordered'>
                             <tr class='hidden-xs hidden-sm'>
-                                <th style='text-align:center; vertical-align:bottom; width:7em;'><div>Date</div></th>
-                                <?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
-                                <?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-                                <?php if(in_array('start_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-                                <?php if(in_array('end_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
+                                <th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
+                                <?php $total_colspan = 2; ?>
+                                <?php if(in_array('schedule',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
+                                <?php if(in_array('scheduled',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
+                                <?php if(in_array('start_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
+                                <?php if(in_array('end_time',$value_config)) { $total_colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
                                 <?php if(in_array('end_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
                                 <?php if(in_array('start_day_tile',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-                                <?php if($layout == 'ticket_task') { ?>
+                                <?php if($layout == 'ticket_task') { $total_colspan++ ?>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th>
                                     <th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
                                 <?php } else { ?>
@@ -699,9 +817,11 @@ function viewTicket(a) {
                                     if(empty($row['ticketid'])) {
                                         $driving_time = 'Driving Time';
                                     }
+                                    $show_separator = 0;
                                 } else {
                                     $row = '';
                                     $comments = '';
+                                    $show_separator = 1;
                                 }
                                 $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
                                 $day_of_week = date('l', strtotime($date));
@@ -722,20 +842,19 @@ function viewTicket(a) {
                                 if($date < $last_period) {
                                     $mod = 'readonly';
                                 } ?>
-                                <tr style="<?= $hl_colour ?>">
+                                <tr style="<?= $hl_colour ?>" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>">
                                     <input type="hidden" name="time_cards_id[]" value="<?= $row['id'] ?>">
                                     <input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
                                     <input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-                                    <?php $total_colspan = 2; ?>
-                                    <td data-title="Date"><?= $date ?></td>
-                                    <?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
-                                    <?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><td data-title="Scheduled Hours"></td><?php } ?>
-                                    <?php if(in_array('start_time',$value_config)) { $total_colspan++; ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
-                                    <?php if(in_array('end_time',$value_config)) { $total_colspan++; ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
+                                    <td data-title="Date"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
+                                    <?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule"><?= $hours ?></td><?php } ?>
+                                    <?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours"></td><?php } ?>
+                                    <?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time"><?= $row['start_time'] ?></td><?php } ?>
+                                    <?php if(in_array('end_time',$value_config)) { ?><td data-title="End Time"><?= $row['end_time'] ?></td><?php } ?>
                                     <?php if(in_array('start_time_editable',$value_config)) { ?><td data-title="Start Time"><input type="text" name="start_time[]" class="form-control datetimepicker" value="<?= $row['start_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="start_time[]" value="<?= $row['start_time'] ?>"><?php } ?>
                                     <?php if(in_array('end_time_editable',$value_config)) { ?><td data-title="End Time"><input type="text" name="end_time[]" class="form-control datetimepicker" value="<?= $row['end_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="end_time[]" value="<?= $row['end_time'] ?>"><?php } ?>
                                     <?php if(in_array('start_day_tile',$value_config)) { ?><td data-title="<?= $timesheet_start_tile ?>" style="text-align: center;"><label><input type="checkbox" value="Driving Time" <?= $driving_time == 'Driving Time' ? 'checked' : '' ?> class="driving_time" onchange="checkDrivingTime(this);"></label></span></td><?php } ?>
-                                    <?php if($layout == 'ticket_task') { $total_colspan++; ?>
+                                    <?php if($layout == 'ticket_task') { ?>
                                         <td data-title="<?= TICKET_NOUN ?>" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a <?= TICKET_NOUN ?>"" onchange="getTasks(this);"><option></option>
                                             <?php foreach($ticket_list as $ticket) { ?>
                                                 <option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $row['ticketid'] ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>

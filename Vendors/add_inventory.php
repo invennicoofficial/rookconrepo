@@ -295,7 +295,7 @@ $category = $_GET['category'];
             $include_in_po = '';
             $include_in_so = '';
             $include_in_pos = '';
-            
+
             if ( !empty($_GET['inventoryid']) ) {
                 $inventoryid = $_GET['inventoryid'];
                 $get_inventory =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM	`vendor_price_list` WHERE inventoryid='$inventoryid'"));
@@ -386,16 +386,16 @@ $category = $_GET['category'];
                 $include_in_po = $get_inventory['include_in_po'];
                 $include_in_so = $get_inventory['include_in_so'];
                 $include_in_pos = $get_inventory['include_in_pos']; ?>
-            
+
                 <input type="hidden" id="inventoryid"	name="inventoryid" value="<?php echo $inventoryid ?>" /><?php
             } ?>
-            
+
             <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
 
             <div class="panel-group" id="accordion2"><?php
                 $query = mysqli_query($dbc, "SELECT `accordion` FROM `field_config_vendors` WHERE `accordion` IS NOT NULL AND `subtab`='Price Lists' AND `order` IS NOT NULL ORDER BY `order`");
                 $j=0;
-                
+
                 while($row = mysqli_fetch_array($query)) { ?>
 
                     <div class="panel panel-default">
@@ -413,7 +413,7 @@ $category = $_GET['category'];
 
                                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `fields` FROM `field_config_vendors` WHERE `subtab`='Price Lists' AND `accordion`='$accordion'"));
                                 $value_config = ','.$get_field_config['fields'].',';
-                                
+
                                 if (strpos($value_config, ',Description,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="fax_number"	class="col-sm-4	control-label">Description:</label>
@@ -422,7 +422,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Category,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="travel_task" class="col-sm-4 control-label">Category<span class="brand-color">*</span>:</label>
@@ -450,7 +450,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Subcategory,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="travel_task" class="col-sm-4 control-label">Sub Category<span class="brand-color">*</span>:</label>
@@ -474,7 +474,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Name,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="site_name" class="col-sm-4 control-label">Name<span class="brand-color">*</span>:</label>
@@ -483,7 +483,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Product Name,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="site_name" class="col-sm-4 control-label">Product Name<span class="brand-color">*</span>:</label>
@@ -492,7 +492,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Type,') !== false) { ?>
                                     <div class="form-group">
                                         <label for="phone_number" class="col-sm-4 control-label">Type:</label>
@@ -506,7 +506,7 @@ $category = $_GET['category'];
                                         </div>
                                     </div><?php
                                 }
-                                
+
                                 if (strpos($value_config, ',Code,') !== false) { ?>
                                 <div class="form-group">
                                 <label for="site_name" class="col-sm-4 control-label">Code<span class="brand-color">*</span>:</label>
@@ -591,7 +591,7 @@ $category = $_GET['category'];
 
                                   <?php if (strpos($value_config, ',Vendor,') !== false) { ?>
                                   <div class="form-group">
-                                    <label for="fax_number"	class="col-sm-4	control-label">Vendor:</label>
+                                    <label for="fax_number"	class="col-sm-4	control-label"><?= VENDOR_TILE ?>:</label>
                                     <div class="col-sm-8">
                                         <select data-placeholder="Choose a Vendor..." id="vendor" name="vendorid" class="chosen-select-deselect form-control" width="380">
                                           <option value=""></option>

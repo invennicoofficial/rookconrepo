@@ -441,12 +441,16 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                                                 <div class="col-sm-8">
                                                     <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_notes">Enable</label>
                                                     <div class="block-group sortable_group" style="display:none;">
-                                                        <?php foreach(array_unique(array_merge($field_config,['Comments','Description','General Comments','Notes','Service Notes'])) as $field_option) {
+                                                        <?php foreach(array_unique(array_merge($field_config,['Comments','Comments Attachment','Description','Description Attachment','General Comments','General Comments Attachment','Notes','Notes Attachment','Service Notes'])) as $field_option) {
                                                             switch($field_option) {
                                                                 case 'Comments': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Comments', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Comments" onchange="save_options();">Comments</label><?php break;
+                                                                case 'Comments Attachment': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Comments Attachment', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Comments Attachment" onchange="save_options();">Comments Attachment</label><?php break;
                                                                 case 'Description': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Description', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Description" onchange="save_options();">Description</label><?php break;
+                                                                case 'Description Attachment': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Description Attachment', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Description Attachment" onchange="save_options();">Description Attachment</label><?php break;
                                                                 case 'General Comments': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('General Comments', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="General Comments" onchange="save_options();">General Comments</label><?php break;
+                                                                case 'General Comments Attachment': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('General Comments Attachment', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="General Comments Attachment" onchange="save_options();">General Comments Attachment</label><?php break;
                                                                 case 'Notes': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Notes', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Notes" onchange="save_options();">Notes</label><?php break;
+                                                                case 'Notes Attachment': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Notes Attachment', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Notes Attachment" onchange="save_options();">Notes Attachment</label><?php break;
                                                                 case 'Service Notes': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Service Notes', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Service Notes" onchange="save_options();">Service Notes</label><?php break;
                                                             }
                                                         } ?>
@@ -1521,15 +1525,16 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                                                 </div>
                                             </div>
                                         <?php break;
-                                        case 'acc_customer_service_list': ?>
+                                        case 'acc_site_information': ?>
                                             <div class="form-group sort_group_blocks">
-                                                <label class="col-sm-4 control-label">Service List:</label>
+                                                <label class="col-sm-4 control-label">Site Information:</label>
                                                 <div class="col-sm-8">
                                                     <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_site_information">Enable</label>
                                                     <div class="block-group sortable_group" style="display:none;">
-                                                        <?php foreach(array_unique(array_merge($field_config,['Customer(Client/Customer/Business)','Site Name (Location)','Display Name','Business Sites','Site LSD','Site Bottom Hole','Site Alias','Site Website'])) as $field_option) {
+                                                        <?php foreach(array_unique(array_merge($field_config,['Customer(Client/Customer/Business)','Attached Contact','Site Name (Location)','Display Name','Business Sites','Site LSD','Site Bottom Hole','Site Alias','Site Website'])) as $field_option) {
                                                             switch($field_option) {
                                                                 case 'Customer(Client/Customer/Business)': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Customer(Client/Customer/Business)', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Customer(Client/Customer/Business)" onchange="save_options();">Customer (Client / Customer / Business)</label><?php break;
+                                                                case 'Attached Contact': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Attached Contact', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Attached Contact" onchange="save_options();">Attached Contact</label><?php break;
                                                                 case 'Site Name (Location)': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Site Name (Location)', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Site Name (Location)" onchange="save_options();">Site Name (Location)</label><?php break;
                                                                 case 'Display Name': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Display Name', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Display Name" onchange="save_options();">Display Name</label><?php break;
                                                                 case 'Business Sites': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Business Sites', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Business Sites" onchange="save_options();">Business Sites</label><?php break;

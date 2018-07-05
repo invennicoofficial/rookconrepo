@@ -21,10 +21,10 @@ $query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope
 $scope_name = '';
 if(mysqli_num_rows($query) > 0) {
 	while($row = mysqli_fetch_array($query)) {
-		$headings[preg_replace('/[^a-z]*/','',strtolower($row[0]))] = $row[0];
+		$headings[config_safe_str($row[0])] = $row[0];
 	}
 } else {
-	$headings['scope'] = 'Scope 1';
+	$headings['scope_1'] = 'Scope 1';
 } ?>
 <script>
 profile_tab = [];
@@ -63,8 +63,21 @@ function save_sort() {
 	});
 }
 function set_headings() {
+	$('[name=heading][data-init]').each(function() {
+		$(this).closest('table').find('[name=heading][data-table]').val(this.value).change();
+		var heading_name = this.value;
+		$(this).closest('table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&heading=[a-zA-Z0-9_]*/,'&heading='+heading_name.replace(/[^a-zA-Z0-9]/,'_'));
+		});
+	});
+}
+function set_scopes() {
 	$('[name=scope_name][data-init]').each(function() {
-		$(this).closest('table').find('[name=scope_name][data-table]').val(this.value).change();
+		$(this).closest('.sort_table').find('[name=scope_name][data-table]').val(this.value).change();
+		var scope_name = this.value;
+		$(this).closest('.sort_table').find('a[href*=scope][href*=heading]').each(function() {
+			this.href = this.href.replace(/&scope=[a-zA-Z0-9_]*/,'&scope='+scope_name.replace(/[^a-zA-Z0-9]/,'_'));
+		});
 	});
 }
 function scrollScreen() {
@@ -271,7 +284,7 @@ function add_line() {
 </div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen default_screen form-horizontal standard-body'>
-		<div class="standard-body-title"><h3><?= ESTIMATE_TILE ?> Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>
+		<div class="standard-body-title"><h3><?= rtrim(ESTIMATE_TILE, 's') ?> Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>
 		<div class="standard-dashboard-body-content pad-top pad-left pad-right">
 			<div class="form-group">
 				<?php foreach($rates as $rate_id => $rate) {
@@ -301,7 +314,7 @@ function add_line() {
 			</div>
 			<?php include('edit_summary.php'); ?>
 			<a href="?edit=<?= $estimateid ?>&tab=preview" class="btn brand-btn pull-right">Go To PDF Preview</a>
-			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn pull-right">Back to <?= ESTIMATE_TILE ?> Details</a>
+			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn pull-right">Back to <?= rtrim(ESTIMATE_TILE, 's') ?> Details</a>
 		</div>
 	</div>
 </div>

@@ -14,8 +14,9 @@ if (isset($_POST['add_manual'])) {
 if((!empty($_GET['infogatheringid'])) && (!empty($_GET['action'])) && ($_GET['action'] == 'delete')) {
     $infogatheringid = $_GET['infogatheringid'];
     $category = get_infogathering($dbc, $infogatheringid, 'category');
+    $date_of_archival = date('Y-m-d');
 
-    $query = mysqli_query($dbc,"UPDATE infogathering set deleted = 1 WHERE infogatheringid='$infogatheringid'");
+    $query = mysqli_query($dbc,"UPDATE infogathering set deleted = 1, `date_of_archival` = '$date_of_archival' WHERE infogatheringid='$infogatheringid'");
     echo '<script type="text/javascript"> window.location.replace("infogathering.php?category='.$category.'"); </script>';
 }
 
@@ -264,7 +265,7 @@ if(!empty($_GET['infogatheringid'])) {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM infogathering WHERE infogatheringid='".$_GET['infogatheringid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
-        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';   
+        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 }
 ?>
@@ -747,7 +748,7 @@ if(!empty($_GET['infogatheringid'])) {
         if($user_form_layout == 'Sidebar') { ?>
                     </div>
                 </div>
-            </div>            
+            </div>
         <?php } ?>
 
     </form>

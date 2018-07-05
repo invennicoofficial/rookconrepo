@@ -552,14 +552,45 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 							<li class="standard-sidebar-searchbox"><input type="text" name="search_contacts" value="<?= $_POST['search_contacts'] ?>" class="form-control search_list" placeholder="Search <?= $_GET['tab'] == 'positions' ? 'Positions' : 'Staff' ?>"></li>
 							<input type="hidden" name="search_contacts_submit" value="1">
 							<?php $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
+							$db_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE `tab`='Staff' AND contacts_dashboard IS NOT NULL"));
+							$field_display = explode(",",$db_config['contacts_dashboard']);
 							foreach ($tab_list as $staff_tab => $tab_status) {
 								if (in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, $staff_tab) === TRUE) {
-									if(!empty($staff_categories) && ($staff_tab == 'active' || $staff_tab == 'probation' || $staff_tab == 'suspended')) {
+									if((!empty($staff_categories) || in_array("Sort Match Contacts", $field_display)) && ($staff_tab == 'active' || $staff_tab == 'probation' || $staff_tab == 'suspended')) {
 										echo '<li class="sidebar-higher-level"><a class="cursor-hand '.(!$tab_status ? 'collapsed' : 'active').'" data-toggle="collapse" data-target="#staff_'.$staff_tab.'">'.$tab_name[$staff_tab].'<span class="arrow"></span></a>';
 										echo '<ul class="collapse '.($tab_status ? 'in' : '').'" id="staff_'.$staff_tab.'">';
-										echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">All Staff</li></a>';
+										if(in_array("Sort Match Contacts", $field_display)) {
+											echo '<li class="sidebar-higher-level"><a class="cursor-hand '.($tab_status && $_GET['match_contact'] > 0 ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.$staff_tab.'_match">Matched Contacts<span class="arrow"></span></a>';
+											echo '<ul class="collapse '.($tab_status && $_GET['match_contact'] > 0 ? 'in' : '').'" id="staff_'.$staff_tab.'_match">';
+											$match_contacts = [];
+											$sorted_match_contacts = [];
+											$match_contacts_query = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0");
+											while($match_contacts_result = mysqli_fetch_assoc($match_contacts_query)) {
+												foreach(explode(',', $match_contacts_result['support_contact']) as $support_contact) {
+													foreach(explode(',', $match_contacts_result['staff_contact']) as $staff_contact) {
+														if(get_contact($dbc, $staff_contact, 'status') == ($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0'))) {
+															if(!in_array($support_contact,
+																$sorted_match_contacts)) {
+																$sorted_match_contacts[] = $support_contact; 
+															}
+															if(!in_array($staff_contact, $match_contacts[$support_contact])) {
+																$match_contacts[$support_contact][] = $staff_contact;
+															}
+														}
+													}
+												}
+											}
+											$sorted_match_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` IN (".implode(',', $sorted_match_contacts).")"));
+											foreach($sorted_match_contacts as $match_contact) {
+												echo '<a href="staff.php?tab='.$staff_tab.'&match_contact='.$match_contact['contactid'].'"><li class="'.($tab_status && $_GET['match_contact'] == $match_contact['contactid'] ? 'active blue' : '').'">'.$match_contact['full_name'].'<span class="pull-right">'.count(array_filter($match_contacts[$support_contact])).'</span></li></a>';
+											}
+											echo '</ul>';
+										}
+										$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = '".($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0'))."' AND IFNULL(`user_name`,'')!='FFMAdmin' AND `show_hide_user`='1'"))['count'];
+										echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) && empty($_GET['match_contact']) ? 'active blue' : '').'">All Staff<span class="pull-right">'.$count.'</span></li></a>';
 										foreach($staff_categories as $staff_category) {
-											echo '<a href="staff.php?tab='.$staff_tab.'&staff_cat='.$staff_category.'"><li class="'.($tab_status && $_GET['staff_cat'] == $staff_category ? 'active blue' : '').'">'.$staff_category.'</li></a>';
+											$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = '".($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0'))."' AND IFNULL(`user_name`,'')!='FFMAdmin' AND `show_hide_user`='1' AND CONCAT(',',`staff_category`,',') LIKE  '%,$staff_category,%'"))['count'];
+											echo '<a href="staff.php?tab='.$staff_tab.'&staff_cat='.$staff_category.'"><li class="'.($tab_status && $_GET['staff_cat'] == $staff_category && empty($_GET['match_contact']) ? 'active blue' : '').'">'.$staff_category.'<span class="pull-right">'.$count.'</span></li></a>';
 										}
 										echo '</ul></li>';
 									} else {

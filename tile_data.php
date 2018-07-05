@@ -39,9 +39,9 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'labour': return ['link'=>"Labour/index.php",'name'=>'Labour']; break;
 			case 'material': return ['link'=>"Material/material.php?filter=Top",'name'=>'Materials']; break;
 			case 'inventory': return ['link'=>"Inventory/inventory.php?category=Top",'name'=>INVENTORY_TILE]; break;
-			case 'vpl': return ['link'=>"Vendor Price List/inventory.php?category=Top",'name'=>get_tile_title_vpl($dbc).'']; break;
+			// case 'vpl': return ['link'=>"Vendor Price List/inventory.php?category=Top",'name'=>get_tile_title_vpl($dbc).'']; break;
 			case 'assets': return ['link'=>"Asset/asset.php?category=Top",'name'=>'Assets']; break;
-			case 'equipment': return ['link'=>"Equipment/equipment.php?category=Top",'name'=>'Equipment']; break;
+			case 'equipment': return ['link'=>"Equipment/index.php?category=Top",'name'=>'Equipment']; break;
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
@@ -369,7 +369,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>'Vendors']; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;

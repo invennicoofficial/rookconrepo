@@ -53,6 +53,7 @@ if(isset($_POST['printpdf'])) {
 
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_site_work_orders', 0, WEBSITE_URL.'/Reports/Download/site_work_orders_'.$today_date.'.pdf', 'Field Job Report');
     ?>
 
 	<script>
@@ -72,7 +73,7 @@ if(isset($_POST['printpdf'])) {
 		<?php $search_status = (!empty($_GET['wo_type']) ? filter_var($_GET['wo_type'],FILTER_SANITIZE_STRING) : 'Approved');
 		$search_from = '';
 		$search_until = '';
-		
+
 		if (isset($_POST['search_from'])) {
 			$search_from = $_POST['search_from'];
 		}
@@ -127,7 +128,7 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
         $sql .= " AND swo.`work_start_date` <= '$until_date'";
     }
 	$result = mysqli_query($dbc, $sql.' ORDER BY swo.`site_location`, swo.`workorderid` DESC');
-	
+
 	if(mysqli_num_rows($result) == 0) {
 		return "<h3>No Work Orders Found</h3>";
 	}
