@@ -10,6 +10,13 @@ $view = filter_var($_GET['view'],FILTER_VALIDATE_INT);
 $total_cost = $total_price = 0; ?>
 <script>
 $(document).ready(function() {
+    $(window).resize(function() {
+        available = Math.floor($(window).innerHeight() - $('.main-screen').offset().top - $('footer:visible').outerHeight() - 80);
+		    if(available > 300) {
+            $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+available+'px !important;'); })
+		    }
+	  }).resize();
+      
     $('input[name=quantity]').on('change', function() {
         var arr = $(this).attr('id').split('_');
         var row = arr[1];
