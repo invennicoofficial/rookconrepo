@@ -347,7 +347,7 @@ function checkMandatoryFields() {
                                         echo '<input type="text" name="'.$field_post.'" class="form-control timepicker" value="'.$default.'">';
                                         break;
                                     case 'SELECT':
-                                        echo '<select name="'.$field_post.'" class="form-control chosen-select-deselect select_ref"><option></option>';
+                                        echo '<select '.($field['content'] == 'multiple' ? 'name="'.$field_post.'[]" multiple' : 'name="'.$field_post.'"').' class="form-control chosen-select-deselect select_ref"><option></option>';
                                         $contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `category`='".$field['source_conditions']."' AND `deleted`=0 AND `status`>0 AND `show_hide_user`=1"),MYSQLI_ASSOC));
                                         foreach($contact_list as $contactid) {
                                             $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name`, `first_name`, `last_name`, `nick_name` FROM `contacts` WHERE `contactid`='$contactid'"));
@@ -356,14 +356,14 @@ function checkMandatoryFields() {
                                                 $name .= ($name != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']);
                                             }
                                             $name .= ($contact['nick_name'] != '' ? '"'.$contact['nick_name'].'"' : '');
-                                            echo '<option '.($default == $contactid ? 'selected' : '').' value="'.$contactid.'">'.$name.'</option>';
+                                            echo '<option '.(strpos('#*#'.$default.'#*#', '#*#'.$contactid.'#*#') !== FALSE ? 'selected' : '').' value="'.$contactid.'">'.$name.'</option>';
                                         }
                                         echo '</select>';
                                         break;
                                     case 'SELECT_CUS':
-                                        echo '<select name="'.$field_post.'" class="form-control chosen-select-deselect"><option></option>';
+                                        echo '<select '.($field['content'] == 'multiple' ? 'name="'.$field_post.'[]" multiple' : 'name="'.$field_post.'"').' class="form-control chosen-select-deselect"><option></option>';
                                         while ($option = mysqli_fetch_array($options)) {
-                                            echo '<option '.($default == $option['label'] ? 'selected' : '').' value="'.$option['label'].'">'.$option['label'].'</option>';
+                                            echo '<option '.(strpos('#*#'.$default.'#*#', '#*#'.$option['label'].'#*#') !== FALSE ? 'selected' : '').' value="'.$option['label'].'">'.$option['label'].'</option>';
                                         }
                                         echo '</select>';
                                     case 'RADIO':
