@@ -2,7 +2,8 @@
 $estimateid = ($estimateid > 0 ? $estimateid : filter_var($_GET['view'],FILTER_SANITIZE_STRING));
 $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $approvals = approval_visible_function($dbc, 'estimate');
-$config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]); ?>
+$config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert'); ?>
 <script>
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
@@ -320,8 +321,18 @@ function remove_follow_up(elem) {
 							$scope_description = get_contact($dbc, $scope_line['src_id']);
 						}
 						if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-							$scope_line['price'] = $scope_line['cost'] * $us_rate;
-							$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+							if($us_rate_no_auto == 'true') {
+								$scope_line['price'] = $scope_line['cost'];
+								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+							} else {
+								$scope_line['price'] = $scope_line['cost'] * $us_rate;
+								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+							}
+						}
+						if($scope_line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') {
+							$scope_line['price'] .= ' USD';
+							$scope_line['cost'] .= ' USD';
+							$scope_line['retail'] .= ' USD';
 						}
 						?>
 						<tr>
