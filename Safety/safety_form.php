@@ -318,7 +318,7 @@ if (isset($_POST['field_level_hazard'])) {
         if(!empty($_GET['return_url'])) {
             $return_url = urldecode($_GET['return_url']);
         }
-        echo '<script type="text/javascript"> window.location.replace("'.$return_url.'"); </script>';
+        echo '<script type="text/javascript"> window.top.location.reload(); window.location.replace("'.$return_url.'"); </script>';
 
     }
 
@@ -493,11 +493,15 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
         $max_thirdsection = ($sections['third_headings'] > 0 ? $sections['third_heaings'] : 20);
         $user_form_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT `form_id` FROM `user_forms` WHERE `form_id` = '$form'"))['form_id'];
 
-        if($form == 'Manual' || $form == '') {
+        if($form == 'Manual') {
             $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_safety WHERE tab='$tab' AND form IN ('Manual','')"))['fields'].',';
-            if(',,' == $value_config) {
-                $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Detail,Document,Staff,';
+            if($form == 'Manual') {
+                $value_config = ','.get_config($dbc, 'safety_manuals_fields').',';
             }
+            if(',,' == $value_config) {
+                $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Third Tier Section #,Third Tier Heading,Detail,Document,Link,Videos,Signature box,Comments,Review Deadline,Configure Email,Staff,';
+            }
+            $value_config .= ',Detail,';
         } else if(',,' == $value_config) {
             $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Staff,';
         }
@@ -536,9 +540,11 @@ if(!empty($_GET['safetyid']) && $_GET['action'] != 'edit') {
             $value_config = ','.$get_field_config['fields'].',';
             if($form == 'Manual') {
                 $value_config = ','.get_config($dbc, 'safety_manuals_fields').',';
-            }
-
-            if($value_config == ',,') {
+                if(',,' == $value_config) {
+                    $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Third Tier Section #,Third Tier Heading,Detail,Document,Link,Videos,Signature box,Comments,Review Deadline,Configure Email,Staff,';
+                }
+                $value_config .= ',Detail,';
+            } else if($value_config == ',,') {
                 $value_config = ',Topic (Sub Tab),Section #,Section Heading,Sub Section #,Sub Section Heading,Detail,Document,Staff,';
             }
 

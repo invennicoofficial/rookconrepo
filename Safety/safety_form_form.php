@@ -7,6 +7,11 @@
           <option <?php if ($tab == "Tailgate") { echo " selected"; } ?> value="Tailgate">Tailgate</option>
           <option <?php if ($tab == "Form") { echo " selected"; } ?> value="Form">Form</option>
           <option <?php if ($tab == "Manual") { echo " selected"; } ?> value="Manual">Manual</option>
+          <?php foreach($categories as $custom_cat) {
+            if(!in_array($custom_cat, ['Driving Log','FLHA','Toolbox','Tailgate','Form','Manuals','Incident Reports','Pinned','Favourites'])) { ?>
+              <option <?php if ($tab == $custom_cat) { echo " selected"; } ?> value="<?= $custom_cat ?>"><?= $custom_cat ?></option>
+            <?php }
+          } ?>
         </select>
     </div>
 </div>
@@ -1184,7 +1189,7 @@
                 <div class="form-group clearfix">
                     <label for="first_name" class="col-sm-4 control-label text-right">Review Deadline:</label>
                     <div class="col-sm-8">
-                        <input name="deadline" type="text" class="datepicker" value="<?php echo $deadline; ?>"></p>
+                        <input name="deadline" type="text" class="datepicker form-control" value="<?php echo $deadline; ?>"></p>
                     </div>
                 </div>
             </div>

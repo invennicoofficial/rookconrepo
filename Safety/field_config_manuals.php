@@ -1,18 +1,12 @@
-<?php $manauls_fields = explode(',',get_config($dbc, 'safety_manuals_fields')); ?>
+<?php $manuals_fields = explode(',',get_config($dbc, 'safety_manuals_fields')); ?>
 <script>
 $(document).ready(function() {
-    $('.block-group input,.block-group textarea').change(saveFields);
-});
-function saveFields() {
-	$.ajax({
-		url: 'safety_ajax.php?action=settings_config',
-		method: 'POST',
-		data: {
-			name: this.name,
-			value: this.value
-		}
+	$('[name=safety_manuals_fields]').change(function() {
+		fields = [];
+		$('[name=safety_manuals_fields]:checked').each(function() { fields.push(this.value); });
+		$.post('safety_ajax.php?action=settings_manuals', { fields: fields });
 	});
-}
+});
 </script>
 <h3>Manuals Fields</h3>
 <div class="block-group">
