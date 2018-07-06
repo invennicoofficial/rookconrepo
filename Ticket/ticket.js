@@ -2006,7 +2006,13 @@ function filterPositions() {
 		$(this).closest('.multi-block').find('[name=position] option').show();
 		$(this).closest('.multi-block').find('[name=position]').trigger('select2.change');
 	}
-
+	var position = $(this).find('option:selected').data('position');
+	if(position != '' && position != undefined) {
+		var cur_pos = $(this).closest('.multi-block').find('[name=position]').val();
+		if(cur_pos != position) {
+			$(this).closest('.multi-block').find('[name=position]').val(position).change();
+		}
+	}
 }
 function filterEquipment(select) {
 	var block = $(select).closest('.multi-block').first();
@@ -2015,6 +2021,12 @@ function filterEquipment(select) {
 		block.find('[name=eq_category]').val(option.data('category')).trigger('change.select2');
 		block.find('[name=eq_make]').val(option.data('make')).trigger('change.select2');
 		block.find('[name=eq_model]').val(option.data('model')).trigger('change.select2');
+		block.find('select[name=rate]').each(function() {
+			$(this).find('option:selected').removeAttr('selected');
+			$(this).find('option[data-type=daily]').val(option.data('daily'));
+			$(this).find('option[data-type=hourly]').val(option.data('hourly'));
+			$(this).trigger('change.select2');
+		});
 	} else if(select.name == 'eq_category') {
 		block.find('[name=item_id] option').show().filter(function() { return $(this).data('category') != select.value; }).hide();
 		block.find('[name=item_id]').trigger('change.select2');
@@ -2680,6 +2692,12 @@ function cancelClick() {
 }
 function openFullView() {
 	window.top.location.href = "../Ticket/index.php?ticketid="+ticketid+"&edit="+ticketid+"&action_mode="+$('#action_mode').val();
+}
+function submitApproval(status, email) {
+	
+}
+function approve(field, status) {
+	
 }
 function initSelectOnChanges() {
 	try {

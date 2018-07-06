@@ -112,7 +112,9 @@ if($tickets->num_rows > 0) { ?>
 					<td data-title="Date"><?= $ticket['ticket_date'] ?></td>
 					<td data-title="<?= TICKET_NOUN ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
-						$total_cost += number_format($ticket['services_cost'],2); ?>
+						foreach($services_cost as $cost_amt) {
+							$total_cost += $cost_amt;
+						} ?>
 						<td data-title="Services"><?= implode('<br />',$services) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
