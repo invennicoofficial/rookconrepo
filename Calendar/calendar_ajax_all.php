@@ -2143,6 +2143,9 @@ if($_GET['fill'] == 'equip_assign_draggable') {
 		$num_rows = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) FROM `equipment_assignment_staff` WHERE `contactid` = '$staffid' AND `equipment_assignmentid` = '$equipment_assignmentid' AND `deleted` = 0"))['num_rows'];
 		if($num_rows == 0) {
 			if($online) {
+				if(get_config($dbc, 'equip_multi_assign_staff_disallow') > 0) {
+					mysqli_query($dbc, "UPDATE `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipment_assignmentid`=`equipment_assignment_staff`.`equipment_assignmentid` SET `equipment_assignment_staff`.`deleted`=1, `equipment_assignment_staff`.`date_of_archival`=DATE(NOW()) WHERE `equipment_assignment`.`start_date`='$date' AND `equipment_assignment`.`end_date`='$date' AND `equipment_assignment_staff`.`contactid`='$staffid' AND `equipment_assignment_staff`.`deleted`=0");
+				}
 				mysqli_query($dbc, "INSERT INTO `equipment_assignment_staff` (`equipment_assignmentid`, `contactid`, `contractor`) VALUES ('$equipment_assignmentid', '$staffid', '$contractor')");
 			    $equipassign_hide_staff = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"))['hide_staff']);
 			    $hide_staff = [];
