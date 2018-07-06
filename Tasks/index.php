@@ -38,12 +38,12 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible')) {
-			var available_height = window.innerHeight - $(footer).outerHeight() - $('.sidebar:visible').offset().top;
+			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
 			if(available_height > 200) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height);
+                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
 			}
             var sidebar_height = $('.tile-sidebar').outerHeight(true);
             $('.has-main-screen .main-screen').css('min-height', sidebar_height);

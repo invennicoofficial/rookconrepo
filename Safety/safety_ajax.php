@@ -2,10 +2,13 @@
 ob_clean();
 
 if($_GET['action'] == 'setting_tabs') {
-	set_config($dbc, 'safety_dashboard', implode(',',$_POST['subtabs']));
+	set_config($dbc, 'safety_dashboard', implode(',',array_filter($_POST['subtabs'])));
 	set_config($dbc, 'safety_bypass_list', implode(',',$_POST['bypass']));
 }
- else if($_GET['action'] == 'settings_config') {
+else if($_GET['action'] == 'settings_manuals') {
+	set_config($dbc, 'safety_manuals_fields', implode(',',$_POST['fields']));
+}
+else if($_GET['action'] == 'settings_config') {
 	set_config($dbc, filter_var($_POST['name'],FILTER_SANITIZE_STRING), htmlentities(filter_var($_POST['value'],FILTER_SANITIZE_STRING)));
 }
 else if($_GET['action'] == 'setting_sites') {

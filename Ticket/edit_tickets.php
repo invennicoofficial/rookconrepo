@@ -208,7 +208,7 @@ if(!empty($_GET['edit'])) {
 <?php } else if(!empty($_GET['type'])) {
 	$ticket_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
 }
-if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
+if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
 	exit();
