@@ -94,12 +94,11 @@ if($_GET['id'] > 0) {
 	$rate_id = $dbc->insert_id;
 	$rate_name = "New Rate Card";
 }
-$company_sections = explode(',',get_config($dbc,'company_rate_card_sections'));
 $tile_list = [];
-if(in_array('tasks',$company_sections) && tile_enabled($dbc, 'tasks')['user_enabled'] || tile_enabled($dbc,'tickets')['user_enabled']) {
+if(tile_enabled($dbc, 'tasks')['user_enabled'] || tile_enabled($dbc,'tickets')['user_enabled']) {
 	$tile_list[] = 'Tasks';
 }
-if(in_array('material',$company_sections) && tile_enabled($dbc, 'material')['user_enabled']) {
+if(tile_enabled($dbc, 'material')['user_enabled']) {
 	$tile_list[] = 'Material';
 	$material_categories = [];
 	$material_cat_list = $dbc->query("SELECT `category` FROM `material` GROUP BY `category` ORDER BY `category`");
@@ -107,7 +106,7 @@ if(in_array('material',$company_sections) && tile_enabled($dbc, 'material')['use
 		$material_categories[] = $material['category'];
 	}
 }
-if(in_array('services',$company_sections) && tile_enabled($dbc, 'services')['user_enabled']) {
+if(tile_enabled($dbc, 'services')['user_enabled']) {
 	$tile_list[] = 'Services';
 	$service_categories = [];
 	$service_cat_list = $dbc->query("SELECT `category` FROM `services` GROUP BY `category` ORDER BY `category`");
@@ -115,7 +114,7 @@ if(in_array('services',$company_sections) && tile_enabled($dbc, 'services')['use
 		$service_categories[] = $service['category'];
 	}
 }
-if(in_array('products',$company_sections) && tile_enabled($dbc, 'products')['user_enabled']) {
+if(tile_enabled($dbc, 'products')['user_enabled']) {
 	$tile_list[] = 'Products';
 	$product_categories = [];
 	$product_cat_list = $dbc->query("SELECT `product_type` FROM `products` GROUP BY `category` ORDER BY `product_type`");
@@ -123,22 +122,12 @@ if(in_array('products',$company_sections) && tile_enabled($dbc, 'products')['use
 		$product_categories[] = $vpl['product_type'];
 	}
 }
-if(in_array('staff',$company_sections)) {
-	$tile_list[] = 'Staff';
-}
-if(in_array('position',$company_sections)) {
-	$tile_list[] = 'Position';
-}
-if(in_array('contractor',$company_sections)) {
-	$tile_list[] = 'Contractor';
-}
-if(in_array('clients',$company_sections)) {
-	$tile_list[] = 'Clients';
-}
-if(in_array('customer',$company_sections)) {
-	$tile_list[] = 'Customer';
-}
-if(in_array('vpl',$company_sections) && tile_enabled($dbc, 'vpl')['user_enabled']) {
+$tile_list[] = 'Staff';
+$tile_list[] = 'Position';
+$tile_list[] = 'Contractor';
+$tile_list[] = 'Clients';
+$tile_list[] = 'Customer';
+if(tile_enabled($dbc, 'vpl')['user_enabled']) {
 	$tile_list[] = 'Vendor Pricelist';
 	$vpl_categories = [];
 	$vpl_cat_list = $dbc->query("SELECT `category` FROM `vendor_price_list` GROUP BY `category` ORDER BY `category`");
@@ -146,15 +135,15 @@ if(in_array('vpl',$company_sections) && tile_enabled($dbc, 'vpl')['user_enabled'
 		$vpl_categories[] = $vpl['category'];
 	}
 }
-if(in_array('inventory',$company_sections) && tile_enabled($dbc, 'inventory')['user_enabled']) {
+if(tile_enabled($dbc, 'inventory')['user_enabled']) {
 	$tile_list[] = 'Inventory';
 	$inv_categories = explode('#*#',get_config($dbc, 'inventory_tabs'));
 }
-if(in_array('equipment',$company_sections) && tile_enabled($dbc, 'equipment')['user_enabled']) {
+if(tile_enabled($dbc, 'equipment')['user_enabled']) {
 	$tile_list[] = 'Equipment';
 	$equip_categories = explode(',',get_config($dbc, 'equipment_tabs'));
 }
-if(in_array('labour',$company_sections) && tile_enabled($dbc, 'labour')['user_enabled']) {
+if(tile_enabled($dbc, 'labour')['user_enabled']) {
 	$tile_list[] = 'Labour';
 	$labour_categories = [];
 	$labour_cat_list = $dbc->query("SELECT `labour_type` FROM `labour` GROUP BY `labour_type` ORDER BY `labour_type`");
@@ -162,15 +151,13 @@ if(in_array('labour',$company_sections) && tile_enabled($dbc, 'labour')['user_en
 		$labour_categories[] = $labour['labour_type'];
 	}
 }
-if(in_array('timesheets',$company_sections) && tile_enabled($dbc, 'timesheet')['user_enabled']) {
+if(tile_enabled($dbc, 'timesheet')['user_enabled']) {
 	$tile_list[] = 'Time Sheet';
 }
-if(in_array('driving_log',$company_sections) && tile_enabled($dbc, 'driving_log')['user_enabled']) {
+if(tile_enabled($dbc, 'driving_log')['user_enabled']) {
 	$tile_list[] = 'Mileage';
 }
-if(in_array('other',$company_sections)) {
-	$tile_list[] = 'Other';
-}
+// $tile_list[] = 'Other';
 foreach(array_unique(array_merge(explode('#*#',mysqli_fetch_array(mysqli_query($dbc,"SELECT `custom_accordions` FROM `field_config_estimate`"))['custom_accordions']),explode('#*#',mysqli_fetch_array(mysqli_query($dbc,"SELECT `custom_accordions` FROM `field_config_cost_estimate`"))['custom_accordions']))) as $accordion) {
 	if($accordion != '') {
 		$tile_list[] = $accordion;

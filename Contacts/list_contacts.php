@@ -6,7 +6,7 @@ $(document).ready(function() {
 		var available_height = window.innerHeight - $('footer:visible').outerHeight() - ($('.main-screen .main-screen').offset() == undefined ? 0 : $('.main-screen .main-screen').offset().top);
 		if(available_height > 200) {
 			$('.main-screen .main-screen').outerHeight(available_height).css({'overflow-y':'auto', 'max-width':'100%', 'margin-left':'0'});
-			$('.tile-sidebar').outerHeight(available_height).css('overflow-y','auto');
+			$('ul.sidebar').outerHeight(available_height).css('overflow-y','auto');
 		}
 	}).resize();
 

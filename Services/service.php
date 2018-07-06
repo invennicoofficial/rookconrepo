@@ -35,12 +35,12 @@ include ('../include.php'); ?>
             }
         });
         
-        /* if($(window).width() > 767) {
+        if($(window).width() > 767) {
             resizeScreen();
             $(window).resize(function() {
                 resizeScreen();
             });
-        } */
+        }
         
         var hash = window.location.hash.substr(1);
         if (hash != '') {
@@ -85,30 +85,11 @@ include ('../include.php'); ?>
                 current_tab.push($(this).data('tab-name'));
             }
         });
-    
-        $(window).resize(function() {
-            $('.main-screen').css('padding-bottom',0);
-            if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
-                var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
-                if(available_height > 300) {
-                    $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
-                    $('.sidebar').outerHeight(available_height).css('overflow-y','auto');
-                    $('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                }
-                var sidebar_height = $('.tile-sidebar').outerHeight(true);
-                $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
-            } else {
-                $('.main-screen .main-screen').css('height','auto');
-            }
-        }).resize();
     });
     
     function resizeScreen() {
         var view_height = $(window).height() > 800 ? $(window).height() : 800;
-        //$('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
-        $('#services_div .tile-sidebar, #services_div .tile-content').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
-        $('.standard-body .standard-body-content').css('height', 'auto');
-        $('.standard-body.preview .standard-body-content').height($('#services_div .tile-content').height() - $('.standard-body .standard-body-title').height() + 20);
+        $('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
     }
 </script>
 </head>
@@ -212,7 +193,7 @@ if (isset($_POST['add_service'])) {
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `field_config`"));
 $value_config = ','.$get_field_config['services'].','; ?>
 
-<div id="services_div" class="container">
+<div class="container">
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php');

@@ -14,19 +14,6 @@ mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `field_config_ticket_security` (
   PRIMARY KEY (`fieldconfigid`)
 )");
 
-mysqli_query($dbc, "ALTER TABLE `project`
-ADD `projection_service_heading` VARCHAR(500) NULL AFTER `project_color_code`,
-ADD `projection_service_price` VARCHAR(10) NULL AFTER `projection_service_heading`,
-ADD `projection_product_heading` VARCHAR(500) NULL AFTER `projection_service_price`,
-ADD `projection_product_price` VARCHAR(10) NULL AFTER `projection_product_heading`,
-ADD `projection_task_heading` VARCHAR(500) NULL AFTER `projection_product_price`,
-ADD `projection_task_price` VARCHAR(10) NULL AFTER `projection_task_heading`,
-ADD `projection_inventory_heading` VARCHAR(500) NULL AFTER `projection_task_price`,
-ADD `projection_inventory_price` VARCHAR(10) NULL AFTER `projection_inventory_heading`,
-ADD `projection_admin_heading` VARCHAR(500) NULL AFTER `projection_inventory_price`,
-ADD `projection_admin_price` VARCHAR(10) NULL AFTER `projection_admin_heading`
-");
-
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `sales_lead` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `inventory` ADD `date_of_archival` DATE NULL AFTER `deleted`");

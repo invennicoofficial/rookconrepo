@@ -18,7 +18,7 @@ $(document).ready(function() {
       <div class="form-group">
         <label for="first_name[]" class="col-sm-4 control-label">Body:</label>
         <div class="col-sm-8">
-          <textarea name="email_body" rows="5" cols="50" class="form-control"><?php echo html_entity_decode(htmlspecialchars_decode($email_body)); ?></textarea>
+          <textarea name="email_body" rows="5" cols="50" class="form-control"><?php echo $email_body; ?></textarea>
         </div>
       </div>
       <?php } ?>

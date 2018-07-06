@@ -16,12 +16,7 @@
 <?php } else {
 	$po_tabs = explode(',',get_config($dbc,'po_tabs'));
 
-	if(in_array_starts('summary ',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'summary') === TRUE ) {
-		if(empty($_GET['tab'])) {
-			$_GET['tab'] = 'summary';
-		} ?>
-		<li class="<?= ($_GET['tab'] == 'summary' ? 'active blue' : '') ?>"><a href="?tab=summary">Summary</a></li>
-	<?php } else if(in_array('create',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'create') === TRUE ) { ?>
+	if(in_array('create',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'create') === TRUE ) { ?>
 		<li class="<?= ($_GET['tab'] == 'create' ? 'active blue' : '') ?>"><a href="?tab=create">Create an Order</a></li>
 	<?php }
 	if (in_array('pending',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'pending') === TRUE ) {
@@ -344,9 +339,6 @@
 		<?php }
 	}
 	switch($_GET['tab']) {
-		case 'summary':
-			$page_title = 'Summary';
-			break;
 		case 'create':
 			$page_title = 'Create an Order';
 			break;

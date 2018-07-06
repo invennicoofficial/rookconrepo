@@ -18,7 +18,7 @@ function deleteField(img) {
 	}
 }
 </script>
-<div class="standard-collapsible tile-sidebar" style="height: 100%;">
+<div class="collapsible tile-sidebar" style="height: 100%;">
 	<ul class="sidebar field_sidebar">
 		<?php foreach($field_types as $field_type => $field_desc) { ?>
 			<div class="block-item field_draggable" data-fieldtype="<?= $field_type ?>" data-description="<?= $field_desc ?>">

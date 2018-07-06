@@ -20,7 +20,6 @@ if (isset($_POST['submit'])) {
     $attachment = 'download/invoice_'.$posid.'.pdf';
     $send_email = $_POST['email'];
 
-	$dbc->query("UPDATE `purchase_orders` SET `date_sent`=CONCAT(IFNULL(CONCAT(`date_sent`,'#*#'),''),DATE(NOW())), `sent_by`=CONCAT(IFNULL(CONCAT(`sent_by`,'#*#'),''),'Email') WHERE `posid`='$posid'");
     send_email('', $_POST['email'], '', '', $subject, $email_body, $attachment);
 
     echo '<script type="text/javascript"> window.location.replace("'.$back_url.'"); </script>';

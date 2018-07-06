@@ -79,6 +79,33 @@ $material_navigation_position = get_config($dbc, 'material_navigation_position')
                             echo display_filter('material.php');
                         ?>
 
+                        <div class="form-group">
+                            <!-- <label for="site_name" class="col-sm-1 control-label">Category:</label>
+                            <div class="col-sm-8" style="width:25%">
+                                <select name="search_category" class="chosen-select-deselect form-control"  width="380">
+                                    <option value="" selected>Select a Category</option>
+                                        <?php
+                                            $query = mysqli_query($dbc,"SELECT distinct(category) FROM material where deleted = 0");
+                                            while($row = mysqli_fetch_array($query)) {
+                                                echo "<option value='". $row['category']."'>".$row['category'].'</option>';
+                                        } ?>
+                                </select>
+                            </div>
+                            &nbsp;&nbsp;&nbsp; -->
+                            <div class="col-sm-8 col-sm-offset-4">
+                                Search By Any:
+                                <?php if(isset($_POST['search_material_submit'])) { ?>
+                    				<input type="text" name="search_material" value="<?php echo $_POST['search_material']?>" class="form-control"  style="width: 20%; display: inline;">
+                    			<?php } else { ?>
+                    				<input type="text" name="search_material" class="form-control" style="width: 20%; display: inline;">
+                    			<?php } ?>
+                        		<span class="popover-examples list-inline" style="margin:0 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here once you have filled out the desired above fields."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                <button type="submit" name="search_material_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                        		<span class="popover-examples list-inline" style="margin:0 0 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Refreshes the page to display all Materials."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                <button type="submit" name="display_all_material" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                            </div>
+                        </div>
+
                 		<div id="no-more-tables">
                 			<?php
                 			// Display Pager

@@ -2,19 +2,10 @@
 $estimateid = ($estimateid > 0 ? $estimateid : filter_var($_GET['view'],FILTER_SANITIZE_STRING));
 $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $approvals = approval_visible_function($dbc, 'estimate');
-$config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
-$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert'); ?>
+$config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]); ?>
 <script>
 $(document).ready(function() {
 	$('input,select').change(saveField).keyup(syncUnsaved);
-    /* var overviewHeight = $('#estimates_main').height() - $('.tile-header').height() + 18;
-    $('.main-screen .fit-to-screen-full').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+overviewHeight+'px !important;'); }) */
-    $(window).resize(function() {
-        available = Math.floor($(window).innerHeight() - $('.main-screen .main-screen').offset().top - $('footer:visible').outerHeight());
-		if(available > 300) {
-            $('.main-screen .fit-to-screen-full').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+available+'px !important;'); })
-		}
-	}).resize();
 });
 <?php if(empty($_GET['view'])) { ?>
 	function saveField() {
@@ -329,18 +320,8 @@ function remove_follow_up(elem) {
 							$scope_description = get_contact($dbc, $scope_line['src_id']);
 						}
 						if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-							if($us_rate_no_auto == 'true') {
-								$scope_line['price'] = $scope_line['cost'];
-								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
-							} else {
-								$scope_line['price'] = $scope_line['cost'] * $us_rate;
-								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
-							}
-						}
-						if($scope_line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') {
-							$scope_line['price'] .= ' USD';
-							$scope_line['cost'] .= ' USD';
-							$scope_line['retail'] .= ' USD';
+							$scope_line['price'] = $scope_line['cost'] * $us_rate;
+							$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
 						}
 						?>
 						<tr>

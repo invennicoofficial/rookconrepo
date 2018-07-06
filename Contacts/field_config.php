@@ -6,7 +6,7 @@ $(document).ready(function() {
 		var available_height = window.innerHeight - $(footer).outerHeight() - $('.main-screen .main-screen').offset().top;
 		if(available_height > 200) {
 			$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
-			$('.tile-sidebar').outerHeight(available_height).css('overflow-y','auto');
+			$('ul.sidebar').outerHeight(available_height).css('overflow-y','auto');
 		}
 	}).resize();
 });

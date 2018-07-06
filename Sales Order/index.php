@@ -85,18 +85,11 @@ if(isset($_POST['copy_order'])) {
 <script type="text/javascript">
     $(document).ready(function() {
         if($(window).width() > 767) {
-            //resizeScreen();
+            resizeScreen();
             $(window).resize(function() {
-                //resizeScreen();
+                resizeScreen();
             });
         }
-        
-        $(window).resize(function() {
-            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_order_div .tile-container').offset().top - 2;
-            if(available_height > 200) {
-                $('#sales_order_div .tile-sidebar, #sales_order_div .tile-content').height(available_height);
-            }
-        }).resize();
     });
 	function searchLeads(string) {
 		$('[data-searchable]').hide();
@@ -152,7 +145,7 @@ if(isset($_POST['copy_order'])) {
 
     function resizeScreen() {
         var view_height = $(window).height() > 800 ? $(window).height() : 800;
-        $('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div').height() - $('.tile-header').height() + 15);
+        $('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div .tile-container').height());
     }
 </script>
 </head>

@@ -26,7 +26,6 @@ $(document).ready(function() {
 <body>
 <?php checkAuthorised('purchase_order');
 include_once ('../navigation.php');
-$po_types = get_config($dbc, 'purchase_order_categories');
 $security = get_security($dbc, 'purchase_order'); ?>
 <div class="container">
 	<div class="iframe_overlay" style="display:none;">
@@ -72,8 +71,6 @@ $security = get_security($dbc, 'purchase_order'); ?>
 							include_once('field_config_promotion.php');
 						} else if(!empty($_GET['settings'])) {
 							include_once('field_config_pos.php');
-						} else if($_GET['tab'] == 'summary') {
-							include_once('summary.php');
 						} else if($_GET['tab'] == 'create') {
 							include_once('add_point_of_sell.php');
 						} else if($_GET['tab'] == 'pending') {
