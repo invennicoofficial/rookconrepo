@@ -216,10 +216,12 @@ function loadSiteHtml(site_id) {
 				clone.html(response);
 				$('.site_address').last().after(clone);
 			} else {
-				if($('[name="address_site_sync"]').is(':checked')) {
-					$('[data-tab-name="address"] .form-group').hide();
-					$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
-				}
+				<?php if(in_array('Synced Site Hide Address',$field_config)) { ?>
+					if($('[name="address_site_sync"]').is(':checked')) {
+						$('[data-tab-name="address"] .form-group').hide();
+						$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
+					}
+				<?php } ?>
 				$('.site_address').html(response);
 				$('.site_address').data('contactid', site_id);
 				setMainSite(site_id);
