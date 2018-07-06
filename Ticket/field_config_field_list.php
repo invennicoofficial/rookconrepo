@@ -284,6 +284,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'PI Work Order') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Work Order", $all_config) ? 'checked disabled' : (in_array("PI Work Order", $value_config) ? "checked" : '') ?> value="PI Work Order" name="tickets[]"> Work Order #</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'PI Scheduled Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Scheduled Date", $all_config) ? 'checked disabled' : (in_array("PI Scheduled Date", $value_config) ? "checked" : '') ?> value="PI Scheduled Date" name="tickets[]"> Scheduled Date</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'PI Date of Entry') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Date of Entry", $all_config) ? 'checked disabled' : (in_array("PI Date of Entry", $value_config) ? "checked" : '') ?> value="PI Date of Entry" name="tickets[]"> Date of Entry</label>
 							<?php } ?>
@@ -1545,6 +1548,9 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Equipment Inline') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Inline", $all_config) ? 'checked disabled' : (in_array("Equipment Inline", $value_config) ? "checked" : '') ?> value="Equipment Inline" name="tickets[]"> Inline Display</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Category", $all_config) ? 'checked disabled' : (in_array("Equipment Category", $value_config) ? "checked" : '') ?> value="Equipment Category" name="tickets[]"> Category</label>
 							<?php } ?>
@@ -1568,6 +1574,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Rate') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Rate", $all_config) ? 'checked disabled' : (in_array("Equipment Rate", $value_config) ? "checked" : '') ?> value="Equipment Rate" name="tickets[]"> Rate</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Equipment Rate Options') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Rate Options", $all_config) ? 'checked disabled' : (in_array("Equipment Rate Options", $value_config) ? "checked" : '') ?> value="Equipment Rate Options" name="tickets[]"> Select Rate</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Cost') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Cost", $all_config) ? 'checked disabled' : (in_array("Equipment Cost", $value_config) ? "checked" : '') ?> value="Equipment Cost" name="tickets[]"> Cost</label>
@@ -1761,6 +1770,9 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Material Inline') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Inline", $all_config) ? 'checked disabled' : (in_array("Material Inline", $value_config) ? "checked" : '') ?> value="Material Inline" name="tickets[]"> Inline Materials</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Material Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Category", $all_config) ? 'checked disabled' : (in_array("Material Category", $value_config) ? "checked" : '') ?> value="Material Category" name="tickets[]"> Material Category</label>
 							<?php } ?>
@@ -3529,12 +3541,33 @@ if(!$action_mode && !$overview_mode) {
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow the user to sign off that the <?= TICKET_NOUN ?> is complete."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<?php if(!$action_mode && !$overview_mode) { ?>
 						<div class="block-group">
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Hide Signature", $all_config) ? 'checked disabled' : (in_array("Complete Hide Signature", $value_config) ? "checked" : '') ?> value="Complete Hide Signature" name="tickets[]"> Hide Signature</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Hide Sign & Complete", $all_config) ? 'checked disabled' : (in_array("Complete Hide Sign & Complete", $value_config) ? "checked" : '') ?> value="Complete Hide Sign & Complete" name="tickets[]"> Hide Sign & Complete Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Sign & Force Complete", $all_config) ? 'checked disabled' : (in_array("Complete Sign & Force Complete", $value_config) ? "checked" : '') ?> value="Complete Sign & Force Complete" name="tickets[]"> Sign & Force Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Do Not Require Notes", $all_config) ? 'checked disabled' : (in_array("Complete Do Not Require Notes", $value_config) ? "checked" : '') ?> value="Complete Do Not Require Notes" name="tickets[]"> Do Not Require Notes To Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Default Session User", $all_config) ? 'checked disabled' : (in_array("Complete Default Session User", $value_config) ? "checked" : '') ?> value="Complete Default Session User" name="tickets[]"> Default Select Logged In User</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Email Users On Complete", $all_config) ? 'checked disabled' : (in_array("Complete Email Users On Complete", $value_config) ? "checked" : '') ?> value="Complete Email Users On Complete" name="tickets[]"> Email Users On Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Combine Checkout Summary", $all_config) ? 'checked disabled' : (in_array("Complete Combine Checkout Summary", $value_config) ? "checked" : '') ?> value="Complete Combine Checkout Summary" name="tickets[]"> Combine Checkout, Staff Summary, and Complete</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Submit Approval", $all_config) ? 'checked disabled' : (in_array("Complete Submit Approval", $value_config) ? "checked" : '') ?> value="Complete Submit Approval" name="tickets[]"> Submit for Approval</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Main Approval", $all_config) ? 'checked disabled' : (in_array("Complete Main Approval", $value_config) ? "checked" : '') ?> value="Complete Main Approval" name="tickets[]"> Approval by Supervisor</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Office Approval", $all_config) ? 'checked disabled' : (in_array("Complete Office Approval", $value_config) ? "checked" : '') ?> value="Complete Office Approval" name="tickets[]"> Approval by Office</label>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Approval Email Address:<br /><em>This e-mail address will receive email notification that the <?= TICKET_NOUN ?> has been submitted for approval</em></label>
+								<div class="col-sm-8">
+									<input type="text" name="ticket_email_approval" class="form-control" value="<?= get_config($dbc, 'ticket_email_approval') ?>">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Approval Status:<br /><em>The <?= TICKET_NOUN ?> status will be set to this when submitted for Approval</em></label>
+								<div class="col-sm-8">
+									<?php $approval_status = get_config($dbc, 'ticket_approval_status'); ?>
+									<select name="ticket_approval_status" class="chosen-select-deselect" data-placeholder="Select a status"><option />
+										<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_name) { ?>
+											<option <?= $status_name == $approval_status ? 'selected' : '' ?> value="<?= $status_name ?>"><?= $status_name ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
 						</div>
 					<?php } ?>
 				</div>

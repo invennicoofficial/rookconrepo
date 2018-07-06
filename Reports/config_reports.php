@@ -553,6 +553,10 @@ if (isset($_POST['submit'])) {
 							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ',Labour Report,') !== FALSE) { echo " checked"; } ?> value="Labour Report" name="reports_dashboard[]"> Labour Report</label>
 						</div>
 
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ',Dollars By Service,') !== FALSE) { echo " checked"; } ?> value="Dollars By Service" name="reports_dashboard[]"> Dollars By Service</label>
+						</div>
+
                         <div class="clearfix"></div>
 
                         <h3>Marketing</h3>
@@ -818,6 +822,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Costs" <?= $mobile_landing_subtab_config['value']=='Costs' ? 'selected="selected"' : '' ?>>Costs</option>
                                         <option value="Summary" <?= $mobile_landing_subtab_config['value']=='Summary' ? 'selected="selected"' : '' ?>>Summary</option>
                                         <option value="Labour Report" <?= $mobile_landing_subtab_config['value']=='Labour Report' ? 'selected="selected"' : '' ?>>Labour Report</option>
+                                        <option value="Dollars By Service" <?= $mobile_landing_subtab_config['value']=='Dollars By Service' ? 'selected="selected"' : '' ?>>Dollars By Service</option>
 
                                     </optgroup>
                                     <optgroup label="Marketing">
@@ -975,6 +980,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Costs" <?= $desktop_landing_subtab_config['value']=='Costs' ? 'selected="selected"' : '' ?>>Costs</option>
                                         <option value="Summary" <?= $desktop_landing_subtab_config['value']=='Summary' ? 'selected="selected"' : '' ?>>Summary</option>
                                         <option value="Labour Report" <?= $desktop_landing_subtab_config['value']=='Labour Report' ? 'selected="selected"' : '' ?>>Labour Report</option>
+                                        <option value="Dollars By Service" <?= $desktop_landing_subtab_config['value']=='Dollars By Service' ? 'selected="selected"' : '' ?>>Dollars By Service</option>
                                     </optgroup>
                                     <optgroup label="Marketing">
                                         <option value="CRM Recommendations - By Customer" <?= $desktop_landing_subtab_config['value']=='CRM Recommendations - By Customer' ? 'selected="selected"' : '' ?>>CRM Recommendations - By Customer</option>

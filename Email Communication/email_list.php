@@ -269,10 +269,10 @@ function closeEmailPopup() {
 			echo get_project($dbc, $row['projectid'], 'project_name').'</td>';
         }
         if (strpos($value_config, ','."Subject".',') !== FALSE) {
-            echo '<td data-title="Subject"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . $row['subject']. '</a></td>';
+            echo '<td data-title="Subject"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode(htmlspecialchars_decode($row['subject'])). '</a></td>';
         }
         if (strpos($value_config, ','."Body".',') !== FALSE) {
-            echo '<td data-title="Body"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode($row['email_body']). '</a></td>';
+            echo '<td data-title="Body"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode(htmlspecialchars_decode($row['email_body'])). '</a></td>';
         }
         if (strpos($value_config, ','."Attachment".',') !== FALSE) {
             echo '<td data-title="Attachment">';

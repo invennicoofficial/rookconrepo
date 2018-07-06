@@ -934,6 +934,7 @@ function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_c
 		}
 		if(height == undefined || height == '' || height == 'auto' || $(document).width() < 768) {
 			height = 'auto';
+			iframe.height($('html body').height() - $('#nav:visible').height() - $('#footer:visible').height());
 		}
 		iframe.find('.iframe').css('position', 'relative');
 		iframe.find('.iframe').css('left', '100%');
