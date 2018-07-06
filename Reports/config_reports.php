@@ -497,6 +497,9 @@ if (isset($_POST['submit'])) {
 						<div class="col-sm-4">
 							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Receipts Summary Report".',') !== FALSE) { echo " checked"; } ?> value="Receipts Summary Report" name="reports_dashboard[]"> Receipts Summary Report</label>
 						</div>
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Item Closing % By Quantity".',') !== FALSE) { echo " checked"; } ?> value="Estimate Item Closing % By Quantity" name="reports_dashboard[]"> Estimate Item Closing % By Quantity</label>
+						</div>
                         <div class="clearfix"></div>
 
                         <h3>Accounts Receivable</h3>
@@ -793,6 +796,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Sales by Service Category" <?= $mobile_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                                         <option value="Sales Estimates" <?= $mobile_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                                         <option value="Receipts Summary Report" <?= $mobile_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                                        <option value="Estimate Item Closing % By Quantity" <?= $mobile_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                                         <option value="Gross Revenue by Staff" <?= $mobile_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                                         <option value="Patient Invoices" <?= $mobile_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
                                         <option value="POS Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>
@@ -951,6 +955,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Sales by Service Category" <?= $desktop_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                                         <option value="Sales Estimates" <?= $desktop_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                                         <option value="Receipts Summary Report" <?= $desktop_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                                        <option value="Estimate Item Closing % By Quantity" <?= $desktop_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                                         <option value="Gross Revenue by Staff" <?= $desktop_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                                         <option value="Patient Invoices" <?= $desktop_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
                                         <option value="POS Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>

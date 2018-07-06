@@ -23,7 +23,7 @@ function reports_tiles($dbc) { ?>
 
     $active1 = $active2 = $active3 = $active4 = $active5 = $active6 = $active7a = $active7b = $active8 = $active9 = $active10 = $active11 = $active12 = $active13a = $active13b = $active14 = $active15 = '';
 
-    $active16 = $active17 = $active18 = $active19 = $active20 = $active21 = $active22 = $active23 = $active24 = $active25 = $active26 = $active27 = $active28 = $active29 = $active29b = $active30 = $active31 = $active32 = $active32a = $active33 = $active34a = $active34b = $active35 = $active36 = $active37 = $active38 = $active39 = $active40 = $active41 = $active42 = $active43 = $active44 = $active45 = $active46 = $active47 = $active48 = $active49 = $active50 = $active51 = $active52 = $active53 = '';
+    $active16 = $active17 = $active18 = $active19 = $active20 = $active21 = $active22 = $active23 = $active24 = $active25 = $active26 = $active27 = $active28 = $active29 = $active29b = $active30 = $active31 = $active32 = $active32a = $active33 = $active34a = $active34b = $active35 = $active36 = $active37 = $active38 = $active39 = $active40 = $active41 = $active42 = $active43 = $active44 = $active45 = $active46 = $active47 = $active48 = $active49 = $active50 = $active51 = $active52 = $active53 = $active103 = '';
 
     $active54 = $active55 = $active55b = '';
 
@@ -588,6 +588,11 @@ function reports_tiles($dbc) { ?>
 					if (strpos($value_config, ',Receipts Summary Report,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'sales_receipts' ) === true) { ?>
 						<option value='report_receipt_summary.php?type=sales' <?= 'active_tab' == $active51 ? 'selected' : '' ?>>Receipts Summary Report</option><?php
 					}
+
+					if (strpos($value_config, ',Estimate Item Closing % By Quantity,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'sales_receipts' ) === true) { ?>
+						<option value='report_estimate_qty.php?type=sales' <?= 'active_tab' == $active103 ? 'selected' : '' ?>>Estimate Item Closing % By Quantity</option><?php
+					}
+
 					if (strpos($value_config, ',Gross Revenue by Staff,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'staff_gross_revenue' ) === true) { ?>
 						<option value='report_gross_revenue_by_staff.php?type=sales' <?= 'active_tab' == $active53 ? 'selected' : '' ?>>Gross Revenue by Staff</option><?php
 					}

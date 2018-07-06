@@ -240,5 +240,8 @@ if($get_config['configid'] > 0) {
     $result_insert_config = mysqli_query($dbc, $query_insert_config);
 }
 
+
+mysqli_query($dbc, "ALTER TABLE `estimate_scope` ADD `today_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `sort_order`");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
