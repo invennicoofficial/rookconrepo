@@ -179,5 +179,20 @@
     }
     //2018-07-03 - Ticket #7549 - Mileage Sheet
 
+    //2018-07-04 - Ticket #7868 - Incident Reports Form Builder
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `user_form_id` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `pdf_id` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-04 - Ticket #7868 - Incident Reports Form Builder
+
+    //2018-07-04 - Ticket #8009 - Sessions Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `guardianid` int(11) NOT NULL DEFAULT 0 AFTER `clientid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-04 - Ticket #8009 - Sessions Additions
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

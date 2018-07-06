@@ -7,7 +7,7 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').not('.show-on-mob .main-screen').is(':visible')) {
-			var available_height = window.innerHeight - $(footer).outerHeight() - $('.sidebar:visible').offset().top;
+			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
 			if(available_height > 200) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
@@ -38,7 +38,7 @@ checkAuthorised('match');
 	                    // echo "<div class='pull-right gap-left'><a href='?&settings=payroll'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 	                // }
                     if($edit_access == 1) {
-						echo "<div class='pull-right gap-left'><a href='?edit=' class='new-btn'><button class='btn brand-btn hide-titles-mob'>New Match</button></a></div>";
+						echo "<div class='pull-right gap-left'><a href='?edit=' class='new-btn'><button class='btn brand-btn'>New Match</button></a></div>";
                     } ?>
                 </div>
                 <div class="scale-to-fill">

@@ -52,7 +52,7 @@ if(mysqli_num_rows($form_list) > 0) {
 				<td data-title="Form Name"><?= $form['name'] ?></td>
 				<?php if ($type != 'templates') { ?>
 					<td data-title="Assigned Tiles">
-						<?php $tile_list = ['contracts' => 'Contracts', 'hr' => 'HR', 'infogathering' => 'Information Gathering', 'safety'=> 'Safety', 'treatment' => 'Treatment Charts', 'intake' => 'Intake Forms', 'performance_review' => 'Performance Reviews', 'project' => 'Projects', 'attach_contact' => 'Attach to Contact'];
+						<?php $tile_list = ['contracts' => 'Contracts', 'hr' => 'HR', 'infogathering' => 'Information Gathering', 'safety'=> 'Safety', 'treatment' => 'Treatment Charts', 'intake' => 'Intake Forms', 'performance_review' => 'Performance Reviews', 'project' => 'Projects', 'attach_contact' => 'Attach to Contact', 'incident_report' => INC_REP_TILE];
 						$assigned_tiles = explode(',', $form['assigned_tile']);
 						$tile_text = '';
 						foreach ($assigned_tiles as $assigned_tile) {
