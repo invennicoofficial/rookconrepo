@@ -957,7 +957,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['summary']) || $no_sub_shown;
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
 			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); $next_tab = (!$next_set ? 'summary' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a><?php } ?>
