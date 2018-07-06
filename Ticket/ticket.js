@@ -1638,8 +1638,11 @@ function reload_complete() {
 	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
-		initInputs('#collapse_ticket_contact_notes');
-		initInputs('#tab_section_ticket_contact_notes');
+		initInputs('#collapse_ticket_complete');
+		initInputs('#tab_section_ticket_complete');
+		if(typeof initPad == 'function') {
+			initPad();
+		}
 	});
 }
 function clearNote(type, block) {

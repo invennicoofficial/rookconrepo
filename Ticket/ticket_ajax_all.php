@@ -462,6 +462,21 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 
+	$value_config = get_field_config($dbc, 'tickets');
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+		if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
+			$_POST['date'] = $get_ticket['to_do_date'];
+		}
+	}
+
 	if($field_name == 'status') {
 		$current_history_value = mysqli_fetch_assoc(mysqli_query($dbc, "select history from tickets where ticketid = $id"));
 		$current_history = $current_history_value['history'];
