@@ -2112,7 +2112,13 @@ if($_GET['action'] == 'update_fields') {
 	foreach($misc_item as $i => $misc) {
 		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."')");
 	}
-	echo WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoiceid;
+	$tile_target = 'Invoice';
+	if(!tile_visible($dbc, 'check_out')) {
+		if(tile_visible($dbc, 'posadvanced')) {
+			$tile_target = 'POSAdvanced';
+		}
+	}
+	echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid;
 } else if($_GET['action'] == 'task_types') {
 	foreach($_POST['tasks'] as $sort => $data) {
 		$cat = filter_var($data['category'],FILTER_SANITIZE_STRING);
