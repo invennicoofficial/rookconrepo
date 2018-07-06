@@ -2911,7 +2911,7 @@ tbody.collapse.in {
       margin-right: 15px; }
       .navbar-text.navbar-right:last-child {
         margin-right: 0; } }
-
+.navbar-right a.active-ticket { color:#fff !important; }
 .navbar-default {
   background-color: #000 !important;
   border-color: #fff !important; }
@@ -4658,7 +4658,7 @@ th {
 .brand-nav {
   background: #000); }
   .brand-nav a {
-    color: #eb6e1e !important;
+    color: #fff !important;
     text-shadow: 2px 2px 2px #222222; }
     .brand-nav a:hover {
       color: #fafafa !important; }
