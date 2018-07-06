@@ -153,6 +153,8 @@ foreach(explode(',',get_config($dbc, "project_tabs")) as $type_name) {
 }
 $status_list = explode('#*#',get_config($dbc, 'project_status'));
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 AND `show_hide_user`=1"));
+$project_slider = get_config($dbc, 'project_slider');
+$project_slider_label = get_config($dbc, 'project_slider_label');
 foreach($_POST['projectids'] as $projectid) {
 	if($projectid > 0) {
 		$project_count++;
@@ -180,6 +182,11 @@ foreach($_POST['projectids'] as $projectid) {
 						<?php } ?>
 					</span>
 				</a>
+				<?php if($project_slider == 'button') { ?>
+					<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Project/projects.php?edit=<?= $project['projectid'] ?>&iframe_slider=1', 'auto', false, true); return false;" class="btn brand-btn"><?= (!empty($project_slider_label) ? $project_slider_label : 'Sign In') ?></a>
+				<?php } else if($project_slider == 'icon') { ?>
+					<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Project/projects.php?edit=<?= $project['projectid'] ?>&iframe_slider=1', 'auto', false, true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+				<?php } ?>
 				<img class="inline-img pull-right" src="../img/full_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? '' : 'display: none' ?>" onclick="markFavourite(this);">
 				<img class="inline-img pull-right" src="../img/blank_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? 'display: none' : '' ?>" onclick="markFavourite(this);">
 				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
