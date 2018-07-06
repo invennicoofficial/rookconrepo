@@ -21,9 +21,8 @@
 	} else {
 		$keep_revisions = 0;
 	}
-	$user_form_id = filter_var($_POST['user_form_id'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `field_config_incident_report` (`row_type`, `incident_types`, `user_form_id`) SELECT '$incident_type', '$type_list', '$user_form_id' FROM (SELECT COUNT(*) rows FROM `field_config_incident_report` WHERE `row_type`='$incident_type') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `field_config_incident_report` SET `incident_report`='$incident_report', `hide_fields`='$hide_fields', `report_info`='$report_info', `keep_revisions` = '$keep_revisions', `user_form_id` = '$user_form_id' WHERE `row_type`='$incident_type'");
+	mysqli_query($dbc, "INSERT INTO `field_config_incident_report` (`row_type`, `incident_types`) SELECT '$incident_type', '$type_list' FROM (SELECT COUNT(*) rows FROM `field_config_incident_report` WHERE `row_type`='$incident_type') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_incident_report` SET `incident_report`='$incident_report', `hide_fields`='$hide_fields', `report_info`='$report_info', `keep_revisions` = '$keep_revisions' WHERE `row_type`='$incident_type'");
 
     echo '<script type="text/javascript"> window.location.replace(""); </script>';
 }
@@ -35,22 +34,11 @@ foreach(str_getcsv(html_entity_decode($get_field_config['incident_types']), ',')
 	}
 }
 ?>
-<script type="text/javascript">
-$(document).ready(function() {
-	$('[name="user_form_id"]').change(function() {
-		if($(this).val() > 0) {
-			$('.incident_report_fields .form-group:not(.type_and_individuals)').hide();
-		} else {
-			$('.incident_report_fields .form-group').show();
-		}
-	}).change();
-});
-</script>
 <input type="hidden" name="full_type" value="<?= $main_type ?>">
 <input type="hidden" name="full_type_list" value="<?= $get_field_config['incident_types'] ?>">
 
 <div class="form-group gap-top">
-	<?php $incident_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions`, `user_form_id` FROM `field_config_incident_report` WHERE `row_type`='$main_type' UNION SELECT GROUP_CONCAT(`incident_report`), '', '', '', '' FROM `field_config_incident_report` WHERE IFNULL(`incident_report`,'') != ''"));
+	<?php $incident_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions` FROM `field_config_incident_report` WHERE `row_type`='$main_type' UNION SELECT GROUP_CONCAT(`incident_report`), '', '', '' FROM `field_config_incident_report` WHERE IFNULL(`incident_report`,'') != ''"));
 	$value_config = ','.$incident_config['incident_report'].',';
 	$report_info = $incident_config['report_info'];
 	$hide_config = [];
@@ -58,23 +46,7 @@ $(document).ready(function() {
 	foreach(explode('#*#',$incident_config['hide_fields']) as $hide_list) {
 		$hide_list = explode(':|',$hide_list);
 		$hide_config[$hide_list[0]] = $hide_list[1];
-	}
-	$user_form_id = $incident_config['user_form_id'];
-
-	$user_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `deleted` = 0 AND CONCAT(',',`assigned_tile`,',') LIKE '%,incident_report,%' AND `is_template` = 0");
-	if(mysqli_num_rows($user_forms) > 0) { ?>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Use Form Builder Form:</label>
-			<div class="col-sm-8">
-				<select name="user_form_id" class="chosen-select-deselect form-control">
-					<option></option>
-					<?php while($user_form = mysqli_fetch_assoc($user_forms)) {
-						echo '<option value="'.$user_form['form_id'].'" '.($user_form_id == $user_form['form_id'] ? 'selected' : '').'>'.$user_form['name'].'</option>';
-					} ?>
-				</select>
-			</div>
-		</div>
-	<?php } ?>
+	} ?>
 	
 	<div class="form-group">
 		<label class="col-sm-4 control-label"><?= INC_REP_NOUN ?> Information:<br /><em>This information is specific to the type of <?= INC_REP_NOUN ?>, and will be displayed at the top of the report on the screen and on the PDF.</em></label>
@@ -91,8 +63,8 @@ $(document).ready(function() {
 	</div>
 
 	<input type="checkbox" id="selectall"/> Select All
-	<div id='no-more-tables' class="incident_report_fields">
-		<div class="form-group type_and_individuals">
+	<div id='no-more-tables'>
+		<div class="form-group">
 			<label class="col-sm-4 control-label">Type &amp; Individuals:</label>
 			<div class="col-sm-8">
 				<input type="checkbox" <?php if (strpos($value_config, ','."Type_DetailsLabel".',') !== FALSE) { echo " checked"; } ?> value="Type_DetailsLabel" style="height: 20px; width: 20px;" name="incident_report[]">&nbsp;&nbsp;Use Label "Details of Staff/Member(s) Involved"

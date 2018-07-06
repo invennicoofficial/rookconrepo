@@ -1334,7 +1334,6 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_guardian_contact'], filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	if(is_array($_POST['fields'])) {
 		$value = implode(',',$_POST['fields']);

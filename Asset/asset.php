@@ -51,7 +51,22 @@ $asset_navigation_position = get_config($dbc, 'asset_navigation_position');
                         } ?>
                         <div class="clearfix"></div>
 
-                        <div id="no-more-tables">
+                        <div class="form-group" style="display: block;">
+                            <label for="site_name" class="col-sm-2 control-label" style="text-align: right; padding-top: 5px;">Search By Any:</label>
+                            <div class="col-sm-4">
+            					<?php if(isset($_POST['search_asset_submit'])) { ?>
+            						<input type="text" name="search_asset" value="<?php echo $_POST['search_asset']?>" class="form-control">
+            					<?php } else { ?>
+            						<input type="text" name="search_asset" class="form-control">
+            					<?php } ?>
+                            </div>
+                        </div>
+                        <div class="tab-container">
+            				<button type="submit" name="search_asset_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+            				<button type="submit" name="display_all_asset" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                        </div>
+
+                		<div id="no-more-tables">
                 			<?php
                 			// Display Pager
                 			$asset = '';

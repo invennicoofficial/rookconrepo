@@ -42,7 +42,6 @@ $(document).ready(function() {
 	group.find('.pdf_styling_options').hide();
 	group.find('.services_fields').hide();
 	group.find('.pdf_styling_checkbox').hide();
-	group.find('.select_fields').hide();
 	switch(field_type) {
 		case 'SERVICES':
 			group.find('.default_value').hide();
@@ -77,7 +76,6 @@ $(document).ready(function() {
 			group.find('.option_fields').show();
 			group.find('.text_content').hide();
 			group.find('.tableadv_fields').hide();
-			group.find('.select_fields').show();
 			break;
 		case 'RADIO':
 		case 'CHECKBOX':
@@ -95,7 +93,6 @@ $(document).ready(function() {
 			group.find('.dropdown_fields').show();
 			group.find('.text_content').hide();
 			group.find('.tableadv_fields').hide();
-			group.find('.select_fields').show();
 			break;
 		case 'TABLE':
 			group.find('.default_value').hide();
@@ -201,9 +198,6 @@ function saveFields(field) {
 	var mandatory = 0;
 	if($('[name=field_mandatory]').is(':checked')) {
 		var mandatory = $('[name=field_mandatory]').val();
-	}
-	if($('[name=field_multiple]').is(':checked')) {
-		content += $('[name=field_multiple]').val();
 	}
 
 	var option_row_fields = [];
@@ -682,7 +676,7 @@ function sortableServices() {
 	<div class="form-group text_content" style="display:none;">
 		<label class="col-sm-12">Content:</label>
 		<div class="col-sm-12">
-			<textarea name="field_content" class="form-control"><?= $field_info['type'] != 'SELECT' && $field_info['type'] != 'SELECT_CUS' ? html_entity_decode($field_info['content']) : '' ?></textarea>
+			<textarea name="field_content" class="form-control"><?= html_entity_decode($field_info['content']) ?></textarea>
 		</div>
 		<button id="add_content_input" class="btn brand-btn pull-right" onclick="addContentInput(this); return false;">Add Input</button>
 	</div>
@@ -744,7 +738,7 @@ function sortableServices() {
 	<div class="form-group slider_fields" style="display:none;">
 		<label class="col-sm-12">Min Value:</label>
 		<div class="col-sm-12">
-			<input type="number" name="slider_min" class="form-control" value="<?= (explode(',',$field_info['content'])[0]) > 0 ? explode(',',$field_info['content'])[0] : '0' ?>">
+			<input type="number" name="slider_min" class="form-control" value="<?= !empty(explode(',',$field_info['content'])[0]) ? explode(',',$field_info['content'])[0] : '0' ?>">
 		</div>
 	</div>
 
@@ -819,13 +813,6 @@ function sortableServices() {
 		<label class="col-sm-12">
 			Hide Prices From External Users:&nbsp;
 			<input type="checkbox" name="hide_from_external" value="hide_from_external" <?= strpos(','.$field_info['source_conditions'].',', ',hide_from_external,') !== FALSE ? 'checked' : '' ?> style="position: relative; top: 0.5em;">
-	</div>
-
-	<div class="form-group select_fields" style="display: none;">
-		<label class="col-sm-12">
-			Allow Multiple Selections:&nbsp;
-			<input type="checkbox" name="field_multiple" value="multiple" <?= $field_info['content'] == 'multiple' ? 'checked' : '' ?> style="position: relative; top: 0.5em;">
-		</label>
 	</div>
 
 	<div class="mandatory_field">

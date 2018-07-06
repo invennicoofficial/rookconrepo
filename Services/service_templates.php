@@ -6,27 +6,9 @@ error_reporting(0);
 include ('../include.php');
 ?>
 <script type="text/javascript">
-$(document).ready(function(){
-    /* if($(window).width() > 767) {
-        resizeScreen();
-        $(window).resize(function() {
-            resizeScreen();
-        });
-    } */
-    
-    $(window).resize(function() {
-		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar:visible').offset().top;
-        if(available_height > 300) {
-            $('.tile-sidebar, .scale-to-fill').height(available_height);
-            $('.main-screen-white').height(available_height - 10);
-        }
-	}).resize();
-});
+$(document).ready(function() {
 
-function resizeScreen() {
-    $('#services_div .tile-sidebar, #services_div .scale-to-fill').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
-    $('#services_div .main-screen-white').height($('#services_div .tile-content').height() - 10);
-}
+});
 </script>
 </head>
 

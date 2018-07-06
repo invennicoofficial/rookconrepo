@@ -131,21 +131,7 @@ if(isset($_POST['submit_pdf'])) {
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
-    $(window).resize(function() {
-		$('.main-screen').css('padding-bottom',0);
-		if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
-			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
-			if(available_height > 300) {
-				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
-				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
-				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-			}
-            var sidebar_height = $('.tile-sidebar').outerHeight(true);
-            $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
-		} else {
-			$('.main-screen .main-screen').css('height','auto');
-		}
-	}).resize();
+
 });
 function generate_import_csv() {
     $.ajax({

@@ -178,10 +178,8 @@ if(!empty($_GET['reload_table'])) {
 	function updateServiceQuantity(input) {
 		var qty = $(input).val();
 		if(qty < 1) {
-			$(input).closest('.cattype_block').find('[name="serviceid"]:checked').prop('checked', false);
-			$(input).closest('.cattype_block').find('[name="serviceid"]').first().change();
-			// qty = 1;
-			// $(input).val(1);
+			qty = 1;
+			$(input).val(1);
 		}
 		var block = $(input).closest('.cattype_block');
 		$(block).find('[name="service_qty"]').val(qty);
