@@ -965,6 +965,9 @@ function savePathName(name) {
                                 $task_path = $row['task_path'];
                                 $task_board = $row['task_board'];
 							}
+							if(is_array($task_board)) {
+								$task_board = $task_board['taskboardid'];
+							}
 
 							echo '<li class="new_task_box no-sort"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to quickly add a task and then hit Enter."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>
 								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$task_board.'" type="text" class="form-control" style="max-width:96%;" /></li>';
