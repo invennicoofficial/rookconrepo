@@ -319,7 +319,7 @@ div.toggle-switch {
 }
 .iframe_overlay {
 	background-color: rgba(0,168,255,0.3);
-	height: calc(100vh - 220px);
+	height: calc(100vh - 103px);
 	margin: 0;
 	margin-left: -15px;
 	margin-top: -20px;

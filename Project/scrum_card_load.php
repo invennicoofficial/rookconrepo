@@ -40,7 +40,7 @@ if($type == 'Ticket') {
 		$icon_img = '';
 	}
 	$label = $icon_img.'<a target="_parent" href="../Ticket/index.php?edit='.$item['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).
-		'">'.get_ticket_label($dbc, $item).'</a>';
+		'" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$item['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;">'.get_ticket_label($dbc, $item).'</a>';
 	$date = $item['to_do_date'];
 	$date_name = 'to_do_date';
 	if($item['status'] == 'Internal QA') {

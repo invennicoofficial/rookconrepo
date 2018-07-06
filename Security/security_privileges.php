@@ -1086,7 +1086,7 @@ function go_to_dashboard(target) {
 			<?php if(strpos($on_security, ',ticket,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('ticket', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment"><?= TICKET_TILE ?></td>
-				<?php echo security_tile_config_function('ticket', get_privileges($dbc, 'ticket',$level), 1, $level_url, 1, 0, 0, 1); ?>
+				<?php echo security_tile_config_function('ticket', get_privileges($dbc, 'ticket',$level), 1, $level_url, 1, 1, 0, 1); ?>
 			</tr>
 			<?php } ?>
 			<?php $ticket_types = array_filter(explode(',', get_config($dbc, 'ticket_tabs')));
