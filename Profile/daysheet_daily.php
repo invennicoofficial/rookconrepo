@@ -93,7 +93,7 @@ mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_arch
 
 //Tickets
 $equipment = [];
-$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid' AND DATE(`equipment_assignment`.`start_date`) <= '$daily_date' AND DATE(`equipment_assignment`.`end_date`) >= '$daily_date'");
+$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid' AND DATE(`equipment_assignment`.`start_date`) <= '$daily_date' AND DATE(`equipment_assignment`.`end_date`) >= '$daily_date' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,$contactid,%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,$daily_date,%'");
 while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
 $equipment = implode(',',array_filter($equipment));
 if($equipment == '') {
