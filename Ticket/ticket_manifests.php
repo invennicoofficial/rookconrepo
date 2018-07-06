@@ -268,7 +268,7 @@ if($siteid == 'recent') {
 					<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><th>Vendor / Shipper</th><?php } ?>
-					<?php if(in_array('manual qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) { ?><th>Qty</th><?php } ?>
+					<?php if(in_array('manual qty',$manifest_fields)) { ?><th>Qty</th><?php } ?>
 					<?php if(in_array('group pieces',$manifest_fields)) { ?><th style="min-width:8em;width:auto;">Qty</th><?php } ?>
 					<?php if(in_array('notes',$manifest_fields)) { ?><th>Notes</th><?php } ?>
 					<?php if((!in_array('req site',$manifest_fields) || $siteid > 0) && !in_array('group pieces',$manifest_fields)) { ?><th>Add <button class="btn brand-btn pull-right" onclick="$('input[type=checkbox]').prop('checked',true); return false;">Select All<br />(from current page)</button></th><?php } ?>
