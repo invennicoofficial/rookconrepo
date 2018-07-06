@@ -5180,10 +5180,10 @@ li.sidebar-lower-level.active span {
   color: #dc6214 !important;
 }
 .block-panels .panel-heading.active {
-  background-color: #dc6214 !important;
+  background-color:#dc6214 !important;
 }
-.block-panels .panel-heading.active a {
-  color: #fff !important;
+.block-panels .panel-heading.active a { 
+  color:#fff !important;
 }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
   border: 1px solid #dc6214 !important;
