@@ -80,6 +80,20 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 6, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `main_approval` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `sign_off_signature`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `final_approval` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `main_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `main_approval_signed` TEXT AFTER `main_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `final_approval_signed` TEXT AFTER `final_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	

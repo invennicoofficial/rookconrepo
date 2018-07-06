@@ -332,6 +332,15 @@ var projectFilter = function() {
 			</div>
 		<?php } ?>
 
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8">
+				<input type="text" name="to_do_date" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_date'] != '' ? $get_ticket['to_do_date'] : 'today')) ?>">
+			  </div>
+			</div>
+		<?php } ?>
+
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Date of Entry:</label>
@@ -661,6 +670,16 @@ var projectFilter = function() {
 			  </div>
 			</div>
 			<?php $pdf_contents[] = ['Work Order #', $get_ticket['heading']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8">
+				<?= date('Y-m-d',strtotime($get_ticket['to_do_date'])) ?>
+			  </div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled Date', date('Y-m-d',strtotime($get_ticket['to_do_date']))]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>
