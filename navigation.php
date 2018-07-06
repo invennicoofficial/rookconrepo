@@ -258,7 +258,7 @@ if(!isset($_SESSION['info_toggle'])) {
 
 $fullscreen = $_SESSION['fullscreen'];
 if(!isset($_SESSION['fullscreen'])) {
-	$fullscreen = 1;
+	$fullscreen = 0;
 } ?>
 
 <!-- Static navbar -->
