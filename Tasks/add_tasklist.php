@@ -35,7 +35,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'Doing';
+        $task_status = 'Doing2';
     }
     if($task_status == 'Archived') {
         $archived_date = date('Y-m-d');
