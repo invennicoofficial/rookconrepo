@@ -4,7 +4,7 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 
 if(isset($_GET['contactid']) && !empty($_GET['contactid'])) {
-	$contactid = $_GET['contactid'];	
+	$contactid = $_GET['contactid'];
 } else {
 	$contactid = $_SESSION['contactid'];
 }
@@ -86,7 +86,7 @@ if(url_exists(WEBSITE_URL."/Profile/download/profile_pictures/".$contactid.".jpg
 $html .= '<h1 style="text-align: center">';
 $logo = WEBSITE_URL.'/Settings/download/'.get_config($dbc, 'logo_upload');
 if(url_exists($logo)) {
-	$html .= '<img src="'.$logo.'" style="height:25px;"> ';
+	//$html .= '<img src="'.$logo.'" style="height:25px;"> ';
 }
 $html .= get_contact($dbc, $contactid);
 if($profile_img != '') {
