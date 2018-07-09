@@ -17,7 +17,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'To Do';
+        $task_status = 'Done';
     }
     $task_category = $_POST['task_category'];
 
