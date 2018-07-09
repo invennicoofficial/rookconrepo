@@ -1022,6 +1022,29 @@ checkAuthorised('tasks');
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
             <?php } ?>
+
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
+                <div class="col-sm-8">
+                    <select data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
+                        <option value=""></option>
+					  <?php
+						$tabs = get_config($dbc, 'ticket_status');
+						$each_tab = explode(',', $tabs);
+						foreach ($each_tab as $cat_tab) {
+							if ($task_status == $cat_tab) {
+								$selected = 'selected="selected"';
+							} else {
+								$selected = '';
+							}
+							echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+						}
+					  ?>
+                    </select>
+                </div>
+            </div>
+
+            <!--
             <div class="form-group clearfix">
                 <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
                 <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
@@ -1029,6 +1052,7 @@ checkAuthorised('tasks');
                     <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
                 </div>
             </div>
+            -->
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
@@ -1300,27 +1324,6 @@ checkAuthorised('tasks');
             <?php if($slider_layout == 'accordion') { ?>
                 </div>
             <?php } ?>
-
-            <!--
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
-                <div class="col-sm-8">
-                    <select data-placeholder="Select a Status..." name="task_status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
-                        <option value=""></option><?php
-                        /* $tabs = get_config($dbc, 'task_status');
-                        $each_tab = explode(',', $tabs);
-                        foreach ($each_tab as $cat_tab) {
-                            if ($task_status == $cat_tab) {
-                                $selected = 'selected="selected"';
-                            } else {
-                                $selected = '';
-                            }
-                            echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-                        } */ ?>
-                    </select>
-                </div>
-            </div>
-            -->
 
             <div class="form-group pull-right">
                 <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>
