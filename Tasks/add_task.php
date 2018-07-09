@@ -27,6 +27,7 @@ if(IFRAME_PAGE) {
 
 //echo $_SERVER[REQUEST_URI];
 
+/*
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -82,7 +83,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'Doing1';
+        $task_status = 'To Do';
     }
     if($task_status == 'Archived') {
         $archived_date = date('Y-m-d');
@@ -232,6 +233,7 @@ if (isset($_POST['tasklist'])) {
 
     echo '<script type="text/javascript"> window.location.replace("'.$url.'"); </script>';
 }
+*/
 ?>
 
 <script type="text/javascript">
@@ -578,7 +580,7 @@ checkAuthorised('tasks');
                 $task_businessid = $get_task['contactid'];
                 $task_heading = get_support($dbc, $supportid, 'heading');
                 $task = html_entity_decode(get_support($dbc, $supportid, 'message'));
-                $task_status = 'Done';
+                $task_status = 'To Do';
                 echo '<input type="hidden" name="supportid" value="'.$_GET['supportid'].'" />';
             }
 
