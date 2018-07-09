@@ -36,6 +36,9 @@
 	$filter_name = $filter_data['filter_name'];
 } else if($_GET['staff_id'] > 0) {
 	$filter_staff = $_GET['staff_id'];
+}
+if(!empty($_GET['filter_cat'])) {
+	$filter_cat = $dbc->query("SELECT `category` FROM `expense_categories` WHERE `EC`='".filter_var($_GET['filter_cat'],FILTER_SANITIZE_STRING)."'")->fetch_assoc()['category'];
 } ?>
 <script>
 toggle_filter = function() {
@@ -473,11 +476,11 @@ $(document).ready(function() {
 	</div>
 </form>
 <?php if($approvals == 1) {
-	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
-	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0"));
+	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
+	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'')"));
 } else {
-	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."') ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
-	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."')"));
+	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."') ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
+	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."')"));
 }
 
 echo "<div class='expense-list' style='text-align:center;'>";
@@ -613,4 +616,4 @@ if($status == 'Submitted' && $status_count['submitted'] <= 5) {
 } else if($status == 'Declined' && $status_count['declined'] <= 5) {
 	echo "display: none;";
 }
-echo "'></li></ul></div>"; ?>
+echo "'>Show All</li></ul></div>"; ?>
