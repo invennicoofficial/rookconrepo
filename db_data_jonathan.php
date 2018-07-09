@@ -83,5 +83,13 @@
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	
+	if(get_config($dbc, 'update_timesheet_config') < 1) {
+		// July 9, 2018
+		if(!mysqli_query($dbc, "UPDATE `field_config` SET `time_cards`=CONCAT(`time_cards`,',comment_box,')")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_timesheet_config', 1);
+	}
+	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>
