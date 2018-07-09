@@ -35,7 +35,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'To Do';
+        $task_status = 'Doing';
     }
     if($task_status == 'Archived') {
         $archived_date = date('Y-m-d');
@@ -103,7 +103,7 @@ if (isset($_POST['tasklist'])) {
     }
 
     $url = $_POST['from'];
-	
+
 	// Save Project History
 	if($task_projectid != '') {
 		$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
@@ -209,7 +209,7 @@ checkAuthorised('tasks');
         $task_businessid = $get_contact['contactid'];
         $task_heading = get_support($dbc, $supportid, 'heading');
         $task = html_entity_decode(get_support($dbc, $supportid, 'message'));
-        $task_status = 'To Do';
+        $task_status = 'Done';
         echo '<input type="hidden" name="supportid" value="'.$_GET['supportid'].'" />';
     }
 
@@ -346,7 +346,7 @@ checkAuthorised('tasks');
             </select>
           </div>
         </div>
-		
+
         <div class="form-group">
           <label for="site_name" class="col-sm-4 control-label">Task Board:</label>
           <div class="col-sm-8">

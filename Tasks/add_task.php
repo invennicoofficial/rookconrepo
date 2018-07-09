@@ -82,7 +82,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'To Do';
+        $task_status = 'Doing';
     }
     if($task_status == 'Archived') {
         $archived_date = date('Y-m-d');
@@ -578,7 +578,7 @@ checkAuthorised('tasks');
                 $task_businessid = $get_task['contactid'];
                 $task_heading = get_support($dbc, $supportid, 'heading');
                 $task = html_entity_decode(get_support($dbc, $supportid, 'message'));
-                $task_status = 'To Do';
+                $task_status = 'Done';
                 echo '<input type="hidden" name="supportid" value="'.$_GET['supportid'].'" />';
             }
 
