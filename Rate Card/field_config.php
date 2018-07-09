@@ -193,6 +193,13 @@ if (isset($_POST['submit'])) {
 		$field_config = ','.implode(',',$_POST['field_config']).',';
 		set_config($dbc, 'holiday_rate_fields', $field_config);
 	}
+	elseif($_POST['submit'] == 'expense') {
+		$db_config = ','.implode(',',$_POST['db_config']).',';
+		set_config($dbc, 'expense_db_rate_fields', $db_config);
+
+		$field_config = ','.implode(',',$_POST['field_config']).',';
+		set_config($dbc, 'expense_rate_fields', $field_config);
+	}
 	echo '<script type="text/javascript"></script>';
 }
 
@@ -210,6 +217,7 @@ switch($tab) {
 	case 'labour': $tab = 'labour'; break;
 	case 'services': $tab = 'services'; break;
 	case 'holiday': $tab = 'holiday'; break;
+	case 'expense': $tab = 'expense'; break;
 	default: $tab = 'tabs'; break;
 }
 
@@ -271,6 +279,11 @@ switch($tab) {
 		$db_config = get_config($dbc, 'holiday_db_rate_fields');
 		$field_config = get_config($dbc, 'holiday_rate_fields');
 		break;
+	case 'expense':
+		$title = "Expense Rates";
+		$db_config = get_config($dbc, 'expense_db_rate_fields');
+		$field_config = get_config($dbc, 'expense_rate_fields');
+		break;
 	default:
 		$title = "Available Tabs";
 		break;
@@ -321,6 +334,7 @@ $(document).ready(function(){
 		<li class="<?php echo ($tab == 'services' ? ' active blue' : ''); ?>"><a href="?settings=services">Services</a></li>
 		<li class="<?php echo ($tab == 'labour' ? ' active blue' : ''); ?>"><a href="?settings=labour">Labour</a></li>
 		<li class="<?php echo ($tab == 'holiday' ? ' active blue' : ''); ?>"><a href="?settings=holiday">Holiday Pay</a></li>
+		<li class="<?php echo ($tab == 'expense' ? ' active blue' : ''); ?>"><a href="?settings=expense">Expenses</a></li>
 	</ul>
 </div>
 <form id="form1" name="form1" method="post"	action="ratecards.php?settings=<?= $tab ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -340,6 +354,7 @@ $(document).ready(function(){
 				<label class="form-checkbox"><input type="checkbox" <?= strpos($tab_config,',services,') !== false ? "checked" : "" ?> value="services" name="tab_list[]">Services</label>
 				<label class="form-checkbox"><input type="checkbox" <?= strpos($tab_config,',labour,') !== false ? "checked" : "" ?> value="labour" name="tab_list[]">Labour</label>
 				<label class="form-checkbox"><input type="checkbox" <?= strpos($tab_config,',holiday,') !== false ? "checked" : "" ?> value="holiday" name="tab_list[]">Holiday Pay</label>
+				<label class="form-checkbox"><input type="checkbox" <?= strpos($tab_config,',expense,') !== false ? "checked" : "" ?> value="expense" name="tab_list[]">Expenses</label>
 
 			<?php } else if($tab == 'rate_types') { ?>
 				<div class="form-group">
@@ -392,7 +407,7 @@ $(document).ready(function(){
 					} ?>
 				</div>
 			<?php } else if($tab == 'universal') { ?>
-				<h4>The following fields will be shown or hidden within the Universal rate cards.</h4>
+				<h4>The following fields will be shown or hidden within the Universal rate cards:</h4>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',category,') !== FALSE ? "checked" : "" ?> type="checkbox" value="category"/>Rate Card Category</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',tile,') !== FALSE ? "checked" : "" ?> type="checkbox" value="tile"/>Tile Name</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',type,') !== FALSE ? "checked" : "" ?> type="checkbox" value="type"/>Type</label>
@@ -412,14 +427,14 @@ $(document).ready(function(){
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',sort_order,') !== FALSE ? "checked" : "" ?> type="checkbox" value="sort_order"/>Sort Order</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',breakdown,') !== FALSE ? "checked" : "" ?> type="checkbox" value="breakdown"/>Breakdown</label>
 			<?php } else if($tab == 'company') { ?>
-				<h4>The following fields will be shown or hidden on the Company rate card dashboard.</h4>
+				<h4>The following fields will be shown or hidden on the Company rate card dashboard:</h4>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',card,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="card"/>Rate Card Name</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',category,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="category"/>Rate Card Category</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',start_end_dates,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="start_end_dates"/>Start &amp; End Dates</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',alert_date,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="alert_date"/>Alert Date</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',alert_staff,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="alert_staff"/>Alert Staff</label>
 				<label class="form-checkbox"><input name="company_db[]" <?php if (strpos($db_config, ',total_cost,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="total_cost"/>Total Cost</label>
-				<h4>Select the Sections to display.</h4>
+				<h4>Select the Sections to display:</h4>
 				<?php $company_sections = ','.get_config($dbc,'company_rate_card_sections').',';
 				if(tile_enabled($dbc, 'tasks')['user_enabled'] || tile_enabled($dbc,'tickets')['user_enabled']) { ?>
 					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',tasks,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="tasks"/>Tasks</label>
@@ -456,8 +471,11 @@ $(document).ready(function(){
 				<?php if(tile_enabled($dbc, 'driving_log')['user_enabled']) { ?>
 					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',driving_log,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="driving_log"/>Mileage</label>
 				<?php } ?>
+				<?php if(tile_enabled($dbc, 'expense')['user_enabled']) { ?>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',expense,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="expense"/>Expenses</label>
+				<?php } ?>
 				<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',other,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="other"/>Other</label>
-				<h4>The following fields will be shown or hidden within the Company rate cards.</h4>
+				<h4>The following fields will be shown or hidden within the Company rate cards:</h4>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',category,') !== FALSE ? "checked" : "" ?> type="checkbox" value="category"/>Rate Card Category</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',ref_card,') !== FALSE ? "checked" : "" ?> type="checkbox" value="ref_card"/>Primary Rate Card</label>
 				<label class="form-checkbox"><input name="company_fields[]" <?= strpos($field_config, ',start_end_dates,') !== FALSE ? " checked" : "" ?> type="checkbox" value="start_end_dates"/>Start &amp; End Dates</label>
@@ -1103,7 +1121,16 @@ $(document).ready(function(){
 				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',holiday_rate_position,') !== false ? "checked" : ""; ?> value="holiday_rate_position" name="field_config[]">Position</label>
 				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',holiday_rate_staff,') !== false ? "checked" : ""; ?> value="holiday_rate_staff" name="field_config[]">Staff</label>
 				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',hoilday_rate_hours,') !== false ? "checked" : ""; ?> value="hoilday_rate_hours" name="field_config[]">Number of Hours paid</label>
+			<?php }  elseif($tab == 'expense') { ?>
+				<h4 class="pad-5"><?php echo $title; ?> Dashboard Fields</h4>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($db_config,',expense_rate_type,') !== false ? "checked" : ""; ?> value="expense_rate_type" name="db_config[]">Expense Type</label>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($db_config,',expense_rate_position,') !== false ? "checked" : ""; ?> value="expense_rate_position" name="db_config[]">Position</label>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($db_config,',expense_rate,') !== false ? "checked" : ""; ?> value="expense_rate" name="db_config[]">Rate paid</label>
 
+				<h4 class="pad-5"><?php echo $title; ?> Fields</h4>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',expense_rate_type,') !== false ? "checked" : ""; ?> value="expense_rate_type" name="field_config[]">Expense Type</label>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',expense_rate_position,') !== false ? "checked" : ""; ?> value="expense_rate_position" name="field_config[]">Position</label>
+				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($field_config,',expense_rate,') !== false ? "checked" : ""; ?> value="expense_rate" name="field_config[]">Rate paid</label>
 			<?php } else { ?>
 				<h4 class="pad-5"><?php echo $title; ?> Dashboard Fields</h4>
 				<label class="form-checkbox"><input type="checkbox" <?php echo strpos($db_config,',card,') !== false ? "checked" : ""; ?> value="card" name="db_config[]"><?php echo $title; ?></label>
