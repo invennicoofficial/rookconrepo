@@ -2306,9 +2306,9 @@ function add_staff_task(checkin) {
 		for(var i = 0; i < staff_list.length; i++) {
 			var staff = staff_list[i];
 			var task = task_list[i].replace('|EXTRA','');
-			// if(task != task_list[i]) {
+			if(task != task_list[i]) {
 				extra_billing.push(task);
-			// }
+			}
 			if(checkin != 'checkin') {
 				$('#collapse_staff_task,#tab_section_ticket_staff_tasks').find('hr').last().before('<label class="col-sm-6">Staff: '+$('[name=staff_task_contact][value='+staff+']').closest('label').text()+'</label><label class="col-sm-6">Task: '+task+'</label>');
 			}
