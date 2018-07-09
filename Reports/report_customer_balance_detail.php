@@ -149,18 +149,7 @@ if (isset($_POST['printpdf'])) {
 <?php include_once ('../navigation.php');
 ?>
 
-<div class="container triple-pad-bottom" id="report_div">
-    <div class="iframe_overlay" style="display:none;">
-		<div class="iframe">
-			<div class="iframe_loading">Loading...</div>
-			<iframe name="edit_board" src=""></iframe>
-		</div>
-	</div>
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
+<div id="report_div">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -247,11 +236,7 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
 </div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $as_at_date, $invoice_no, $patient, $table_style, $table_row_style, $grand_total_style, $display_pagination = TRUE) {

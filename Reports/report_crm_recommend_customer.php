@@ -86,23 +86,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
             <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
@@ -140,12 +123,6 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_crm_recommend($dbc, $contactid, $table_style, $table_row_style, $grand_total_style) {
 	$result = mysqli_query($dbc, "SELECT * FROM crm_recommend WHERE `contactid` = '$contactid' ORDER BY `completed_date` DESC");

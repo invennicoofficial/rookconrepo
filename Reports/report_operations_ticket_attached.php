@@ -79,21 +79,6 @@ if (isset($_POST['printpdf'])) {
 	</script>
 <?php } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-inline" role="form">
 
@@ -180,11 +165,6 @@ if (isset($_POST['printpdf'])) {
             <?= shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_project, $search_task) ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_project, $search_task, $no_page = false, $table_style = '', $table_row_style = '', $grand_total_style = '') {
