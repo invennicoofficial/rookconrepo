@@ -113,7 +113,7 @@ if (isset($_POST['submit'])) {
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
 
-    echo '<script type="text/javascript"> window.location.replace("config_reports.php"); </script>';
+    echo '<script type="text/javascript"> window.location.replace("?tab='.$_GET['tab'].'"); </script>';
 }
 ?>
 </head>
@@ -1087,15 +1087,10 @@ if (isset($_POST['submit'])) {
                 </div>
             </div>
 
-        </div><div class="form-group">
-			<div class="col-sm-6">
-				<a href="report_tiles.php" class="btn config-btn btn-lg">Back</a>
-				<!--<a href="#" class="btn config-btn pull-right" onclick="history.go(-1);return false;">Back</a>-->
-			</div>
-			<div class="col-sm-6">
-				<button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
-			</div>
-		</div>
+    <div class="form-group pull-right">
+        <a href="report_tiles.php" class="btn brand-btn">Back</a>
+        <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+    </div>
 
 </form>
 </div>

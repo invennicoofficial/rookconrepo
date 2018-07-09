@@ -62,17 +62,6 @@ if(isset($_POST['printpdf'])) {
     $labour_type = $lt;
 } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
             <?php
@@ -125,12 +114,7 @@ if(isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
+        
 <?php
 function work_tickets($dbc, $labour_type, $labour_category, $table_style = '', $table_row_style = '', $grand_total_style = '') {
     $report_data = '';

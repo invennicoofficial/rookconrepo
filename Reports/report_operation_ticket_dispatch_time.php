@@ -83,16 +83,6 @@ if (isset($_POST['printpdf'])) {
     $enddate = $endpdf;
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
 
 		<?php if (isset($_POST['search_submit'])) {
 			$startdate = $_POST['starttime'];
@@ -107,8 +97,6 @@ if (isset($_POST['printpdf'])) {
 			$enddate = date('Y-m-d');
 		} ?>
 
-		<div class="col-md-12">
-		<?php echo reports_tiles($dbc);  ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -142,11 +130,7 @@ if (isset($_POST['printpdf'])) {
 			<div class="clearfix"></div>
 
 			<?php echo report_tracking($dbc, $startdate, $enddate, '', '', ''); ?>
-		</div>
-    </div>
-</div>
-<?php include ('../footer.php');
-
+<?php
 function report_tracking($dbc, $startdate, $enddate, $table_style, $table_row_style, $grand_total_style) {
 	$startdate = date('Y-m-d',strtotime($startdate));
 	$enddate = date('Y-m-d',strtotime($enddate));

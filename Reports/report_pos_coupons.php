@@ -70,16 +70,6 @@ if ( isset ( $_POST['printpdf'] ) ) {
 		window.open('Download/pos_coupons_<?php echo $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
 } ?>
-</head>
-
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-			<?php echo reports_tiles($dbc); ?>
-			<br /><br />
 
             <form method="post" action="">
 				<button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
@@ -87,13 +77,7 @@ if ( isset ( $_POST['printpdf'] ) ) {
             <br /><br /><?php
 
 			echo report_pos_coupons($dbc, '', ''); ?>
-
-        </div>
-    </div>
-</div><?php
-
-include ('../footer.php');
-
+<?php
 function report_pos_coupons($dbc, $table_style, $table_row_style) {
 	$report_data = '';
 	$result = mysqli_query ( $dbc, "SELECT * FROM `pos_touch_coupons` WHERE `deleted`=0" );

@@ -7,25 +7,9 @@ checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0); ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
-		<h2>Site Work Order Driving Logs</h2>
-
             <?php
                 echo driving_logs($dbc);
             ?>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function driving_logs($dbc) {

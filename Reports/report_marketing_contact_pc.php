@@ -89,19 +89,6 @@ if (isset($_POST['printpdf'])) {
     <?php
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
-        <br>
         <?php
         $select_query = "select distinct(category) from contacts";
         $select_result = mysqli_query($dbc, $select_query);
@@ -183,10 +170,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_postalcode($dbc, $contact_category, $starttime, $endtime, $postal_code = false, $table_style, $table_row_style, $grand_total_style, $pdf_print=false) {
