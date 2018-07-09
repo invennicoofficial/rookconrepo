@@ -1,6 +1,9 @@
 <?php include_once('../include.php');
 checkAuthorised('staff');
 // Setup tabs
+if($_GET['staff_cat'] == 'ALL') {
+	$_GET['staff_cat'] = '';
+}
 $tab_list = [ 'active' => false, 'probation' => false, 'suspended' => false, 'security' => false, 'positions' => false, 'reminders' => false ];
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 $tab_note = '';
@@ -108,7 +111,7 @@ $sql = "SELECT * FROM contacts $filter_clause $query_clause $sea_constraint $sta
 $result = mysqli_query($dbc, $sql);
 $sql_count = "SELECT COUNT(*) `numrows` FROM `contacts` $filter_clause $query_clause $sea_constraint $staff_cat_query $match_query";
 $numrows = mysqli_fetch_array(mysqli_query($dbc, $sql_count));
-$view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
+$view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card');
 ?>
 <!-- <form name="form_sites" method="post" action="staff.php?tab=<?php echo ($tab_list['active'] ? 'active' : 'suspended'); ?>&filter=All" class="form-inline" role="form">
 	<div class="col-xs-12 col-sm-4 col-lg-2 pad-top" style="margin-top:7px;">
