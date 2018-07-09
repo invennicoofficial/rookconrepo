@@ -400,8 +400,6 @@ if($_GET['fill'] == 'update_fields') {
     $updated_date = date('Y-m-d');
 
     $result = mysqli_query($dbc, "UPDATE `$table` SET `$field`='$field_value', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `$id_field`='$id_value'");
-
-    echo "UPDATE `$table` SET `$field`='$field_value', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `$id_field`='$id_value'";
 }
 
 
