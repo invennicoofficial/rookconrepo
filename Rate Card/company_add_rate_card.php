@@ -168,6 +168,9 @@ if(in_array('timesheets',$company_sections) && tile_enabled($dbc, 'timesheet')['
 if(in_array('driving_log',$company_sections) && tile_enabled($dbc, 'driving_log')['user_enabled']) {
 	$tile_list[] = 'Mileage';
 }
+if(in_array('expense',$company_sections) && tile_enabled($dbc, 'expense')['user_enabled']) {
+	$tile_list[] = 'Expenses';
+}
 if(in_array('other',$company_sections)) {
 	$tile_list[] = 'Other';
 }
