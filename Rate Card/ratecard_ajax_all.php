@@ -415,6 +415,9 @@ if($_GET['fill'] == 'rate_card_desc') {
 	else if($_GET['type'] == 'Equipment') {
 		$query = "SELECT `type` id, `type` descript FROM `equipment` GROUP BY `type` ORDER BY `type`";
 	}
+	else if($_GET['type'] == 'Expenses') {
+		$query = "SELECT * FROM (SELECT CONCAT('EC ',`ec`,': ',`category`) `id`, `category` `descript` FROM `expense_categories` WHERE `deleted`=0 ORDER BY `ec`) `categories` UNION SELECT 'Uncategorized' `id`, '' `descript`";
+	}
 	if($query == '') {
 		exit();
 	}
