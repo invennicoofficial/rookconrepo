@@ -131,11 +131,13 @@ $(document).ready(function() {
     if ( fullscreen==1 ) {
         $('#main-header, #nav, #footer').hide();
         $('.pullup').addClass('rotate');
+        $('.hide-header-footer-down').show();
         $('.main-screen').addClass('double-pad-top');
         $(window).resize();
     } else {
         $('#main-header, #nav, #footer').show();
         $('.pullup').removeClass('rotate');
+        $('.hide-header-footer-down').hide();
         $('.main-screen').removeClass('double-pad-top');
     }
 });
@@ -293,6 +295,9 @@ if(!isset($_SESSION['fullscreen'])) {
                             $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
                         }
                         echo '<li>'.$profile_html .'</li>'; ?>
+                        <li class="hide-header-footer">
+                            <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
+                        </li>
                         <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15" /></a></li>
                     </ul>
                     <ul class="nav navbar-nav scale-to-fill">
@@ -380,10 +385,9 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
-        <div class="hide-header-footer">
-            <div class="pull-right">
-                <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
-            </div>
+        
+        <div class="hide-header-footer-down">
+            <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
         </div>
         <?php include('sticky_tile_menu.php'); ?>
     </div>
