@@ -240,7 +240,7 @@ if($_GET['view'] == 'weekly') {
 			<?php } ?>
 		</div>
 		<?php } ?>
-		<?php if($allowed_dispatch_contractors > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
+		<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -534,7 +534,7 @@ if($_GET['view'] == 'weekly') {
 			<?php } ?>
 		</div>
 		<?php } ?>
-		<?php if($allowed_dispatch_contractors > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
+		<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
