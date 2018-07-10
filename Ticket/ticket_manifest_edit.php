@@ -104,7 +104,7 @@ if(isset($_POST['update'])) {
 				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['qty'].'</td>' : '').'
 				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['manual_qty'].'</td>' : '').'
 				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td data-title="SITE" style="text-align:center;">'.$row['site'].'</td>' : '').'
-				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.$row['notes'].'</td>' : '').'
+				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 			</tr>
 			<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
 		}
@@ -231,7 +231,7 @@ $col_count = 2; ?>
 							<?php } ?>
 						</div>
 					</td><?php } ?>
-				<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= $ticket['notes'] ?>"></td><?php } ?>
+				<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
 				<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 					<label class="form-checkbox any-width"><input type="checkbox" name="include[]" checked value="<?= $ticket['id'] ?>">Include</label>
 					<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">
@@ -263,7 +263,7 @@ $col_count = 2; ?>
 								<?php } ?>
 							</div>
 						</td><?php } ?>
-					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= $ticket['notes'] ?>"></td><?php } ?>
+					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
 					<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 						<label class="form-checkbox any-width"><input type="checkbox" name="include[]" checked value="<?= $ticket['id'] ?>">Include</label>
 						<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">

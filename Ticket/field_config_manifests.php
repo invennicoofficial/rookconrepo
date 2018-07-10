@@ -1,7 +1,26 @@
 <script>
 $(document).ready(function() {
 	$('.form-group label [type=checkbox],[name=slider_button],.standard-body-content input[type=number]').change(saveFields);
+	$('input[type=file]').change(uploadStamp);
 });
+function uploadStamp() {
+	var files = new FormData();
+	files.append('file',this.files[0]);
+	$.ajax({
+		url: 'ticket_ajax_all.php?action=set_stamp',
+		method: 'POST',
+		processData: false,
+		contentType: false,
+		data: files,
+		success: function(response) {
+			$('[name=stamp_image]').before('<div class="stamp_links"><a href="download/'+response+'" target="_blank">View</a> | <a class="cursor-hand" onclick="remStamp();">Delete</a></div>');
+		}
+	});
+}
+function remStamp() {
+	$.get('ticket_ajax_all.php?action=set_stamp');
+	$('.stamp_links').remove();
+}
 function saveFields() {
 	var tickets_manifests = [];
 	$('[name="tickets_manifests[]"]:checked').each(function() {
@@ -31,9 +50,20 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('notes', $manifest_fields) ? 'checked' : '' ?> value="notes" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Line Item Notes</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('site', $manifest_fields) ? 'checked' : '' ?> value="site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> <?= SITES_CAT ?> on Manifest</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('req site', $manifest_fields) ? 'checked' : '' ?> value="req site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> <?= SITES_CAT ?> are Mandatory</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('stamp_sign', $manifest_fields) ? 'checked' : '' ?> value="stamp_sign" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Stamp in Place of Signature</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('edit', $manifest_fields) ? 'checked' : '' ?> value="edit" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Edit Manifests</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('ticket_sort', $manifest_fields) ? 'checked' : '' ?> value="ticket_sort" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= TICKET_NOUN ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('ticket_search', $manifest_fields) ? 'checked' : '' ?> value="ticket_search" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Search by <?= TICKET_NOUN ?></label>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-4 control-label">Stamp Upload:</label>
+	<div class="col-sm-8">
+		<?php $stamp = get_config($dbc, 'stamp_upload');
+		if(!empty($stamp) && file_exists('download/'.$stamp)) { ?>
+			<div class="stamp_links"><a href="download/<?= $stamp ?>" target="_blank">View</a> | <a class="cursor-hand" onclick="remStamp();">Delete</a></div>
+		<?php } ?>
+		<input type="file" name="stamp_image" class="form-control">
 	</div>
 </div>
 <div class="form-group">
