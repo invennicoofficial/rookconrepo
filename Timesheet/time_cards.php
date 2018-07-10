@@ -1299,7 +1299,8 @@ function addSignature(chk) {
 
 				<?php
 				$tb_field = $value['config_field'];
-				echo '</div>'; ?>
+				echo '</div>';
+				include('../Timesheet/time_cards_summary.php'); ?>
 			<?php elseif($layout == 'position_columns'): ?>
 			<?php elseif($layout == 'position_dropdown' || $layout == 'ticket_task'): ?>
 				<script>
@@ -1423,7 +1424,7 @@ function addSignature(chk) {
 							<th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th>
 							<?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Vacation Hours</div></th><?php } ?>
 							<?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-							<th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
+							<?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
 						</tr>
 						<?php $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
 						$ticket_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'"),MYSQLI_ASSOC);
@@ -1553,6 +1554,7 @@ function addSignature(chk) {
 
 				<?php $tb_field = $value['config_field']; ?>
 				</div>
+				<?php include('../Timesheet/time_cards_summary.php'); ?>
 			<?php elseif($layout == 'table_add_button'): ?>
 				<?php if(vuaed_visible_function($dbc, 'time_cards') > 0) { ?>
 					<a class="btn brand-btn pull-right" href="add_time_cards.php">Add Time</a>
