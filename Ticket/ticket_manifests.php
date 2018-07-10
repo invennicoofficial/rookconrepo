@@ -149,11 +149,12 @@ if($siteid == 'recent') {
 				</tr>
 				<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
 			}
+			$stamp_img = get_config($dbc, 'stamp_upload');
 			$html .= '<tr>
 				<td style="border-top:1px solid black; text-align:right;" colspan="'.$col_count.'">
 					<br /><br /><br />
-					'.(empty($signature) ? '<br /><br /><br /><br /></td></tr><tr><td colspan="'.($col_count - 2).'"></td><td colspan="2" style="border-top:1px solid black;text-align:right;">Signature' : ('<img style="width:150px;border-bottom:1px solider black;" src="manifest/signature_'.$manifestid.'.png"><br />
-					Signed: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']))).'
+					'.((in_array('stamp_sign',$manifest_fields) && !empty($stamp_img) && file_exists('download/'.$stamp_img)) ? '<img style="width:150px" src="download/'.$stamp_img.'">' : (empty($signature) ? '<br /><br /><br /><br /></td></tr><tr><td colspan="'.($col_count - 2).'"></td><td colspan="2" style="border-top:1px solid black;text-align:right;">Signature' : ('<img style="width:150px;border-bottom:1px solider black;" src="manifest/signature_'.$manifestid.'.png"><br />
+					Signed: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name'])))).'
 				</td>
 			</tr>
 		</table>';
@@ -308,11 +309,19 @@ if($siteid == 'recent') {
 			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
 			<?php if(!in_array('req site',$manifest_fields) || $siteid > 0) { ?>
 				<div class="form-group">
-					<label class="col-sm-4">Signature:</label>
-					<div class="col-sm-8">
-						<?php $output_name = 'signature';
-						include_once('../phpsign/sign_multiple.php'); ?>
-					</div>
+					<?php $stamp_img = get_config($dbc, 'stamp_upload');
+					if(in_array('stamp_sign',$manifest_fields) && !empty($stamp_img) && file_exists('download/'.$stamp_img)) { ?>
+						<label class="col-sm-4">Stamp:</label>
+						<div class="col-sm-8">
+							<img src="download/<?= $stamp_img ?>" style="height:150px;">
+						</div>
+					<?php } else { ?>
+						<label class="col-sm-4">Signature:</label>
+						<div class="col-sm-8">
+							<?php $output_name = 'signature';
+							include_once('../phpsign/sign_multiple.php'); ?>
+						</div>
+					<?php } ?>
 				</div>
 				<button class="btn brand-btn pull-right" name="generate" value="generate" type="submit">Generate Manifest</button>
 			<?php } ?>
