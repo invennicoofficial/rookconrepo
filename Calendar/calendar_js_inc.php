@@ -300,7 +300,9 @@ function changeDate(date, type = '') {
 			} else {
 				still_loading = 0;
 				clear_all_data();
-				dispatchDraggable();
+				if(typeof dispatchDraggable == 'function') {
+					dispatchDraggable();
+				}
 				reload_all_data();
 			}
 			reload_equipment_assignment();
