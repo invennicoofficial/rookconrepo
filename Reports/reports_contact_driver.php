@@ -177,6 +177,9 @@ echo "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets
     }
 
     $report_data .= "</table>";
+
+    echo $report_data;
+
     return $report_data;
 }
 
