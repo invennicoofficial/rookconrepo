@@ -171,6 +171,7 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                         <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="address" <?= in_array('address', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Address</label>
                         <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="start_date" <?= in_array('start_date', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Date</label>
                         <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="ticket_notes" <?= in_array('ticket_notes', $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= TICKET_NOUN ?> Notes</label>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="delivery_notes" <?= in_array('delivery_notes', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Delivery Notes</label>
                     </div>
                 </div>
 			</div>
