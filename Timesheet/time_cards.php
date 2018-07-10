@@ -26,6 +26,7 @@ if(!empty($_GET['export'])) {
 	$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
 	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
+	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 	
 	$mode = $_GET['export'];
 	$search_staff = $_GET['search_staff'];
@@ -125,15 +126,15 @@ if(!empty($_GET['export'])) {
 			}
 
 			//Calculate widths to fit
-			$comment_width_compare = ['total_tracked_hrs','reg_hrs','direct_hrs','indirect_hrs','extra_hrs','relief_hrs','sleep_hrs','training_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used','payable_hrs','breaks','total_tracked_time'];
+			$comment_width_compare = ['total_tracked_hrs','reg_hrs','start_day_tile','direct_hrs','indirect_hrs','extra_hrs','relief_hrs','sleep_hrs','training_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used','payable_hrs','breaks','total_tracked_time'];
 			$comment_width_compare_wide = ['start_time','end_time','show_hours','ticketid','planned_hrs','tracked_hrs'];
-			$ytd_offset_compare = ['total_tracked_hrs','reg_hrs','direct_hrs','indirect_hrs','extra_hrs','relief_hrs','sleep_hrs','training_hrs','sick_hrs','payable_hrs','total_tracked_time'];
+			$ytd_offset_compare = ['total_tracked_hrs','reg_hrs','start_day_tile','direct_hrs','indirect_hrs','extra_hrs','relief_hrs','sleep_hrs','training_hrs','sick_hrs','payable_hrs','total_tracked_time'];
 			$comment_width = 157 - (count(array_intersect($comment_width_compare, $value_config)) * 10);
-			$comment_offset = 203 - (count(array_diff($comment_width_compare, $value_config)) * 10);
+			$comment_offset = 213 - (count(array_diff($comment_width_compare, $value_config)) * 10);
 			$comment_width = $comment_width - (count(array_intersect($comment_width_compare_wide, $value_config)) * 22);
 			$comment_offset = $comment_offset + (count(array_intersect($comment_width_compare_wide, $value_config)) * 22);
 			$bfytd_offset = 18 + (count(array_intersect($comment_width_compare_wide, $value_config)) * 22);
-			$ytd_offset = 110 - (count(array_diff($ytd_offset_compare, $value_config)) * 10);
+			$ytd_offset = 120 - (count(array_diff($ytd_offset_compare, $value_config)) * 10);
 			$hrs_offset = 13 + (count(array_intersect($comment_width_compare_wide, $value_config)) * 22);
 			if(in_array('signature',$value_config) && !in_array('signature_pdf_hidden',$value_config)) {
 				$comment_width -= 35;
@@ -239,6 +240,9 @@ if(!empty($_GET['export'])) {
 			}
 			if(in_array('reg_hrs',$value_config)) {
 				$pdf->MultiCell(20,10,"Regular\nHours",1,'L', 0, 1, $hrs_offset);
+			}
+			if(in_array('start_day_tile',$value_config)) {
+				$pdf->MultiCell(20,10,str_replace(' ',"\n",$timesheet_start_tile),1,'L', 0, 1, $hrs_offset);
 			}
 			if(in_array('direct_hrs',$value_config)) {
 				$pdf->MultiCell(20,10,"Direct\nHours",1,'L', 0, 1, $hrs_offset);
@@ -381,13 +385,21 @@ if(!empty($_GET['export'])) {
 					} else {
 						$hrs['TRAINING'] = 0;
 					}
+					if(in_array('start_day_tile',$value_config) && !($row['ticketid'] > 0)) {
+						$hrs['DRIVE'] = $hrs['REG'];
+						$hrs['REG'] = 0;
+						$total['REG'] -= $hrs['DRIVE'];
+						$total['DRIVE'] += $hrs['DRIVE'];
+					} else {
+						$hrs['DRIVE'] = 0;
+					}
 					if(!in_array('comment_box',$value_config)) {
 						$comments = '';
 					}
 
 					$row = mysqli_fetch_array($result);
 				} else {
-					$hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
+					$hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 					$comments = '';
 				}
 				$comment_height = ((!empty($approval_status) ? $pdf->getStringHeight($comment_width, $approval_status) : 0) + $pdf->getStringHeight($comment_width, $comments));
@@ -445,6 +457,9 @@ if(!empty($_GET['export'])) {
 				}
 				if(in_array('reg_hrs',$value_config)) {
 					$pdf->Cell(10,$comment_height,(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))),1,0,'C');
+				}
+				if(in_array('start_day_tile',$value_config)) {
+					$pdf->Cell(10,$comment_height,(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))),1,0,'C');
 				}
 				if(in_array('direct_hrs',$value_config)) {
 					$pdf->Cell(10,$comment_height,(empty($hrs['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DIRECT'],2) : time_decimal2time($hrs['DIRECT']))),1,0,'C');
@@ -512,6 +527,9 @@ if(!empty($_GET['export'])) {
 			}
 			if(in_array('reg_hrs',$value_config)) {
 				$pdf->Cell(10,0,(empty($total['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG']))),1,0,'C');
+			}
+			if(in_array('start_day_tile',$value_config)) {
+				$pdf->Cell(10,0,(empty($total['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE']))),1,0,'C');
 			}
 			if(in_array('direct_hrs',$value_config)) {;
 				$pdf->Cell(10,0,(empty($total['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($total['DIRECT'],2) : time_decimal2time($total['DIRECT']))),1,0,'C');
@@ -1004,7 +1022,7 @@ function addSignature(chk) {
 								+ (in_array('end_time',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0) + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0)
 								+ (in_array('reg_hrs',$value_config) ? 1 : 0) + (in_array('payable_hrs',$value_config) ? 1 : 0) + (in_array('direct_hrs',$value_config) ? 1 : 0) + (in_array('indirect_hrs',$value_config) ? 1 : 0)
 								+ (in_array('extra_hrs',$value_config) ? 1 : 0) + (in_array('relief_hrs',$value_config) ? 1 : 0) + (in_array('sleep_hrs',$value_config) ? 1 : 0) + (in_array('training_hrs',$value_config) ? 1 : 0)
-								+ (in_array('sick_hrs',$value_config) ? 1 : 0) ?>">Balance Forward Y.T.D.</td>
+								+ (in_array('sick_hrs',$value_config) ? 1 : 0) + (in_array('start_day_tile',$value_config) ? 1 : 0) ?>">Balance Forward Y.T.D.</td>
 							<?php if(in_array('sick_used',$value_config)) { ?><td style='text-align:center;'><?php echo $sick_taken; ?></td><?php } ?>
 							<?php if(in_array('stat_hrs',$value_config)) { ?><td style='text-align:center;'><?php echo $stat_hours; ?></td><?php } ?>
 							<?php if(in_array('stat_used',$value_config)) { ?><td style='text-align:center;'><?php echo $stat_taken; ?></td><?php } ?>
@@ -1026,6 +1044,7 @@ function addSignature(chk) {
 							<?php if(in_array('tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
 							<?php if(in_array('total_tracked_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
 							<?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular' ?><br />Hours</div></th><?php } ?>
+							<?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
 							<?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Direct<br />Hours</div></th><?php } ?>
 							<?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Indirect<br />Hours</div></th><?php } ?>
 							<?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Extra<br />Hours</div></th><?php } ?>
@@ -1080,7 +1099,7 @@ function addSignature(chk) {
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
-						$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
+						$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 						while(strtotime($date) <= strtotime($search_end_date)) {
 							$attached_ticketid = 0;
 							$timecardid = 0;
@@ -1164,10 +1183,18 @@ function addSignature(chk) {
 								} else {
 									$hrs['TRAINING'] = 0;
 								}
+								if(in_array('start_day_tile',$value_config) && !($row['ticketid'] > 0)) {
+									$hrs['DRIVE'] = $hrs['REG'];
+									$hrs['REG'] = 0;
+									$total['REG'] -= $hrs['DRIVE'];
+									$total['DRIVE'] += $hrs['DRIVE'];
+								} else {
+									$hrs['DRIVE'] = 0;
+								}
 
 								$row = mysqli_fetch_array($result);
 							} else {
-								$hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
+								$hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 								$comments = '';
 							}
 							// $hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(`dayoff_type` != '',`dayoff_type`,CONCAT(`starttime`,' - ',`endtime`)) FROM `contacts_shifts` WHERE `deleted`=0 AND `contactid`='$search_staff' AND '$date' BETWEEN `startdate` AND `enddate` ORDER BY `startdate` DESC"))[0];
@@ -1209,6 +1236,7 @@ function addSignature(chk) {
 								'.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours" style="text-align:center" class="theme-color-border-bottom">'.$tracked_hrs.'</td>' : '').'
 								'.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time" style="text-align:center" class="theme-color-border-bottom">'.$total_tracked_time.'</td>' : '').'
 								'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="regular_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
+								'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="drive_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('direct_hrs',$value_config) ? '<td data-title="Direct Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="direct_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DIRECT'],2) : time_decimal2time($hrs['DIRECT']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('indirect_hrs',$value_config) ? '<td data-title="Indirect Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="indirect_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['INDIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['INDIRECT'],2) : time_decimal2time($hrs['INDIRECT']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="extra_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).'" class="form-control" '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
@@ -1257,6 +1285,7 @@ function addSignature(chk) {
 							<td data-title="" colspan="'.$colspan.'">Totals</td>
 							'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title="Total Tracked Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS'])).'</td>' : '').'
 							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
+							'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$start_day_tile.'" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE'])).'</td>' : '').'
 							'.(in_array('direct_hrs',$value_config) ? '<td data-title="Direct Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['DIRECT'],2) : time_decimal2time($total['DIRECT'])).'</td>' : '').'
 							'.(in_array('indirect_hrs',$value_config) ? '<td data-title="Indirect Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['INDIRECT'],2) : time_decimal2time($total['INDIRECT'])).'</td>' : '').'
 							'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA'])).'</td>' : '').'
@@ -1279,6 +1308,7 @@ function addSignature(chk) {
 							'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('direct_hrs',$value_config) ? '<td data-title=""></td>' : '').'
+							'.(in_array('start_day_tile',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('indirect_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('extra_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('relief_hrs',$value_config) ? '<td data-title=""></td>' : '').'
@@ -1928,7 +1958,7 @@ function addSignature(chk) {
 					</script>
 				<?php } else { ?>
 					<script>
-						$('[name^=regular],[name^=direct],[name^=indirect],[name^=extra],[name^=relief],[name^=sleep],[name^=sickadj],[name^=sick],[name^=statavail],[name^=stat],[name^=vacavail],[name^=vaca],[name^=time_cards_id_],[name^=deleted_],[name^=add_comment_],[name^=training]').change(saveField);
+						$('[name^=regular],[name^=direct],[name^=indirect],[name^=extra],[name^=relief],[name^=sleep],[name^=sickadj],[name^=sick],[name^=statavail],[name^=stat],[name^=vacavail],[name^=vaca],[name^=time_cards_id_],[name^=deleted_],[name^=add_comment_],[name^=training],[name^=drive]').change(saveField);
 						function saveFieldMethod(field) {
 							var line = $(field).closest('tr');
 							comment = line.find('[name^=add_comment]').val();
