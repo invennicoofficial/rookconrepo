@@ -397,6 +397,18 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
 		</div>';
 	}
+	if(in_array('Ticket Notes',$db_config)) {
+		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Notes:</label>
+			<div class="col-sm-8">';
+			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+				echo trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+				echo "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em><br />";
+			}
+			echo '</div>
+		</div>';
+	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>
 		<div class="col-sm-6">
 			<?php $functions = [];
