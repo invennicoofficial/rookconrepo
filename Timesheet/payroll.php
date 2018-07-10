@@ -353,7 +353,7 @@ function viewTicket(a) {
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
-                        <td colspan="2"></td>
+                        <td colspan="<?in_array('comment_box',$value_config) ? 2 : 1 ?>"></td>
                     </tr>
                     <tr class='hidden-xs hidden-sm'>
                         <th style='text-align:center; vertical-align:bottom; width:8em;'><div>Date</div></th>
@@ -382,7 +382,7 @@ function viewTicket(a) {
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage</div></th><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
-                        <th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
+                        <?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
                         <th style="width:6em;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
                             data-original-title="Check the boxes on multiple lines, then click Sign and click Mark Paid."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Paid</th>
                     </tr>
@@ -534,7 +534,7 @@ function viewTicket(a) {
                             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
                             '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
-                            <td data-title="Comments"><input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control"></td>
+                            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Comments"><input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control"></td>' : '').'
                             <td data-title="Select to Mark Paid"><label '.($approv == 'P' ? 'class="readonly-block"' : '').'>';
                             if($layout == 'multi_line') {
                                 echo '<input type="checkbox" name="approvedateid[]" value="'.$timecardid.'" '.($approv == 'P' ? 'checked readonly' : '').' /></td>';
@@ -590,7 +590,7 @@ function viewTicket(a) {
                         '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
-                        <td data-title="" colspan="2"></td>
+                        <td data-title="" colspan="'.(in_array('comment_box',$value_config) ? 2 : 1).'"></td>
                     </tr>';
                     echo '<tr>
                         <td colspan="'.$colspan.'">Year-to-date Totals</td>
@@ -612,7 +612,7 @@ function viewTicket(a) {
                         '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title=""></td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title=""></td>' : '').'
                         '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title=""></td>' : '').'
-                        <td colspan="2"></td>
+                        <td colspan="'.(in_array('comment_box',$value_config) ? 2 : 1).'"></td>
                     </tr>'; ?>
                     <?php while($row = mysqli_fetch_array( $result ))
                     {
@@ -768,7 +768,7 @@ function viewTicket(a) {
                                 <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?>
                                     <th style='text-align:center; vertical-align:bottom; width:6em;'><div>Expenses Owed</div></td>
                                 <?php } ?>
-                                <th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
+                                <?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
                                 <th style='text-align:center; vertical-align:bottom; width:6em;'><div>Paid</div></th>
                             </tr>
                             <?php $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
@@ -878,7 +878,7 @@ function viewTicket(a) {
                                     <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?>
                                         <td data-title="Expenses Owed">$<?= $expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00' ?></td>
                                     <?php } ?>
-                                    <td data-title="Comments"><span><?= $comments ?></span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box[]" value="<?= $row['COMMENTS'] ?>" style="display:none;"></td>
+                                    <?php if(in_array('comment_box',$value_config)) { ?><td data-title="Comments"><span><?= $comments ?></span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box[]" value="<?= $row['COMMENTS'] ?>" style="display:none;"></td><?php } ?>
                                     <td data-title="Select to Mark Paid"><input type="checkbox" name="approve_date[]" value="<?= date('Y-m-d', strtotime($date)) ?>" /></td>
                                 </tr>
                                 <?php if($date != $row['date']) {
@@ -897,7 +897,7 @@ function viewTicket(a) {
                                     $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` BETWEEN '$search_start_date' AND '$search_end_date'"))['expenses_owed']; ?>
                                     <td data-title="Total Expenses Owed">$<?= $expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00' ?></td>
                                 <?php } ?>
-                                <td></td><td></td>
+								<?php if(in_array('comment_box',$value_config)) { ?><td></td><?php } ?><td></td>
                             </tr>
                         </table>
 

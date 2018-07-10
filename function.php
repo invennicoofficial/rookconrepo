@@ -355,13 +355,19 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 	$name = filter_var($name, FILTER_SANITIZE_STRING);
 	if($name == 'all_contact_tabs') {
 		$sql = "SELECT GROUP_CONCAT(`value`) value FROM `general_configuration` WHERE `name` IN ('contacts_tabs','contacts3_tabs','clientinfo_tabs','members_tabs','vendors_tabs','contactsrolodex_tabs')";
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
 	} else if($multi) {
+        $get_config['value'] = [];
 		$separator = filter_var($separator, FILTER_SANITIZE_STRING);
-		$sql = "SELECT GROUP_CONCAT(`value` SEPARATOR '$separator') value FROM `general_configuration` WHERE `name` LIKE '$name'";
+        $query = mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE '$name'");
+        while($row = mysqli_fetch_assoc($query)) {
+            $get_config['value'][] = $row['value'];
+        }
+        $get_config['value'] = implode($separator, $get_config['value']);
 	} else {
 		$sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
 	}
-    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
 
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
@@ -787,7 +793,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(!empty($custom_label)) {
             $ticket_label = $custom_label;
         }
-		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, $ticket['siteid'],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
+		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, $ticket['siteid'],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }

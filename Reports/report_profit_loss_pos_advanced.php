@@ -108,16 +108,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-            <?= reports_tiles($dbc);  ?>
-
-            <div class="double-gap-top"></div>
 
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
                 <input type="hidden" name="report_type" value="<?= $_GET['type']; ?>">
@@ -170,10 +160,6 @@ if (isset($_POST['printpdf'])) {
                 </div>
             </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $category_or_singles) {

@@ -211,7 +211,7 @@ $col_count = 2; ?>
 			<?php if(in_array('line',$manifest_fields)) { $col_count++; ?><th>Line Item</th><?php } ?>
 			<?php if(in_array('vendor',$manifest_fields)) { $col_count++; ?><th>Vendor / Shipper</th><?php } ?>
 			<?php if(in_array('manual qty',$manifest_fields)) { $col_count++; ?><th>Qty</th><?php } ?>
-			<?php if(in_array('group pieces',$manifest_fields)) { ?><th>Qty</th><?php } ?>
+			<?php if(in_array('group pieces',$manifest_fields)) { $col_count++; ?><th>Qty</th><?php } ?>
 			<?php if(in_array('notes',$manifest_fields)) { $col_count++; ?><th>Notes</th><?php } ?>
 			<?php if(!in_array('group pieces',$manifest_fields)) { ?><th>Include</th><?php } ?>
 		</tr>

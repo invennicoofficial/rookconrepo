@@ -640,6 +640,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					var teamid = td.item.data('teamid');
 					var new_equipmentid = td.item.data('equipment');
 					var contractor = td.item.data('contractor');
+					var restrict_assign = td.item.data('restrict-assign') > 0;
 					var target = $('.highlightCell').removeClass('highlightCell');
 					var equipmentid = target.data('equip');
 					var equipment_assignid = target.data('equip-assign');
@@ -649,6 +650,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					var new_date = target.data('date');
 
 					data = { blocktype: blocktype, clientid: clientid, staffid: staffid, teamid: teamid, new_equipmentid: new_equipmentid, equipmentid: equipmentid, equipment_assignid: equipment_assignid, date: date, contractor: contractor }
+					if(!restrict_assign || !(new_equipmentid > 0) || new_equipmentid == equipmentid || confirm('Setting this assignment will replace a previous assignment. Are you sure you want to proceed?')) {
 					// if(confirm('Changing the details for this Assignment will update all Work Orders for this day to the new details. Press OK to continue.')) {
 						$.ajax({
 							url: '../Calendar/calendar_ajax_all.php?fill=equip_assign_draggable&offline='+offline_mode,
@@ -665,11 +667,18 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 									reload_equipment_assignment(equipmentid);
 									if(new_equipmentid != equipmentid) {
 										reload_equipment_assignment(new_equipmentid);
+										if(restrict_assign) {
+											reload_equipment_assignment(equipmentid);
+										}
 									}
 								    reload_all_data();
 								// }
 							}
 						});
+						td.item.data('equipment',equipmentid);
+					} else {
+						reload_equipment_assignment(new_equipmentid);
+					}
 					// } else {
 					// 	window.location.reload();
 					// }

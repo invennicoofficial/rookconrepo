@@ -86,20 +86,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
         <!--
         <br>
         <a href='report_review_sales.php'><button type="button" class="btn brand-btn mobile-block" >Monthly Sales by Injury Type</button></a>&nbsp;&nbsp;
@@ -165,11 +151,6 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {

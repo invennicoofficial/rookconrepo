@@ -14,6 +14,19 @@ mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `field_config_ticket_security` (
   PRIMARY KEY (`fieldconfigid`)
 )");
 
+mysqli_query($dbc, "ALTER TABLE `project`
+ADD `projection_service_heading` VARCHAR(500) NULL AFTER `project_color_code`,
+ADD `projection_service_price` VARCHAR(10) NULL AFTER `projection_service_heading`,
+ADD `projection_product_heading` VARCHAR(500) NULL AFTER `projection_service_price`,
+ADD `projection_product_price` VARCHAR(10) NULL AFTER `projection_product_heading`,
+ADD `projection_task_heading` VARCHAR(500) NULL AFTER `projection_product_price`,
+ADD `projection_task_price` VARCHAR(10) NULL AFTER `projection_task_heading`,
+ADD `projection_inventory_heading` VARCHAR(500) NULL AFTER `projection_task_price`,
+ADD `projection_inventory_price` VARCHAR(10) NULL AFTER `projection_inventory_heading`,
+ADD `projection_admin_heading` VARCHAR(500) NULL AFTER `projection_inventory_price`,
+ADD `projection_admin_price` VARCHAR(10) NULL AFTER `projection_admin_heading`
+");
+
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `sales_lead` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `inventory` ADD `date_of_archival` DATE NULL AFTER `deleted`");
@@ -226,6 +239,9 @@ if($get_config['configid'] > 0) {
     $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('vendor_tile_name', 'Vendors')";
     $result_insert_config = mysqli_query($dbc, $query_insert_config);
 }
+
+
+mysqli_query($dbc, "ALTER TABLE `estimate_scope` ADD `today_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `sort_order`");
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>

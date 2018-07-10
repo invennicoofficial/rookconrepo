@@ -130,37 +130,31 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
-                $operations_reports = ['Daysheet'=>'report_daysheet.php?type=operations', 'Therapist Stats'=>'report_stat.php?type=operations', 'Block Booking vs Not Block Booking'=>'report_bb_vs_not_bb.php?type=operations', 'Injury Type'=>'report_injury.php?type=operations', 'Treatment Report'=>'report_treatment.php?type=operations', 'Equipment List'=>'report_equipment_list.php?type=operations', 'Equipment Transfer'=>'report_equip_transfer.php?type=operations', 'Work Order'=>'report_work_order.php?type=operations', 'Staff Tickets'=>'reports_staff_tickets.php?type=operations', 'Day Sheet Report'=>'reports_daysheet_reports.php?type=operations', 'Appointment Summary'=>'report_daily_appoint_summary.php?type=operations', 'Patient Block Booking'=>'report_patient_block_booking.php?type=operations', 'Assessment Tally Board'=>'report_tally_board.php?type=operations', 'Assessment Follow Up'=>'report_assessment_followup.php?type=operations', 'Field Jobs'=>'report_field_jobs.php?type=operations', 'Shop Work Orders'=>'report_shop_work_orders.php?type=operations', 'Shop Work Order Task Time'=>'report_operations_shop_task_time.php?type=operations', 'Shop Work Order Time'=>'report_operations_shop_time.php?type=operations', 'Site Work Orders'=>'report_site_work_orders.php?type=operations', 'Scrum Business Productivity Summary'=>'reports_scrum_business_productivity_summary.php?type=operations', 'Scrum Staff Productivity Summary'=>'reports_scrum_staff_productivity_summary.php?type=operations', 'Scrum Status Report'=>'reports_scrum_status_report.php?type=operations', 'Drop Off Analysis'=>'report_drop_off_analysis.php?type=operations', 'Discharge Report'=>'report_discharge.php?type=operations', 'Ticket Report'=>'report_ticket.php?type=operations', 'Site Work Time'=>'report_site_work_time.php?type=operations', 'Site Work Driving'=>'report_site_work_driving.php?type=operations', 'Purchase Orders'=>'reports_purchase_orders.php?type=operations', 'Inventory Log'=>'report_inventory_log.php?type=operations', 'Point of Sale'=>'reports_pos.php?type=operations', 'Credit Card on File'=>'report_cc_on_file.php?type=operations', 'Checklist Time'=>'report_checklist_time.php?type=operations'];
-                $sales_reports = ['Validation by Therapist'=>'report_daily_validation.php?type=sales', 'POS Validation'=>'report_pos_daily_validation.php?type=sales', 'Daily Deposit Report'=>'report_daily_deposit.php?type=sales', 'Monthly Sales by Injury Type'=>'report_review_sales.php?type=sales', 'Invoice Sales Summary'=>'report_invoice_sales_summary.php?type=sales', 'Sales by Customer Summary'=>'report_sales_by_customer_summary.php?type=sales', 'Sales History by Customer'=>'report_sales_by_customer_detail.php?type=sales', 'Sales by Service Summary'=>'report_sales_by_product_service_summary.php?type=sales', 'Sales by Service Category'=>'report_sales_by_product_service_category.php?type=sales', 'Sales by Inventory Summary'=>'report_sales_by_inventory_summary.php?type=sales', 'Sales Summary by Injury Type'=>'report_daily_sales_summary.php?type=sales', 'Inventory Analysis'=>'report_general_inventory.php?type=sales', 'Unassigned/Error Invoices'=>'report_unassigned_invoices.php?type=sales', 'Staff Revenue Report'=>'report_revenue.php?type=sales', 'Expense Summary Report'=>'report_expenses.php?type=sales', 'Phone Communication'=>'report_phone_communication.php?type=sales', 'Sales by Inventory/Service Detail'=>'report_sales_by_product_service_detail.php?type=sales', 'Payment Method List'=>'report_payment_method_list.php?type=sales', 'Patient History'=>'report_patient_appoint_history.php?type=sales', 'Receipts Summary Report'=>'report_receipt_summary.php?type=sales', 'Gross Revenue by Staff'=>'report_gross_revenue_by_staff.php?type=sales',  'Patient Invoices'=>'report_patient_unpaid_invoices.php?type=sales', 'POS Sales Summary'=>'report_pos_daily_sales_summary.php?type=sales', 'Profit-Loss'=>'report_profit_loss.php?type=sales',  'Transaction List by Customer'=>'report_transaction_list_by_customer.php?type=sales', 'Unbilled Invoices'=>'report_unbilled_charges.php?type=sales', 'Deposit Detail'=>'report_deposit_detail.php?type=sales'];
-                $ar_reports = ['A/R Aging Summary'=>'report_ar_aging_summary.php?type=ar', 'Patient Aging Receivable Summary'=>'report_receivables_patient_summary.php?type=ar', 'Insurer Aging Receivable Summary'=>'report_receivables_summary.php?type=ar', 'By Invoice#'=>'report_receivables.php?type=ar', 'Customer Balance Summary'=>'report_account_receivable.php?type=ar', 'Customer Balance by Invoice'=>'report_customer_balance_detail.php?type=ar', 'Collections Report by Customer'=>'report_collections_report.php?type=ar', 'Invoice List'=>'report_invoice_list.php?type=ar', 'POS Receivables'=>'report_pos_receivables.php?type=ar', 'UI Invoice Report'=>'ui_invoice_reports.php?type=ar'];
-                $pnl_reports = ['Revenue Receivables'=>'report_pnl_revenue_receivables.php?type=pnl', 'Staff Compensation'=>'report_pnl_staff_compensation.php?type=pnl', 'Expenses'=>'report_pnl_expenses.php?type=pnl', 'Costs'=>'report_pnl_costs.php?type=pnl', 'Summary'=>'report_pnl_summary.php?type=pnl'];
-                $marketing_reports = ['Customer Contact List'=>'report_customer_contact_list.php?type=marketing', 'Customer Stats'=>'report_customer_stats.php?type=marketing', 'Demographics'=>'report_demographics.php?type=marketing', 'CRM Recommendations - By Date'=>'report_crm_recommend_date.php?type=marketing', 'CRM Recommendations - By Customer'=>'report_crm_recommend_customer.php?type=marketing', 'POS Coupons'=>'report_pos_coupons.php?type=marketing', 'Postal Code'=>'report_postalcode.php?type=marketing', 'Referral'=>'report_referral.php?type=marketing', 'Web Referrals Report'=>'report_web_referral.php?type=marketing', 'Pro Bono Report'=>'report_marketing_pro_bono.php?type=marketing', 'Net Promoter Score'=>'report_marketing_net_promoter_score.php?type=marketing'];
-                $compensation_reports = ['Adjustment Compensation'=>'report_compensation_adjustments.php?type=compensation', 'Hourly Compensation'=>'report_hourly_compensation.php?type=compensation', 'Therapist Compensation'=>'report_compensation.php?type=compensation', 'Statutory Holiday Pay Breakdown'=>'report_stat_holiday_pay.php?type=compensation'];
+				include('../Reports/field_list.php');
 
-                $reports_url = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports);
+                $reports_url = 'report_tiles.php';
 
                 if ($is_mobile) {
-                    $mobile_reports_landing_subtab_config = get_config($dbc, 'reports_mobile_landing_subtab');
-                    if ( !empty($mobile_reports_landing_subtab_config) ) {
-                        foreach ($reports_url as $key=>$value) {
-                            if ($key==$mobile_reports_landing_subtab_config) {
-                                $reports_url = $value;
-                            }
-                        }
-                    } else {
-                        $reports_url = 'report_tiles.php';
-                    }
+                    $reports_landing_subtab_config = get_config($dbc, 'reports_mobile_landing_subtab');
                 } else {
-                    $desktop_reports_landing_subtab_config = get_config($dbc, 'reports_desktop_landing_subtab');
-                    if ( !empty($desktop_reports_landing_subtab_config) ) {
-                        foreach ($reports_url as $key=>$value) {
-                            if ($key==$desktop_reports_landing_subtab_config) {
-                                $reports_url = $value;
-                            }
-                        }
-                    } else {
-                        $reports_url = 'report_tiles.php';
-                    }
+                    $reports_landing_subtab_config = get_config($dbc, 'reports_desktop_landing_subtab');
+                }
+                if(array_search($reports_landing_subtab_config,$operations_reports) !== FALSE) {
+                	$reports_url .= '?type=operations&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$sales_reports) !== FALSE) {
+                	$reports_url .= '?type=sales&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$ar_reports) !== FALSE) {
+                	$reports_url .= '?type=ar&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$pnl_reports) !== FALSE) {
+                	$reports_url .= '?type=pnl&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$marketing_reports) !== FALSE) {
+                	$reports_url .= '?type=marketing&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$compensation_reports) !== FALSE) {
+                	$reports_url .= '?type=compensation&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$customer_reports) !== FALSE) {
+                	$reports_url .= '?type=customer&report='.$reports_landing_subtab_config;
+                } else if(array_search($reports_landing_subtab_config,$staff_reports) !== FALSE) {
+                	$reports_url .= '?type=staff&report='.$reports_landing_subtab_config;
                 }
 
                 return ['link'=>'Reports/'.$reports_url,'name'=>'Reports'];

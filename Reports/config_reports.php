@@ -113,7 +113,7 @@ if (isset($_POST['submit'])) {
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
 
-    echo '<script type="text/javascript"> window.location.replace("config_reports.php"); </script>';
+    echo '<script type="text/javascript"> window.location.replace("?tab='.$_GET['tab'].'"); </script>';
 }
 ?>
 </head>
@@ -497,6 +497,9 @@ if (isset($_POST['submit'])) {
 						<div class="col-sm-4">
 							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Receipts Summary Report".',') !== FALSE) { echo " checked"; } ?> value="Receipts Summary Report" name="reports_dashboard[]"> Receipts Summary Report</label>
 						</div>
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Item Closing % By Quantity".',') !== FALSE) { echo " checked"; } ?> value="Estimate Item Closing % By Quantity" name="reports_dashboard[]"> Estimate Item Closing % By Quantity</label>
+						</div>
                         <div class="clearfix"></div>
 
                         <h3>Accounts Receivable</h3>
@@ -548,6 +551,15 @@ if (isset($_POST['submit'])) {
 						<div class="col-sm-4">
 							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ',Costs,') !== FALSE) { echo " checked"; } ?> value="Costs" name="reports_dashboard[]"> Costs</label>
 						</div>
+
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ',Labour Report,') !== FALSE) { echo " checked"; } ?> value="Labour Report" name="reports_dashboard[]"> Labour Report</label>
+						</div>
+
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ',Dollars By Service,') !== FALSE) { echo " checked"; } ?> value="Dollars By Service" name="reports_dashboard[]"> Dollars By Service</label>
+						</div>
+
                         <div class="clearfix"></div>
 
                         <h3>Marketing</h3>
@@ -784,6 +796,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Sales by Service Category" <?= $mobile_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                                         <option value="Sales Estimates" <?= $mobile_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                                         <option value="Receipts Summary Report" <?= $mobile_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                                        <option value="Estimate Item Closing % By Quantity" <?= $mobile_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                                         <option value="Gross Revenue by Staff" <?= $mobile_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                                         <option value="Patient Invoices" <?= $mobile_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
                                         <option value="POS Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>
@@ -812,6 +825,9 @@ if (isset($_POST['submit'])) {
                                         <option value="Expenses" <?= $mobile_landing_subtab_config['value']=='Expenses' ? 'selected="selected"' : '' ?>>Expenses</option>
                                         <option value="Costs" <?= $mobile_landing_subtab_config['value']=='Costs' ? 'selected="selected"' : '' ?>>Costs</option>
                                         <option value="Summary" <?= $mobile_landing_subtab_config['value']=='Summary' ? 'selected="selected"' : '' ?>>Summary</option>
+                                        <option value="Labour Report" <?= $mobile_landing_subtab_config['value']=='Labour Report' ? 'selected="selected"' : '' ?>>Labour Report</option>
+                                        <option value="Dollars By Service" <?= $mobile_landing_subtab_config['value']=='Dollars By Service' ? 'selected="selected"' : '' ?>>Dollars By Service</option>
+
                                     </optgroup>
                                     <optgroup label="Marketing">
                                         <option value="CRM Recommendations - By Customer" <?= $mobile_landing_subtab_config['value']=='CRM Recommendations - By Customer' ? 'selected="selected"' : '' ?>>CRM Recommendations - By Customer</option>
@@ -939,6 +955,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Sales by Service Category" <?= $desktop_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                                         <option value="Sales Estimates" <?= $desktop_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                                         <option value="Receipts Summary Report" <?= $desktop_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                                        <option value="Estimate Item Closing % By Quantity" <?= $desktop_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                                         <option value="Gross Revenue by Staff" <?= $desktop_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                                         <option value="Patient Invoices" <?= $desktop_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
                                         <option value="POS Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>
@@ -967,6 +984,8 @@ if (isset($_POST['submit'])) {
                                         <option value="Expenses" <?= $desktop_landing_subtab_config['value']=='Expenses' ? 'selected="selected"' : '' ?>>Expenses</option>
                                         <option value="Costs" <?= $desktop_landing_subtab_config['value']=='Costs' ? 'selected="selected"' : '' ?>>Costs</option>
                                         <option value="Summary" <?= $desktop_landing_subtab_config['value']=='Summary' ? 'selected="selected"' : '' ?>>Summary</option>
+                                        <option value="Labour Report" <?= $desktop_landing_subtab_config['value']=='Labour Report' ? 'selected="selected"' : '' ?>>Labour Report</option>
+                                        <option value="Dollars By Service" <?= $desktop_landing_subtab_config['value']=='Dollars By Service' ? 'selected="selected"' : '' ?>>Dollars By Service</option>
                                     </optgroup>
                                     <optgroup label="Marketing">
                                         <option value="CRM Recommendations - By Customer" <?= $desktop_landing_subtab_config['value']=='CRM Recommendations - By Customer' ? 'selected="selected"' : '' ?>>CRM Recommendations - By Customer</option>
@@ -1068,15 +1087,10 @@ if (isset($_POST['submit'])) {
                 </div>
             </div>
 
-        </div><div class="form-group">
-			<div class="col-sm-6">
-				<a href="report_tiles.php" class="btn config-btn btn-lg">Back</a>
-				<!--<a href="#" class="btn config-btn pull-right" onclick="history.go(-1);return false;">Back</a>-->
-			</div>
-			<div class="col-sm-6">
-				<button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
-			</div>
-		</div>
+    <div class="form-group pull-right">
+        <a href="report_tiles.php" class="btn brand-btn">Back</a>
+        <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+    </div>
 
 </form>
 </div>

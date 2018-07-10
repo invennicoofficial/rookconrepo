@@ -228,16 +228,16 @@ else if($_GET['action'] == 'contacts_dashboards') {
     }
 
 	if($field_value == 'upload') {
-		if (!file_exists('../'.$_POST['tile_name'].'/download')) {
-			mkdir('../'.$_POST['tile_name'].'/download', 0777, true);
+		if (!file_exists('../'.ucfirst($_POST['tile_name']).'/download')) {
+			mkdir('../'.ucfirst($_POST['tile_name']).'/download', 0777, true);
 		}
 		$history_value = filter_var($_FILES['file']['name'],FILTER_SANITIZE_STRING);
 		$basename = $filename = $_FILES['file']['name'];
 		$i = 0;
-		while(file_exists('../'.$_POST['tile_name'].'/download/'.$filename)) {
+		while(file_exists('../'.ucfirst($_POST['tile_name']).'/download/'.$filename)) {
 			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', $basename);
 		}
-		move_uploaded_file($_FILES['file']['tmp_name'],'../'.$_POST['tile_name'].'/download/'.$filename);
+		move_uploaded_file($_FILES['file']['tmp_name'],'../'.ucfirst($_POST['tile_name']).'/download/'.$filename);
 		$field_value = $filename;
 	} else if($field_name == 'billable_hours') {
 		$field_value = time_time2decimal($field_value);

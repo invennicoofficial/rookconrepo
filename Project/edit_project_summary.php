@@ -1,4 +1,5 @@
-<?php if($_GET['projectid'] > 0) {
+<?php include_once('../include.php');
+if($_GET['projectid'] > 0) {
 	$projectid = $_GET['projectid'];
 	$project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
 	$projecttype = $project['projecttype'];

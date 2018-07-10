@@ -9,12 +9,18 @@ include ('../include.php');
 <script type="text/javascript">
 $(document).ready(function() {
     $('#mobile_tabs .panel-heading').click(loadPanel);
-    if($(window).width() > 767) {
+    /* if($(window).width() > 767) {
         resizeScreen();
         $(window).resize(function() {
             resizeScreen();
         });
-    }
+    } */
+    $(window).resize(function() {
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_order_div .tile-container').offset().top - 1;
+        if(available_height > 200) {
+            $('#sales_order_div .tile-sidebar, #sales_order_div .scale-to-fill').height(available_height);
+        }
+    }).resize();
 });
 
 function resizeScreen() {

@@ -522,7 +522,18 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 				}
 				$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-				$row_html .= '<br />'."Status: ".$status."</b></span>";
+				$row_html .= '<br />'."Status: ".$status;
+				if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
+					$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+					if(mysqli_num_rows($ticket_notes) > 0) {
+						$row_html .= "<br />Notes: ";
+						while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+							$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+							$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
+						}
+					}
+				}
+				$row_html .= "</b></span>";
 				if($ticket['scheduled_lock'] > 0) {
 					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";
 				} else {

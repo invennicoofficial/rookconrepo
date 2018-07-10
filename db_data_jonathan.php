@@ -79,6 +79,28 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `intake` ADD `flag_label` TEXT AFTER `flag_colour`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+    
+		// July 5, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `date_sent` TEXT AFTER `status_history`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `sent_by` TEXT AFTER `date_sent`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		// July 6, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `main_approval` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `sign_off_signature`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `final_approval` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `main_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `main_approval_signed` TEXT AFTER `main_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `final_approval_signed` TEXT AFTER `final_approval`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		// July 5, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `date_sent` TEXT AFTER `status_history`")) {
@@ -89,6 +111,14 @@
 		}
 		
 		set_config($dbc, 'db_version_jonathan', 7);
+	}
+	
+	if(get_config($dbc, 'update_timesheet_config') < 1) {
+		// July 9, 2018
+		if(!mysqli_query($dbc, "UPDATE `field_config` SET `time_cards`=CONCAT(`time_cards`,',comment_box,')")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_timesheet_config', 1);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";

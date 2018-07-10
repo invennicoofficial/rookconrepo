@@ -79,18 +79,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
 		<form name="form_sites" method="post" action="" class="form-inline" role="form">
 		<?php
 		if (isset($_POST['search_submit'])) {
@@ -126,13 +114,7 @@ if (isset($_POST['printpdf'])) {
                 echo display_report($dbc, $search_month, '', '', '');
             ?>
         </form>
-
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>
-
+        
 <?php
 function display_report($dbc, $search_month, $table_style, $table_row_style, $grand_total_style) {
 	$rate_sql = "SELECT 'position' `type`, `positions`.`name`, `positions`.`position_id` `id`, `daily` `day_rate`, `hourly` `rate` FROM `position_rate_table` LEFT JOIN `positions` ON `position_rate_table`.`position_id`=`positions`.`position_id` WHERE `position_rate_table`.`start_date` < DATE(NOW()) AND IFNULL(NULLIF(`position_rate_table`.`end_date`,'0000-00-00'),'9999-12-21') > DATE(NOW()) AND `position_rate_table`.`deleted`=0 AND `positions`.`deleted`=0 UNION

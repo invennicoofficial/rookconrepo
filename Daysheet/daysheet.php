@@ -41,11 +41,22 @@ hr {
 }
 </style>
 <script type="text/javascript" src="../Profile/profile.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){        
+        $(window).resize(function() {
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#daysheet_div .tile-container').offset().top;
+            if(available_height > 200) {
+                $('#daysheet_div .tile-sidebar, #daysheet_div .tile-sidebar ul, #daysheet_div .tile-content').height(available_height);
+                $('#daysheet_div .main-screen-details .sidebar').height(available_height);
+            }
+        }).resize();
+    });
+</script>
 <body>
 <?php include_once ('../navigation.php');
 checkAuthorised();
 ?>
-<div class="container">
+<div id="daysheet_div" class="container">
     <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
         <div class="iframe">
             <div class="iframe_loading">Loading...</div>

@@ -81,18 +81,6 @@ if ( isset ( $_POST['printpdf'] ) ) {
     $endtime    = $end_date_pdf;
 } ?>
 
-</head>
-
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-            <?php echo reports_tiles($dbc);  ?>
-
-            <br /><br />
 
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
                 if ( isset ( $_POST['search_submit'] ) ) {
@@ -141,12 +129,6 @@ if ( isset ( $_POST['printpdf'] ) ) {
 
                 echo report_net_promoter_score($dbc, $start_date, $end_date, $location, '', '', ''); ?>
             </form>
-
-        </div><!-- .col-md-12 -->
-    </div><!-- .row -->
-</div><!-- .container -->
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_net_promoter_score($dbc, $start_date, $end_date, $location, $table_style, $table_row_style, $grand_total_style) {

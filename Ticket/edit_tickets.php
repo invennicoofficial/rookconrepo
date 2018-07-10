@@ -56,6 +56,9 @@ switch($rate_contact) {
 		$rate_contact = $rate_contactid[$rate_contact[1]];
 		break;
 }
+if(explode(':',$get_ticket['rate_card'])[1] == 'company') {
+	$rate_card = get_field_value('rate_card_name','company_rate_card','companyrcid',explode(':',$get_ticket['rate_card'])[1]);
+}
 
 $clientid = '';
 $businessid = '';

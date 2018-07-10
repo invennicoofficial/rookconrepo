@@ -427,6 +427,7 @@ if (isset($_POST['add_tab'])) {
 	} else {
 		$scheduling_use_shift_tickets = '';
 	}
+	set_config($dbc, 'equip_multi_assign_staff_disallow', $_POST['equip_multi_assign_staff_disallow']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_use_shift_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_use_shift_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_use_shift_tickets."' WHERE `name`='scheduling_use_shift_tickets'");
 	if (!empty($_POST['scheduling_new_ticket_button'])) {
@@ -1894,6 +1895,14 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_teams = get_config($dbc, 'scheduling_teams'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_teams" <?= $scheduling_teams != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Multiple Equipment per Staff:</label>
+								<div class="col-sm-8">
+									<?php $equip_multi_assign_staff_disallow = get_config($dbc, 'equip_multi_assign_staff_disallow'); ?>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? 'checked' : '' ?> value="1">Do Not Allow Staff to be Assigned to Multiple</label>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? '' : 'checked' ?> value="0">Allow Staff to be Assigned to Multiple</label>
 								</div>
 							</div>
 							<div class="form-group">

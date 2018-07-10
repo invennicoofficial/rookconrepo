@@ -957,7 +957,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['summary']) || $no_sub_shown;
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
 			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); $next_tab = (!$next_set ? 'summary' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a><?php } ?>
@@ -1077,7 +1077,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					}
 				}
 				if((count($sub_tabs) > 0 || count($user_forms) > 0) && $_GET['edit'] > 0) { ?>
-					<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= (count($sub_tabs) > 0 || count($user_forms) > 0) ? '' : 'display:none;' ?>">
+					<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= (count($sub_tabs) > 0 || count($user_forms) > 0) ? '' : 'display:none;' ?>">
 						<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Path<span class="arrow"></span></li></a>
 					<ul style="<?= $show_sub || $_GET['edit'] == 0 ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 					<?php foreach($sub_tabs as $path_tab) { ?>
@@ -1091,6 +1091,30 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</ul>
 				<?php }
 			}
+
+            if(check_subtab_persmission($dbc, 'project', ROLE, 'view_projection') && (count($sub_tabs) > 0 || count($user_forms) > 0)) {
+			$ticket_bypass = false;
+			$show_sub = in_array($_GET['tab'],['services','products','ptasks','inventory','admin']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
+			$no_sub_shown = false; ?>
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=services" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Projections<span class="arrow"></span></li></a>
+			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'services' : $_GET['tab']); $next_tab = (!$next_set ? 'services' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'services' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'services'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=services"><li class="sidebar-lower-level <?= $_GET['tab'] == 'services' ? 'active blue' : '' ?>">Services</li></a>
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'products' : $_GET['tab']); $next_tab = (!$next_set ? 'products' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'products' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'products'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=products"><li class="sidebar-lower-level <?= $_GET['tab'] == 'products' ? 'active blue' : '' ?>">Products</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>">Tasks</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'inventory' : $_GET['tab']); $next_tab = (!$next_set ? 'inventory' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'inventory' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'inventory'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=inventory"><li class="sidebar-lower-level <?= $_GET['tab'] == 'inventory' ? 'active blue' : '' ?>">Inventory</li></a>
+
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'admin' : $_GET['tab']); $next_tab = (!$next_set ? 'admin' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'admin' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'admin'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=admin"><li class="sidebar-lower-level <?= $_GET['tab'] == 'admin' ? 'active blue' : '' ?>">Admin</li></a>
+
+			</ul>
+		<?php }
+
+
+
+
+
 			$sub_tabs = ['Information','Estimate Info','Details','Notes','Documents','Dates'];
 			foreach($sub_tabs as $i => $tab) {
 				if(!in_array($tab,$tab_config)) {
@@ -1106,7 +1130,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$ticket_bypass = false;
 				$show_sub = in_array($_GET['tab'],['info','estimate','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
 				$no_sub_shown = false; ?>
-				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 					<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Details<span class="arrow"></span></li></a>
 				<ul id="ul_details" style="<?= $show_sub || $_GET['edit'] == 0 ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 					<?php if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info' : $_GET['tab']); $next_tab = (!$next_set ? 'info' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'info' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Information</li></a><?php } ?>
@@ -1140,7 +1164,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			if(check_subtab_persmission($dbc, 'project', ROLE, 'custom_'.config_safe_str($custom_tab))) {
 				$show_sub = ($_GET['tab'] == 'custom_details' && $_GET['custom_tab'] == $custom_tab) || $no_sub_shown;
 				$no_sub_shown = false; ?>
-				<a href="?edit=<?= $_GET['edit'] ?>&tab=custom_details&custom_tab=<?= $custom_tab ?>" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;">
+				<a href="?edit=<?= $_GET['edit'] ?>&tab=custom_details&custom_tab=<?= $custom_tab ?>" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;">
 					<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>"><?= $custom_tab ?><span class="arrow"></span></li></a>
 				<ul <?= $_GET['custom_tab'] == $custom_tab ? 'id="active_custom_tab"' : '' ?> style="<?= $show_sub ? 'padding-left:0;' : 'display:none;' ?>">
 					<?php foreach($custom_headings as $custom_heading) { ?>
@@ -1166,7 +1190,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['scope','scope_type','est_scope','sales_order','intake','info_gathering','incident_reports','time_sheets']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=scope" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=scope" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Scope of Work<span class="arrow"></span></li></a>
 			<ul style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Scope',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'scope' : $_GET['tab']); $next_tab = (!$next_set ? 'scope' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'scope' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'scope'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=scope"><li class="sidebar-lower-level <?= $_GET['tab'] == 'scope' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Scope</li></a><?php } ?>
@@ -1234,30 +1258,41 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(milestone_timeline,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '')";
 			$show_sub = in_array($_GET['tab'],['tickets','workorders','tasks','checklists','unassigned','time_clock','custom_pdf']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=actions" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=actions" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Action Items<span class="arrow"></span></li></a>
 			<ul style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Tickets',$tab_config)) {
-					$_GET['tab'] = ($_GET['tab'] == '' ? 'tickets' : $_GET['tab']); $next_tab = (!$next_set ? 'tickets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tickets' && !isset($_GET['ticket_type']) ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tickets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>"><?= (count(array_filter(explode(',',get_config($dbc, 'ticket_tabs')))) > 0 ? 'All ' : '') ?><?= TICKET_TILE ?></li></a><?php
+					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid` = '$projectid' AND `deleted` = 0"))['num_rows'];
+					$_GET['tab'] = ($_GET['tab'] == '' ? 'tickets' : $_GET['tab']); $next_tab = (!$next_set ? 'tickets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tickets' && !isset($_GET['ticket_type']) ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tickets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>"><?= (count(array_filter(explode(',',get_config($dbc, 'ticket_tabs')))) > 0 ? 'All ' : '') ?><?= TICKET_TILE ?><span class="pull-right"><?= $count ?></span></li></a><?php
 					foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
 						$type_value = config_safe_str($ticket_type);
 						$next_tab = (!$next_set ? 'tickets&ticket_type='.$type_value : $next_tab);
 						$next_set = ($prev_set ? true : false);
 						$prev_set = ($_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? true : $prev_set);
 						$previous_tab = ($prev_set ? $previous_tab : 'tickets&ticket_type='.$type_value);
-						?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets&ticket_type=<?= $type_value ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>"><?= $ticket_type ?></li></a><?php
+						$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid` = '$projectid' AND `deleted` = 0 AND `ticket_type` = '$ticket_type'"))['num_rows'];
+						?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets&ticket_type=<?= $type_value ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>"><?= $ticket_type ?><span class="pull-right"><?= $count ?></span></li></a><?php
 					}
 				} ?>
 				<?php if(in_array('Custom PDF',$tab_config)) {
 					$pdfs = $dbc->query("SELECT `id`, `pdf_name` FROM `ticket_pdf` WHERE `deleted`=0");
 					while($pdf = $pdfs->fetch_assoc()) {
-						$_GET['tab'] = ($_GET['tab'] == '' ? 'custom_pdf' : $_GET['tab']); $next_tab = (!$next_set ? 'custom_pdf' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'custom_pdf' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'custom_pdf'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=custom_pdf&id=<?= $pdf['id'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'custom_pdf' && $_GET['id'] == $pdf['id'] ? 'active blue' : '' ?>"><?= $pdf['pdf_name'] ?></li></a><?php
+						$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".$pdf['id']."')"))['num_rows'];
+						$_GET['tab'] = ($_GET['tab'] == '' ? 'custom_pdf' : $_GET['tab']); $next_tab = (!$next_set ? 'custom_pdf' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'custom_pdf' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'custom_pdf'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=custom_pdf&id=<?= $pdf['id'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'custom_pdf' && $_GET['id'] == $pdf['id'] ? 'active blue' : '' ?>"><?= $pdf['pdf_name'] ?><span class="pull-right"><?= $count ?></span></li></a><?php
 					}
 				} ?>
 				<?php if(in_array('Work Orders',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'workorders' : $_GET['tab']); $next_tab = (!$next_set ? 'workorders' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'workorders' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'workorders'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=workorders"><li class="sidebar-lower-level <?= $_GET['tab'] == 'workorders' ? 'active blue' : '' ?>">Work Orders</li></a><?php } ?>
-				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>">Tasks</li></a><?php } ?>
+				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) {
+					$_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks');
+					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tasklist` WHERE `projectid` = '$projectid'"))['num_rows']; ?>
+					<a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>">Tasks<span class="pull-right"><?= $count ?></span></li></a>
+				<?php } ?>
 				<?php if((in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) && tile_visible($dbc, 'checklist')) { $_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tasks&status=project"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] == 'project' ? 'active blue' : '' ?>">Checklists</li></a><?php } ?>
-				<?php if(in_array('Path',$tab_config) && !in_array('Unassigned Hide',$tab_config) && mysqli_num_rows(mysqli_query($dbc, $unassigned_sql)) > 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'unassigned' : $_GET['tab']); $next_tab = (!$next_set ? 'unassigned' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'unassigned' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'unassigned'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=unassigned"><li class="sidebar-lower-level <?= $_GET['tab'] == 'unassigned' ? 'active blue' : '' ?>">Unassigned</li></a><?php } ?>
+				<?php if(in_array('Path',$tab_config) && !in_array('Unassigned Hide',$tab_config) && mysqli_num_rows(mysqli_query($dbc, $unassigned_sql)) > 0) {
+					$_GET['tab'] = ($_GET['tab'] == '' ? 'unassigned' : $_GET['tab']); $next_tab = (!$next_set ? 'unassigned' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'unassigned' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'unassigned');
+					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(milestone_timeline,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '')"))['num_rows']; ?>
+					<a href="?edit=<?= $_GET['edit'] ?>&tab=unassigned"><li class="sidebar-lower-level <?= $_GET['tab'] == 'unassigned' ? 'active blue' : '' ?>">Unassigned<span class="pull-right"><?= $count ?></span></li></a>
+				<?php } ?>
 				<?php if(in_array('Time Clock',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'time_clock' : $_GET['tab']); $next_tab = (!$next_set ? 'time_clock' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'time_clock' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'time_clock'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=time_clock"><li class="sidebar-lower-level <?= $_GET['tab'] == 'time_clock' ? 'active blue' : '' ?>">Time Clock</li></a><?php }
 				if(count($user_forms) > 0 && $_GET['edit'] > 0) {
 					foreach($user_forms as $project_form_id => $subtab_name) { ?>
@@ -1288,7 +1323,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = strpos($_GET['tab'],'administration_') !== FALSE || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=administration" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=administration" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Administration<span class="arrow"></span></li></a>
 			<ul id="ul_admin" style="<?= $show_sub ? '' : 'display: none;' ?>">
 				<?php foreach($sub_tabs as $admin_group) { ?>
@@ -1342,7 +1377,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['email','phone','agendas','meetings']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=email" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=email" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Communications<span class="arrow"></span></li></a>
 			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Email',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'email' : $_GET['tab']); $next_tab = (!$next_set ? 'email' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'email' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'email'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=email"><li class="sidebar-lower-level <?= $_GET['tab'] == 'email' ? 'active blue' : '' ?>">Email</li></a><?php } ?>
@@ -1371,7 +1406,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['timesheet','payroll','expenses','payables']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=gantt" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=gantt" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Accounting<span class="arrow"></span></li></a>
 			<ul style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Timesheets',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'timesheet' : $_GET['tab']); $next_tab = (!$next_set ? 'timesheet' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'timesheet' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'timesheet'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=timesheet"><li class="sidebar-lower-level <?= $_GET['tab'] == 'timesheet' ? 'active blue' : '' ?>">Time Sheets</li></a><?php } ?>
@@ -1400,7 +1435,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['deliverables','gantt','profitloss','reminders','track_time','estimate_time','time_track','history']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=gantt" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=gantt" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Reporting<span class="arrow"></span></li></a>
 			<ul style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Deliverables',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'deliverables' : $_GET['tab']); $next_tab = (!$next_set ? 'deliverables' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'deliverables' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'deliverables'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=deliverables"><li class="sidebar-lower-level <?= $_GET['tab'] == 'deliverables' ? 'active blue' : '' ?>">Deliverables</li></a><?php } ?>
@@ -1434,7 +1469,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['payment_schedule','field_service_ticket','purchase_order','work_ticket','invoice','wcb_invoice','outstanding','paid','billing_new','billing_reminders']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=billing_new" onclick="$(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
+			<a href="?edit=<?= $_GET['edit'] ?>&tab=billing_new" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Billing<span class="arrow"></span></li></a>
 			<ul style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Billing',$tab_config) && $security['edit'] > 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'billing_new' : $_GET['tab']); $next_tab = (!$next_set ? 'billing_new' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'billing_new' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'billing_new'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=billing_new"><li class="sidebar-lower-level <?= $_GET['tab'] == 'billing_new' ? 'active blue' : '' ?>">Create New</li></a><?php } ?>
@@ -1536,6 +1571,32 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'time_clock':
 				$body_title = 'Time Clock';
 				$include_files[] = 'edit_project_scope_time.php'; break;
+
+			case 'services':
+			case 'products':
+			case 'ptasks':
+			case 'inventory':
+			case 'admin':
+				$body_title = 'Projections';
+				$include_files[] = 'edit_project_projections.php';
+                ?>
+				<script>
+				$(document).ready(function() {
+					$('#ul_comm').find('a').off('click').click(function() {
+						var tab = this.href.split('tab=')[1];
+						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop());
+						return false;
+					});
+					$('.main-screen .default_screen').scroll(function() {
+						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
+						$('#ul_comm li.active.blue').removeClass('active blue');
+						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
+					});
+					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
+				});
+				</script>
+                <?php
+                break;
 			case 'email':
 			case 'phone':
 			case 'agendas':

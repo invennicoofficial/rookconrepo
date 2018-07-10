@@ -462,6 +462,21 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 
+	$value_config = get_field_config($dbc, 'tickets');
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+		if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
+			$_POST['date'] = $get_ticket['to_do_date'];
+		}
+	}
+
 	if($field_name == 'status') {
 		$current_history_value = mysqli_fetch_assoc(mysqli_query($dbc, "select history from tickets where ticketid = $id"));
 		$current_history = $current_history_value['history'];
@@ -1292,6 +1307,8 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_notify_pdf_content', filter_var(htmlentities($_POST['ticket_notify_pdf_content']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notify_cc', filter_var($_POST['ticket_notify_cc'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING));
 	if($ticket_type == 'tickets') {
 		set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
@@ -1334,6 +1351,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
+	set_config($dbc, $_POST['ticket_guardian_contact'], filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	if(is_array($_POST['fields'])) {
 		$value = implode(',',$_POST['fields']);
@@ -2112,7 +2130,13 @@ if($_GET['action'] == 'update_fields') {
 	foreach($misc_item as $i => $misc) {
 		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."')");
 	}
-	echo WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoiceid;
+	$tile_target = 'Invoice';
+	if(!tile_visible($dbc, 'check_out')) {
+		if(tile_visible($dbc, 'posadvanced')) {
+			$tile_target = 'POSAdvanced';
+		}
+	}
+	echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid;
 } else if($_GET['action'] == 'task_types') {
 	foreach($_POST['tasks'] as $sort => $data) {
 		$cat = filter_var($data['category'],FILTER_SANITIZE_STRING);

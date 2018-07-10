@@ -156,16 +156,6 @@ function set_followup(dropdown) {
 }
 $(document).on('change', 'select.set_followup_onchange', function() { set_followup(this); });
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-	<div class="row">
-		<div class="col-md-12">
-
-		<?php echo reports_tiles($dbc);  ?>
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -226,11 +216,6 @@ $(document).on('change', 'select.set_followup_onchange', function() { set_follow
 			?>
 
 		</form>
-
-		</div>
-	</div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_all_daysheet($dbc, $starttime, $table_style, $table_row_style, $grand_total_style, $therapist, $screen_mode = true) {
