@@ -159,6 +159,8 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $table_row_style, $grand_total_style) {
 
+echo "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets t, ticket_attached ta WHERE t.ticketid = ta.ticketid AND (DATE(created_date) >= '".$starttime."' AND DATE(created_date) <= '".$endtime."') AND ta.rate > 0 GROUP BY `created_by`";
+
     $report_validation = mysqli_query($dbc, "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets t, ticket_attached ta WHERE t.ticketid = ta.ticketid AND (DATE(created_date) >= '".$starttime."' AND DATE(created_date) <= '".$endtime."') AND ta.rate > 0 GROUP BY `created_by`");
 
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'" width="100%">';
