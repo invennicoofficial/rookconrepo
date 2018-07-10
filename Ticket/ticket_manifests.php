@@ -145,15 +145,16 @@ if($siteid == 'recent') {
 					'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['qty'].'</td>' : '').'
 					'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['manual_qty'].'</td>' : '').'
 					'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td data-title="SITE" style="text-align:center;">'.$row['site'].'</td>' : '').'
-					'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.$row['notes'].'</td>' : '').'
+					'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 				</tr>
 				<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
 			}
+			$stamp_img = get_config($dbc, 'stamp_upload');
 			$html .= '<tr>
 				<td style="border-top:1px solid black; text-align:right;" colspan="'.$col_count.'">
 					<br /><br /><br />
-					'.(empty($signature) ? '<br /><br /><br /><br /></td></tr><tr><td colspan="'.($col_count - 2).'"></td><td colspan="2" style="border-top:1px solid black;text-align:right;">Signature' : ('<img style="width:150px;border-bottom:1px solider black;" src="manifest/signature_'.$manifestid.'.png"><br />
-					Signed: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']))).'
+					'.((in_array('stamp_sign',$manifest_fields) && !empty($stamp_img) && file_exists('download/'.$stamp_img)) ? '<img style="width:150px" src="download/'.$stamp_img.'">' : (empty($signature) ? '<br /><br /><br /><br /></td></tr><tr><td colspan="'.($col_count - 2).'"></td><td colspan="2" style="border-top:1px solid black;text-align:right;">Signature' : ('<img style="width:150px;border-bottom:1px solider black;" src="manifest/signature_'.$manifestid.'.png"><br />
+					Signed: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name'])))).'
 				</td>
 			</tr>
 		</table>';
@@ -276,7 +277,7 @@ if($siteid == 'recent') {
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
 						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-						<td data-title="<?= SITES_CAT ?>"><select name="siteid" multiple data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
+						<td data-title="<?= SITES_CAT ?>"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
 							<?php } ?>
@@ -297,7 +298,7 @@ if($siteid == 'recent') {
 									<?php } ?>
 								</div>
 							</td><?php } ?>
-						<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= $ticket['notes'] ?>"></td><?php } ?>
+						<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= html_entity_decode($site_notes) ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
 						<?php if((!in_array('req site',$manifest_fields) || $siteid > 0) && !in_array('group pieces',$manifest_fields)) { ?><td data-title="Add">
 							<label class="form-checkbox any-width"><input type="checkbox" name="include[]" value="<?= $ticket['id'] ?>">Include</label>
 							<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">
@@ -306,14 +307,22 @@ if($siteid == 'recent') {
 				<?php } ?>
 			</table>
 			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
-			<div class="form-group">
-				<label class="col-sm-4">Signature:</label>
-				<div class="col-sm-8">
-					<?php $output_name = 'signature';
-					include_once('../phpsign/sign_multiple.php'); ?>
-				</div>
-			</div>
 			<?php if(!in_array('req site',$manifest_fields) || $siteid > 0) { ?>
+				<div class="form-group">
+					<?php $stamp_img = get_config($dbc, 'stamp_upload');
+					if(in_array('stamp_sign',$manifest_fields) && !empty($stamp_img) && file_exists('download/'.$stamp_img)) { ?>
+						<label class="col-sm-4">Stamp:</label>
+						<div class="col-sm-8">
+							<img src="download/<?= $stamp_img ?>" style="height:150px;">
+						</div>
+					<?php } else { ?>
+						<label class="col-sm-4">Signature:</label>
+						<div class="col-sm-8">
+							<?php $output_name = 'signature';
+							include_once('../phpsign/sign_multiple.php'); ?>
+						</div>
+					<?php } ?>
+				</div>
 				<button class="btn brand-btn pull-right" name="generate" value="generate" type="submit">Generate Manifest</button>
 			<?php } ?>
 		</form>

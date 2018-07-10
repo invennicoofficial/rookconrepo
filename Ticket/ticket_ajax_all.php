@@ -2274,5 +2274,18 @@ if($_GET['action'] == 'update_fields') {
 	$time_est = $new_hours.':'.$new_minutes;
 
 	echo $time_est;
+} else if($_GET['action'] == 'set_stamp') {
+	$filename = file_safe_str($_FILES['file']['name']);
+	if(!file_exists('download')) {
+		mkdir('download', 0777, true);
+	}
+	if(!empty($filename)) {
+		move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
+	}
+	set_config($dbc, 'stamp_upload', $filename);
+	echo $filename;
+} else if($_GET['action'] == 'update_piece_count') {
+	$ticketid = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
+	echo $dbc->query("SELECT COUNT(*) FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table`='inventory_general'")->fetch_array()[0];
 }
 ?>

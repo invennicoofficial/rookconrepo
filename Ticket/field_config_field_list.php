@@ -2276,6 +2276,10 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Manual Add Pieces", $all_config) ? 'checked disabled' : (in_array("Inventory General Manual Add Pieces", $value_config) ? "checked" : '') ?> value="Inventory General Manual Add Pieces" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is active, you will need to click a button before any pieces will be automatically added to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Manually Add Pieces</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General Manual Remove Pieces') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Manual Remove Pieces", $all_config) ? 'checked disabled' : (in_array("Inventory General Manual Remove Pieces", $value_config) ? "checked" : '') ?> value="Inventory General Manual Remove Pieces" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is active, you will see a button that will remove a piece and update the piece count on the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Manually Remove Pieces</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 						<?php if(!$action_mode && !$overview_mode) { ?>
