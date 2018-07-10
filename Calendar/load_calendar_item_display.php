@@ -533,6 +533,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 						}
 					}
 				}
+				if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
+					$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+				}
 				$row_html .= "</b></span>";
 				if($ticket['scheduled_lock'] > 0) {
 					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";

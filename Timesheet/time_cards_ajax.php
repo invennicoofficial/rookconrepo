@@ -29,6 +29,7 @@ else if($_GET['action'] == 'type_time') {
 	switch($name[0]) {
 		case 'regular': $type = 'Regular Hrs.'; break;
 		case 'training': $type = 'Regular Hrs.'; break;
+		case 'drive': $type = 'Regular Hrs.'; break;
 		case 'direct': $type = 'Direct Hrs.'; break;
 		case 'indirect': $type = 'Indirect Hrs.'; break;
 		case 'extra': $type = 'Extra Hrs.'; break;
