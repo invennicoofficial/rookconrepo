@@ -27,7 +27,7 @@ function reports_tiles($dbc) { ?>
 
     $active54 = $active55 = $active55b = '';
 
-    $active56 = $active56a = $active57 = $active58 = $active59 = $active60 = $active61 = $active62 = $active63 = $active64 = $active65 = $active66 = $active67 = $active68 = $active69 = $active70 = $active71 = $active72 = $active73 = $active74 = $active75 = $active76 = $active77 = $active78 = $active101 = '';
+    $active56 = $active56a = $active57 = $active58 = $active59 = $active60 = $active61 = $active62 = $active63 = $active64 = $active65 = $active66 = $active67 = $active68 = $active69 = $active70 = $active71 = $active72 = $active73 = $active74 = $active75 = $active76 = $active77 = $active78 = $active101 = $active104 ='';
 
     $active79 = $active80 = $active81 = $active82 = $active83 = $active84 = $active85 = $active86 = $active87 = $active89 = $active90 = $active91 = $active92 = $active93 = $active94 = $active95 = $active96 = $active97 = $active98 = $active100 = $active102 = $active103 ='';
 
@@ -288,6 +288,10 @@ function reports_tiles($dbc) { ?>
     }
     if($file_name == 'report_contact_report_by_status.php') {
         $active101 = 'active_tab';
+    }
+
+    if($file_name == 'report_contact_driver.php') {
+        $active104 = 'active_tab';
     }
     // Profit & Loss
     $active80 = ( $file_name=='report_pnl_revenue_receivables.php' ) ? 'active_tab' : '';
@@ -722,6 +726,10 @@ function reports_tiles($dbc) { ?>
 
 					if (strpos($value_config, ',Contact Report by Status,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'contact_report_by_status' ) === true) { ?>
 						<option value='report_contact_report_by_status.php?type=marketing' <?= 'active_tab' == $active101 ? 'selected' : '' ?>>Contact Report by Status</option><?php
+					}
+
+					if (strpos($value_config, ',Driver Report,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'contact_driver_report' ) === true) { ?>
+						<option value='report_contact_driver.php?type=marketing' <?= 'active_tab' == $active104 ? 'selected' : '' ?>>Driver Report</option><?php
 					}
 
 					if (strpos($value_config, ',Contact Postal Code,') !== false && check_subtab_persmission( $dbc, 'report', ROLE, 'contact_postal_code' ) === true) { ?>
