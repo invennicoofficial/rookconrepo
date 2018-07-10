@@ -28,7 +28,8 @@ $fields_left = [
 	[['Office Phone'], '/img/office_phone.PNG', decryptIt($contact['office_phone'])],
 	[['Cell Phone'], '/img/cell_phone.PNG', decryptIt($contact['cell_phone'])],
 	[['Email Address'], '/img/email.PNG', decryptIt($contact['email_address'])],
-	[['Start Date'], '/img/calendar.png', $contact['start_date']]
+	[['Start Date'], '/img/calendar.png', $contact['start_date']],
+	[['Rating'], '/img/icons/radar.png', $contact['rating']]
 ];
 foreach($fields_left as $key => $value) {
 	if(!in_array_any($value[0], $field_config)) {
@@ -69,32 +70,38 @@ class MYPDF extends TCPDF {
 }
 
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-$pdf->SetMargins(5, 5, 5);
+$pdf->SetMargins(1, 1, 1);
 $pdf->SetAutoPageBreak(true, 0);
 
 $html = '';
-$profile_img = '';
-/*$user_preset = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `preset_profile_picture` FROM `user_settings` WHERE `contactid` = '$contactid'"))['preset_profile_picture'];
-if($user_preset != '') {
-	$profile_img = WEBSITE_URL.'/img/avatars/'.$user_preset;
-} else */
-if(url_exists(WEBSITE_URL."/Profile/download/profile_pictures/".$contactid.".jpg")) {
-	$profile_img = WEBSITE_URL."/Profile/download/profile_pictures/".$contactid.".jpg";
-} else if(url_exists(WEBSITE_URL."/Staff/download/".$contactid.".jpg")) {
-	$profile_img = WEBSITE_URL."/Staff/download/".$contactid.".jpg";
-}
-$html .= '<h1 style="text-align: center">';
-$logo = WEBSITE_URL.'/Settings/download/'.get_config($dbc, 'logo_upload');
-if(url_exists($logo)) {
-	//$html .= '<img src="'.$logo.'" style="height:25px;"> ';
-}
-$html .= get_contact($dbc, $contactid);
-if($profile_img != '') {
-	$html .= '<img src="'.$profile_img.'" style="height:25px;"> ';
-}
-$html .= '</h1>';
 
-$html .= '<table cellpadding="2">';
+$logo = get_config($dbc, 'logo_upload');
+if(!empty($logo)) {
+	$logo = WEBSITE_URL.'/Settings/download/'.$logo;
+} else {
+	$logo = WEBSITE_URL.'/img/logo.png';
+}
+$logo = str_replace(' ','%20',$logo);
+
+$contact_image = $contact['contactimage'];
+if(file_get_contents(WEBSITE_URL.'/Profile/download/'.$contact_image)) {
+    $contact_image = WEBSITE_URL.'/Profile/download/'.$contact_image;
+} else if(file_get_contents(WEBSITE_URL.'/Staff/download/'.$contact_image)) {
+    $contact_image = WEBSITE_URL.'/Staff/download/'.$contact_image;
+} else {
+    $contact_image = WEBSITE_URL.'/img/icons/user.png';
+}
+
+$html .= '<table>';
+$html .= '<tr>';
+$html .= '<td width="57%" style="font-size: 9px;"><img src="'.$logo.'" style="width: 30px; height: 30px;">';
+$html .= '</td>';
+$html .= '<td width="90px" style="text-align: right;"><img src="'.$contact_image.'" style="width: 30px; height: 30px; border: 1px solid black;">';
+$html .= '</td>';
+$html .= '</tr>';
+$html .= '</table>';
+
+$html .= '<table cellpadding="1">';
 $counter = 0;
 while(!empty($fields_left) || !empty($fields_right)) {
 	$value_left = array_shift($fields_left);
@@ -108,7 +115,7 @@ $html .= '</table>';
 
 $pdf->SetFont('helvetica', '', 7);
 $pdf->AddPage('L', [85,55]);
-$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
+$pdf->writeHTML($html, true, false, true, false, '');
 $pdf_url = 'download/'.$contactid.'_'.date('Y-m-d').'_idcard.pdf';
 if(!file_exists('download')) {
     mkdir('download', 0777, true);
