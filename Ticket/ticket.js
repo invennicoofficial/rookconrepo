@@ -158,9 +158,9 @@ function send_email(button) {
 				if(response != '') {
 					alert(response);
 				}
+				$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 			}
 		});
-		$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 	} else {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=send_email',
@@ -176,9 +176,9 @@ function send_email(button) {
 				if(response != '') {
 					alert(response);
 				}
+				$(button).closest('.email_div').hide().closest('.scheduled_stop').find('[name=email]').closest('.form-group').find('[type=checkbox]').removeAttr('checked');
 			}
 		});
-		$(button).closest('.email_div').hide().closest('.scheduled_stop').find('[name=email]').closest('.form-group').find('[type=checkbox]').removeAttr('checked');
 	}
 }
 function setSave() {

@@ -554,8 +554,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											<div class="form-group">
 												<label class="col-sm-4 control-label">Email Body:</label>
 												<div class="col-sm-12">
-													<textarea name="ticket_comment_email_body" class="form-control email_body">Please be advised that a delivery will be made at your address shortly.<br /><br />
-														It is estimated that the delivery will occur at [[ETA]]. Please be ready to receive the delivery.</textarea>
+													<textarea name="ticket_comment_email_body" class="form-control email_body"><p>Please be advised that a delivery will be made at your address shortly.</p>
+														<p>It is estimated that the delivery will occur at [[ETA]]. Please be ready to receive the delivery.</p>
+														<p><a href="<?= WEBSITE_URL ?>/Ticket/status_link.php?s=<?= encryptIt(json_encode(['ticket'=>$stop['ticketid'],'stop'=>$stop['id']])) ?>">View Delivery Status</a></p></textarea>
 												</div>
 											</div>
 											<button class="btn brand-btn pull-right" onclick="send_email(this); return false;">Send Email</button>

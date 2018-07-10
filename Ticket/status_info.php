@@ -2,9 +2,12 @@
 include('../include.php');
 ob_clean();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+$stopid = filter_var($_GET['stopid'],FILTER_SANITIZE_STRING);
+$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
+$get_stop = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `id`='$stopid'"));
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `my_ticket`.*, SUM(IF(`all_tickets`.`ticketid` > 0,1,0)) `prior_count` FROM `tickets` my_ticket LEFT JOIN `tickets` all_tickets ON `my_ticket`.`to_do_date`=`all_tickets`.`to_do_date` AND `all_tickets`.`to_do_start_time` < `my_ticket`.`to_do_start_time` AND IFNULL(`all_tickets`.`contactid`,'')=IFNULL(`my_ticket`.`contactid`,'') AND IFNULL(`all_tickets`.`equipmentid`,'')=IFNULL(`my_ticket`.`equipmentid`,'') AND `all_tickets`.`status` NOT IN ('Archived','Archive','Done') WHERE `my_ticket`.`ticketid`='$ticketid'")); ?>
-<h3>Scheduled</h3>
-<div class=""><?= TICKET_NOUN ?> Scheduled for <?= date('l F j, Y, g:i a',strtotime($get_ticket['to_do_date'].' '.$get_ticket['to_do_start_time'])) ?>.</div>
+<h3><?= $get_stop['type'] ?> at <?= implode(' - ',array_filter([$get_stop['location_name'], $get_stop['client_name'], $get_stop['address']])) ?></h3>
+<div class="">Delivery Scheduled for <?= date('l F j, Y, g:i a',strtotime($get_stop['to_do_date'].' '.$get_stop['to_do_start_time'])) ?>.</div>
 <h3>Preceding <?= TICKET_TILE ?></h3>
 <div class="">There are <?= $get_ticket['prior_count'].' '.TICKET_TILE ?> ahead of your <?= TICKET_NOUN ?>.
 <?php if($get_ticket['prior_count'] < 2) { ?>
