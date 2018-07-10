@@ -110,7 +110,7 @@ include ('../database_connection_htg.php');
                     if ( $tiles->num_rows > 0 ) {
                         foreach ( $tiles as $tile ) {
                             $guide = mysqli_query($dbc_htg, "SELECT `guideid`, `tile`, `subtab` FROM `how_to_guide` WHERE `tile`='{$tile['tile']}' AND `deleted`=0 ORDER BY `sort_order`");
-                            echo '<li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_'. strtolower($tile['tile']) .'">'. $tile['tile'] . '<span class="arrow"></span>';
+                            echo '<li class="sidebar-higher-level"><a class="'.($_GET['tile'] == $tile['tile'] ? 'active' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#collapse_'. strtolower($tile['tile']) .'">'. $tile['tile'] . '<span class="arrow"></span></a>';
                             if ( $guide->num_rows > 0 ) {
                                 echo '<ul id="collapse_'. strtolower($tile['tile']) .'" class="collapse">';
                                     $url_tile = trim(filter_var($_GET['tile'], FILTER_SANITIZE_STRING ));
