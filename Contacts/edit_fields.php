@@ -81,6 +81,7 @@
 	'Checklist' => ['checklist_tile', ['Checklist']],
 	PROJECT_TILE.' List' => ['project_tile', ['Project Addition']],
 	TICKET_TILE.' List' => ['ticket_tile', ['Ticket Addition']],
+	TICKET_NOUN.' Notes' => ['ticket_tile_notes', ['Ticket Notes Addition']],
 	'Tasks List' => ['tasks_tile', ['Tasks Addition']],
 	'Estimates List' => ['estimates_tile', ['Estimates Addition']],
 	'Sales Orders' => ['sales_order_tile', ['Sales Order Addition']],

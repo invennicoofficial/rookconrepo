@@ -372,11 +372,11 @@
 	}
 } else if ($field_option == "Ticket Addition") { ?>
 	<h4><?= TICKET_TILE ?></h4>
-	<?php $result = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE (`ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('Staff', 'Members','Clients') AND `item_id`='".$contactid."') OR CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contactid.",%') AND `deleted`=0");
+	<?php $result = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE ((`ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('Staff', 'Members','Clients') AND `item_id`='".$contactid."') OR CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contactid.",%') OR CONCAT(',',`clientid`,',') LIKE '%,$contactid,%' OR `businessid` = '$contactid') AND `deleted`=0");
 	if(mysqli_num_rows($result) > 0) {
 		$db_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets_dashboard` FROM `field_config`"))['tickets_dashboard'];
 		if($db_config == '') {
-			$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
+			$db_config = 'Contact,Heading,Services,Status,Deliverable Date';
 		}
 		$db_config = explode(',',$db_config);
 		$ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
@@ -386,6 +386,33 @@
 		}
 		$tile_security = get_security($dbc, 'ticket');
 		include('../Ticket/ticket_table.php');
+	} else {
+		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
+	}
+} else if($field_option == "Ticket Notes Addition") {
+	$result = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE (CONCAT(',',`clientid`,',') LIKE '%,$contactid,%' OR `businessid` = '$contactid') AND `deleted`=0) AND `deleted` = 0 ORDER BY `ticketid`");
+	$current_ticketid = '';
+	if(mysqli_num_rows($result) > 0) {
+		while($row = mysqli_fetch_assoc($result)) {
+			if($current_ticketid != $row['ticketid']) {
+				$current_ticketid = $row['ticketid'];
+				echo '<h5><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."'")))."</a></h5>";
+			}
+			echo '<div>';
+			echo profile_id($dbc, $row['created_by']);
+			echo '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment']);
+			echo "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'];
+			if($row['reference_contact'] > 0) {
+				echo "<br />References ".get_contact($dbc, $row['reference_contact']);
+			}
+			foreach(explode(',',$row['email_comment']) as $assignid) {
+				if($assignid > 0) {
+					echo "<br />Assigned to ".get_contact($dbc, $assignid);
+				}
+			}
+			echo '</em>';
+			echo '</div><div class="clearfix"></div><hr></div>';
+		}
 	} else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
