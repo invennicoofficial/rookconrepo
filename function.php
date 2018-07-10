@@ -352,16 +352,22 @@ function set_config($dbc, $name, $value) {
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
 	// Get current values
-	$name = filter_var($name, FILTER_SANITIZE_STRING);
-	if($name == 'all_contact_tabs') {
-		$sql = "SELECT GROUP_CONCAT(`value`) value FROM `general_configuration` WHERE `name` IN ('contacts_tabs','contacts3_tabs','clientinfo_tabs','members_tabs','vendors_tabs','contactsrolodex_tabs')";
-	} else if($multi) {
-		$separator = filter_var($separator, FILTER_SANITIZE_STRING);
-		$sql = "SELECT GROUP_CONCAT(`value` SEPARATOR '$separator') value FROM `general_configuration` WHERE `name` LIKE '$name'";
-	} else {
-		$sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
-	}
-    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
+    $name = filter_var($name, FILTER_SANITIZE_STRING);
+    if($name == 'all_contact_tabs') {
+        $sql = "SELECT GROUP_CONCAT(`value`) value FROM `general_configuration` WHERE `name` IN ('contacts_tabs','contacts3_tabs','clientinfo_tabs','members_tabs','vendors_tabs','contactsrolodex_tabs')";
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
+    } else if($multi) {
+        $get_config['value'] = [];
+        $separator = filter_var($separator, FILTER_SANITIZE_STRING);
+        $query = mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE '$name'");
+        while($row = mysqli_fetch_assoc($query)) {
+            $get_config['value'][] = $row['value'];
+        }
+        $get_config['value'] = implode($separator, $get_config['value']);
+    } else {
+        $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
+    }
 
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
