@@ -159,33 +159,22 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $table_row_style, $grand_total_style) {
 
-echo "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets t, ticket_attached ta WHERE t.ticketid = ta.ticketid AND (DATE(created_date) >= '".$starttime."' AND DATE(created_date) <= '".$endtime."') AND ta.rate > 0 GROUP BY `created_by`";
-
     $report_validation = mysqli_query($dbc, "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets t, ticket_attached ta WHERE t.ticketid = ta.ticketid AND (DATE(created_date) >= '".$starttime."' AND DATE(created_date) <= '".$endtime."') AND ta.rate > 0 GROUP BY `created_by`");
 
-     echo '1';
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'" width="100%">';
+    $report_data = '<table border="1px" class="table table-bordered" style="'.$table_style.'" width="100%">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="10%">Driver</th>
     <th width="30%">Rating</th>
     </tr>';
-     echo '1';
 
     while($row1 = mysqli_fetch_array($report_validation)) {
-     echo '1';
 			    $report_data .= '<tr nobr="true">';
-				$report_data .= '<td>1</td>';
-				$report_data .= '<td>2</td>';
+				$report_data .= '<td>'.get_staff($dbc,$row1['created_by']).'</td>';
+				$report_data .= '<td>'.number_format($row1['avg_rate'],2).'</td>';
                 $report_data .= '</tr>';
-     echo '1';
     }
-     echo '1';
 
     $report_data .= "</table>";
-     echo '1';
-
-    echo $report_data;
-
     return $report_data;
 }
 
