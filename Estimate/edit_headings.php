@@ -27,6 +27,7 @@ if(!isset($estimate)) {
 	$scope = $scope_list[$scope_id];
 	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 }
+$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert');
 $us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
 $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
@@ -225,8 +226,10 @@ $col_spanned = $columns; ?>
 							continue;
 						}
 						echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-            if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+            if($order_info[0] == 'Estimate Price' && $us_pricing > 0 && $us_rate_no_auto != 'true') {
               echo "<th>USD Price</th>";
+            } else if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+              echo "<th>CAD Price</th>";
             }
 					} ?>
 					<th data-columns='<?= $columns ?>' data-width='1'></th>
@@ -310,10 +313,12 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * ($us_rate_no_auto == 'true' ? 1 : $us_rate),2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php if($us_pricing > 0) { ?>
-												</td><td data-title="US Pricing">
-												<?php if($line['pricing'] == 'usd_cpu') { ?>
+												</td><td data-title="<?= $us_rate_no_auto == 'true' ? 'CAD' : 'USD' ?> Pricing">
+												<?php if($line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') { ?>
+													Approx $<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD
+												<?php } else if($line['pricing'] == 'usd_cpu') { ?>
 													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD)
 													<?php if(!($line['price'] > 0)) {
 														$line['price'] = $line['cost'] * $us_rate;

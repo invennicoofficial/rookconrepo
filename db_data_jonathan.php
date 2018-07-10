@@ -80,6 +80,14 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 5, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `date_sent` TEXT AFTER `status_history`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `sent_by` TEXT AFTER `date_sent`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	
