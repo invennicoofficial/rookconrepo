@@ -174,8 +174,8 @@ echo "SELECT t.created_by, t.created_date, AVG(ta.rate) AS avg_rate FROM tickets
     while($row1 = mysqli_fetch_array($report_validation)) {
      echo '1';
 			    $report_data .= '<tr nobr="true">';
-				$report_data .= '<td>'.get_staff($dbc,$row1['created_by']).'</td>';
-				$report_data .= '<td>'.number_format($row1['avg_rate'],2).'</td>';
+				$report_data .= '<td>1</td>';
+				$report_data .= '<td>2</td>';
                 $report_data .= '</tr>';
      echo '1';
     }
