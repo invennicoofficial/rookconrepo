@@ -1088,6 +1088,14 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 	$pdf->writeHTML($html);
 	$pdf->Output($filename, 'F');
 	echo "<script> window.location.replace('$filename'); </script>";
+    /*
+    if(empty($_GET['action'])) {
+	    echo "<script> window.location.replace('$filename'); </script>";
+    } else {
+        //$referer = $_SERVER['HTTP_REFERER'];
+        //header("Location: $referer");
+    }
+    */
 }
 
 function pdf_to_image($file) {
