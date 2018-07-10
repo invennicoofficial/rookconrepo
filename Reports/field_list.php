@@ -120,6 +120,7 @@ $marketing_reports = [
 	'Web Referrals Report'=>['report_web_referral.php','Web Referrals','Web Referrals Report','web_referrals'],
 	'Pro Bono Report'=>['report_marketing_pro_bono.php','Pro-Bono','Pro Bono Report','pro_bono'],
 	'Net Promoter Score'=>['report_marketing_net_promoter_score.php','Net Promoter Score','Net Promoter Score','net_promoter_score'],
+    'Driver Report'=>['reports_contact_driver.php','Driver Report','Driver Report','driver_report'],
 	'Contact Report by Status'=>['report_contact_report_by_status.php','Contact Report by Status','Contact Report by Status','contact_report_by_status'],
 	'Contact Postal Code'=>['report_marketing_contact_pc.php','Contact Postal Code','Contact Postal Code','contact_postal_code'],
 	'Site visitors'=>['report_marketing_site_visitors.php','Website Visitors','Site Visitors','site_visitors'],

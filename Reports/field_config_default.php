@@ -153,6 +153,7 @@ if (isset($_POST['submit'])) {
                     <option value="POS Coupons" <?= $mobile_landing_subtab_config['value']=='POS Coupons' ? 'selected="selected"' : '' ?>>POS Coupons</option>
                     <option value="Postal Code" <?= $mobile_landing_subtab_config['value']=='Postal Code' ? 'selected="selected"' : '' ?>>Postal Code</option>
                     <option value="Net Promoter Score" <?= $mobile_landing_subtab_config['value']=='Net Promoter Score' ? 'selected="selected"' : '' ?>>Net Promoter Score</option>
+                    <option value="Driver Report" <?= $mobile_landing_subtab_config['value']=='Driver Report' ? 'selected="selected"' : '' ?>>Driver Report</option>
                     <option value="Contact Report by Status" <?= $mobile_landing_subtab_config['value']=='Contact Report by Status' ? 'selected="selected"' : '' ?>>Contact Report by Status</option>
                     <option value="Referral" <?= $mobile_landing_subtab_config['value']=='Referral' ? 'selected="selected"' : '' ?>>Referrals</option>
                     <option value="Web Referrals Report" <?= $mobile_landing_subtab_config['value']=='Web Referrals Report' ? 'selected="selected"' : '' ?>>Web Referrals Report</option>
@@ -311,6 +312,7 @@ if (isset($_POST['submit'])) {
                     <option value="POS Coupons" <?= $desktop_landing_subtab_config['value']=='POS Coupons' ? 'selected="selected"' : '' ?>>POS Coupons</option>
                     <option value="Postal Code" <?= $desktop_landing_subtab_config['value']=='Postal Code' ? 'selected="selected"' : '' ?>>Postal Code</option>
                     <option value="Net Promoter Score" <?= $desktop_landing_subtab_config['value']=='Net Promoter Score' ? 'selected="selected"' : '' ?>>Net Promoter Score</option>
+                    <option value="Driver Report" <?= $desktop_landing_subtab_config['value']=='Driver Report' ? 'selected="selected"' : '' ?>>Driver Report</option>
                     <option value="Contact Report by Status" <?= $desktop_landing_subtab_config['value']=='Contact Report by Status' ? 'selected="selected"' : '' ?>>Contact Report by Status</option>
                     <option value="Referral" <?= $desktop_landing_subtab_config['value']=='Referral' ? 'selected="selected"' : '' ?>>Referrals</option>
                     <option value="Web Referrals Report" <?= $desktop_landing_subtab_config['value']=='Web Referrals Report' ? 'selected="selected"' : '' ?>>Web Referrals Report</option>

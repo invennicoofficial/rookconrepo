@@ -375,7 +375,9 @@ if (isset($_POST['submit'])) {
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Net Promoter Score".',') !== FALSE) { echo " checked"; } ?> value="Net Promoter Score" name="reports_dashboard[]"> Net Promoter Score</label>
 	</div>
-
+    <div class="col-sm-4">
+        <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Driver Report".',') !== FALSE) { echo " checked"; } ?> value="Driver Report" name="reports_dashboard[]"> Driver Report</label>
+    </div>
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Contact Report by Status".',') !== FALSE) { echo " checked"; } ?> value="Contact Report by Status" name="reports_dashboard[]"> Contact Report by Status</label>
 	</div>
