@@ -1,5 +1,9 @@
 <?php
 include_once('../include.php');
+include_once('../tcpdf/tcpdf.php');
+if(!file_exists('download')) {
+	mkdir('download', 0777, true);
+}
 ob_clean();
 date_default_timezone_set('America/Denver');
 if(!($_SESSION['contactid'] > 0)) {
@@ -1907,6 +1911,19 @@ if($_GET['action'] == 'update_fields') {
 			$sql = mysqli_query($dbc, "INSERT INTO `alerts` (`alert_date`, `alert_link`, `alert_text`, `alert_user`) VALUES ('$date', '$link', '$text', '$user')");
 		}
 	} else if($field == 'email') {
+		$sender = get_email($dbc, $_SESSION['contactid']);
+		$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
+		$subject = "A reminder about a ".TICKET_NOUN;
+		foreach($_POST['value'] as $user) {
+			$user = get_email($dbc,$user);
+			$body = "This is a reminder about a ".TICKET_NOUN.".<br />\n<br />
+				<a href='".WEBSITE_URL."/Ticket/index.php?edit=$id'>Click here</a> to see the ".TICKET_NOUN.".<br />\n<br />
+				$item";
+			send_email($sender, $user, '', '', $subject, $body, '');
+		}
+	} else if($field == 'emailpdf') {
+        include_once('ticket_pdf.php?action=send&ticketid='.$id);
+
 		$sender = get_email($dbc, $_SESSION['contactid']);
 		$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
 		$subject = "A reminder about a ".TICKET_NOUN;

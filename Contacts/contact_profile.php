@@ -176,9 +176,9 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 				$business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
 				<li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />
 					<?PHP if(!empty($business_card_template['template'])) { ?>
-						<a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> | 
+						<a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> |
 					<?php } ?>
-					<a href="../Staff/id_card_pdf.php?contactid=<?= $contactid ?>">ID Card PDF</a>
+					<a target = "_blank" href="../Staff/id_card_pdf.php?contactid=<?= $contactid ?>">ID Card PDF</a>
 				</li>
 			<?PHP } ?>
 		</ul>

@@ -4,6 +4,7 @@ include_once('../Ticket/field_list.php');
 if(!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
+echo '123';
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
@@ -1088,6 +1089,14 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 	$pdf->writeHTML($html);
 	$pdf->Output($filename, 'F');
 	echo "<script> window.location.replace('$filename'); </script>";
+    /*
+    if(empty($_GET['action'])) {
+	    echo "<script> window.location.replace('$filename'); </script>";
+    } else {
+        //$referer = $_SERVER['HTTP_REFERER'];
+        //header("Location: $referer");
+    }
+    */
 }
 
 function pdf_to_image($file) {
