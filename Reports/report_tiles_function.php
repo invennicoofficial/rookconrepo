@@ -295,11 +295,13 @@ function reports_tiles_content($dbc) {
                         }
                     }
 
+                $sorted_reports = [];
+
                 // Operations
                 if($_GET['type'] == 'operations' || empty($_GET['type'])) {
                     foreach($operations_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=operations&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'operations'];
                         }
                     }
                 }
@@ -307,7 +309,7 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'sales') {
                     foreach($sales_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=sales&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'sales'];
                         }
                     }
                 }
@@ -315,7 +317,7 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'ar') {
                     foreach($ar_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=ar&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'ar'];
                         }
                     }
                 }
@@ -323,7 +325,7 @@ function reports_tiles_content($dbc) {
                 else if ( $_GET['type']=='pnl' ) {
                     foreach($pnl_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=pnl&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'pnl'];
                         }
                     }
                 }
@@ -331,7 +333,7 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'marketing') {
                     foreach($marketing_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=marketing&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'marketing'];
                         }
                     }
                 }
@@ -339,7 +341,7 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'compensation') {
                     foreach($compensation_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=compensation&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'compensation'];
                         }
                     }
                 }
@@ -347,7 +349,7 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'customer') {
                     foreach($customer_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=customer&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'customer'];
                         }
                     }
                 }
@@ -355,13 +357,20 @@ function reports_tiles_content($dbc) {
                 else if($_GET['type'] == 'staff') {
                     foreach($staff_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
-                            echo '<option data-file="'.$report[0].'" value="?type=staff&report='.$key.'" '.($_GET['report'] == $key ? 'selected' : '').'>'.$report[1].'</option>';
+                            $sorted_reports[$report[1]] = [$report[0],$key,'staff'];
                         }
                     }
                 }
                 else { ?>
                     <option selected value="report_tiles.php">Please Select a Tab to view the Reports</option><?php
-                } ?>
+                }
+                if(!empty($sorted_reports)) {
+                    ksort($sorted_reports);
+                    foreach($sorted_reports as $key => $report) {
+                        echo '<option data-file="'.$report[0].'" value="?type='.$report[2].'&report='.$report[1].'" '.($_GET['report'] == $report[1] ? 'selected' : '').'>'.$key.'</option>';
+                    }
+                }
+                ?>
         </select>
     </div><div class="clearfix"></div>
     <?php include('../Reports/'.$report_list[$_GET['report']][0]);
