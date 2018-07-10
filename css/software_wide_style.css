@@ -2542,9 +2542,22 @@ img[src=""] {
 		padding-right: 0 !important;
 	}
 	.nav.scale-to-fill {
+        margin-left:5px;
 		position: absolute;
-		width: 100% !important;
+		/* width: 100% !important; */
 	}
+    .navbar-nav input.search-text,
+    .navbar-nav .software-search-results {
+        left:5px;
+        position:fixed;
+        width:96%;
+    }
+        .navbar-nav .software-search-results { top:45px; }
+    .navbar-nav .active-ticket {
+        position:fixed;
+        right:12px;
+        top:45px;
+    }
 	.search-results .main-screen {
 		height: auto !important;
 	}

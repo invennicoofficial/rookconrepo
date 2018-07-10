@@ -140,6 +140,20 @@ $(document).ready(function() {
         $('.hide-header-footer-down').hide();
         $('.main-screen').removeClass('double-pad-top');
     }
+    
+    if ( $(window).width() < 768 ) {
+        var runningTicket = $('.active-ticket');
+        var container = $('.container').offset().top + 20;
+
+        $(window).scroll(function(){
+            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
+                runningTicket.stop().hide();
+            }
+            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
+                runningTicket.stop().show();
+            }
+        });
+    }
 });
 
 var software_search_shifted = false;
@@ -272,7 +286,7 @@ if(!isset($_SESSION['fullscreen'])) {
             <div class="container no-pad-mobile">
             <?php include('tile_menu.php'); ?>
                 <div class="navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right pad-right hide-on-mobile pull-right">
+                    <ul class="nav navbar-nav navbar-right pad-right pull-right">
                         <?php //include('Navigation/social_media_links.php'); ?>
                         <li><?= $active_ticket_buttons ?></li><?php
                         $contact_category = $_SESSION['category'];
