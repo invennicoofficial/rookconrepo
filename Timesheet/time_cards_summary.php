@@ -30,6 +30,7 @@ if(!empty($_GET['search_end_date'])) {
 }
 $current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
 $timesheet_time_format = get_config($dbc, 'timesheet_time_format');
+$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 $timesheet_rounding = get_config($dbc, 'timesheet_rounding');
 $timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 $value_config = explode(',',get_field_config($dbc, 'time_cards'));
@@ -74,6 +75,9 @@ if($layout == '' || $layout == 'multi_line') {
 	}
 	if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) {
 		$summary_times[(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours'] = 0;
+	}
+	if(in_array('start_day_tile',$value_config)) {
+		$summary_times[$timesheet_start_tile] = 0;
 	}
 	if(in_array('direct_hrs',$value_config)) {
 		$summary_times['Direct Hours'] = 0;
@@ -140,11 +144,20 @@ if($layout == '' || $layout == 'multi_line') {
 		} else {
 			$row['TRAINING'] = 0;
 		}
+		if(in_array('start_day_tile',$value_config) && !($row['ticketid'] > 0)) {
+			$row['DRIVE'] = $row['REG_HRS'];
+			$row['REG_HRS'] = 0;
+		} else {
+			$row['DRIVE'] = 0;
+		}
 		if(in_array('total_tracked_hrs',$value_config)) {
 			$summary_times['Total Tracked Hours'] += $row['TRACKED_HRS'];
 		}
 		if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) {
 			$summary_times[(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours'] += $row['REG_HRS'];
+		}
+		if(in_array('start_day_tile',$value_config)) {
+			$summary_times[$timesheet_start_tile] += $row['DRIVE'];
 		}
 		if(in_array('direct_hrs',$value_config)) {
 			$summary_times['Direct Hours'] += $row['DIRECT_HRS'];
