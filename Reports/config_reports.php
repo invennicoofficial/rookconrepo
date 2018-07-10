@@ -113,7 +113,7 @@ if (isset($_POST['submit'])) {
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
 
-    echo '<script type="text/javascript"> window.location.replace("?tab='.$_GET['tab'].'"); </script>';
+    echo '<script type="text/javascript"> window.location.replace("config_reports.php"); </script>';
 }
 ?>
 </head>
@@ -607,8 +607,17 @@ if (isset($_POST['submit'])) {
 						</div>
 
 						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Driver Report".',') !== FALSE) { echo " checked"; } ?> value="Driver Report" name="reports_dashboard[]"> Driver Report</label>
+						</div>
+
+						<div class="col-sm-4">
 							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Contact Report by Status".',') !== FALSE) { echo " checked"; } ?> value="Contact Report by Status" name="reports_dashboard[]"> Contact Report by Status</label>
 						</div>
+
+						<div class="col-sm-4">
+							<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Driver Report".',') !== FALSE) { echo " checked"; } ?> value="Driver Report" name="reports_dashboard[]"> Driver Report</label>
+						</div>
+
                         <div class="clearfix"></div>
 
                         <h3>Compensation</h3>
@@ -834,6 +843,7 @@ if (isset($_POST['submit'])) {
                                         <option value="CRM Recommendations - By Date" <?= $mobile_landing_subtab_config['value']=='CRM Recommendations - By Date' ? 'selected="selected"' : '' ?>>CRM Recommendations - By Date</option>
                                         <option value="Customer Contact List" <?= $mobile_landing_subtab_config['value']=='Customer Contact List' ? 'selected="selected"' : '' ?>>Customer Contact List</option>
                                         <option value="Customer Stats" <?= $mobile_landing_subtab_config['value']=='Customer Stats' ? 'selected="selected"' : '' ?>>Customer Stats</option>
+                                        <option value="Driver Report" <?= $mobile_landing_subtab_config['value']=='Driver Report' ? 'selected="selected"' : '' ?>>Driver Report</option>
                                         <option value="Demographics" <?= $mobile_landing_subtab_config['value']=='Demographics' ? 'selected="selected"' : '' ?>>Demographics</option>
                                         <option value="POS Coupons" <?= $mobile_landing_subtab_config['value']=='POS Coupons' ? 'selected="selected"' : '' ?>>POS Coupons</option>
                                         <option value="Postal Code" <?= $mobile_landing_subtab_config['value']=='Postal Code' ? 'selected="selected"' : '' ?>>Postal Code</option>
@@ -997,6 +1007,7 @@ if (isset($_POST['submit'])) {
                                         <option value="Postal Code" <?= $desktop_landing_subtab_config['value']=='Postal Code' ? 'selected="selected"' : '' ?>>Postal Code</option>
                                         <option value="Net Promoter Score" <?= $desktop_landing_subtab_config['value']=='Net Promoter Score' ? 'selected="selected"' : '' ?>>Net Promoter Score</option>
                                         <option value="Contact Report by Status" <?= $desktop_landing_subtab_config['value']=='Contact Report by Status' ? 'selected="selected"' : '' ?>>Contact Report by Status</option>
+                                        <option value="Driver Report" <?= $desktop_landing_subtab_config['value']=='Driver Report' ? 'selected="selected"' : '' ?>>Driver Report</option>
                                         <option value="Referral" <?= $desktop_landing_subtab_config['value']=='Referral' ? 'selected="selected"' : '' ?>>Referrals</option>
                                         <option value="Web Referrals Report" <?= $desktop_landing_subtab_config['value']=='Web Referrals Report' ? 'selected="selected"' : '' ?>>Web Referrals Report</option>
                                         <option value="Pro Bono Report" <?= $desktop_landing_subtab_config['value']=='Pro Bono Report' ? 'selected="selected"' : '' ?>>Pro-Bono</option>
@@ -1087,10 +1098,15 @@ if (isset($_POST['submit'])) {
                 </div>
             </div>
 
-    <div class="form-group pull-right">
-        <a href="report_tiles.php" class="btn brand-btn">Back</a>
-        <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
-    </div>
+        </div><div class="form-group">
+			<div class="col-sm-6">
+				<a href="report_tiles.php" class="btn config-btn btn-lg">Back</a>
+				<!--<a href="#" class="btn config-btn pull-right" onclick="history.go(-1);return false;">Back</a>-->
+			</div>
+			<div class="col-sm-6">
+				<button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
+			</div>
+		</div>
 
 </form>
 </div>
