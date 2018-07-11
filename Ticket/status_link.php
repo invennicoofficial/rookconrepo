@@ -24,7 +24,15 @@ if(empty($contacts)) {
 $driver_cookie = $dbc->query("SELECT `location_cookie` FROM `equipment` WHERE `equipmentid`='$equipment'")->fetch_assoc()['location_cookie']; ?>
 <script>
 function loadStatus() {
-	$.post('status_info.php', { destination: '<?= urlencode($get_stop['address'].','.$get_stop['city'].','.$get_stop['postal_code']) ?>', driver: '<?= $driver_cookie ?>' }, function(response) { response = response.split('#*#'); $('[name=map_frame]').prop('src',response[1]); $('[name=eta_text]').text(response[0]); });
+	$.post('status_info.php', { destination: '<?= urlencode($get_stop['address'].','.$get_stop['city'].','.$get_stop['postal_code']) ?>', driver: '<?= $driver_cookie ?>' }, function(response) {
+		response = response.split('#*#');
+		$('[name=eta_text]').text(response[0]);
+		if((response[1] > 0 || response[1] < 0) && response[2] > 0 || response[2] < 0)) {
+			$('[name=map_frame]').prop('src','https://www.google.com/maps/embed/v1/directions?key='.<?= EMBED_MAPS_KEY ?>.'&mode=driving&origin='+response[1]+','+response[2]+'&destination=<?= $_POST['destination'] ?>');
+		} else {
+			$('[name=map_frame]').prop('src',response[1]);
+		}
+	});
 }
 $(document).ready(function() {
 	loadStatus();
