@@ -3,6 +3,9 @@ include('../include.php');
 ob_clean();
 // $driver_cookie = 'SID=NAbux0yq06CxXFbtfj1V5o1TZW929aErEagLP8imQm3a0cyWd9qFqyOLB-V3E9Lqyj8Txg.; HSID=Aeb7Pr2mEk78e88jj; SSID=AYc24JQ7nCVLuE5ir; APISID=a3mNHvo5BRBJclzA/AUup9ldedWDDtpt3X; SAPISID=0MxjxCG4Y0GdXBCW/A-s28sp5FYbNPKNbc; 1P_JAR=2018-7-10-21; NID=134=otPqw16TaN-FOW6ZrbtUfU_hK1rqbpFzJSPmpXP7tO9egd_mA428oFDG2XDb6hQvbixq3B_FPr-yCWqSNWkdoVVN5YqgUFPRCIciXD6g_XAL0tDe667cmqoXhge-gSKMn_13Rw6exMmv3Ry5HVJ12fmfqI_ZBUBAymUhCNRf4-3ofMV1JMTL2SEuLSvzKZ_C5e-1G5pIuGurm2sKLNWr0Oh9ynWLDIMH-86EnpSxsmtbYMwxMftD; SIDCC=AEfoLeYgi3zNkwg7eFQEpWnf-yoUer8eJ-jMKpHjhVprMRZlcd82YxDqMBCGK_aUlUKFH0m-5Sk';
 $driver_cookie = $_POST['driver'];
+if(empty($driver_cookie)) {
+	echo 'UNKNOWN#*#status_error.php?err='.urlencode('No Driver Location Found');
+}
 $ch = curl_init();
 
 curl_setopt($ch, CURLOPT_URL, "https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i".date('Y')."!2i".(date('n') - 1)."!3i".date('j')."!2m3!1i".date('Y')."!2i".(date('n') - 1)."!3i".date('j')."");
@@ -38,12 +41,14 @@ if (curl_errno($ch)) {
 		}
 	}
 }
+if(empty($lat) && empty($long)) {
+    echo 'UNKNOWN#*#status_error.php?err='.urlencode('Unable to access Driver Location');
+	exit();
+}
 curl_close ($ch);
-$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/distancematrix/json?origins=".$lat.','.$long."&destinations=".$_POST['address']."&language=en-EN&sensor=false"));
-echo "<!--From: ".$data->origin_addresses[0];
-echo " To: ".$data->destination_addresses[0];
+$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/distancematrix/json?origins=".$lat.','.$long."&destinations=".$_POST['destination']."&language=en-EN&sensor=false"));
 $time = [];
 foreach($data->rows[0]->elements as $road) {
 	$time[] = $road->duration->value;
 }
-echo implode(', '.$time).'#*#https://www.google.com/maps/embed/v1/directions?key='.EMBED_MAPS_KEY.'&mode=driving&origin='.urlencode($lat.','.$long).'&destination='.$_POST['address'];
+echo implode(', '.$time).'#*#https://www.google.com/maps/embed/v1/directions?key='.EMBED_MAPS_KEY.'&mode=driving&origin='.urlencode($lat.','.$long).'&destination='.$_POST['destination'];
