@@ -71,6 +71,11 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note">' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+
+			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
+
+            echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img emailpdf-icon" title="Email PDF">' : '');
+
 			$status_icon = get_ticket_status_icon($dbc, $ticket['status']);
 			if(!empty($status_icon)) {
 	            if($status_icon == 'initials') {
@@ -100,6 +105,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
 	<?php } ?>
 	<input type='text' name='reply' value='' class="form-control" style="display:none;">
+	<input type='text' name='emailpdf' value='' class="form-control" style="display:none;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<div class="select_users" style="display:none;">
 		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
@@ -395,18 +401,6 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Site Notes:</label>
 			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
-		</div>';
-	}
-	if(in_array('Ticket Notes',$db_config)) {
-		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
-		echo '<div class="col-sm-6">
-			<label class="col-sm-4">Notes:</label>
-			<div class="col-sm-8">';
-			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-				echo trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-				echo "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em><br />";
-			}
-			echo '</div>
 		</div>';
 	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>

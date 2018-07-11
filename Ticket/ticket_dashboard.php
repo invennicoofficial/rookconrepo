@@ -430,6 +430,35 @@ function setActions() {
 			}
 		});
 	});
+
+	$('.emailpdf-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                }
+        		});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
+
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		item.find('[name=reminder]').change(function() {
