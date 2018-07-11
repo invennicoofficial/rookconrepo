@@ -200,5 +200,11 @@
     }
     //2018-07-11 - Ticket #8060 - Estimate Templates VPL
 
+    //2018-07-11 - Ticket #8150 - Contacts Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `total_estimated_hours` decimal(10,2) AFTER `total_price`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #8150 - Contacts Additions
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
