@@ -5,6 +5,7 @@ ob_clean();
 $driver_cookie = $_POST['driver'];
 if(empty($driver_cookie)) {
 	echo 'UNKNOWN#*#status_error.php?err='.urlencode('No Driver Location Found');
+	exit();
 }
 $ch = curl_init();
 
@@ -33,8 +34,8 @@ if (curl_errno($ch)) {
 } else {
 	foreach(explode('<coordinates>',$result) as $location) {
 		$location = explode(',',$location);
-		$temp_lat = $location[0];
-		$temp_long = $location[1];
+		$temp_lat = $location[1];
+		$temp_long = $location[0];
 		if(($temp_lat > 0 || $temp_lat < 0) && ($temp_long > 0 || $temp_long < 0)) {
 			$lat = $temp_lat;
 			$long = $temp_long;
@@ -51,4 +52,4 @@ $time = [];
 foreach($data->rows[0]->elements as $road) {
 	$time[] = $road->duration->value;
 }
-echo implode(', '.$time).'#*#https://www.google.com/maps/embed/v1/directions?key='.EMBED_MAPS_KEY.'&mode=driving&origin='.urlencode($lat.','.$long).'&destination='.$_POST['destination'];
+echo implode(', '.$time).'#*#'.$lat.'#*#'.$long;
