@@ -48,8 +48,5 @@ if(empty($lat) && empty($long)) {
 }
 curl_close ($ch);
 $data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/distancematrix/json?origins=".$lat.','.$long."&destinations=".$_POST['destination']."&language=en-EN&sensor=false"));
-$time = [];
-foreach($data->rows->elements as $road) {
-	$time[] = $road->duration->value;
-}
-echo implode(', '.$time).'#*#'.$lat.'#*#'.$long;
+$time = $data->rows[0]->elements[0]->duration->text;
+echo $time.'#*#'.$lat.'#*#'.$long;
