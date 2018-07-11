@@ -206,5 +206,29 @@
     }
     //2018-07-11 - Ticket #8150 - Contacts Additions
 
+    //2018-07-11 - Ticket #7997 - Certificates
+    $updated_already = get_config($dbc, 'updated_ticket7997_certificates');
+    if(empty($updated_already)) {
+        $result = mysqli_query($dbc, "SELECT DISTINCT(`certificate_type`) FROM `certificate` WHERE `deleted` = 0 ORDER BY `certificate_type`");
+        $certificate_types = [];
+        while($row = mysqli_fetch_assoc($result)) {
+            $certificate_types[] = $row['certificate_type'];
+        }
+        set_config($dbc, 'certificate_types', implode('#*#', $certificate_types));
+
+        $result = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `certificate` WHERE `deleted` = 0 ORDER BY `category`");
+        $certificate_categories = [];
+        while($row = mysqli_fetch_assoc($result)) {
+            $certificate_categories[] = $row['category'];
+        }
+        set_config($dbc, 'certificate_categories', implode('#*#', $certificate_categories));
+
+        set_config($dbc, 'updated_ticket7997_certificates', 1);
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `certificate` CHANGE `certificate_reminder` `certificate_reminder` varchar(1000)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #7997 - Certificates
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

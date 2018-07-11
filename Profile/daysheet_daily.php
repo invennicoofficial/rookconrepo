@@ -64,7 +64,8 @@ foreach ($pfu_reminders_result as $key => $reminder) {
         $reminderids[] = $reminderid;
     }
 }
-$cert_reminders_query = "SELECT * FROM `certificate` WHERE `reminder_date` = '$daily_date' AND `contactid` = '$contactid'";
+$cert_managers = get_config($dbc, 'certificate_reminder_contact');
+$cert_reminders_query = "SELECT * FROM `certificate` WHERE `reminder_date` = '$daily_date' AND `deleted` = 0 AND (`contactid` = '$contactid' OR CONCAT(',',`certificate_reminder`,',') LIKE '%,$contactid,%' OR ',$cert_managers,' LIKE '%,$contactid,%')";
 $cert_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $cert_reminders_query),MYSQLI_ASSOC);
 foreach ($cert_reminders_result as $reminder) {
     mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['certificateid']."', '".$contactid."', 'certificate', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['certificateid']."' AND `type` = 'certificate' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
