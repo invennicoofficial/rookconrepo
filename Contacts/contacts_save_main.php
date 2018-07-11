@@ -307,7 +307,7 @@ if(!empty($_POST['profile_picture_name'])) {
             break;
     }
 
-    imagecopyresampled($new, $current_image, 0, 0, $x1, $y1, $crop_width, $crop_height, $width, $height);    
+    imagecopyresampled($new, $current_image, 0, 0, $x1, $y1, $crop_width, $crop_height, $width, $height);
     imagejpeg($new, $new_image, $image_quality);
 
     foreach ($_POST['files_to_delete'] as $deleted_file) {
