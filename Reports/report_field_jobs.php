@@ -14,7 +14,7 @@ if(isset($_POST['printpdf'])) {
 	$until_date = $_POST['report_until'];
     $today_date = date('Y-m-d');
 	$pdf_name = "Download/field_jobs_$today_date.pdf";
-    $logo = get_config($dbc, 'report_logo');
+    $logo = str_replace(' ','%20',get_config($dbc, 'report_logo'));
     DEFINE(REPORT_LOGO_URL, $logo);
 
 	class MYPDF extends TCPDF {
