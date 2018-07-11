@@ -54,7 +54,7 @@ function loadStatus(destination, service, display, map) {
 					var marker = new google.maps.Marker({
 						position: {lat: latitude * 1, lng: longitude * 1},
 						map: map,
-						<?= empty($icon) ? '' : "icon: { url: '".$icon."', size: new google.maps.Size(".$icon_size[0].", ".$icon_size[1]."), origin: new google.maps.Point(0, 0), anchor: new google.maps.Point(28, 8), scaledSize: new google.maps.Size(32,32) }," ?>
+						<?= empty($icon) ? '' : "icon: { url: '".$icon."', size: new google.maps.Size(".($icon_size[0] > 0 ? $icon_size[0] : 150).", ".($icon_size[1] > 0 ? $icon_size[1] : 150)."), origin: new google.maps.Point(0, 0), anchor: new google.maps.Point(28, 8), scaledSize: new google.maps.Size(32,32) }," ?>
 						title: 'Driver',
 						zIndex: 1
 					});
