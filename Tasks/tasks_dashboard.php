@@ -598,7 +598,7 @@ function savePathName(name) {
 		}
 
         //if($_GET['category'] !== 'All') {
-            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
             $task_flag = $task_board['flag_colour'];
 			if ( !empty($taskboardid) ) {
 				$task_path = get_task_board($dbc, $taskboardid, 'task_path');
