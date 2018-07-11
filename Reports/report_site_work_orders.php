@@ -61,14 +61,6 @@ if(isset($_POST['printpdf'])) {
 	</script>
 <?php } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
 
 		<?php $search_status = (!empty($_GET['wo_type']) ? filter_var($_GET['wo_type'],FILTER_SANITIZE_STRING) : 'Approved');
 		$search_from = '';
@@ -80,11 +72,10 @@ if(isset($_POST['printpdf'])) {
 		if (isset($_POST['search_until'])) {
 			$search_until = $_POST['search_until'];
 		} ?>
-        <?php echo reports_tiles($dbc);  ?>
 		<h2><?= ($search_status == 'Approved' ? 'Active ' : (($search_status == 'Archived' ? 'Closed ' : 'Pending '))) ?>Site Work Orders</h2>
-        <a href='report_site_work_orders.php?type=operations&wo_type=Pending'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Pending' ? 'active_tab' : '') ?>" >Pending</button></a>&nbsp;&nbsp;
-        <a href='report_site_work_orders.php?type=operations&wo_type=Approved'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Approved' ? 'active_tab' : '') ?>" >Active</button></a>&nbsp;&nbsp;
-        <a href='report_site_work_orders.php?type=operations&wo_type=Archived'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Archived' ? 'active_tab' : '') ?>" >Closed</button></a>&nbsp;&nbsp;
+        <a href='?type=operations&wo_type=Pending&report=<?= $_GET['report'] ?>'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Pending' ? 'active_tab' : '') ?>" >Pending</button></a>&nbsp;&nbsp;
+        <a href='?type=operations&wo_type=Approved&report=<?= $_GET['report'] ?>'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Approved' ? 'active_tab' : '') ?>" >Active</button></a>&nbsp;&nbsp;
+        <a href='?type=operations&wo_type=Archived&report=<?= $_GET['report'] ?>'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Archived' ? 'active_tab' : '') ?>" >Closed</button></a>&nbsp;&nbsp;
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <center><div class="form-group">
@@ -110,11 +101,6 @@ if(isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = '', $table_style = '', $table_row_style = '', $grand_total_style = '') {

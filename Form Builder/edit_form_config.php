@@ -50,8 +50,8 @@ function changeAssignedTile() {
 	});
 }
 </script>
-<div class="collapsible tile-sidebar" style="height: 100%;">
-	<ul class="sidebar" style="padding-top: 1em;">
+<div class="standard-collapsible tile-sidebar" style="height: 100%;">
+	<ul class="sidebar">
 		<a href="" onclick="return false;"><li class="active">Form Builder Configuration</li></a>
 	</ul>
 </div>
@@ -68,6 +68,7 @@ function changeAssignedTile() {
 						<option <?= strpos($assigned_tiles, ',attach_contact,') !== FALSE ? 'selected' : '' ?> value='attach_contact'>Attach to Contact</option>
 						<option <?= strpos($assigned_tiles, ',contracts,') !== FALSE ? 'selected' : '' ?> value='contracts'>Contracts</option>
 						<option <?= strpos($assigned_tiles, ',hr,') !== FALSE ? 'selected' : '' ?> value='hr'>HR</option>
+						<option <?= strpos($assigned_tiles, ',incident_report,') !== FALSE ? 'selected' : '' ?> value='incident_report'><?= INC_REP_TILE ?></option>
 						<option <?= strpos($assigned_tiles, ',infogathering,') !== FALSE ? 'selected' : '' ?> value='infogathering'>Information Gathering</option>
 						<option <?= strpos($assigned_tiles, ',intake,') !== FALSE ? 'selected' : '' ?> value='intake'>Intake Forms</option>
 						<option <?= strpos($assigned_tiles, ',project,') !== FALSE ? 'selected' : '' ?> value='project'>Projects</option>

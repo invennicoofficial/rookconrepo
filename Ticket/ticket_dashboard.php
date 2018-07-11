@@ -430,6 +430,35 @@ function setActions() {
 			}
 		});
 	});
+
+	$('.emailpdf-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                            alert('PDF Sent');
+                }
+        		});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		item.find('[name=reminder]').change(function() {
@@ -803,8 +832,9 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
 					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=unbilled">Unbilled</a></li>
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=billed">Billed</a></li>
+						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
 					</ul>
 				</li>
 			<?php } ?>

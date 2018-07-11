@@ -283,6 +283,7 @@ $(document).ready(function() {
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Location Dropdown".',') !== FALSE) { echo " checked"; } ?> value="Location Dropdown" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Location Dropdown
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Region Dropdown".',') !== FALSE) { echo " checked"; } ?> value="Region Dropdown" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Region Dropdown
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Location".',') !== FALSE) { echo " checked"; } ?> value="Location" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Location
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Location Cookie".',') !== FALSE) { echo " checked"; } ?> value="Location Cookie" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Google Location Cookie
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Current Address".',') !== FALSE) { echo " checked"; } ?> value="Current Address" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Current Address
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."LSD".',') !== FALSE) { echo " checked"; } ?> value="LSD" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;LSD
 

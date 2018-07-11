@@ -3,7 +3,9 @@
 	 * Software Guide Tile AJAX Calls
 	 */
     
+     include_once('../include.php');
     include ('../database_connection_htg.php');
+    ob_clean();
     
     /* Load panel on mobile. Called from guide_index.php */
     if ( $_GET['fill'] == 'load_panel' ) {

@@ -83,19 +83,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
     } ?>
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -142,12 +129,6 @@ if (isset($_POST['printpdf'])) {
             <div id="no-more-tables"><?php echo report_daily_validation($dbc, $starttime, $endtime, '', '', ''); ?></div>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $pdf = '0') {
 	$report_pro_bono = mysqli_query($dbc,"SELECT invoiceid, invoice_date, therapistsid, patientid, serviceid, service_pro_bono, inventoryid, inventory_pro_bono, packageid, package_pro_bono, productid, product_pro_bono, misc_item, misc_pro_bono FROM invoice WHERE (invoice_date >= '".$starttime."' AND invoice_date <= '".$endtime."')");

@@ -148,6 +148,31 @@ var projectFilter = function() {
 			</div>
 		<?php } ?>
 
+		<?php if ( strpos($value_config, ',PI Guardian,') !== false && $field_sort_field == 'PI Guardian' ) { ?>
+			<div class="form-group clearfix completion_date">
+				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Parent/Guardian:</label>
+				<div class="col-sm-7">
+					<select name="guardianid" id="guardianid" data-placeholder="Select a Parent/Guardian..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_guardian_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_guardian_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
+						<option value=''></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') == 'top') { ?>
+							<option value="ADD_NEW">Add New Parent/Guardian</option>
+						<?php } ?>
+						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification` FROM `contacts` WHERE (`first_name` != '' OR `last_name` != '') AND `category` NOT IN ('".BUSINESS_CAT."',".STAFF_CATS.") ".(get_config($dbc, 'ticket_guardian_contact_'.$ticket_type) ? " AND `category` = '".get_config($dbc, 'ticket_guardian_contact_'.$ticket_type)."'" : (get_config($dbc, 'ticket_guardian_contact') ? " AND `category` = '".get_config($dbc, 'ticket_guardian_contact')."'" : ''))." AND `deleted`=0")) as $row) {
+							$selected = ($get_ticket['guardianid']==$row['contactid'] ? 'selected="selected"' : '');
+							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. ($row['first_name']) . ' ' . ($row['last_name']) .'</option>';
+						} ?>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') != 'top') { ?>
+							<option value="ADD_NEW">Add New Parent/Guardian</option>
+						<?php } ?>
+					</select>
+				</div>
+				<div class="col-sm-1">
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+				</div>
+			</div>
+		<?php } ?>
+
 		<?php if ( strpos($value_config, ',PI AFE,') !== false && $field_sort_field == 'PI AFE' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">AFE#:</label>
@@ -328,6 +353,15 @@ var projectFilter = function() {
 			  <label for="site_name" class="col-sm-4 control-label">Work Order #:</label>
 			  <div class="col-sm-8">
 				<input type="text" name="heading" id="heading" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control" value="<?= $get_ticket['heading'] ?>" placeholder="Turn around only...">
+			  </div>
+			</div>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8">
+				<input type="text" name="to_do_date" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_date'] != '' ? $get_ticket['to_do_date'] : 'today')) ?>">
 			  </div>
 			</div>
 		<?php } ?>
@@ -540,6 +574,15 @@ var projectFilter = function() {
 			</div>
 			<?php $pdf_contents[] = ['Contact Name', get_contact($dbc, $clientid)]; ?>
 		<?php } ?>
+		<?php if ( strpos($value_config, ',PI Guardian,') !== false && $field_sort_field == 'PI Guardian') { ?>
+			<div class="form-group clearfix completion_date">
+				<label for="first_name" class="col-sm-4 control-label text-right">Parent/Guardian:</label>
+				<div class="col-sm-8">
+					<?= get_contact($dbc, $get_ticket['guardianid']) ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Parent/Guardian', get_contact($dbc, $get_ticket['guardianid'])]; ?>
+		<?php } ?>
 		<?php if ( strpos($value_config, ',PI AFE,') !== false && $field_sort_field == 'PI AFE') { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">AFE#:</label>
@@ -661,6 +704,16 @@ var projectFilter = function() {
 			  </div>
 			</div>
 			<?php $pdf_contents[] = ['Work Order #', $get_ticket['heading']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8">
+				<?= date('Y-m-d',strtotime($get_ticket['to_do_date'])) ?>
+			  </div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled Date', date('Y-m-d',strtotime($get_ticket['to_do_date']))]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>

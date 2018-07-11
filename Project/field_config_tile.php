@@ -212,7 +212,7 @@ function saveField() {
 </div>
 <hr>
 <div class="form-group type-option">
-	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want <?= TICKET_TILE ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [YYYY], [YY], [YY-MM], [YYYY-MM], [BUSINESS], [CONTACT].</em></label>
+	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want <?= TICKET_TILE ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [BUSINESS], [CONTACT], [SITE_NAME], [TICKET_TYPE], [STOP_LOCATION], [STOP_CLIENT], [ORDER_NUM].</em></label>
 	<div class="col-sm-8">
 		<input type="text" name="ticket_label" value="<?= get_config($dbc, "ticket_label") ?>" class="form-control">
 	</div>

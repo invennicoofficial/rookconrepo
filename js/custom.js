@@ -194,31 +194,33 @@ $(document).ready(function() {
 		allowClear: true
 	});
     
-  //   $('.hide-header-footer').click(function() {
-  //       $('#main-header, #nav, #footer').toggle();
-  //       var fullscreen = $('#fullscreen').val();
-  //       if ( fullscreen==1 ) {
-  //           $(this).removeClass('down');
-  //           $('.pullup').removeClass('rotate');
-  //           $('#fullscreen').val(0);
-  //           $('.main-screen').removeClass('double-pad-top');
-  //       } else {
-  //           $(this).addClass('down');
-  //           $('.pullup').addClass('rotate');
-  //           $('#fullscreen').val(1);
-  //           $('.main-screen').addClass('double-pad-top');
-  //       }
-  //       fullscreen = $('#fullscreen').val();
-		// $.ajax({
-		// 	type: "GET",
-		// 	url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
-		// 	dataType: "html",
-		// 	success: function(response){
-		// 		console.log(response);
-		// 	}
-		// });
-  //       $(window).resize();
-  //   });
+    $('.hide-header-footer, .hide-header-footer-down').click(function() {
+        $('#main-header, #nav, #footer').toggle();
+        var fullscreen = $('#fullscreen').val();
+        if ( fullscreen==1 ) {
+            $(this).removeClass('down');
+            $('.pullup').removeClass('rotate');
+            $('.hide-header-footer-down').hide();
+            $('#fullscreen').val(0);
+            $('.main-screen').removeClass('double-pad-top');
+        } else {
+            $(this).addClass('down');
+            $('.pullup').addClass('rotate');
+            $('.hide-header-footer-down').show();
+            $('#fullscreen').val(1);
+            $('.main-screen').addClass('double-pad-top');
+        }
+        fullscreen = $('#fullscreen').val();
+		$.ajax({
+			type: "GET",
+			url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
+			dataType: "html",
+			success: function(response){
+				console.log(response);
+			}
+		});
+        $(window).resize();
+    });
 });
 
 function initTooltips() {
@@ -934,6 +936,7 @@ function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_c
 		}
 		if(height == undefined || height == '' || height == 'auto' || $(document).width() < 768) {
 			height = 'auto';
+			iframe.height($('html body').height() - $('#nav:visible').height() - $('#footer:visible').height());
 		}
 		iframe.find('.iframe').css('position', 'relative');
 		iframe.find('.iframe').css('left', '100%');

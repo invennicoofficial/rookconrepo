@@ -79,18 +79,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
 		<form name="form_sites" method="post" action="" class="form-inline" role="form">
 		<?php
 		if (isset($_POST['search_submit'])) {
@@ -140,12 +128,6 @@ if (isset($_POST['printpdf'])) {
                 echo report_expense_summary($dbc, $search_month, $search_staff, '', '', '');
             ?>
         </form>
-
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_expense_summary($dbc, $search_month, $search_staff, $table_style, $table_row_style, $grand_total_style) {

@@ -264,7 +264,11 @@ function saveFields() {
 		ticket_material_increment: ticket_material_increment,
 		ticket_notes_alert_role: ticket_notes_alert_role,
 		ticket_business_contact_add_pos: $('[name="ticket_business_contact_add_pos"]').val(),
-		ticket_staff_travel_default: $('[name="ticket_staff_travel_default"]').val()
+		ticket_staff_travel_default: $('[name="ticket_staff_travel_default"]').val(),
+		ticket_email_approval: $('[name="ticket_email_approval"]').val(),
+		ticket_approval_status: $('[name="ticket_approval_status"]').val(),
+		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
+		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
 	}).success(function() {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();

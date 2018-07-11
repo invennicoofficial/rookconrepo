@@ -38,14 +38,21 @@ if (isset($_POST['submit'])) {
     }
 
     mysqli_query($dbc, "DELETE FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid'");
+	$restrict_assign = get_config($dbc, 'equip_multi_assign_staff_disallow');
     for ($i = 0; $i < count($_POST['equip_assign_contactid']); $i++) {
         $contact_position = $_POST['equip_assign_contact_position'][$i];
         $contactid = $_POST['equip_assign_contactid'][$i];
+		if($restrict_assign > 0) {
+			mysqli_query($dbc, "UPDATE `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipment_assignmentid`=`equipment_assignment_staff`.`equipment_assignmentid` SET `equipment_assignment_staff`.`deleted`=1, `equipment_assignment_staff`.`date_of_archival`=DATE(NOW()) WHERE `equipment_assignment`.`start_date`='$start_date' AND `equipment_assignment`.`end_date`='$end_date' AND `equipment_assignment_staff`.`contactid`='$contactid' AND `equipment_assignment_staff`.`deleted`=0");
+		}
         mysqli_query($dbc, "INSERT INTO `equipment_assignment_staff` (`equipment_assignmentid`, `contactid`, `contact_position`) VALUES ('$equipment_assignmentid', '$contactid', '$contact_position')");
     }
     for ($i = 0; $i < count($_POST['equip_assign_contractorid']); $i++) {
         $contractor_position = $_POST['equip_assign_contractor_position'][$i];
         $contractorid = $_POST['equip_assign_contractorid'][$i];
+		if($restrict_assign > 0) {
+			mysqli_query($dbc, "UPDATE `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipment_assignmentid`=`equipment_assignment_staff`.`equipment_assignmentid` SET `equipment_assignment_staff`.`deleted`=1, `equipment_assignment_staff`.`date_of_archival`=DATE(NOW()) WHERE `equipment_assignment`.`start_date`='$start_date' AND `equipment_assignment`.`end_date`='$end_date' AND `equipment_assignment_staff`.`contactid`='$contractorid' AND `equipment_assignment_staff`.`deleted`=0");
+		}
         mysqli_query($dbc, "INSERT INTO `equipment_assignment_staff` (`equipment_assignmentid`, `contactid`, `contact_position`, `contractor`) VALUES ('$equipment_assignmentid', '$contractorid', '$contractor_position', '1')");
     }
 

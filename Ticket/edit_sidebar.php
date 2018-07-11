@@ -7,6 +7,13 @@ if(!isset($ticketid)) {
 		$tile_security['edit'] = 0;
 		$tile_security['config'] = 0;
 	}
+	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
+	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
+	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
+	$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
+	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
+	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
+	$ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs')));
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 	$value_config = get_field_config($dbc, 'tickets');

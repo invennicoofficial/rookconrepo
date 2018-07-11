@@ -158,9 +158,9 @@ function send_email(button) {
 				if(response != '') {
 					alert(response);
 				}
+				$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 			}
 		});
-		$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 	} else {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=send_email',
@@ -176,9 +176,9 @@ function send_email(button) {
 				if(response != '') {
 					alert(response);
 				}
+				$(button).closest('.email_div').hide().closest('.scheduled_stop').find('[name=email]').closest('.form-group').find('[type=checkbox]').removeAttr('checked');
 			}
 		});
-		$(button).closest('.email_div').hide().closest('.scheduled_stop').find('[name=email]').closest('.form-group').find('[type=checkbox]').removeAttr('checked');
 	}
 }
 function setSave() {
@@ -1638,8 +1638,11 @@ function reload_complete() {
 	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
-		initInputs('#collapse_ticket_contact_notes');
-		initInputs('#tab_section_ticket_contact_notes');
+		initInputs('#collapse_ticket_complete');
+		initInputs('#tab_section_ticket_complete');
+		if(typeof initPad == 'function') {
+			initPad();
+		}
 	});
 }
 function clearNote(type, block) {
@@ -2006,7 +2009,13 @@ function filterPositions() {
 		$(this).closest('.multi-block').find('[name=position] option').show();
 		$(this).closest('.multi-block').find('[name=position]').trigger('select2.change');
 	}
-
+	var position = $(this).find('option:selected').data('position');
+	if(position != '' && position != undefined) {
+		var cur_pos = $(this).closest('.multi-block').find('[name=position]').val();
+		if(cur_pos != position) {
+			$(this).closest('.multi-block').find('[name=position]').val(position).change();
+		}
+	}
 }
 function filterEquipment(select) {
 	var block = $(select).closest('.multi-block').first();
@@ -2015,6 +2024,12 @@ function filterEquipment(select) {
 		block.find('[name=eq_category]').val(option.data('category')).trigger('change.select2');
 		block.find('[name=eq_make]').val(option.data('make')).trigger('change.select2');
 		block.find('[name=eq_model]').val(option.data('model')).trigger('change.select2');
+		block.find('select[name=rate]').each(function() {
+			$(this).find('option:selected').removeAttr('selected');
+			$(this).find('option[data-type=daily]').val(option.data('daily'));
+			$(this).find('option[data-type=hourly]').val(option.data('hourly'));
+			$(this).trigger('change.select2');
+		});
 	} else if(select.name == 'eq_category') {
 		block.find('[name=item_id] option').show().filter(function() { return $(this).data('category') != select.value; }).hide();
 		block.find('[name=item_id]').trigger('change.select2');
@@ -2680,6 +2695,12 @@ function cancelClick() {
 }
 function openFullView() {
 	window.top.location.href = "../Ticket/index.php?ticketid="+ticketid+"&edit="+ticketid+"&action_mode="+$('#action_mode').val();
+}
+function submitApproval(status, email) {
+	
+}
+function approve(field, status) {
+	
 }
 function initSelectOnChanges() {
 	try {

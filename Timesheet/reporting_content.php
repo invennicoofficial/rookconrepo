@@ -49,6 +49,8 @@ function viewTicket(a) {
 
 
 <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal timesheet_div" role="form">
+<input type="hidden" name="type" value="<?= $_GET['type'] ?>">
+<input type="hidden" name="report" value="<?= $_GET['report'] ?>">
 <input type="hidden" name="timesheet_time_format" value="<?= get_config($dbc, 'timesheet_time_format') ?>">
 <?php
     $search_staff = '';

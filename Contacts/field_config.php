@@ -6,7 +6,7 @@ $(document).ready(function() {
 		var available_height = window.innerHeight - $(footer).outerHeight() - $('.main-screen .main-screen').offset().top;
 		if(available_height > 200) {
 			$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
-			$('ul.sidebar').outerHeight(available_height).css('overflow-y','auto');
+			$('.tile-sidebar').outerHeight(available_height).css('overflow-y','auto');
 		}
 	}).resize();
 });
@@ -150,6 +150,21 @@ function loadPanel() {
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_subtab_id_card_fields">
+					ID Card Fields<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_subtab_id_card_fields" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_id_card_fields.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_subtab_import">
 					Import / Export<span class="glyphicon glyphicon-plus"></span>
 				</a>
@@ -189,6 +204,7 @@ function loadPanel() {
         <a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Fields</li></a>
         <a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard</li></a>
         <a href="?settings=additions"><li class="<?= $_GET['settings'] == 'additions' ? 'active blue' : '' ?>">Profile Additions</li></a>
+        <a href="?settings=id_card_fields"><li class="<?= $_GET['settings'] == 'id_card_fields' ? 'active blue' : '' ?>">ID Card Fields</li></a>
         <a href="?settings=import"><li class="<?= $_GET['settings'] == 'import' ? 'active blue' : '' ?>">Import Contacts</li></a>
         <a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Security Settings</li></a>
         <?php if(tile_visible($dbc, 'vpl') && FOLDER_NAME == 'vendors') { ?>
@@ -241,6 +257,9 @@ function loadPanel() {
 			break;
 		case 'additions':
 			include('field_config_additions.php');
+			break;
+		case 'id_card_fields':
+			include('field_config_id_card_fields.php');
 			break;
 		case 'import':
 			include('field_config_import.php');
