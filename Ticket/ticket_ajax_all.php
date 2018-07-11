@@ -987,7 +987,9 @@ if($_GET['action'] == 'update_fields') {
 		$recipient = [$_POST['recipient']];
 	}
 	foreach($recipient as $address) {
-		$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
+		if($address > 0) {
+			$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
+		}
 		try {
 			send_email([$sender=>$sender_name], $address, '', '', $subject, $body, '');
 		} catch(Exception $e) { echo "Unable to send e-mail: ".$e->getMessage(); }
