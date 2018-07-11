@@ -194,5 +194,11 @@
     }
     //2018-07-04 - Ticket #8009 - Sessions Additions
 
+    //2018-07-11 - Ticket #8060 - Estimate Templates VPL
+    if(!mysqli_query($dbc, "ALTER TABLE `estimate_template_lines` ADD `product_pricing` varchar(500) AFTER `qty`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #8060 - Estimate Templates VPL
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

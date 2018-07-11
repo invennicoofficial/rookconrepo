@@ -150,27 +150,32 @@ function save_field(src) {
 }
 function update_field() {
 	src = this;
-	if(src.name == 'src_table') {
-		if(src.value == 'miscellaneous') {
-			$(src).closest('tr').find('.select_div').hide();
-			$(src).closest('tr').find('[name=description]').show();
-			$(src).closest('tr').find('.breakdown').show();
-		} else {
-			$(src).closest('tr').find('.breakdown').hide();
-			$(src).closest('tr').find('[name=description]').hide();
-			$(src).closest('tr').find('.select_div').show().find('option').each(function() {
-				if((''+$(this).data('tile-name')).toLowerCase() == src.value.toLowerCase()) {
-					$(this).show();
-				} else {
-					$(this).hide();
-				}
-			});
-			$(src).closest('tr').find('.select_div select').trigger('change.select2');
+	if(src.name == 'src_table' && src.value == 'vpl') {
+		var heading_id = $(src).closest('table').data('heading');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Estimate/template_edit_vpl.php?heading_id='+heading_id);
+	} else {
+		if(src.name == 'src_table') {
+			if(src.value == 'miscellaneous') {
+				$(src).closest('tr').find('.select_div').hide();
+				$(src).closest('tr').find('[name=description]').show();
+				$(src).closest('tr').find('.breakdown').show();
+			} else {
+				$(src).closest('tr').find('.breakdown').hide();
+				$(src).closest('tr').find('[name=description]').hide();
+				$(src).closest('tr').find('.select_div').show().find('option').each(function() {
+					if((''+$(this).data('tile-name')).toLowerCase() == src.value.toLowerCase()) {
+						$(this).show();
+					} else {
+						$(this).hide();
+					}
+				});
+				$(src).closest('tr').find('.select_div select').trigger('change.select2');
+			}
+	        window.location.reload();
 		}
-        window.location.reload();
-	}
-	if($(src).data('table') != '') {
-		save_field(this);
+		if($(src).data('table') != '') {
+			save_field(this);
+		}
 	}
 }
 function add_line(src) {
