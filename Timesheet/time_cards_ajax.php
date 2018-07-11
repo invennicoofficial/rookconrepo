@@ -112,6 +112,7 @@ else if($_GET['action'] == 'task_time') {
 	$ids = '';
 	$comment_history = '';
 	if($id > 0) {
+		$ids .= $id;
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs', `type_of_time`='$type_of_time', `comment_box`='$comment_box', `start_time` = '$start_time', `end_time` = '$end_time' WHERE `time_cards_id`='$id'");
 		if(number_format($total_hrs,1) != number_format($time_card['total_hrs'],1)) {
@@ -136,6 +137,7 @@ else if($_GET['action'] == 'task_time') {
 	}
 	$ids .= ',';
 	if($id_vac > 0) {
+		$ids .= $id_vac;
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id_vac'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs_vac', `type_of_time`='Vac Hrs.', `comment_box`='$comment_box' WHERE `time_cards_id`='$id_vac'");
 		if(number_format($total_hrs_vac,1) != number_format($time_card['total_hrs'],1)) {
