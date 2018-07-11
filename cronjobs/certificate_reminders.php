@@ -35,7 +35,6 @@ if(date('H') == '08') {
 		$emails = array_unique(array_filter(array_merge($managers, explode(',',$row['certificate_reminder']))));
 		foreach($emails as $email_contact) {
 			if($email_contact > 0) {
-				mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `body`, `src_table`, `src_tableid`) VALUES ('$email_contact', '".$row['reminder_date']."', '".$subject."', '".htmlentities($message)."'")
 				$email = get_email($dbc, $email_contact);
 				
 				$time = date('Y-m-d h:i:s');
