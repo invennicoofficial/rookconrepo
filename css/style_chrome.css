@@ -4701,7 +4701,7 @@ background: #b8bac6;
     .brand-nav a:hover {
           color: rgb(137, 166, 255) !important;}
 
-a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brightness(0%); }
+a.newsboard-button, a.calendar-button, .social-icon { filter: brightness(0%); }
 
 .logo {
   display: block;
