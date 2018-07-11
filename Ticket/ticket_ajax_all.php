@@ -1006,9 +1006,7 @@ if($_GET['action'] == 'update_fields') {
 		$recipient = [$_POST['recipient']];
 	}
 	foreach($recipient as $address) {
-		if($address > 0) {
-			$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
-		}
+		$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
 		try {
 			send_email([$sender=>$sender_name], $address, '', '', $subject, $body, '');
 		} catch(Exception $e) { echo "Unable to send e-mail: ".$e->getMessage(); }
@@ -1927,7 +1925,86 @@ if($_GET['action'] == 'update_fields') {
         $ticketid = $id;
         $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
         $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
+
+        $notes = mysqli_query($dbc, "SELECT `ticket_comment`.*, `tickets`.`ticket_type` FROM ticket_comment LEFT JOIN `tickets` ON `ticket_comment`.`ticketid`=`tickets`.`ticketid` WHERE `ticket_comment`.ticketid='$ticketid' AND `ticket_comment`.type='note' AND `ticket_comment`.`deleted`=0 ORDER BY ticketcommid DESC");
+        $html = '';
+        $notes_count = mysqli_num_rows($notes);
+
+        $html .= '<h1>'.get_ticket_label($dbc, mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$id'"))).'</h1>';
+
+        if($ticketid > 0 && $notes_count > 0) {
+
+            $html .= '<table border="1" cellpadding="2">';
+            $html .= '<tr>';
+            $html .= '<td><center><h3>Notes</h3></center></td>';
+            $html .= '</tr>';
+            while($row = mysqli_fetch_array($notes)) {
+                $html .= '<tr><td>';
+                $html .= html_entity_decode($row['comment'].$row['note']);
+                $html .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['note_date'].$row['created_date'];
+                if($row['reference_contact'] > 0) {
+                    $html .= "<br />References ".get_contact($dbc, $row['reference_contact']);
+                }
+                if($row['client_id'] > 0) {
+                    $html .= "<br />References ".get_contact($dbc, $row['client_id']);
+                }
+                foreach(explode(',',$row['email_comment']) as $assignid) {
+                    if($assignid > 0) {
+                        $html .= "<br />Assigned to ".get_contact($dbc, $assignid);
+                    }
+                }
+                $html .= "</em>";
+                $html .= '</td></tr>';
+            }
+            $html .= '</table>';
+        } else if($ticketid > 0) {
+            $html .= "<h4>No Notes Found</h4>";
+        }
+
+        class MYPDF extends TCPDF {
+
+            public function Header() {
+            }
+
+            // Page footer
+            public function Footer() {
+                // Position at 15 mm from bottom
+                $this->SetY(-15);
+                $this->SetFont('helvetica', '', 9);
+                $footer_text = '<p style="text-align:right;">Page '.$this->getAliasNumPage().' of '.$this->getAliasNbPages().'</p>';
+                $this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "R", true);
+            }
+        }
+        $pdf = new MYPDF(TICKET_PDF_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
+        $pdf->setFooterData(array(0,64,0), array(0,64,128));
+
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 35, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 9);
+
+        //Add here commented code
+        $pdf->writeHTML($html);
+        $pdf->Output($filename, 'F');
+
+		$sender = get_email($dbc, $_SESSION['contactid']);
+		$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
+		$subject = TICKET_NOUN.' PDF attached';
+        $body = "Please see attachment";
+        $user = $_POST['value'];
+        $body = "Please see attachment";
+        $email_attachments = 'download/'.$filename.'#FFM#';
+
+        send_email($sender, $user, '', '', $subject, $body, $filename);
+
+        /*
         $get_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='{$get_ticket['projectid']}'"));
+
         $ticket_types = [];
         $value_config = ','.get_field_config($dbc, 'tickets').',';
         $sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
@@ -1961,7 +2038,6 @@ if($_GET['action'] == 'update_fields') {
         DEFINE('FOOTER_TEXT', html_entity_decode(str_replace(['[TICKET_TYPE]','[TICKETID]','[TO_DO_DATE]'],[$ticket_types[$get_ticket['ticket_type']],$ticketid,$get_ticket['to_do_date']],get_config($dbc, 'ticket_pdf_footer'))));
         DEFINE('PDF_LOGO_ALIGN', !empty(get_config($dbc, 'ticket_pdf_logo_align')) ? get_config($dbc, 'ticket_pdf_logo_align') : 'C');
         DEFINE ('TICKET_PDF_ORIENTATION', !empty(get_config($dbc, 'ticket_pdf_orientation')) ? get_config($dbc, 'ticket_pdf_orientation') : 'P');
-
 
         class MYPDF extends TCPDF {
 
@@ -2377,18 +2453,7 @@ if($_GET['action'] == 'update_fields') {
         }
         $html .= '</table>';
 
-        $pdf->writeHTML($html);
-        $pdf->Output($filename, 'F');
-
-		$sender = get_email($dbc, $_SESSION['contactid']);
-		$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
-		$subject = TICKET_NOUN.' PDF attached';
-        $body = "Please see attachment";
-        $user = $_POST['value'];
-        $body = "Please see attachment";
-        $email_attachments = 'download/'.$filename.'#FFM#';
-
-        send_email($sender, $user, '', '', $subject, $body, $filename);
+        */
 	}
 } else if($_GET['action'] == 'get_locks') {
 	$ticketid = $_GET['ticketid'];

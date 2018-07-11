@@ -446,6 +446,7 @@ function setActions() {
                         value: this.value,
                     },
                 success: function(response) {
+                            alert('PDF Sent');
                 }
         		});
 			$(this).hide().val('');
@@ -457,7 +458,6 @@ function setActions() {
 			}
 		});
 	});
-
 
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
