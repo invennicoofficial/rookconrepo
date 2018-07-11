@@ -88,6 +88,11 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 11, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `location_cookie` TEXT AFTER `location`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	
