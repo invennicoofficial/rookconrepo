@@ -47,6 +47,7 @@ $(document).ready(function() {
 			echo '<div class="col-sm-6"><div class="pull-left"><h2 class="no-gap-pad">'.$id.'</h2></div><h2 class="no-gap-pad">'.get_contact($dbc, $contact).'</h2>';
 			echo '<div class="clearfix"></div></div>';
 		} ?>
+		<div class="clearfix"></div>
 		<h3 class="text-center no-gap-pad">ETA: <span name="eta_text"></span></h3>
 	</div>
 </div>
