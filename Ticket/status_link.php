@@ -86,8 +86,8 @@ function setMarker() {
 </script>
 <div class="container no-gap-pad" style="height: 100vh; width: 100vw; overflow-y: hidden;">
 	<div class="row">
-		<h3 class="text-center"><?= $get_stop['type'] ?> at <?= implode(' - ',array_filter([$get_stop['location_name'], $get_stop['client_name'], $get_stop['address']])) ?> - ETA: <span name="eta_text"></h3>
-		<div id="map" style="height:calc(100vh - 50px - 20px - 12em);width:100vw;border:none;"></div>
+		<h3 class="text-center"><img src="<?= WEBSITE_URL.'/Settings/download/'.get_config($dbc, 'logo_upload') ?>" style="height:50px;"><br /><?= implode(' - ',array_filter([$get_stop['location_name'], $get_stop['client_name'], $get_stop['address']])) ?><br />ETA: <span name="eta_text"></h3>
+		<div id="map" style="height:calc(100vh - 120px - <?= count($contacts) * 6 ?>em);width:100vw;border:none;"></div>
 		<?php foreach($contacts as $contact) {
 			$contact = $dbc->query("SELECT `contacts`.`tile_name`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts_upload`.`contactimage` FROM `contacts` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='$contact'")->fetch_assoc();
 			$img_url = '../'.($contact['tile_name'] == 'staff' || $contact['category'] == 'staff' ? (file_exists('../Staff/download/'.$contact['contactimage']) ? 'Staff' : 'Profile') : 'Contacts').'/download/'.$contact['contactimage'];
@@ -98,6 +98,5 @@ function setMarker() {
 			echo '<div class="clearfix"></div></div>';
 		} ?>
 		<div class="clearfix"></div>
-		<h3 class="text-center no-gap-pad">ETA: <span name="eta_text"></span></h3>
 	</div>
 </div>
