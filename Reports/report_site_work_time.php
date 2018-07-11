@@ -59,6 +59,7 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
     if($until_date != '') {
         $sql .= " AND swo.`work_start_date` <= '$until_date'";
     }
+	$sql = "SELECT `ticketid`, `date_stamp` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table` IN ('Staff','Staff_Tasks') AND `date_stamp` BETWEEN '$from_date' AND '$until_date' AND `ticketid` NOT IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=1)";
 	$result = mysqli_query($dbc, $sql.' ORDER BY swo.`site_location`, swo.`workorderid` DESC');
 	
 	if(mysqli_num_rows($result) == 0) {
@@ -75,6 +76,7 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
 
     while($time = mysqli_fetch_array( $result ))
     {
+		$hours = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE ");
 		$staff = [];
 		$staff_names = [];
 		$est = [];
