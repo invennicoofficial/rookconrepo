@@ -421,7 +421,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	}
 
 	if(in_array('Door Code Number',$db_config)) {
-		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT key_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT door_code_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Door Code Number:</label>
 			<div class="col-sm-8">'.$site['door_code_number'].'</div>
@@ -429,7 +429,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	}
 
 	if(in_array('Alarm Code Number',$db_config)) {
-		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT key_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT alarm_code_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Alarm Code Number:</label>
 			<div class="col-sm-8">'.$site['alarm_code_number'].'</div>
