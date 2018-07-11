@@ -59,7 +59,14 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
     $today_date = date('Y-m-d');
     $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
     $match_contacts = [];
-    if(!empty($match_contacts_query)) {
+    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+    $match_exclude = false;
+    foreach($match_exclude_security as $exclude_security) {
+        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+            $match_exclude = true;
+        }
+    }
+    if(!empty($match_contacts_query) && !$match_exclude) {
         $match_contacts[] = $_SESSION['contactid'];
         foreach($match_contacts_query as $match_contact) {
             if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
