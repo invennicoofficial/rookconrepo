@@ -34,6 +34,11 @@ function saveFields() {
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Label".',') !== false) { echo " checked"; } ?> value="Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will switch whether the card displays the customer <?= TICKET_NOUN ?> label, or simply displays the <?= TICKET_NOUN ?> ID."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_NOUN ?> Label</label>
+
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Client As Label".',') !== false) { echo " checked"; } ?> value="Client As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Client As Label</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Created Date As Label".',') !== false) { echo " checked"; } ?> value="Created Date As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Created Date As Label</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Status As Label".',') !== false) { echo " checked"; } ?> value="Status As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Status As Label</label>
+
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Extra Billing".',') !== false) { echo " checked"; } ?> value="Extra Billing" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Extra Billing Alert</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Overview Icon".',') !== false) { echo " checked"; } ?> value="Overview Icon" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Overview Icon</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Hide Slider".',') !== false) { echo " checked"; } ?> value="Hide Slider" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Hide Action Mode Button</label>
