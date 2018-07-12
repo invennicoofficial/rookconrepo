@@ -737,6 +737,18 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Upload".',') !== FALSE && $field_sort_field == 'Delivery Pickup Upload') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Upload Picture / Document:</label>
+										<div class="col-sm-8">
+											<?php if(!empty($stop['uploads'])) { ?>
+												<span><a href="download/<?= $stop['uploads'] ?>">View</a> | <a class="cursor-hand" onclick="$(this).closest('div').find('input[type=hidden]').val('').change();$(this).closest('span').hide();">Delete</a>
+												<input type="hidden" name="uploads" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['uploads'] ?>"></span>
+											<?php } ?>
+											<input type="file" name="uploads" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Arrival".',') !== FALSE && $field_sort_field == 'Delivery Pickup Arrival') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Arrival Time:</label>
@@ -1094,6 +1106,16 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="col-sm-4 control-label">Delivery Notes:</label>
 									<div class="col-sm-8">
 										<?= html_entity_decode($stop['notes']) ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if(strpos($value_config, ','."Delivery Pickup Upload".',') !== FALSE && $field_sort_field == 'Delivery Pickup Upload') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Upload:</label>
+									<div class="col-sm-8">
+										<?php if(!empty($stop['uploads'])) { ?>
+											<a href="download/<?= $stop['uploads'] ?>">View</a>
+										<?php } ?>
 									</div>
 								</div>
 							<?php } ?>
