@@ -945,16 +945,16 @@ if($_GET['action'] == 'update_fields') {
 		insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$ticketid.(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $ticketid);
 	}
 } else if($_GET['action'] == 'validate_address') {
-	$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','$_POST['city'].','.$_POST['postal']).""));
+	$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';
 	foreach($data->results->address_components as $element) {
-		if(in_array('street_number'],$element['types'])) {
+		if(in_array('street_number',$element['types'])) {
 			$number = $element['short_name'];
-		} else if(in_array('route'],$element['types'])) {
+		} else if(in_array('route',$element['types'])) {
 			$address = $element['short_name'];
-		} else if(in_array('locality'],$element['types']) || in_array('political',$element['types'])) {
+		} else if(in_array('locality',$element['types']) || in_array('political',$element['types'])) {
 			$city = $element['short_name'];
-		} else if(in_array('postal_code'],$element['types']) || in_array('zip_code',$element['types'])) {
+		} else if(in_array('postal_code',$element['types']) || in_array('zip_code',$element['types'])) {
 			$postal = $element['short_name'];
 		}
 	}
@@ -977,23 +977,18 @@ if($_GET['action'] == 'update_fields') {
 	$field_name = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$ticketid = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	foreach($_FILES['files']['name'] as $file => $basename) {
-		$basename = filter_var($basename,FILTER_SANITIZE_STRING);
-		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
-		$i = 0;
 		if(!file_exists('download')) {
 	        mkdir('download', 0777, true);
 		}
-		while(file_exists('download/'.$filename)) {
-			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
-		}
+		$filename = file_safe_str($basename);
 		move_uploaded_file($_FILES['files']['tmp_name'][$file],'download/'.$filename);
-		if($table_name == 'ticket_attached') {
+		if($table_name == 'ticket_attached' || $table_name == 'ticket_schedule') {
 			$id = filter_var($_POST['table_id'],FILTER_SANITIZE_STRING);
 			if(!($id > 0)) {
-				$dbc->query("INSERT INTO `ticket_attached` (`ticketid`) VALUES ('$ticketid')");
+				$dbc->query("INSERT INTO `$table_name` (`ticketid`) VALUES ('$ticketid')");
 				$id = $dbc->insert_id;
 			}
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `$field_name`='$filename' WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `$table_name` SET `$field_name`='$filename' WHERE `id`='$id'");
 		} else {
 			mysqli_query($dbc, "INSERT INTO `$table_name` (`ticketid`,`document`,`label`,`created_by`,`created_date`) VALUES ('$ticketid','$filename','$basename','".$_SESSION['contactid']."',DATE(NOW()))");
 		}
