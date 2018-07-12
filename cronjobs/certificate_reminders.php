@@ -1,8 +1,5 @@
 <?php
-include	('../database_connection.php');
-include	('../global.php');
-include ('../function.php');
-include ('../phpmailer.php');
+include('../include.php');
 
 if(isset($_GET['certificateid'])) {
 	$query = "cert.certificateid={$_GET['id']}";
@@ -10,7 +7,7 @@ if(isset($_GET['certificateid'])) {
 else {
 	$query = "cert.reminder_date=DATE(NOW())";
 }
-$manager = get_config($dbc, 'certificate_reminder_contact');
+$managers = explode(',',get_config($dbc, 'certificate_reminder_contact'));
 $subject = get_config($dbc, 'certificate_reminder_subject');
 $message = get_config($dbc, 'certificate_reminder_body');
 
@@ -35,41 +32,32 @@ if(date('H') == '08') {
 		$message = str_replace("[TITLE]", $row['title'], $message);
 		$message = str_replace("[DESCRIPTION]", $row['description'], $message);
 		
-		if($row['certificate_reminder'] > 0) {
-			$result = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid='{$row['certificate_reminder']}'"));
-			$cert_email = get_email($dbc, $result['contactid']);
-			
-			$time = date('Y-m-d h:i:s');
-			$title = $row['title'];
-			
-			try {
-				send_email('', $cert_email, '', '', $subject, $message, '');
-				echo "<p>$subject sent to $cert_email at $time</p>";
-			} catch (Exception $e) {
-				echo "Unable to send email: $title to $email\n";
-			}
-		}
-		if($manager > 0) {
-			$manager = get_email($dbc, $manager);
-			
-			$time = date('Y-m-d h:i:s');
-			$title = $row['title'];
-			
-			try {
-				echo "<p>$subject sent to $manager at $time</p>";
-				send_email("", $manager, '', '', $subject, $message, '');
-			} catch (Exception $e) {
-				echo "Unable to send email: $title to $manager\n";
-			}
-		} else if(filter_var($manager, FILTER_VALIDATE_EMAIL)) {
-			$time = date('Y-m-d h:i:s');
-			$title = $row['title'];
-			
-			try {
-				echo "<p>$subject sent to $manager at $time</p>";
-				send_email("", $manager, '', '', $subject, $message, '');
-			} catch (Exception $e) {
-				echo "Unable to send email: $title to $manager\n";
+		$emails = array_unique(array_filter(array_merge($managers, explode(',',$row['certificate_reminder']))));
+		foreach($emails as $email_contact) {
+			if($email_contact > 0) {
+				$email = get_email($dbc, $email_contact);
+				
+				$time = date('Y-m-d h:i:s');
+				$title = $row['title'];
+				
+				try {
+					echo "<p>$subject sent to $email at $time</p>";
+					send_email("", $email, '', '', $subject, $message, '');
+				} catch (Exception $e) {
+					echo "Unable to send email: $title to $email\n";
+				}
+			} else if(filter_var($email_contact, FILTER_VALIDATE_EMAIL)) {
+				$email = $email_contact;
+
+				$time = date('Y-m-d h:i:s');
+				$title = $row['title'];
+				
+				try {
+					echo "<p>$subject sent to $email at $time</p>";
+					send_email("", $email, '', '', $subject, $message, '');
+				} catch (Exception $e) {
+					echo "Unable to send email: $title to $email\n";
+				}
 			}
 		}
 	}

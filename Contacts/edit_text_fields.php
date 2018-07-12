@@ -847,6 +847,8 @@
 	<div class="col-sm-8">
 		<label class="control-checkbox any-width"><input type="checkbox" name="address_site_sync" data-ischeckbox="true" value="1" <?= $contact['address_site_sync'] > 0 ? 'checked' : '' ?> data-field="address_site_sync" data-table="contacts"> Make this address a <?= rtrim(SITES_CAT,'s') ?></label>
 	</div>
+<?php } else if($field_option == 'Address Default Sync On') { ?>
+	<input type="hidden" name="address_default_site_sync" value="1">
 <?php } else if($field_option == 'Second Address') { ?>
 	<label class="col-sm-4 control-label">Street Address:</label>
 	<div class="col-sm-8">
