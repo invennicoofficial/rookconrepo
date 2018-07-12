@@ -1045,4 +1045,10 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, '$staff', '$today', '$time', '$seconds', '".PROJECT_NOUN." Time', 'Checked in on ".PROJECT_NOUN." #$projectid', '$staff' FROM `project` WHERE `projectid`='$projectid'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `projectid`!='$projectid' AND `staff`='$staff' AND `timer_start` > 0");
 	}
+} else if($_GET['action'] == 'timer') {
+	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+	$timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
+	$staff = $_SESSION['contactid'];
+    $today_date = date('Y-m-d');
+	mysqli_query($dbc, "INSERT INTO `project_timer` (`projectid`, `staff`, `today_date`, `timer_value`) VALUES ('$projectid', '$staff', '$today_date', '$timer_value')");
 }

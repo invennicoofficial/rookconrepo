@@ -1,4 +1,44 @@
 <script>
+
+    /* Timer */
+    $('.start-timer-btn').on('click', function() {
+        $(this).closest('div').find('.timer').timer({
+            editable: true
+        });
+        $(this).addClass('hidden');
+        $(this).next('.stop-timer-btn').removeClass('hidden');
+    });
+
+    $('.stop-timer-btn').on('click', function() {
+		$(this).closest('div').find('.timer').timer('stop');
+		$(this).addClass('hidden');
+		$('#timer_value').addClass('hidden');
+
+
+		//$(this).prev('.start-timer-btn').removeClass('hidden');
+
+        var projectid = $(this).data('id');
+
+        var timer_value = $(this).closest('div').find('#timer_value').val();
+
+		$(this).closest('div').find('.timer').timer('remove');
+
+		if ( projectid!='' && typeof projectid!='undefined' && timer_value!='' ) {
+            $.ajax({
+                type: "GET",
+                url: "projects_ajax.php?action=timer&projectid="+projectid+"&timer_value="+timer_value,
+                dataType: "html",
+                success: function(response) {
+                    alert('Time added');
+                }
+            });
+        }
+    });
+
+
+    /* Timer */
+
+
 	$('.archive-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		$.ajax({
@@ -414,12 +454,25 @@ foreach($_POST['projectids'] as $projectid) {
                 <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=document]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File"></a>
                 <!-- document -->
 
+                <a href="Add Timer" onclick="$(this).closest('.dashboard-item').find('.timer').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Add Note" /></a>
+                <!-- Timer -->
+
                 <!-- archive -->
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">
                 <!-- archive -->
 
                  <!-- All icons -->
             </div>
+
+                <!-- Timer -->
+                <div class="timer" style="display:none;">
+                    <input type="text" name="timer_<?= $projectid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
+                    <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                    <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $projectid ?>">Stop</a><br />
+                    <input type="hidden" value="" name="track_time" />
+                    <span class="added-time"></span>
+                </div>
+                <!-- Timer -->
 
             <!-- Note -->
             <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="project_comment" data-projectid="<?= $projectid; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
