@@ -77,7 +77,6 @@ if(isset($_POST['printpdf'])) {
 			$search_until = date('Y-m-d');
 		} ?>
 		<h2>Work Orders</h2>
-
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <center><div class="form-group">
 				<div class="form-group col-sm-5">

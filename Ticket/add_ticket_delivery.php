@@ -218,6 +218,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 						<label class="col-sm-4 control-label">Google Maps Link:</label>
 						<div class="col-sm-8">
 							<input type="text" name="pickup_link" class="form-control" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['pickup_link'] ?>">
+							<?php if(!empty($get_ticket['pickup_link'])) {
+								echo '<a href="'.$get_ticket['pickup_link'].'">'.$get_ticket['pickup_link'].'</a>';
+							} ?>
 						</div>
 					</div>
 					<?php if (strpos($value_config, ','."Delivery Stops Volume".',') !== FALSE) { ?>
@@ -463,6 +466,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+											<?php if(!empty($stop['map_link'])) {
+												echo '<a href="'.$stop['map_link'].'">'.$stop['map_link'].'</a>';
+											} ?>
 										</div>
 									</div>
 								<?php } ?>
@@ -489,6 +495,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+											<?php if(!empty($stop['map_link'])) {
+												echo '<a href="'.$stop['map_link'].'">'.$stop['map_link'].'</a>';
+											} ?>
 										</div>
 									</div>
 								<?php } ?>
@@ -725,6 +734,18 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Delivery Notes:</label>
 										<div class="col-sm-8">
 											<textarea name="notes" class="no_tools form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><?= html_entity_decode($stop['notes']) ?></textarea>
+										</div>
+									</div>
+								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Upload".',') !== FALSE && $field_sort_field == 'Delivery Pickup Upload') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Upload Picture / Document:</label>
+										<div class="col-sm-8">
+											<?php if(!empty($stop['uploads'])) { ?>
+												<span><a href="download/<?= $stop['uploads'] ?>">View</a> | <a class="cursor-hand" onclick="$(this).closest('div').find('input[type=hidden]').val('').change();$(this).closest('span').hide();">Delete</a>
+												<input type="hidden" name="uploads" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['uploads'] ?>"></span>
+											<?php } ?>
+											<input type="file" name="uploads" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
 										</div>
 									</div>
 								<?php } ?>
@@ -1085,6 +1106,16 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="col-sm-4 control-label">Delivery Notes:</label>
 									<div class="col-sm-8">
 										<?= html_entity_decode($stop['notes']) ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if(strpos($value_config, ','."Delivery Pickup Upload".',') !== FALSE && $field_sort_field == 'Delivery Pickup Upload') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Upload:</label>
+									<div class="col-sm-8">
+										<?php if(!empty($stop['uploads'])) { ?>
+											<a href="download/<?= $stop['uploads'] ?>">View</a>
+										<?php } ?>
 									</div>
 								</div>
 							<?php } ?>

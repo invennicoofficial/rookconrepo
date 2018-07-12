@@ -115,6 +115,11 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 12, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `uploads` TEXT AFTER `details`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
 	

@@ -269,7 +269,7 @@ function saveFields() {
 		ticket_approval_status: $('[name="ticket_approval_status"]').val(),
 		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
 		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
-	}).success(function() {
+	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
 		}

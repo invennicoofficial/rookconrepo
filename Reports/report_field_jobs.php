@@ -13,17 +13,18 @@ if(isset($_POST['printpdf'])) {
 	$from_date = $_POST['report_from'];
 	$until_date = $_POST['report_until'];
     $today_date = date('Y-m-d');
+	$pdf_name = "Download/field_jobs_$today_date.pdf";
     $logo = str_replace(' ','%20',get_config($dbc, 'report_logo'));
     DEFINE(REPORT_LOGO_URL, $logo);
 
     class MYPDF extends TCPDF {
 
-        public function Header() {
-            $image_file = WEBSITE_URL.'/img/fresh-focus-logo-dark.png';
+		  public function Header() {
+			      $image_file = WEBSITE_URL.'/img/fresh-focus-logo-dark.png';
             if(!empty(REPORT_LOGO_URL)) {
                 $image_file = WEBSITE_URL.'/Reports/download/'.REPORT_LOGO_URL;
             }
-            $this->SetFont('helvetica', '', 13);
+      			$this->SetFont('helvetica', '', 13);
             $this->Image($image_file, 0, 10, 60, '', 'PNG', '', 'T', false, 300, 'C', false, false, 0, false, false, false);
             $footer_text = 'Field Job Reports';
             $this->writeHTMLCell(0, 0, 0 , 40, $footer_text, 0, 0, false, "R", true);

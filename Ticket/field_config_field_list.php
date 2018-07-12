@@ -2595,6 +2595,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Description') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Description", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Description", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Description" name="tickets[]"> Multi-Stop Details</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Upload') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Upload", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Upload", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Upload" name="tickets[]"> Multi-Stop Upload</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Default Services') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Default Services", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Default Services", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Default Services" name="tickets[]"> Multi-Stop Default Services</label>
 							<?php } ?>
