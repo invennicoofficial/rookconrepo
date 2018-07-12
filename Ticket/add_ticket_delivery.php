@@ -218,6 +218,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 						<label class="col-sm-4 control-label">Google Maps Link:</label>
 						<div class="col-sm-8">
 							<input type="text" name="pickup_link" class="form-control" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['pickup_link'] ?>">
+							<?php if(!empty($get_ticket['pickup_link'])) {
+								echo '<a href="'.$get_ticket['pickup_link'].'">'.$get_ticket['pickup_link'].'</a>';
+							} ?>
 						</div>
 					</div>
 					<?php if (strpos($value_config, ','."Delivery Stops Volume".',') !== FALSE) { ?>
@@ -463,6 +466,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+											<?php if(!empty($stop['map_link'])) {
+												echo '<a href="'.$stop['map_link'].'">'.$stop['map_link'].'</a>';
+											} ?>
 										</div>
 									</div>
 								<?php } ?>
@@ -489,6 +495,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label">Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+											<?php if(!empty($stop['map_link'])) {
+												echo '<a href="'.$stop['map_link'].'">'.$stop['map_link'].'</a>';
+											} ?>
 										</div>
 									</div>
 								<?php } ?>
