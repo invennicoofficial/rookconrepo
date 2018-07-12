@@ -470,6 +470,14 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
+				$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
+					response = response.split('|');
+					if(response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val() && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
+						block.find('[name=address]').val(response[0]).change();
+						block.find('[name=city]').val(response[1]).change();
+						block.find('[name=postal_code]').val(response[2]).change();
+					}
+				});
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
 				if($(field).find('option:selected').data('warehouse') == 'yes') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
@@ -647,6 +655,9 @@ function saveFieldMethod(field) {
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
 						$(field).closest('.form-group').find('.img-div').show().find('img').after('<img src="'+response+'">').remove();
 						$(field).closest('.form-group').find('.sig-div').hide();
+					} else if(table_name == 'ticket_schedule' && field_name == 'map_link') {
+						$(field).closest('div').find('a').remove();
+						$(field).after('<a href="'+field.value+'">'+field.value+'</a>');
 					}
 					if(table_name == 'ticket_attached' && data_type == 'equipment' && (field_name == 'rate' || field_name == 'hours_estimated')) {
 						var cost = block.find('[name=hours_estimated]').val() * block.find('[name=rate]').val();
@@ -1229,6 +1240,9 @@ function saveMethod(field) {
 							minutes -= 60;
 						}
 						line.find('[name=hours_tracked]').val(hours+':'+('00'+minutes).slice(-2));
+					} else if(table_name == 'ticket_attached' && field_name == 'map_link') {
+						$(field).closest('div').find('a').remove();
+						$(field).after('<a href="'+field.value+'">'+field.value+'</a>');
 					}
 					if(table_name == 'ticket_attached' && data_type != 'medication' && (response > 0 || field_name == 'item_id')) {
 						reload_checkin();
