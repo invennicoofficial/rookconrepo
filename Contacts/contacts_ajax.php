@@ -291,6 +291,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `business_address`, `business_street`, `business_city`, `business_state`, `business_zip`, `business_country`) SELECT `contactid`, '$site_name', '".SITES_CAT."' `business_address`, `business_street`, `business_city`, `business_state`, `business_zip`, `business_country` FROM `contacts` WHERE `contactid`='$contactid' AND `business_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['mailing_address','ship_to_address','ship_city','ship_state','ship_zip','ship_country','mailing_site_sync',])) {
@@ -300,6 +301,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `mailing_address`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `ship_country`) SELECT `contactid`, '$site_name', '".SITES_CAT."', `mailing_address`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `ship_country` FROM `contacts` WHERE `contactid`='$contactid' AND `mailing_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['address','city','postal_code','state','country','address_site_sync'])) {
@@ -309,6 +311,14 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `address`, `city`, `state`, `postal_code`, `country`, `key_number`, `door_code_number`, `alarm_code_number`) SELECT `contactid`, '$site_name', '".SITES_CAT."', `address`, `city`, `state`, `postal_code`, `country`, `key_number`, `door_code_number`, `alarm_code_number` FROM `contacts` WHERE `contactid`='$contactid' AND `address_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
+		}
+		echo '#'.$site_id;
+	} else if(in_array($field_name, ['first_name','last_name','name'])) {
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
+		if($site_id > 0) {
+			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
+			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`site_name` = '$site_name' WHERE `s`.`contactid`='$site_id' AND `c`.`address_site_sync` > 0");
 		}
 		echo '#'.$site_id;
 	}
@@ -978,6 +988,15 @@ if($_GET['action'] == 'set_main_site') {
 	$site_id = $_POST['site_id'];
 
 	mysqli_query($dbc, "UPDATE `contacts` SET `main_siteid` = '$site_id' WHERE `contactid` = '$contactid'");
+}
+
+if($_GET['action'] == 'update_total_estimated_hours') {
+	$ratecardid = $_GET['ratecardid'];
+	$hours = $_GET['hours'];
+
+	$hours = time_time2decimal($hours);
+	mysqli_query($dbc, "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'");
+	echo "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'";
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {

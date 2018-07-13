@@ -15,6 +15,7 @@ $(document).ready(function() {
 			}
 		}
 	}).resize();
+	setTimeout(function() { $(window).resize(); }, 100);
 });
 </script>
 </head>
@@ -34,9 +35,9 @@ checkAuthorised('match');
 		<div class="main-screen">
 			<div class="tile-header standard-header">
                 <div class="pull-right settings-block"><?php
-	                // if($config_access == 1) {
-	                    // echo "<div class='pull-right gap-left'><a href='?&settings=payroll'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
-	                // }
+	                if($config_access == 1) {
+	                    echo "<div class='pull-right gap-left'><a href='?settings=match'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
+	                }
                     if($edit_access == 1) {
 						echo "<div class='pull-right gap-left'><a href='?edit=' class='new-btn'><button class='btn brand-btn'>New Match</button></a></div>";
                     } ?>

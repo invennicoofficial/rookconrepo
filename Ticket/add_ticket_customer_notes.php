@@ -146,6 +146,14 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							</div>
 						</div>
 					<?php }
+					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details') { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Any Additional Comments:</label>
+							<div class="col-sm-12">
+								<textarea name="weight" class="full-width noMceEditor" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['weight']) ?></textarea>
+							</div>
+						</div>
+					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Signature:</label>
@@ -222,6 +230,15 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							</div>
 						</div>
 						<?php $pdf_contents[] = ['Would you recommend us?', number_format($customer_approval['contact_info'],0)]; ?>
+					<?php }
+					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details' && !empty(strip_tags(html_entity_decode($customer_approval['weight'])))) { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Additional Comments:</label>
+							<div class="col-sm-8">
+								<?= html_entity_decode($customer_approval['weight']) ?>
+							</div>
+						</div>
+						<?php $pdf_contents[] = ['Additional Comments', html_entity_decode($customer_approval['weight'])]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
 						<div class="form-group">
