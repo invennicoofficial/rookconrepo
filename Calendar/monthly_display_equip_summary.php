@@ -1,9 +1,26 @@
 <?php
 $region_list = explode(',',get_config($dbc, '%_region', true));
 $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
-$allowed_regions_query = " AND IFNULL(`tickets`.`region`,'') IN ('".implode("','", array_merge($allowed_regions,['']))."')";
-$allowed_locations_query = " AND IFNULL(`tickets`.`con_location`,'') IN ('".implode("','", array_merge($allowed_locations,['']))."')";
-$allowed_classifications_query = " AND IFNULL(`tickets`.`classification`,'') IN ('".implode("','", array_merge($allowed_classifications,['']))."')";
+$allowed_regions_arr = [];
+foreach($allowed_regions as $allowed_region) {
+	$allowed_regions_arr[] = " CONCAT(',',`tickets`.`region`,',') LIKE '%,$allowed_region,%'";
+}
+$allowed_regions_arr[] = " IFNULL(`tickets`.`region`,'') = ''";
+$allowed_regions_query = " AND (".implode(' OR ', $allowed_regions_arr).")";
+
+$allowed_locations_arr = [];
+foreach($allowed_locations as $allowed_location) {
+	$allowed_locations_arr[] = " CONCAT(',',`tickets`.`con_location`,',') LIKE '%,$allowed_location,%'";
+}
+$allowed_locations_arr[] = " IFNULL(`tickets`.`con_location`,'') = ''";
+$allowed_locations_query = " AND (".implode(' OR ', $allowed_locations_arr).")";
+
+$allowed_classifications_arr = [];
+foreach($allowed_classifications as $allowed_classification) {
+	$allowed_classifications_arr[] = " CONCAT(',',`tickets`.`classification`,',') LIKE '%,$allowed_classification,%'";
+}
+$allowed_classifications_arr[] = " IFNULL(`tickets`.`classification`,'') = ''";
+$allowed_classifications_query = " AND (".implode(' OR ', $allowed_classifications_arr).")";
 
 if(!isset($equipment_category)) {
 	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
