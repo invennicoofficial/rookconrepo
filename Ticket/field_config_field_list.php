@@ -3138,6 +3138,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Customer Recommend Likely') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Recommend Likely", $all_config) ? 'checked disabled' : (in_array("Customer Recommend Likely", $value_config) ? "checked" : '') ?> value="Customer Recommend Likely" name="tickets[]"> Likelihood of Recommending</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Customer Add Details') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Add Details", $all_config) ? 'checked disabled' : (in_array("Customer Add Details", $value_config) ? "checked" : '') ?> value="Customer Add Details" name="tickets[]"> Additional Details</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Customer Sign') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Sign", $all_config) ? 'checked disabled' : (in_array("Customer Sign", $value_config) ? "checked" : '') ?> value="Customer Sign" name="tickets[]"> Signature</label>
 							<?php } ?>
