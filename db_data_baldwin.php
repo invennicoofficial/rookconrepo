@@ -194,5 +194,11 @@
     }
     //2018-07-04 - Ticket #8009 - Sessions Additions
 
+    //2018-07-13 - Task #6494 - AAFS Positions
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `position` `position` VARCHAR(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-13 - Task #6494 - AAFS Positions
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
