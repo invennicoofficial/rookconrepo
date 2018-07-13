@@ -324,6 +324,7 @@ function changeView(view, anchor) {
 			success: function(response) {
 				$('.collapsible').html(response);
 				$('.sidebar.panel-group').css('padding-right','0');
+				setTimeout(function() { toggle_columns() },500);
 			}
 		}));
 	<?php } ?>
