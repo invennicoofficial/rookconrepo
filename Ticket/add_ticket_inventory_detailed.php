@@ -652,7 +652,7 @@ do {
 							<div class="clearfix"></div>
 							<?php $pdf_contents[] = ['Quantity', $inventory['qty']]; ?>
 						<?php } ?>
-						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field = 'Inventory Detail Site') { ?>
+						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field == 'Inventory Detail Site') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 								<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 								<div class="col-sm-8">
