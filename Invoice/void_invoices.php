@@ -180,6 +180,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		foreach($tab_list as $tab_name) {
 			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
 				switch($tab_name) {
+					case 'checkin': ?>
+						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
+						<?php break;
 					case 'sell':
 						if(in_array('touch',$ux_options)) { ?>
 							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
@@ -234,7 +237,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 			}
 		}
 		?></div>
-		
+
         <form name="invoice" method="post" action="" class="form-horizontal" role="form">
 			<?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 			<?php $search_contact = 0;
@@ -365,13 +368,13 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 			if($search_to != '') {
 				$search_clause .= " AND `invoice_date` <= '$search_to'";
 			}
-			
+
 			if($search_contact > 0 || $search_delivery != '') {
 				$limit = '';
 			} else {
 				$limit = ' LIMIT '.$offset.', '.$rowsPerPage;
 			}
-			
+
 			$query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause ORDER BY invoiceid DESC $limit";
 			$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause";
 
@@ -417,7 +420,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                       ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
                     }
                 echo "</tr>";
-				
+
 				while($invoice = mysqli_fetch_array( $result ))
 				{
 					$invoice_pdf = '../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid'].'.pdf';
@@ -497,7 +500,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             } else {
                 echo "<h2>No Record Found.</h2>";
             } ?>
-			
+
 			<div name="send_email_div" class="form-horizontal" style="display:none;">
 				<div class="form-group">
 					<label class="col-sm-4 control-label">Sending Email Name</label>
