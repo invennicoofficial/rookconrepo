@@ -690,6 +690,7 @@ function saveFieldMethod(field) {
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
+							async: false,
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
@@ -1251,6 +1252,7 @@ function saveMethod(field) {
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
+							async: false,
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
@@ -2437,6 +2439,7 @@ function checkoutAll(button) {
 			if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1) {
 				if($('[name="sign_off_signature"]') != undefined) {
 					sign_off_complete_force();
+					return false;
 				} else if($('[name="summary_signature"]') != undefined) {
 					$('[name="summary_signature"]').change();
 				}
