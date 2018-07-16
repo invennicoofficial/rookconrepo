@@ -58,7 +58,7 @@ function send_notification() {
 <?php if($generate_pdf) {
 	$pdf_contents[] = ['', ob_get_contents()];
 } ?>
-<?php if($access_any > 0) { ?>
+<?php if(($access_any > 0 || strpos($value_config, ',Notify Anyone Can Add,') !== FALSE) && !($strict_view > 0)) { ?>
 	<?php foreach($field_sort_order as $field_sort_field) { ?>
 		<?php if ( strpos($value_config, ',Notify Staff,') !== false && $field_sort_field == 'Notify Staff') { ?>
 			<div class="form-group">
