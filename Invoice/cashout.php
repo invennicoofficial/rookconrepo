@@ -161,9 +161,7 @@ function countTotalPrice(sel) {
 }
 </script>
 <style>
-.form-control {
-    width: 10% !important;
-}
+form .form-control { width:10% !important; }
 </style>
 </head>
 <body>
@@ -373,68 +371,114 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             <h3>Cash Invoices</h3>
             <?php
             //$query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND paid = 'Yes' ORDER BY invoiceid";
-            $query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type LIKE 'CASH%' ORDER BY invoiceid";
+            $query_check_credentials = "SELECT invoiceid, payment_type, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type LIKE '%CASH%' ORDER BY invoiceid";
 
             $result = mysqli_query($dbc, $query_check_credentials);
 
             echo "<table border='2' cellpadding='10' class='table'>";
-            echo "<tr><th>Invoice#</th>
-            <th>Total</th>
+            echo "<tr><th width='50%'>Invoice#</th>
+            <th width='25%'>Cash Total</th>
+            <th width='25%'>Invoice Total</th>
             </tr>";
+            $cash_total = 0;
             $total = 0;
             while($row = mysqli_fetch_array( $result )) {
+                $payments_array = explode('#*#', $row['payment_type']);
+                $payment_types = reset($payments_array);
+                $payment_amounts = end($payments_array);
+                $payment_types_array = explode(',', $payment_types);
+                $payment_amounts_array = explode(',', $payment_amounts);
+                $payment_type_key = array_search('Cash', $payment_types_array);                
                 echo '<tr>';
-                echo '<td>' . $row['invoiceid'] . '</td>';
-                echo '<td>' . $row['final_price'] . '</td>';
+                echo '<td><a href="/'.FOLDER_NAME.'/download/invoice_'.$row['invoiceid'].'.pdf" target="_blank">' . $row['invoiceid'] . '</a></td>';
+                echo '<td>' . number_format($payment_amounts_array[$payment_type_key],2) . '</td>';
+                echo '<td>' . number_format($row['final_price'],2) . '</td>';
                 echo '</tr>';
+                $cash_total += $payment_amounts_array[$payment_type_key];
                 $total += $row['final_price'];
             }
-            echo '<tr><td><b>Total</td></b><td><b>'.$total.'</b></td></tr>';
+            echo '<tr><td><b>Total</b></td><td><b>'.number_format($cash_total,2).'</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
             echo '</table>';
             ?>
             <h3>Credit Invoices</h3>
             <?php
             //$query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND paid = 'Yes' ORDER BY invoiceid";
-            $query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type NOT LIKE 'CASH%' AND `payment_type` NOT LIKE 'Gift Card%' ORDER BY invoiceid";
+            //$query_check_credentials = "SELECT invoiceid, payment_type, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type NOT LIKE 'CASH%' AND `payment_type` NOT LIKE 'Gift Card%' ORDER BY invoiceid";
+            $query_check_credentials = "SELECT invoiceid, payment_type, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' ORDER BY invoiceid";
 
             $result = mysqli_query($dbc, $query_check_credentials);
-
+            
             echo "<table border='2' cellpadding='10' class='table'>";
-            echo "<tr><th>Invoice#</th>
-            <th>Total</th>
+            echo "<tr><th width='50%'>Invoice#</th>
+            <th width='25%'>Credit Total</th>
+            <th width='25%'>Invoice Total</th>
             </tr>";
+            $credit_total = 0;
             $total = 0;
             while($row = mysqli_fetch_array( $result )) {
-                echo '<tr>';
-                echo '<td>' . $row['invoiceid'] . '</td>';
-                echo '<td>' . $row['final_price'] . '</td>';
-                echo '</tr>';
-                $total += $row['final_price'];
+                $payments_array = explode('#*#', $row['payment_type']);
+                $payment_types = reset($payments_array);
+                $payment_amounts = end($payments_array);
+                $payment_types_array = explode(',', $payment_types);
+                $payment_amounts_array = explode(',', $payment_amounts);
+                
+                //Find and remvoe Cash & Gift Card values
+                if ( ($cash_key = array_search('Cash', $payment_types_array)) !== false ) {
+                    unset($payment_amounts_array[$cash_key]);
+                }
+                if ( ($gc_key = array_search('Gift Card', $payment_types_array)) !== false ) {
+                    unset($payment_amounts_array[$gc_key]);
+                }
+                
+                //Remove empty values (cash or gift card values)
+                $payment_amounts_array = array_filter($payment_amounts_array);
+            
+                foreach ($payment_amounts_array as $amount) {
+                    echo '<tr>';
+                    echo '<td><a href="/'.FOLDER_NAME.'/download/invoice_'.$row['invoiceid'].'.pdf" target="_blank">' . $row['invoiceid'] . '</a></td>';
+                    echo '<td>';
+                        echo number_format($amount, 2) .'<br />';
+                        $credit_total += $amount;
+                    echo '</td>';
+                    echo '<td>' . number_format($row['final_price'],2) . '</td>';
+                    echo '</tr>';
+                    $total += $row['final_price'];
+                }
             }
-            echo '<tr><td><b>Total</td></b><td><b>'.$total.'</b></td></tr>';
+            echo '<tr><td><b>Total</b></td><td><b>'.number_format($credit_total,2).'</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
             echo '</table>';
             ?>
 			
             <h3>Gift Card Invoices</h3>
             <?php
             //$query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND paid = 'Yes' ORDER BY invoiceid";
-            $query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type LIKE 'Gift Card%' ORDER BY invoiceid";
+            $query_check_credentials = "SELECT invoiceid, payment_type, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND payment_type NOT LIKE '#*#%' AND payment_type LIKE '%Gift Card%' ORDER BY invoiceid";
 
             $result = mysqli_query($dbc, $query_check_credentials);
 
             echo "<table border='2' cellpadding='10' class='table'>";
-            echo "<tr><th>Invoice#</th>
-            <th>Total</th>
+            echo "<tr><th width='50%'>Invoice#</th>
+            <th width='25%'>Gift Card Total</th>
+            <th width='25%'>Invoice Total</th>
             </tr>";
+            $gc_total = 0;
             $total = 0;
             while($row = mysqli_fetch_array( $result )) {
+                $payments_array = explode('#*#', $row['payment_type']);
+                $payment_types = reset($payments_array);
+                $payment_amounts = end($payments_array);
+                $payment_types_array = explode(',', $payment_types);
+                $payment_amounts_array = explode(',', $payment_amounts);
+                $payment_type_key = array_search('Gift Card', $payment_types_array);
                 echo '<tr>';
-                echo '<td>' . $row['invoiceid'] . '</td>';
-                echo '<td>' . $row['final_price'] . '</td>';
+                echo '<td><a href="/'.FOLDER_NAME.'/download/invoice_'.$row['invoiceid'].'.pdf" target="_blank">' . $row['invoiceid'] . '</a></td>';
+                echo '<td>' . number_format($payment_amounts_array[$payment_type_key],2) . '</td>';
+                echo '<td>' . number_format($row['final_price'],2) . '</td>';
                 echo '</tr>';
+                $gc_total += $payment_amounts_array[$payment_type_key];
                 $total += $row['final_price'];
             }
-            echo '<tr><td><b>Total</td></b><td><b>'.$total.'</b></td></tr>';
+            echo '<tr><td><b>Total</b></td><td><b>'.number_format($gc_total,2).'</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
             echo '</table>';
             ?>
 
@@ -453,12 +497,12 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             $total = 0;
             while($row = mysqli_fetch_array( $result )) {
                 echo '<tr>';
-                echo '<td>' . $row['invoiceid'] . '</td>';
-                echo '<td>' . $row['refund_amount'] . '</td>';
+                echo '<td><a href="/'.FOLDER_NAME.'/download/invoice_'.$row['invoiceid'].'.pdf" target="_blank">' . $row['invoiceid'] . '</a></td>';
+                echo '<td>' . number_format($row['final_price'],2) . '</td>';
                 echo '</tr>';
-                $total += $row['refund_amount'];
+                $total += $row['final_price'];
             }
-            echo '<tr><td><b>Total</td></b><td><b>'.$total.'</b></td></tr>';
+            echo '<tr><td><b>Total</td></b><td><b>'.number_format($total,2).'</b></td></tr>';
             echo '</table>';
             include ('../phpsign/sign.php');
             ?>

@@ -10,10 +10,10 @@ error_reporting(0);
 // Get software name
 $rookconnect = get_software_name();
 if ( $_SERVER['SERVER_NAME']=='sea-alberta.rookconnect.com' ) {
-    $dbc_led = mysqli_connect('mysql.rookconnect.com', 'led_rook_usr', 'pUnaibiS!273', 'led_rook_db');
+    $dbc_led = mysqli_connect('localhost', 'led_rook_usr', 'pUnaibiS!273', 'led_rook_db');
 }
 if ( $rookconnect=='led' ) {
-    $dbc_sea_ab = mysqli_connect('mysql.sea.freshfocussoftware.com', 'sea_software_use', 'dRagonflY!306', 'sea_alberta_db');
+    $dbc_sea_ab = mysqli_connect('localhost', 'sea_software_use', 'dRagonflY!306', 'sea_alberta_db');
 }
 
 $get_invoice =	mysqli_query($dbc,"SELECT `posid` FROM `point_of_sell` WHERE `invoice_date` + INTERVAL 30 DAY < NOW() AND status!='Completed' AND `status`!='Void'");
@@ -1162,10 +1162,10 @@ function selectShippingtype() {
 function seleteService(sel, hide, blank) {
 	var typeId = sel.id;
 	var arr = typeId.split('_');
-    
+
     $("#"+hide+arr[1]).hide();
     $("#"+blank+arr[1]).val("");
-    
+
     countPOSTotal();
 }
 

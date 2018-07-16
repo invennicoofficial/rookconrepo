@@ -131,6 +131,7 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Business', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Business">Business</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Project', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Project"><?= PROJECT_NOUN ?></label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Warehouse Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Warehouse Indicator">Warehouse Indicator</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Staff', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Staff"> Staff</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Customer', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Customer">Customer</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Delivery Type', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Delivery Type">Delivery Type</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Address', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Address">Address</label>
@@ -138,6 +139,8 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Start Time', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Start Time">Start Time</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('ETA', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="ETA">ETA Window</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Availability', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Availability">Availability Window</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Total Budget Time', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Total Budget Time">Total Budget Time</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Service Time Estimate', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Service Time Estimate">Service Time Estimate</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Time Estimate', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Time Estimate">Time Estimate</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Attachment Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Attachment Indicator">Attachment Indicator Icon</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Comment Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Comment Indicator">Comment Indicator Icon</label>

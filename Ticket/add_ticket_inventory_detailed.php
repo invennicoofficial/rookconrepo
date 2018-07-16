@@ -15,7 +15,7 @@ do {
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
-	for($i = 0; $i < $general_item['piece_num']; $i++) { ?>
+	for($gen_i = 0; $gen_i < $general_item['piece_num']; $gen_i++) { ?>
 		<?= $row_item++ > 0 ? '<hr />' : '' ?>
 		<div class="tab-section" id="tab_section_detail_inventory_<?= config_safe_str($general_item['piece_type'].'_'.$i) ?>">
 			<?php if(!$no_fetch) { ?>
@@ -652,7 +652,7 @@ do {
 							<div class="clearfix"></div>
 							<?php $pdf_contents[] = ['Quantity', $inventory['qty']]; ?>
 						<?php } ?>
-						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE || strpos($value_config,',Inventory Detail Site,') !== FALSE) { ?>
+						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field == 'Inventory Detail Site') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 								<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 								<div class="col-sm-8">

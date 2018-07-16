@@ -13,6 +13,8 @@ if (isset($_POST['submit'])) {
     $end_date = filter_var($_POST['equip_assign_end_date'],FILTER_SANITIZE_STRING);
     $notes = filter_var(htmlentities($_POST['equip_assign_notes']),FILTER_SANITIZE_STRING);
 
+    $updated_fields = ['equipmentid'=>$equipmentid, 'teamid'=>(empty($teamid) ? 0 : $teamid), 'region'=>$region, 'con_location'=>$location, 'classification'=>$classification];
+
     mysqli_query($dbc, "UPDATE `equipment` SET `region` = '$region', `location` = '$location', `classification` = '$classification' WHERE `equipmentid` = '$equipmentid'");
 
     if (empty($_POST['equipment_assignmentid']) ||$_POST['equipment_assignmentid'] == 'NEW') {
@@ -71,11 +73,48 @@ if (isset($_POST['submit'])) {
         }
     }
     $contact = implode(',',$contact);
+
     foreach ($tickets as $ticket) {
         mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `ticketid` = '".$ticket['ticketid']."'");
+
+        //Record history
+        $ticket_histories = [];
+        foreach($updated_fields as $key => $updated_field) {
+            if($ticket[$key] != $updated_field) {
+                $ticket_histories[$key] = "$key updated to $updated_field";
+            }
+        }
+        $ea_contacts = [];
+        foreach(explode(',', $contact) as $ea_contact) {
+            if($ea_contact > 0) {
+                $ea_contacts[] = get_contact($dbc, $ea_contact);
+            }
+        }
+        $ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+        if(!empty($ticket_histories)) {
+            mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['ticketid']} of tickets updated: ".implode(', ',$ticket_histories)."')");
+        }
     }
     foreach ($ticket_schedule as $ticket) {
         mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['id']."'");
+
+        //Record history
+        $ticket_histories = [];
+        foreach($updated_fields as $key => $updated_field) {
+            if($ticket[$key] != $updated_field) {
+                $ticket_histories[$key] = "$key updated to $updated_field";
+            }
+        }
+        $ea_contacts = [];
+        foreach(explode(',', $contact) as $ea_contact) {
+            if($ea_contact > 0) {
+                $ea_contacts[] = get_contact($dbc, $ea_contact);
+            }
+        }
+        $ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+        if(!empty($ticket_histories)) {
+            mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['id']} of ticket_schedule updated: ".implode(', ',$ticket_histories)."')");
+        }
     }
 
     $query = $_GET;

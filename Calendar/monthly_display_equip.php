@@ -34,9 +34,26 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 		}
 
 	    if($wait_list == 'ticket') {
-			$allowed_regions_query = " AND IFNULL(`tickets`.`region`,'') IN ('".implode("','", array_merge($allowed_regions,['']))."')";
-			$allowed_locations_query = " AND IFNULL(`tickets`.`con_location`,'') IN ('".implode("','", array_merge($allowed_locations,['']))."')";
-			$allowed_classifications_query = " AND IFNULL(`tickets`.`classification`,'') IN ('".implode("','", array_merge($allowed_classifications,['']))."')";
+			$allowed_regions_arr = [];
+			foreach($allowed_regions as $allowed_region) {
+				$allowed_regions_arr[] = " CONCAT(',',`tickets`.`region`,',') LIKE '%,$allowed_region,%'";
+			}
+			$allowed_regions_arr[] = " IFNULL(`tickets`.`region`,'') = ''";
+			$allowed_regions_query = " AND (".implode(' OR ', $allowed_regions_arr).")";
+
+			$allowed_locations_arr = [];
+			foreach($allowed_locations as $allowed_location) {
+				$allowed_locations_arr[] = " CONCAT(',',`tickets`.`con_location`,',') LIKE '%,$allowed_location,%'";
+			}
+			$allowed_locations_arr[] = " IFNULL(`tickets`.`con_location`,'') = ''";
+			$allowed_locations_query = " AND (".implode(' OR ', $allowed_locations_arr).")";
+
+			$allowed_classifications_arr = [];
+			foreach($allowed_classifications as $allowed_classification) {
+				$allowed_classifications_arr[] = " CONCAT(',',`tickets`.`classification`,',') LIKE '%,$allowed_classification,%'";
+			}
+			$allowed_classifications_arr[] = " IFNULL(`tickets`.`classification`,'') = ''";
+			$allowed_classifications_query = " AND (".implode(' OR ', $allowed_classifications_arr).")";
 			$warehouse_query = '';
 			$warehouse_tickets = [];
 			if($combine_warehouses == 1) {
@@ -218,9 +235,26 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 	    }
 
 	    if($wait_list == 'ticket') {
-			$allowed_regions_query = " AND IFNULL(`tickets`.`region`,'') IN ('".implode("','", array_merge($allowed_regions,['']))."')";
-			$allowed_locations_query = " AND IFNULL(`tickets`.`con_location`,'') IN ('".implode("','", array_merge($allowed_locations,['']))."')";
-			$allowed_classifications_query = " AND IFNULL(`tickets`.`classification`,'') IN ('".implode("','", array_merge($allowed_classifications,['']))."')";
+			$allowed_regions_arr = [];
+			foreach($allowed_regions as $allowed_region) {
+				$allowed_regions_arr[] = " CONCAT(',',`tickets`.`region`,',') LIKE '%,$allowed_region,%'";
+			}
+			$allowed_regions_arr[] = " IFNULL(`tickets`.`region`,'') = ''";
+			$allowed_regions_query = " AND (".implode(' OR ', $allowed_regions_arr).")";
+
+			$allowed_locations_arr = [];
+			foreach($allowed_locations as $allowed_location) {
+				$allowed_locations_arr[] = " CONCAT(',',`tickets`.`con_location`,',') LIKE '%,$allowed_location,%'";
+			}
+			$allowed_locations_arr[] = " IFNULL(`tickets`.`con_location`,'') = ''";
+			$allowed_locations_query = " AND (".implode(' OR ', $allowed_locations_arr).")";
+
+			$allowed_classifications_arr = [];
+			foreach($allowed_classifications as $allowed_classification) {
+				$allowed_classifications_arr[] = " CONCAT(',',`tickets`.`classification`,',') LIKE '%,$allowed_classification,%'";
+			}
+			$allowed_classifications_arr[] = " IFNULL(`tickets`.`classification`,'') = ''";
+			$allowed_classifications_query = " AND (".implode(' OR ', $allowed_classifications_arr).")";
 			$warehouse_query = '';
 			$warehouse_tickets = [];
 			if($combine_warehouses == 1) {

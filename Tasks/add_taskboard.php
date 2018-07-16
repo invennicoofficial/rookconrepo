@@ -36,7 +36,7 @@ if (isset($_POST['add_tab'])) {
     $new_taskboardid = '';
 
     if($board_security == 'Community') {
-        $ffm_rook_db = @mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'R0bot587tw3ak', 'ffm_rook_db');
+        $ffm_rook_db = @mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 
         if(empty($_POST['taskboardid'])) {
             $query_insert_config = "INSERT INTO `task_board` (`board_name`, `board_security`, `company_staff_sharing`, `businessid`, `contactid`, `task_path`, `milestone_timeline`, `software_url`) VALUES ('$board_name', '$board_security', '$company_staff_sharing', '$businessid', '$contactid', '$task_path', '$milestone_timeline', '$software_url')";

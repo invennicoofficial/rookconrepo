@@ -59,7 +59,14 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
     $today_date = date('Y-m-d');
     $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
     $match_contacts = [];
-    if(!empty($match_contacts_query)) {
+    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+    $match_exclude = false;
+    foreach($match_exclude_security as $exclude_security) {
+        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+            $match_exclude = true;
+        }
+    }
+    if(!empty($match_contacts_query) && !$match_exclude) {
         $match_contacts[] = $_SESSION['contactid'];
         foreach($match_contacts_query as $match_contact) {
             if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
@@ -2789,4 +2796,18 @@ function get_initials($string) {
 function get_delivery_color($dbc, $type) {
     $color = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$type'"))['color'];
     return $color;
+}
+function convert_timestamp_mysql($dbc, $timestamp) {
+    $mysql_time_offset = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP) `time_offset`"))['time_offset'];
+    $time_arr = explode(':', $mysql_time_offset);
+    $mysql_offset_seconds = ($time_arr[0] * 3600) + ($time_arr[1] * 60) + $time_arr[2];
+
+    $timezone = new DateTimeZone(date_default_timezone_get());
+    $datenow = new DateTime("now", $timezone);
+    $offset_seconds = $timezone->getOffset($datenow);
+
+    $offset_diff = $mysql_offset_seconds - $offset_seconds;
+    $new_timestamp = date('Y-m-d H:i:s', strtotime($timestamp) + $offset_diff);
+
+    return $new_timestamp;
 }

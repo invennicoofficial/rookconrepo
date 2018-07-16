@@ -113,6 +113,6 @@ function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set
 	}
 
     // print the navigation link
-    echo "<br/>".$first . $prev . $nav . $next . $last.$row_set."<br/><br/>";
+    echo "<br /><div class='gap-top gap-bottom pagination'>".$first . $prev . $nav . $next . $last.$row_set."</div><br />";
 
 } ?>

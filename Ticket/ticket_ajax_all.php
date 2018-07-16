@@ -465,6 +465,7 @@ if($_GET['action'] == 'update_fields') {
 	$detail_field = filter_var($_POST['detail_field'],FILTER_SANITIZE_STRING);
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
+	$ticket_history_addition = '';
 
 	$value_config = get_field_config($dbc, 'tickets');
 	if($ticketid > 0) {
@@ -805,6 +806,13 @@ if($_GET['action'] == 'update_fields') {
 			}
 			$contact = implode(',',$contact);
 			mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `contactid` = ',$contact,', `teamid` = '$teamid' WHERE `ticketid` = '$id'");
+			$ea_contacts = [];
+			foreach(explode(',', $contact) as $ea_contact) {
+				if($ea_contact > 0) {
+					$ea_contacts[] = get_contact($dbc, $ea_contact);
+				}
+			}
+			$ticket_history_addition .= " (".implode(', ',$ea_contacts).")";
 		}
 	} else if($table_name == 'contacts' && $field_name == 'business_address') {
 		$value = encryptIt($value);
@@ -868,7 +876,7 @@ if($_GET['action'] == 'update_fields') {
 	}
 
 	// Record History
-	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value')");
+	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value$ticket_history_addition')");
 	mysqli_query($dbc, "UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id'");
 	mysqli_query($dbc, "UPDATE `$table_name` SET `$manual_field`='$manual_value' WHERE `$id_field`='$id'");
 	if($table_name == 'ticket_attached' && $type_field == 'src_table' && $type == 'medication' && ($field_name == 'position' || $field_name == 'item_id' || $field_name == 'description')) {
