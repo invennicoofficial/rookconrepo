@@ -15,7 +15,7 @@ do {
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
-	for($i = 0; $i < $general_item['piece_num']; $i++) { ?>
+	for($gen_i = 0; $gen_i < $general_item['piece_num']; $gen_i++) { ?>
 		<?= $row_item++ > 0 ? '<hr />' : '' ?>
 		<div class="tab-section" id="tab_section_detail_inventory_<?= config_safe_str($general_item['piece_type'].'_'.$i) ?>">
 			<?php if(!$no_fetch) { ?>
