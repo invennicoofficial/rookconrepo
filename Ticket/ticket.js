@@ -2439,6 +2439,7 @@ function checkoutAll(button) {
 			if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1) {
 				if($('[name="sign_off_signature"]') != undefined) {
 					sign_off_complete_force();
+					return false;
 				} else if($('[name="summary_signature"]') != undefined) {
 					$('[name="summary_signature"]').change();
 				}
