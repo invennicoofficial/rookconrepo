@@ -283,7 +283,7 @@ b, strong {
   font-weight: 600; }
 
 a {
-    color: #e83324 !important;
+    color: #000 !important;
     text-decoration: none; }
   a:hover, a:focus {
     color: #e83324 !important;
@@ -5214,3 +5214,4 @@ table td a { color:#e83324 !important; }
     table td a:hover { text-decoration:underline; }
 .overview-block, .dashboard-container { border:1px solid #e83324 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }
+.pagination a { color:#e83324 !important; }
