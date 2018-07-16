@@ -2467,6 +2467,7 @@ function checkinAll(button) {
 }
 function createRecurringTicket() {
 	$.ajax({
+		async: false,
 		url: 'ticket_ajax_all.php?action=create_recurring_ticket',
 		method: 'POST',
 		data: { ticketid: ticketid },
