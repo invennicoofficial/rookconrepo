@@ -1,7 +1,7 @@
 <?php
 include('../include.php');
 
-if(isset($_GET['certificateid'])) {
+if(isset($_GET['id'])) {
 	$query = "cert.certificateid={$_GET['id']}";
 }
 else {
@@ -11,7 +11,7 @@ $managers = explode(',',get_config($dbc, 'certificate_reminder_contact'));
 $subject = get_config($dbc, 'certificate_reminder_subject');
 $message = get_config($dbc, 'certificate_reminder_body');
 
-if(date('H') == '08') {
+if(date('H') == '08' || isset($_GET['id'])) {
 	$sql = "SELECT c.first_name, c.last_name, cert.*
 		FROM certificate cert LEFT JOIN contacts c ON cert.contactid=c.contactid WHERE $query";
 	$cert_results = mysqli_query($dbc, $sql);
