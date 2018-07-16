@@ -1250,6 +1250,7 @@ function saveMethod(field) {
 						reload_checkin();
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
+						console.log('hello');
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
@@ -2466,7 +2467,6 @@ function checkinAll(button) {
 }
 function createRecurringTicket() {
 	$.ajax({
-		async: false,
 		url: 'ticket_ajax_all.php?action=create_recurring_ticket',
 		method: 'POST',
 		data: { ticketid: ticketid },
