@@ -850,6 +850,18 @@ function saveFieldMethod(field) {
 					if(table_name == 'mileage' && field_name == 'mileage') {
 						$(field).closest('.multi-block').find('[name="double_mileage"]').val(parseFloat(save_value)*2).change();
 					}
+					if(table_name == 'ticket_attached' && field_name == 'completed') {
+						if($(field).data('exit-ticket') != undefined && $(field).data('exit-ticket') == 1) {
+							if($(field).data('iframe') != undefined && $(field).data('iframe') == 1) {
+								window.top.$('iframe').attr('src','../blank_loading_page.php');
+								window.location.replace('../blank_loading_page.php');
+							} else {
+								window.location.replace($(field).data('back-url'));
+							}
+						} else if($(field).data('iframe') != undefined && $(field).data('iframe') == 1) {
+							window.location.replace('../blank_loading_page.php');
+						}
+					}
 					doneSaving();
 				}
 			});
