@@ -1250,8 +1250,8 @@ function saveMethod(field) {
 						reload_checkin();
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
-						console.log('hello');
 						$.ajax({
+							async: false,
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
