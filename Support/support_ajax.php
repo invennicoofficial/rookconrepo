@@ -1,5 +1,5 @@
 <?php include('../include.php');
-$dbc_support = mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 if($user == 'ROOK Connect' && $url == 'https://ffm.rookconnect.com') {
 	$user = $_SESSION['contactid'];
 	$user_name = get_contact($dbc, $user);
