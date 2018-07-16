@@ -28,7 +28,8 @@ if(isset($_POST['custom_form'])) {
 			var block = $(input).closest('.form-group');
 			var text = '';
 			block.find('[data-text]:checked').each(function() {
-				text = text+$(this).data('text')+"\n";
+				var data_text = $('<textarea />').html($(this).data('text')).text();
+				text = text+data_text+"\n";
 			});
 			block.find('input,textarea').last().val(text);
 		}
