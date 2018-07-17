@@ -66,7 +66,7 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 }
 function getTeamName($dbc, $teamid) {
 	$team_name = '';
-	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid'"),MYSQLI_ASSOC);
+	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 	foreach ($contact_list as $contact) {
 		$team_name .= get_contact($dbc, $contact['contactid']).', ';
 	}

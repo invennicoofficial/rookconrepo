@@ -59,6 +59,7 @@ function toggle_columns() {
 		var contactids = $(this).data('contactids').split(',');
 		var teamid = $(this).data('teamid');
 		teams.push(parseInt(teamid));
+        retrieve_items($('#collapse_teams').find('.block-item[data-teamid="'+teamid+'"]'), '', true, '', teamid);
 		contactids.forEach(function (contact_id) {
 			if(contact_id > 0) {
 				if(all_contacts.indexOf(parseInt(contact_id)) == -1) {
@@ -232,7 +233,7 @@ $client_type = get_config($dbc, 'ticket_client_type');
                                 }
                             }
                             $team_contactids = implode(',', $team_contactids);
-                            echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
+                            echo "<a href='' onclick=' $(\"#collapse_staff .block-item\").removeClass(\"active\"); $(\"#collapse_teams .block-item[data-teamid!=".$row['teamid']."]\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
                         } ?>
 					</div>
 				</div>

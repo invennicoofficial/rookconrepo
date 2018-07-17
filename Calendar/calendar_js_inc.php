@@ -697,13 +697,15 @@ function clear_excess_data(remove_type) {
 function clear_all_data() {
 	$('.calendar_view th,.calendar_view td').filter(function() { return $(this).data('contact') > 0 }).remove();
 	item_list = [];
+	result_list = [];
+	still_loading_item = false;
 	still_loading = 0;
 }
 var still_loading = 0;
 var item_list = [];
 var still_loading_item = false;
 var result_list = [];
-function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve_type = '') {
+function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve_type = '', teamid = '') {
 	if(still_loading_item) {
 		var next_item = function() { retrieve_items(anchor, calendar_date, force_show, retrieve_type) };
 		result_list.push(next_item);
@@ -716,6 +718,10 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 		var config_type = $('#calendar_config_type').val();
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
+		if(teamid != '') {
+			contact = 'team_'+teamid;
+			block_type = 'team';
+		}
 		var calendar_view = $('#calendar_view').val();
 
 		var calendar_dates = JSON.parse($('#calendar_dates').val());
