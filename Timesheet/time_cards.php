@@ -9,7 +9,7 @@ include 'config.php';
 </style>
 </head>
 <body>
-<?php 
+<?php
 include_once ('../navigation.php');
 checkAuthorised('timesheet');
 
@@ -27,7 +27,7 @@ if(!empty($_GET['export'])) {
 	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
-	
+
 	$mode = $_GET['export'];
 	$search_staff = $_GET['search_staff'];
 	$search_site = $_GET['search_site'];
@@ -37,7 +37,7 @@ if(!empty($_GET['export'])) {
 
 	if($layout == 'position' || $layout == 'ticket_task') {
 		echo '<script type="text/javascript">window.location.href = "'.WEBSITE_URL.'/Timesheet/reporting.php?export=pdf&search_staff='.$search_staff.'&search_site='.$search_site.'&search_project='.$search_project.'&search_start_date='.$search_start_date.'&search_end_date='.$search_end_date.'"; </script>';
-	} else {		
+	} else {
 		// Get Staff Schedule
 		$schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT `scheduled_hours`, `schedule_days` FROM `contacts` WHERE `contactid`='$search_staff'"));
 		$schedule_hrs = explode('*',trim($schedule['scheduled_hours'],'*'));
@@ -46,7 +46,7 @@ if(!empty($_GET['export'])) {
 		foreach($schedule_days as $key => $day_of_week) {
 			$schedule_list[$day_of_week] = $schedule_hrs[$key];
 		}
-		
+
 		// Get Year to date totals
 		$start_of_year = date('Y-01-01', strtotime($search_start_date));
 		$sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
@@ -85,7 +85,7 @@ if(!empty($_GET['export'])) {
 		$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
 		$date = $search_start_date;
 		$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
-		
+
 		// Export as PDF
 		if($mode == 'pdf') {
 			include_once('../tcpdf/tcpdf.php');
@@ -147,16 +147,16 @@ if(!empty($_GET['export'])) {
 				$landscape_width = 0;
 			}
 			$comment_width += $landscape_width;
-			
+
 			// $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 			$pdf = new MYPDF($page_orientation, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 			$pdf->SetMargins(PDF_MARGIN_LEFT, 20, PDF_MARGIN_RIGHT);
-			
+
 			$pdf->SetFont('dejavusans', '', 8);
 			$pdf->AddPage();
-			
+
 			$pdf->Image($logo, 30, 20, 30, 30, '', '', '', true, 150, '', false, false, 0, false, false, false);
-			
+
 			$pdf->setCellPaddings(1,1,1,1);
 			$pdf->setCellMargins(0,0,0,0);
 			$pdf->MultiCell(40, 4, 'TIME SHEET NAME', 0, 'C', 0, 0, 60 + $landscape_width);
@@ -183,7 +183,7 @@ if(!empty($_GET['export'])) {
 			$pdf->TextField('period_start', 25, 5, array(), array('v'=>$search_start_date, 'dv'=>$search_start_date));
 			$pdf->MultiCell(10, 1, 'To:', 0, 'R', 0, 0, '');
 			$pdf->TextField('period_end', 25, 5, array(), array('v'=>$search_end_date, 'dv'=>$search_end_date));
-			
+
 			// Time Sheet Headings
 			$pdf->SetXY(15, 60);
 			$pdf->setFillColor(200,200,200);
@@ -290,7 +290,7 @@ if(!empty($_GET['export'])) {
 			if(in_array('signature',$value_config) && !in_array('signature_pdf_hidden',$value_config)) {
 				$pdf->MultiCell(35, 1, "Parent/Guardian\nSignature", 1, 'C', 0, 1, '', '', true, 0, false, true, 26, 'B');
 			}
-			
+
 			$pdf->SetXY(15, 86);
 			$result = mysqli_query($dbc, $sql);
 			$row = mysqli_fetch_array($result);
@@ -348,7 +348,7 @@ if(!empty($_GET['export'])) {
 						}
 					}
 					$comments = trim($comments,' ');
-											
+
 					if($timesheet_approval_status_comments == 1) {
 						if(!empty(trim($row['manager_approvals'],','))) {
 							$approval_list = [];
@@ -420,12 +420,12 @@ if(!empty($_GET['export'])) {
 				$tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 				$tracked_hrs_height = $pdf->getStringHeight(22, $tracked_hrs);
 				if(in_array('tracked_hrs',$value_config) && $tracked_hrs_height > $comment_height) {
-					$comment_height = $tracked_hrs_height;	
+					$comment_height = $tracked_hrs_height;
 				}
 				$total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $timecardid);
 				$total_tracked_time_height = $pdf->getStringHeight(10, $total_tracked_time);
 				if(in_array('tracked_hrs',$value_config) && $total_tracked_time_height > $comment_height) {
-					$comment_height = $total_tracked_time_height;	
+					$comment_height = $total_tracked_time_height;
 				}
 				$pdf->Cell(18,$comment_height,$date,1,0,'C');
 				if(in_array('ticketid',$value_config)) {
@@ -603,7 +603,7 @@ if(!empty($_GET['export'])) {
 			if(in_array('signature',$value_config) && !in_array('signature_pdf_hidden',$value_config)) {
 				$pdf->Cell(35,0,'',1,0,'C');
 			}
-			
+
 			$pdf->ln();
 			$pdf->ln();
 			$pdf->ln();
@@ -626,14 +626,14 @@ if(!empty($_GET['export'])) {
 			if(strpos($timesheet_pdf_fields, ',Coordinator Initials,') !== FALSE) {
 				$pdf->MultiCell($pos_offset, 1, 'Initials', 0, 'R', 0, 0, '');
 			}
-			
+
 			$filename = "timesheet_".strtolower(str_replace(' ','_',get_contact($dbc, $search_staff)))."_".$search_start_date.".pdf";
 			$pdf->Output($filename, 'I');
 			exit;
 		}
 		// Or Export as CSV
 		else if($mode == 'csv') {
-			
+
 		}
 	}
 }
@@ -644,7 +644,7 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
 	$search_site = $_GET['search_site'];
 	$search_start_date = $_GET['search_start_date'];
 	$search_end_date = $_GET['search_end_date'];
-	
+
 	$filename = 'download/data.csv';
     $file = fopen($filename,"w");
 
@@ -660,7 +660,7 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
 			'Vac Hrs.',
 			'Vac Hrs.Taken'
 		);
-	
+
 	$line = array('');
 	fputcsv($file, $line);
 
@@ -700,7 +700,7 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
         	$hour_final = array();
 
         	foreach($options_array as $key=>$value) {
-        		$hour_final[$key] = 0;	
+        		$hour_final[$key] = 0;
         		if($type == $value) {
         			$hour_final[$key] = $hours;
         		}
@@ -710,7 +710,7 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
 			fputcsv($file, $line);
 		}
 	}
-    
+
     fclose($file);
     header("Location: $filename");
     exit;
@@ -801,19 +801,19 @@ function addSignature(chk) {
             $search_end_date = date('Y-m-t');
 
 			if(!empty($_GET['search_project'])) {
-				$search_project = $_GET['search_project'];    
-			} 
+				$search_project = $_GET['search_project'];
+			}
 			if(!empty($_GET['search_ticket'])) {
-				$search_ticket = $_GET['search_ticket'];    
-			} 
+				$search_ticket = $_GET['search_ticket'];
+			}
 			if(!empty($_GET['search_site'])) {
-				$search_site = $_GET['search_site'];    
-			} 
+				$search_site = $_GET['search_site'];
+			}
 			if(!empty($_GET['search_start_date'])) {
-				$search_start_date = $_GET['search_start_date'];    
+				$search_start_date = $_GET['search_start_date'];
 			}
 			if(!empty($_GET['search_end_date'])) {
-				$search_end_date = $_GET['search_end_date'];    
+				$search_end_date = $_GET['search_end_date'];
 			}
 			$current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
 			$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
@@ -825,7 +825,7 @@ function addSignature(chk) {
 			if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
 				$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 			}
-			include('pay_period_dates.php'); ?>  
+			include('pay_period_dates.php'); ?>
 
 				<?php if(in_array('search_staff',$value_config) && check_subtab_persmission($dbc, 'timesheet', ROLE, 'search_staff')) { ?>
 	                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
@@ -907,7 +907,7 @@ function addSignature(chk) {
 	                  <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
 	                      <select data-placeholder="Select a Client" name="search_client" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
 	                      <option></option>
-	                      <?php 
+	                      <?php
 							$timesheet_client_category = get_config($dbc, 'timesheet_client_category');
 							$client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '$timesheet_client_category' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 							foreach ($client_list as $client) {
@@ -917,7 +917,7 @@ function addSignature(chk) {
 	                    </select>
 	                  </div>
                   <?php } ?>
-				  
+
                 <div class="form-group">
                     <a href="?pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next Pay Period</a>
                     <a href="?pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior Pay Period</a>
@@ -940,7 +940,7 @@ function addSignature(chk) {
 			foreach($schedule_days as $key => $day_of_week) {
 				$schedule_list[$day_of_week] = $schedule_hrs[$day_of_week];
 			}
-			
+
 			$start_of_year = date('Y-01-01', strtotime($search_start_date));
 			$sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
 				IFNULL(SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)),0) STAT_AVAIL,
@@ -949,7 +949,7 @@ function addSignature(chk) {
 				IFNULL(SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)),0) VACA_HRS
 				FROM `time_cards` WHERE `staff`='$search_staff' AND `date` < '$search_start_date' AND `date` >= '$start_of_year' AND `deleted`=0";
 			$year_to_date = mysqli_fetch_array(mysqli_query($dbc, $sql));
-			
+
 			$stat_hours = $year_to_date['STAT_AVAIL'];
 			$stat_taken = $year_to_date['STAT_HRS'];
 			$vacation_hours = $year_to_date['VACA_AVAIL'];
@@ -959,21 +959,21 @@ function addSignature(chk) {
 			<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
 			- <a href="time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a></div>
 			<div class="clearfix"></div>
-            
+
             <form name="timesheet" method="POST" action="add_time_cards.php">
 				<input type="hidden" name="staff_id" value="<?php echo $search_staff; ?>">
 				<input type="hidden" name="site_id" value="<?php echo $search_site; ?>">
 				<input type="hidden" name="projectid" value="<?php echo $search_project; ?>"><?php
-                
+
                 if($security['edit'] > 0 && $search_staff != '' && $layout != 'table_add_button'):
                     $approval_result = mysqli_query($dbc, "SELECT * FROM `field_config_supervisor` WHERE `staff_list` like '%,".$_SESSION['contactid'].",%'");
-                    
+
                     if($approval_result = mysqli_fetch_array($approval_result)) {
                         $submit_label = 'for Approval';
                     } else {
                         $submit_label = 'to Payroll';
                     }
-				
+
                     if ($layout == 'rate_card') {
                         $submit_approval = 'rate_approval';
                         $submit_timesheet = 'rate_timesheet';
@@ -984,14 +984,14 @@ function addSignature(chk) {
                         $submit_approval = 'approval';
                         $submit_timesheet = 'timesheet';
                     }
-                    
+
 					if($submit_mode != 'auto') {
 						echo '<button type="submit" value="'.$submit_approval.'" name="submit" class="btn brand-btn mobile-block pull-right">Submit Time Sheet '.$submit_label.'</button>';
 					}
                     echo '<button type="submit" value="'.$submit_timesheet.'" name="submit" class="btn brand-btn mobile-block pull-right">Save Time Sheet</button>';
                     echo '<div class="clearfix"></div>';
                 endif;
-			
+
 			if($layout == '' || $layout == 'multi_line'): ?>
 				<script>
 				$(document).ready(function() {
@@ -1154,7 +1154,7 @@ function addSignature(chk) {
 								$attached_ticketid = $row['ticketid'];
 								$start_time = $row['start_time'];
 								$end_time = $row['end_time'];
-											
+
 								if($timesheet_approval_status_comments == 1) {
 									if(!empty(trim($row['manager_approvals'],','))) {
 										$approval_list = [];
@@ -1206,12 +1206,20 @@ function addSignature(chk) {
 								foreach ($shifts as $shift) {
 									$hours .= $shift['starttime'].' - '.$shift['endtime'].'<br>';
 									$hours_off = $shift['dayoff_type'] == '' ? $hours_off : $shift['dayoff_type'];
-									
+
 								}
 								$hours = $hours_off == '' ? $hours : $hours_off;
 							} else {
 								$hours = $schedule_list[date('w',strtotime($date))];
 							}
+
+                            $project_reg = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(timer_value))) AS project_time FROM `project_timer` WHERE `today_date`='$date'"));
+                            $pt = $project_reg['project_time'];
+                            if($hrs['REG'] == 0) {
+                                $hrs['REG'] = $project_reg['project_time'];
+                                $total['REG'] = $project_reg['project_time'];
+                            }
+
 							$mod = '';
 							$mod_class = '';
 							if($date < $last_period) {
@@ -1235,7 +1243,7 @@ function addSignature(chk) {
 								'.(in_array('planned_hrs',$value_config) ? '<td data-title="Planned Hours" style="text-align:center" class="theme-color-border-bottom">'.$planned_hrs.'</td>' : '').'
 								'.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours" style="text-align:center" class="theme-color-border-bottom">'.$tracked_hrs.'</td>' : '').'
 								'.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time" style="text-align:center" class="theme-color-border-bottom">'.$total_tracked_time.'</td>' : '').'
-								'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="regular_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
+								'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="regular_'.date('Y_m_d', strtotime($date)).'[]" value="'.$hrs['REG'].'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="drive_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('direct_hrs',$value_config) ? '<td data-title="Direct Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="direct_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DIRECT'],2) : time_decimal2time($hrs['DIRECT']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('indirect_hrs',$value_config) ? '<td data-title="Indirect Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="indirect_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['INDIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['INDIRECT'],2) : time_decimal2time($hrs['INDIRECT']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
@@ -1254,7 +1262,7 @@ function addSignature(chk) {
 								'.(in_array('comment_box',$value_config) ? '<td data-title="Comments" class="theme-color-border-bottom"><span>'.$approval_status.$comments.'</span>'.($layout == 'multi_line' && $security['edit'] > 0 ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'<img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="add_comment_'.date('Y_m_d', strtotime($date)).'[]" style="display:none;"></td>' : '').'
 								'.(in_array('signature',$value_config) ? '<td data-title="Signature" style="text-align:center" class="theme-color-border-bottom">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').
 							'</tr>';
-                            
+
 							if($layout != 'multi_line' || $date != $row['date']) {
 								$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
 							}
@@ -1284,7 +1292,7 @@ function addSignature(chk) {
 						echo '<tr>
 							<td data-title="" colspan="'.$colspan.'">Totals</td>
 							'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title="Total Tracked Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS'])).'</td>' : '').'
-							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
+							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" class="time_string">'.$total['REG'].'</td>' : '').'
 							'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$start_day_tile.'" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE'])).'</td>' : '').'
 							'.(in_array('direct_hrs',$value_config) ? '<td data-title="Direct Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['DIRECT'],2) : time_decimal2time($total['DIRECT'])).'</td>' : '').'
 							'.(in_array('indirect_hrs',$value_config) ? '<td data-title="Indirect Hours" class="time_string">'.($timesheet_time_format == 'decimal' ? number_format($total['INDIRECT'],2) : time_decimal2time($total['INDIRECT'])).'</td>' : '').'
@@ -1519,7 +1527,7 @@ function addSignature(chk) {
 								foreach ($shifts as $shift) {
 									$hours .= $shift['starttime'].' - '.$shift['endtime'].'<br>';
 									$hours_off = $shift['dayoff_type'] == '' ? $hours_off : $shift['dayoff_type'];
-									
+
 								}
 								$hours = $hours_off == '' ? $hours : $hours_off;
 							} else {
@@ -1569,7 +1577,7 @@ function addSignature(chk) {
 								$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
 							}
 						} ?>
-                        
+
 						<tr>
 							<td data-title="" colspan="<?= $total_colspan ?>">Totals</td>
 							<?php if(in_array('schedule',$value_config)) { ?><td></td><?php } ?>
@@ -1711,7 +1719,7 @@ function addSignature(chk) {
 					<button id="cancel_description" class="btn brand-btn pull-left">Cancel</button>
 			    </div>
 			    <div class="hide_on_iframe">
-				<?php 
+				<?php
 				$desc_inc = 0;
 				for($date = $search_start_date; strtotime($date) <= strtotime($search_end_date); $date = date("Y-m-d", strtotime("+1 day", strtotime($date)))) {
 					if($layout == 'rate_card_tickets') {
@@ -1737,7 +1745,7 @@ function addSignature(chk) {
 							foreach ($shifts as $shift_detail) {
 								$shift .= $shift_detail['starttime'].' - '.$shift_detail['endtime'].'<br>';
 								$hours_off = $shift['dayoff_type'] == '' ? $hours_off : $shift['dayoff_type'];
-								
+
 							}
 							$shift = $hours_off == '' ? $shift : $hours_off;
 						} else {
