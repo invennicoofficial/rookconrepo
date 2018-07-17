@@ -2840,5 +2840,17 @@ if($_GET['action'] == 'update_fields') {
 	$time_est = $new_hours.':'.$new_minutes;
 
 	echo $time_est;
+} else if($_GET['action'] == 'set_stamp') {
+	$basename = filter_var($_FILES['file']['name']);
+	$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+	$i = 0;
+	if(!file_exists('download')) {
+		mkdir('download', 0777, true);
+	}
+	while(file_exists('download/'.$filename)) {
+		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+	}
+	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
+	set_config($dbc, 'stamp_upload', $filename);
 }
 ?>
