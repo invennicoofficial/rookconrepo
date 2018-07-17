@@ -131,7 +131,8 @@ if (isset($_POST['submit'])) {
                     <option value="Customer Balance by Invoice" <?= $mobile_landing_subtab_config['value']=='Customer Balance by Invoice' ? 'selected="selected"' : '' ?>>Customer Balance by Invoice</option>
                     <option value="Collections Report by Customer" <?= $mobile_landing_subtab_config['value']=='Collections Report by Customer' ? 'selected="selected"' : '' ?>>Collections Report by Customer</option>
                     <option value="Invoice List" <?= $mobile_landing_subtab_config['value']=='Invoice List' ? 'selected="selected"' : '' ?>>Invoice List</option>
-                    <option value="POS Receivables" <?= $mobile_landing_subtab_config['value']=='POS Receivables' ? 'selected="selected"' : '' ?>>POS Receivables</option>
+                    <option value="POS Receivables (Basic)" <?= $mobile_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option>
+                    <option value="POS Receivables (Advanced)" <?= $mobile_landing_subtab_config['value']=='POS Receivables (Advanced)' ? 'selected="selected"' : '' ?>>POS Receivables (Advanced)</option>
                     <option value="UI Invoice Report" <?= $mobile_landing_subtab_config['value']=='UI Invoice Report' ? 'selected="selected"' : '' ?>>UI Invoice Report</option>
                 </optgroup>
                 <optgroup label="Profit & Loss">
@@ -291,7 +292,7 @@ if (isset($_POST['submit'])) {
                     <option value="Customer Balance by Invoice" <?= $desktop_landing_subtab_config['value']=='Customer Balance by Invoice' ? 'selected="selected"' : '' ?>>Customer Balance by Invoice</option>
                     <option value="Collections Report by Customer" <?= $desktop_landing_subtab_config['value']=='Collections Report by Customer' ? 'selected="selected"' : '' ?>>Collections Report by Customer</option>
                     <option value="Invoice List" <?= $desktop_landing_subtab_config['value']=='Invoice List' ? 'selected="selected"' : '' ?>>Invoice List</option>
-                    <option value="POS Receivables" <?= $desktop_landing_subtab_config['value']=='POS Receivables' ? 'selected="selected"' : '' ?>>POS Receivables</option>
+                    <option value="POS Receivables (Basic)" <?= $desktop_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option>
                     <option value="UI Invoice Report" <?= $desktop_landing_subtab_config['value']=='UI Invoice Report' ? 'selected="selected"' : '' ?>>UI Invoice Report</option>
                 </optgroup>
                 <optgroup label="Profit & Loss">
