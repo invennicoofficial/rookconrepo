@@ -476,7 +476,7 @@ function saveFieldMethod(field) {
 						block.find('[name=address]').val(response[0]).change();
 						block.find('[name=city]').val(response[1]).change();
 						block.find('[name=postal_code]').val(response[2]).change();
-					} else if(response.joing('') == '') {
+					} else if(response.join('') == '') {
 						alert('The address provided may not be valid. It will not be found in Google Maps.');
 					}
 				});
