@@ -217,7 +217,7 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
             $search_clause .= " AND `invoice_date` <= '$endtime'";
         }
 
-	    $report_validation = mysqli_query($dbc,"SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC");
+	    $report_validation = mysqli_query($dbc,"SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` = 'Net 30' OR `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC");
 
     $num_rows = mysqli_num_rows($report_validation);
 
