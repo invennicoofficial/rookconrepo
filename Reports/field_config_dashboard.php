@@ -289,7 +289,10 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Customer Balance by Invoice".',') !== FALSE) { echo " checked"; } ?> value="Customer Balance by Invoice" name="reports_dashboard[]"> Customer Balance by Invoice</label>
 	</div>
 	<div class="col-sm-4">
-		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables" name="reports_dashboard[]"> POS Receivables</label>
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables (Basic)".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables (Basic)" name="reports_dashboard[]"> POS Receivables (Basic)</label>
+	</div>
+	<div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables (Advanced)".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables (Advanced)" name="reports_dashboard[]"> POS Receivables (Advanced)</label>
 	</div>
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Insurer Aging Receivable Summary".',') !== FALSE) { echo " checked"; } ?> value="Insurer Aging Receivable Summary" name="reports_dashboard[]"> Insurer Aging Receivable Summary</label>

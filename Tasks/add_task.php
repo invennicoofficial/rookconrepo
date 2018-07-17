@@ -861,7 +861,7 @@ checkAuthorised('tasks');
             <?php } ?>
 
             <?php if($slider_layout == 'accordion') { ?>
-                <div class="panel panel-default" style="<?= $contact_section_display ?>">
+                <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_contacts">
@@ -873,7 +873,7 @@ checkAuthorised('tasks');
                         <div class="panel-body">
             <?php } ?>
 
-            <div class="contact-section" style="<?= $contact_section_display ?>">
+            <div class="contact-section">
                 <div class="form-group clearfix">
                     <?= $slider_layout != 'accordion' ? '<h4>'.CONTACTS_TILE.'</h4>' : '' ?>
                     <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>

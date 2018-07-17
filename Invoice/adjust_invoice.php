@@ -18,7 +18,7 @@ if (isset($_POST['submit_btn'])) {
 	}
     include('add_update_invoice.php');
 	$type = implode(',', $_POST['payment_type']);
-	
+
     if($bookingid != 0) {
         $appoint_date = get_patient_from_booking($dbc, $bookingid, 'appoint_date');
         $service_date = explode(' ', $appoint_date);
@@ -105,6 +105,9 @@ if (isset($_POST['submit_btn'])) {
             foreach($tab_list as $tab_name) {
                 if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
                     switch($tab_name) {
+					case 'checkin': ?>
+						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
+						<?php break;
                         case 'sell':
                             if(in_array('touch',$ux_options)) { ?>
                                 <a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
@@ -159,7 +162,7 @@ if (isset($_POST['submit_btn'])) {
                 }
             } ?>
         </div>
-        
+
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <div class="col-sm-5"></div><div class="col-sm-4" style="text-align:right;"><h3><label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); }"></label>
                 <label style="color: red;">Refund <input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"></label></h3></div>
@@ -252,21 +255,21 @@ if (isset($_POST['submit_btn'])) {
                 $misc_prices =$get_invoice['misc_price'];
                 $misc_qtys =$get_invoice['misc_qty'];
                 $mis_ins = $get_invoice['misc_insurer'];
-                
+
                 $delivery = $get_invoice['delivery'];
                 $delivery_address = $get_invoice['delivery_address'];
                 $delivery_type = $get_invoice['delivery_type'];
                 $contractorid = $get_invoice['contractorid'];
                 $ship_date = $get_invoice['ship_date'];
-                
+
                 $paid = $get_invoice['paid'];
-                
+
                 $patient_paid_info = explode('#*#', $get_invoice['payment_type']);
                 $patient_paid_type = explode(',', $patient_paid_info[0]);
                 $patient_paid_amt = explode(',', $patient_paid_info[1]);
                 $insurer_paid_who = explode(',', $get_invoice['insurerid']);
                 $insurer_paid_amt = explode(',', $get_invoice['insurance_payment']);
-                
+
                 $adj_result = mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid_src`='$invoiceid'");
                 while($invoice_adj = mysqli_fetch_array($adj_result)) {
                     $serviceid .= $invoice_adj['serviceid'];
@@ -285,7 +288,7 @@ if (isset($_POST['submit_btn'])) {
                     $misc_prices .= $invoice_adj['misc_price'];
                     $misc_qtys .= $invoice_adj['misc_qty'];
                     $misc_ins .= $invoice_adj['misc_insurer'];
-                    
+
                     $patient_paid_info = explode('#*#', $invoice_adj['payment_type']);
                     $patient_paid_type = array_merge($patient_paid_type,explode(',', $patient_paid_info[0]));
                     $patient_paid_amt = array_merge($patient_paid_amt,explode(',', $patient_paid_info[1]));
@@ -332,14 +335,14 @@ if (isset($_POST['submit_btn'])) {
                 <h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
                 <h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
             </div>
-            
+
             <div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
                 <div class="col-sm-7">
                     <input type="text" readonly value="<?= date('Y-m-d'); ?>" class="form-control">
                 </div>
             </div>
-            
+
               <input type="hidden" name="invoice_mode" value="Adjustment">
               <div class="form-group" <?= (in_array('customer',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="site_name" class="col-sm-2 control-label"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>:</label>
@@ -406,7 +409,7 @@ if (isset($_POST['submit_btn'])) {
                     <?php echo $staff; ?>
                 </div>
               </div>
-          
+
               <div class="form-group <?= (in_array('staff',$field_config) ? 'adjust_block' : '" style="display:none;') ?>">
                 <label for="site_name" class="col-sm-2 control-label">Adjusted Staff:</label>
                 <div class="col-sm-7">
@@ -438,28 +441,28 @@ if (isset($_POST['submit_btn'])) {
                     </select>
                 </div>
               </div>
-                  
+
                   <div class="form-group" <?= (in_array('service_date',$field_config) ? '' : 'style="display:none;"') ?>>
                     <label for="site_name" class="col-sm-2 control-label">Service Date:</label>
                     <div class="col-sm-7 control-label" style="text-align:left;">
                         <?= $service_date ?>
                     </div>
                   </div>
-                  
+
                   <div class="form-group <?= (in_array('service_date',$field_config) ? 'adjust_block' : '" style="display:none;') ?>">
                     <label for="site_name" class="col-sm-2 control-label">Adjusted Service Date:</label>
                     <div class="col-sm-7">
                         <input type="text" name="service_date" class="form-control datepicker" value="<?= $service_date ?>">
                     </div>
                   </div>
-                  
+
                   <div class="form-group" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
                     <label for="site_name" class="col-sm-2 control-label">Product Pricing:</label>
                     <div class="col-sm-7">
                         <?= ucwords(str_replace('_',' ',$pricing)) ?>
                     </div>
                   </div>
-                  
+
                   <div class="form-group <?= (in_array('pricing',$field_config) ? 'adjust_block' : '" style="display:none;') ?>">
                     <label for="site_name" class="col-sm-2 control-label">Adjusted Product Pricing:</label>
                     <div class="col-sm-7">
@@ -531,7 +534,7 @@ if (isset($_POST['submit_btn'])) {
                         if($serviceid != '') {
                             $each_serviceid = explode(',',$serviceid);
                             $each_fee = explode(',',$fee);
-                            
+
                             foreach($each_serviceid as $loop_check => $check_service) {
                                 $matched = false;
                                 $check_fee = $each_fee[$loop_check];
@@ -550,7 +553,7 @@ if (isset($_POST['submit_btn'])) {
                             }
                             $each_serviceid = array_values($each_serviceid);
                             $each_fee = array_values($each_fee);
-                            
+
                             $total_count = mb_substr_count($serviceid,',');
                             $id_loop = 500;
 
@@ -626,7 +629,7 @@ if (isset($_POST['submit_btn'])) {
                                 <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_service_row();">
                                 <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_service_row(this);">
                             </div>
-                            
+
                             <div class="col-sm-12 pay-div"></div>
                         </div>
 
@@ -642,7 +645,7 @@ if (isset($_POST['submit_btn'])) {
                     } else {
                         echo '<span class="mva_claim_price"></span>';
                     }
-                    
+
                     //Calculate Column Widths
                     $col1 = 2;
                     $col2 = 2;
@@ -732,7 +735,7 @@ if (isset($_POST['submit_btn'])) {
                             $each_sell_price = explode(',',$sell_price);
                             $each_invtype = explode(',',$invtype);
                             $each_quantity = explode(',',$quantity);
-                            
+
                             foreach($each_inventoryid as $loop_check => $check_inventory) {
                                 $check_qty = $each_quantity[$loop_check];
                                 $check_sell = $each_sell_price[$loop_check];
@@ -889,7 +892,7 @@ if (isset($_POST['submit_btn'])) {
 
                         <?php $each_package = explode(',', $packageid);
                         $each_package_cost = explode(',', $package_cost);
-                            
+
                         foreach($each_package as $loop_check => $check_service) {
                             $matched = false;
                             $check_fee = $each_package_cost[$loop_check];
@@ -908,7 +911,7 @@ if (isset($_POST['submit_btn'])) {
                         }
                         $each_package = array_values($each_package);
                         $each_package_cost = array_values($each_package_cost);
-                        
+
                         foreach($each_package as $loop => $package) {
                             $package_cost = $each_package_cost[$loop];
                             $package_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `heading` FROM `package` WHERE `packageid`='$package'")); ?>
@@ -954,7 +957,7 @@ if (isset($_POST['submit_btn'])) {
                                         <label><input type="checkbox" name="packagerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
                                     <?php }
                                     $insurer_row_id++; ?>
-                                </div>							
+                                </div>
                                 <div class="col-sm-12">
                                     <?php foreach(explode('#*#',explode(',',$package_ins)[$client_loop]) as $line_insurer) {
                                         $line_insurer = explode(':',$line_insurer);
@@ -975,7 +978,7 @@ if (isset($_POST['submit_btn'])) {
                         </div>-->
                     </div>
                 </div>
-                
+
                 <div class="form-group misc_option" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>
                     <label for="additional_note" class="col-sm-2 control-label">
                     <span class="popover-examples list-inline">
@@ -1093,7 +1096,7 @@ if (isset($_POST['submit_btn'])) {
                   <input name="gratuity" onchange="countTotalPrice()" id="gratuity" type="text" class="form-control" />
                 </div>
               </div>
-              
+
               <div class="form-group" <?= (in_array('delivery',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="site_name" class="col-sm-2 control-label">
                     <span class="popover-examples list-inline">
@@ -1107,7 +1110,7 @@ if (isset($_POST['submit_btn'])) {
                   <?php if($delivery != 0) { ?>Amount: <?= $delivery ?><?php } ?>
                 </div>
               </div>
-              
+
               <div class="form-group <?= (in_array('delivery',$field_config) ? 'adjust_block' : '" style="display:none;') ?>">
                 <label for="site_name" class="col-sm-2 control-label">
                     <span class="popover-examples list-inline">
@@ -1235,7 +1238,7 @@ if (isset($_POST['submit_btn'])) {
               </div>
 
               </span>
-              
+
                    <div class="form-group <?= (in_array('survey',$field_config) ? 'adjust_block' : '" style="display:none;') ?>">
                     <label for="site_name" class="col-sm-2 control-label">Send Survey:</label>
                     <div class="col-sm-7">
@@ -1250,7 +1253,7 @@ if (isset($_POST['submit_btn'])) {
                         </select>
                     </div>
                   </div>
-                  
+
                 <?php if (strpos(','.get_config($dbc, 'crm_dashboard').',', ',Recommendations,') !== FALSE) { ?>
                     <div class="form-group"<?= (in_array('request_recommend',$field_config) ? '' : 'style="display:none;"') ?>>
                         <label for="site_name" class="col-sm-2 control-label">
@@ -1314,7 +1317,7 @@ if (isset($_POST['submit_btn'])) {
                                 </div>
                             <?php }
                         }
-                        
+
                         foreach($patient_paid_type as $loop_check => $check_patient) {
                             $check_amt = $patient_paid_amt[$loop_check];
                             if($check_amt != 0) {
@@ -1333,7 +1336,7 @@ if (isset($_POST['submit_btn'])) {
                         }
                         $patient_paid_type = array_values($patient_paid_type);
                         $patient_paid_amt = array_values($patient_paid_amt);
-                        
+
                         foreach($patient_paid_type as $i => $patient_pay_type) { ?>
                             <div class="form-group clearfix">
                                 <div class="col-sm-4"><label class="col-sm-4 show-on-mob">Paid By:</label><?= $patient ?></div>
@@ -1611,7 +1614,7 @@ function adjustRefundAmt() {
 	} else {
 		pay_mode_selected('Yes');
 	}
-	
+
 }
 function pay_mode_selected(paid) {
 	if(paid == 'No' || paid == 'Waiting on Insurer') {
