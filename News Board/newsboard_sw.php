@@ -47,46 +47,10 @@ checkAuthorised('newsboard');
         
         <?php if ($rookconnect=='rook' || $rookconnect=='localhost') { ?>
             <div class="gap-left tab-container mobile-100-container">
-                <a href="newsboard.php"><button type="button" class="btn brand-btn mobile-block mobile-100 active_tab">Local News Boards</button></a>
-                <a href="newsboard_sw.php"><button type="button" class="btn brand-btn mobile-block mobile-100">Softwarewide News Boards</button></a>
+                <a href="newsboard.php"><button type="button" class="btn brand-btn mobile-block mobile-100">Local News Boards</button></a>
+                <a href="newsboard_sw.php"><button type="button" class="btn brand-btn mobile-block mobile-100 active_tab">Softwarewide News Boards</button></a>
             </div>
         <?php } ?>
-
-		<?php
-
-		// Pending cross-software P.O.'
-		if(vuaed_visible_function($dbc, 'newsboard') == 1) {
-			$num_of_rows = 0;
-			$pending_rows = 0;
-			// **** NOTE: THE $number_of_connections variable is set only in the database_connection.php file. You must put this variable in manually for this to work. Please see of SEA's database_connection.php files (try sea.freshfocussoftware.com) in order to see how these variables are set up. If you are trying to copy this cross-software functionality, it is advised that you use the exact same format/variable names that SEA's database_connection.php file contains.
-			if(isset($number_of_connections) && $number_of_connections > 0) {
-				foreach (range(1, $number_of_connections) as $i) {
-					$dbc_cross = ${'dbc_cross_'.$i};
-					$check_po_query = "SELECT * FROM newsboard WHERE cross_software != '' AND cross_software IS NOT NULL AND deleted = 0 ORDER BY newsboardid DESC";
-					$resulx = mysqli_query($dbc_cross, $check_po_query) or die(mysqli_error($dbc_cross));
-					$num_rowss = mysqli_num_rows($resulx);
-					if($num_rowss > 0) {
-						$num_of_rows = $num_of_rows+$num_rowss;
-					}
-					 while($rowie = mysqli_fetch_array( $resulx )) {
-						 if($rowie['cross_software_approval'] == '' || $rowie['cross_software_approval'] == NULL) {
-							 $pending_rows++;
-						 }
-					 }
-				}
-				if($num_of_rows > 0) {
-					if($pending_rows > 0) {
-						$pending_alert = "(".$pending_rows." Pending Approval)";
-					} else {
-						$pending_alert = "";
-					}
-					?><div class='mobile-100-container' ><a href='cross_software_pending.php'><button type="button" class="btn brand-btn mobile-block mobile-100" >Remote Newsboard Posts <?php echo $pending_alert; ?></button></a></div><br><br><?php
-				}
-			}
-		}
-		// END of Pending Cross-Software P.O.
-
-		?>
 
         <form name="form_sites" method="post" action="" class="form-inline" style="overflow:visible;" role="form">
             <?php
@@ -149,13 +113,13 @@ checkAuthorised('newsboard');
             $offset = ($pageNum - 1) * $rowsPerPage;
 
             if($search_vendor !== '' ) {
-                $query_check_credentials = "SELECT ce.* FROM newsboard ce WHERE ce.deleted = 0 AND ce.newsboard_type != 'Softwarewide' $search_any ORDER BY ce.newsboardid ASC LIMIT $offset, $rowsPerPage";
-                $query = "SELECT count(ce.newsboardid) as numrows FROM newsboard ce WHERE ce.deleted = 0 AND ce.newsboard_type != 'Softwarewide' $search_any ORDER BY ce.newsboardid ASC";
+                $query_check_credentials = "SELECT ce.* FROM newsboard ce WHERE ce.deleted = 0 AND ce.newsboard_type='Softwarewide' $search_any ORDER BY ce.newsboardid ASC LIMIT $offset, $rowsPerPage";
+                $query = "SELECT count(ce.newsboardid) as numrows FROM newsboard ce WHERE ce.deleted = 0 AND ce.newsboard_type='Softwarewide' $search_any ORDER BY ce.newsboardid ASC";
             } else {
-                $query_check_credentials = "SELECT * FROM newsboard WHERE deleted = 0 AND newsboard_type != 'Softwarewide' ORDER BY newsboardid DESC";
-                $query = "SELECT count(*) as numrows FROM newsboard WHERE deleted = 0 AND newsboard_type != 'Softwarewide'";
+                $query_check_credentials = "SELECT * FROM newsboard WHERE deleted = 0 AND newsboard_type='Softwarewide' ORDER BY newsboardid DESC";
+                $query = "SELECT count(*) as numrows FROM newsboard WHERE deleted = 0 AND newsboard_type='Softwarewide'";
             }
-            $result = mysqli_query($dbc, $query_check_credentials);
+            $result = mysqli_query($dbc_htg, $query_check_credentials);
             
             $num_rows = mysqli_num_rows($result);
             if($num_rows > 0) {
@@ -165,7 +129,7 @@ checkAuthorised('newsboard');
                 $value_config = ','.$get_field_config['newsboard_dashboard'].',';
 
                 // Added Pagination //
-                echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+                echo display_pagination($dbc_htg, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
                 echo "<table class='table table-bordered'>";
@@ -191,9 +155,6 @@ checkAuthorised('newsboard');
                     if (strpos($value_config, ','."Description".',') !== FALSE) {
                         echo '<th>Description</th>';
                     }
-					if(isset($dbczen) && (isset($sea_software_dbc))) {
-						echo '<th>Status</th>';
-					}
                     echo '<th>Function</th>';
                     echo "</tr>";
             } else {
@@ -226,12 +187,11 @@ checkAuthorised('newsboard');
                 if (strpos($value_config, ','."Uploader".',') !== FALSE) {
                     echo '<td data-title="Documents">';
                     $newsboard_uploads1 = "SELECT * FROM newsboard_uploads WHERE newsboardid='$newsboardid' AND type = 'Document' ORDER BY certuploadid DESC";
-                    $result1 = mysqli_query($dbc, $newsboard_uploads1);
+                    $result1 = mysqli_query($dbc_htg, $newsboard_uploads1);
                     $num_rows1 = mysqli_num_rows($result1);
                     if($num_rows1 > 0) {
 						while($row1 = mysqli_fetch_array($result1)) {
-							//echo '<a href="download/'.$row1['document_link'].'" target="_blank">'.$row1['document_link'].'</a><br />';
-							$image = ( substr ( $row1['document_link'], 0, 7 ) == 'http://' ) ? $row1['document_link'] : 'download/' . $row1['document_link'];
+							$image = ( substr ( $row1['document_link'], 0, 4 ) == 'http' ) ? $row1['document_link'] : 'https://ffm.rookconnect.com/News Board/download/' . $row1['document_link'];
 							echo '<a href="' . $image . '" target="_blank">' . $row1['document_link'] . '</a><br />';
                         }
                     }
@@ -242,18 +202,6 @@ checkAuthorised('newsboard');
                     $desc = html_entity_decode ( $row['description'] );
 					echo '<td data-title="Description">' . limit_text( $desc, 80 ) . '</td>';
                 }
-				if(isset($dbczen) && (isset($sea_software_dbc))) {
-						echo '<td data-title="Status">';
-						if ($row['cross_software_approval'] !== "" && $row['cross_software_approval'] !== NULL && $row['cross_software_approval'] !== 'disapproved') { ?>
-						Approved <img src="../img/checkmark.png" width="25px" class="wiggle-me">
-						<?php
-						} else if($row['cross_software_approval'] == "disapproved") {
-							echo 'Disapproved <img src="../img/icons/forbidden.png" width="25px" class="wiggle-me">';
-						} else {
-							echo 'Awaiting approval <img src="../img/icons/locked-2.png" width="25px" class="wiggle-me">';
-						}
-						echo '</td>';
-				}
                 echo '<td data-title="Function">';
                 if(vuaed_visible_function($dbc, 'newsboard') == 1) {
                 echo '<a href=\'add_newsboard.php?newsboardid='.$newsboardid.'\'>Edit</a> | ';

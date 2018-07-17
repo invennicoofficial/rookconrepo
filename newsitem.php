@@ -5,11 +5,15 @@ FFM
 */
 if ( isset ( $_GET[ 'id'] ) ) {
 	$nid = intval ( trim ( $_GET[ 'id' ] ) );
+    $is_sw = isset($_GET['sw']) ? true : false;
 } else {
 	header( 'Location: newsboard.php' );
 	exit;
 }
 include_once ('include.php');
+if ($is_sw) {
+    include ('database_connection_htg.php');
+}
 ?>
 </head>
 <body>
@@ -30,7 +34,7 @@ include_once ('include.php');
 		GROUP BY
 			news.newsboardid DESC';
 	
-	$results = mysqli_query($dbc, $query);
+	$results = $is_sw ? mysqli_query($dbc_htg, $query) : mysqli_query($dbc, $query);
 	
 	if ( $results->num_rows > 0 ) { ?>
 		<div class="rows grid"><?php
@@ -40,7 +44,7 @@ include_once ('include.php');
 						<h1><?= str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $row[ 'title' ]); ?></h1>
 						<div class="gap-left gap-top double-gap-bottom"><a href="newsboard.php" class="btn config-btn">Back to Dashboard</a></div>
 					</div>
-					<div class="nb-img nb-img-single"><img src="News Board/download/<?= $row[ 'image' ]; ?>" alt="<?= $row[ 'title' ]; ?>" /></div>
+					<div class="nb-img nb-img-single"><img src="https://ffm.rookconnect.com/News Board/download/<?= $row[ 'image' ]; ?>" alt="<?= $row[ 'title' ]; ?>" /></div>
 					<div class="nb-desc"><?= html_entity_decode ( str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $row[ 'description' ]) ); ?></div>
 					<div class="nb-more triple-gap-bottom"><a href="newsboard.php" class="btn brand-btn btn-lg mobile-block">Back</a></div>
 				</div><?php

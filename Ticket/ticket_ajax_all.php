@@ -726,7 +726,16 @@ if($_GET['action'] == 'update_fields') {
 			// Sign Back Into Day Tracking, if they were Signed In
 			mysqli_query($dbc, "UPDATE `time_cards` `time` LEFT JOIN `time_cards` `src` ON `time`.`day_tracking_type`=CONCAT('Work:',`src`.`time_cards_id`) SET `time`.`timer_start`='".time()."', `time`.`start_time`='".date('H:i')."', `time`.`date`='".date('Y-m-d')."', `time`.`comment_box`=`src`.`comment_box`, `time`.`day_tracking_type`=`src`.`day_tracking_type`, `time`.`created_by`='".$_SESSION['contactid']."' WHERE `time`.`timer_start` > 0 AND `time`.`day_tracking_type` LIKE 'Work%' AND `time`.`staff`='".$attached['item_id']."' AND `time`.`deleted`=0");
 			// Sign out of the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+
+			// If payable hours are set and tracked in time cards, use that as total hours but keep time_tracked to the value set by checkin/checkout
+			$existing_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '{$attached['id']}' AND `timer_tracked` = 0 AND `total_hrs` > 0"));
+			$override_hours = '';
+			if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && !empty($existing_time_card)) {
+				$override_hours = $existing_time_card['total_hrs'];
+				mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = '1' WHERE `time_cards_id` = '{$existing_time_card['time_cards_id']}'");
+			}
+
+			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = ".($override_hours > 0 ? $override_hours : "GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum')").", `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");

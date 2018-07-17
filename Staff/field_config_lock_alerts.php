@@ -13,6 +13,7 @@ $(document).ready(function() {
 
 		var reminder_send = $('[name=staff_schedule_reminder_emails]').prop('checked') ? '1' : '';
 		var reminder_dates = $('[name="staff_schedule_reminder_dates[]"]').val();
+		var reminder_secondary_dates = $('[name="staff_schedule_secondary_reminder_dates[]"]').val();
 		var reminder_email = $('[name=staff_schedule_reminder_from]').val();
 		var reminder_subject = $('[name=staff_schedule_reminder_subject]').val();
 		var reminder_body = $('[name=staff_schedule_reminder_body]').val();
@@ -31,6 +32,7 @@ $(document).ready(function() {
 				staff_schedule_autolock_numdays: autolock_numdays,
 				staff_schedule_reminder_emails: reminder_send,
 				staff_schedule_reminder_dates: reminder_dates,
+				staff_schedule_secondary_reminder_dates: reminder_secondary_dates,
 				staff_schedule_reminder_from: reminder_email,
 				staff_schedule_reminder_subject: reminder_subject,
 				staff_schedule_reminder_body: reminder_body,
@@ -135,6 +137,23 @@ function displayLockAlerts() {
 				<?php $staff_schedule_reminder_dates = ','.get_config($dbc, 'staff_schedule_reminder_dates').',';
 				for($i = 1; $i <= 31; $i++) {
 					echo '<option value="'.$i.'" '.(strpos($staff_schedule_reminder_dates, ','.$i.',') !== FALSE ? 'selected' : '').'>'.$i.'</i>';
+				}
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="-'.$i.'" '.(strpos($staff_schedule_reminder_dates, ',-'.$i.',') !== FALSE ? 'selected' : '').'>'.$i.' Day'.($i > 1 ? 's' : '').' before End of Month</option>';
+				} ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Staff Schedule Secondary Reminder Dates:<br><em>This will send a reminder email on this day of the month only if they haven't already set up any Shifts past the auto-lock date.</em></label>
+		<div class="col-sm-8">
+			<select name="staff_schedule_secondary_reminder_dates[]" multiple class="chosen-select-deselect form-control">
+				<?php $staff_schedule_secondary_reminder_dates = ','.get_config($dbc, 'staff_schedule_secondary_reminder_dates').',';
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="'.$i.'" '.(strpos($staff_schedule_secondary_reminder_dates, ','.$i.',') !== FALSE ? 'selected' : '').'>'.$i.'</i>';
+				}
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="-'.$i.'" '.(strpos($staff_schedule_secondary_reminder_dates, ',-'.$i.',') !== FALSE ? 'selected' : '').'>'.$i.' Day'.($i > 1 ? 's' : '').' before End of Month</option>';
 				} ?>
 			</select>
 		</div>
