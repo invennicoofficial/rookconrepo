@@ -177,6 +177,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		foreach($tab_list as $tab_name) {
 			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
 				switch($tab_name) {
+					case 'checkin': ?>
+						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
+						<?php break;
 					case 'sell':
 						if(in_array('touch',$ux_options)) { ?>
 							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
@@ -448,7 +451,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             echo '<tr><td><b>Total</b></td><td><b>'.number_format($credit_total,2).'</b></td><td><b>'.number_format($total,2).'</b></td></tr>';
             echo '</table>';
             ?>
-			
+
             <h3>Gift Card Invoices</h3>
             <?php
             //$query_check_credentials = "SELECT invoiceid, final_price FROM invoice WHERE deleted = 0 AND DATE(invoice_date) = DATE(NOW()) AND paid = 'Yes' ORDER BY invoiceid";

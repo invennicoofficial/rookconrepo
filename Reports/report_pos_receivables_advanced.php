@@ -7,6 +7,7 @@ checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 
+/*
 if(isset($_POST['printcsv'])) {
   $starttime = $_POST['starttime'];
   $endtime = $_POST['endtime'];
@@ -71,6 +72,7 @@ if(isset($_POST['printcsv'])) {
   }
   exit();
 }
+*/
 
 if (isset($_POST['printpdf'])) {
     $starttimepdf = $_POST['starttimepdf'];
@@ -141,8 +143,7 @@ if (isset($_POST['printpdf'])) {
     <?php
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
-    } ?>
-
+} ?>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
@@ -190,7 +191,9 @@ if (isset($_POST['printpdf'])) {
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
             <input type="hidden" name="contactidpdf" value="<?php echo $contactid; ?>">
 
+            <!--
             <button type="submit" name="printcsv" value="Print CSV Report" title="Print CSV Report" class="pull-right"><img title="Print CSV Report" width="15px" src="../img/csv.png"></button>
+            -->
             <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
             <br><br>
 
@@ -203,82 +206,48 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style, $table_row_style, $grand_total_style) {
 
-   $total = 0;
+        $search_clause = '';
+        if($contactid > 0) {
+            $search_clause .= " AND `patientid`='$contactid'";
+        }
+        if($starttime != '') {
+            $search_clause .= " AND `invoice_date` >= '$starttime'";
+        }
+        if($endtime != '') {
+            $search_clause .= " AND `invoice_date` <= '$endtime'";
+        }
 
-    if($contactid == '') {
-        $report_validation = mysqli_query($dbc,"SELECT * FROM point_of_sell WHERE deleted = 0 AND status != 'Completed' AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."')");
-    } else {
-        $report_validation = mysqli_query($dbc,"SELECT inv.*, c.* FROM point_of_sell inv,  contacts c WHERE inv.contactid = c.contactid AND status != 'Completed' AND inv.deleted = 0 AND c.name = '$contactid' AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND c.deleted=0 AND c.status=1");
-    }
+	    $report_validation = mysqli_query($dbc,"SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC");
+
     $num_rows = mysqli_num_rows($report_validation);
 
     if($num_rows > 0) {
         $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">
         <tr style="'.$table_row_style.'">
-        <th>Invoice#</th>
-        <th>Invoice Date</th>
-        <th>Customer</th>
-        <th>Sub Total</th>
-        <th>Discount</th>
-        <th>Delivery</th>
-        <th>Assembly</th>
-        <th>Total Before Tax</th>
-        <th>GST</th>
-        <th>PST</th>
-        <th>Total</th>
-        <th>Status</th>
+                        <th>Invoice #</th>
+                        <th>Invoice Date</th>
+                        <th>Customer</th>
+                        <th>Total Price</th>
+                        <th>Payment Type</th>
+                        <th>Delivery/Shipping Type</th>
+                        <th>Status</th>
         </tr>';
 
-        while($row_report = mysqli_fetch_array($report_validation)) {
-
-            $style = '';
-            if($row_report['status'] == 'Posted Past Due') {
-                $style = 'style = color:red;';
-            }
-            if($row_report['status'] == 'Posted') {
-                $style = 'style = color:Green;';
-            }
+        while($invoice = mysqli_fetch_array($report_validation)) {
 
             $report_data .= '<tr nobr="true" '.$style.'>';
 
-            $report_data .= '<td>' . $row_report['posid'] . '</td>';
-            $report_data .= '<td>' . $row_report['invoice_date'] . '</td>';
-            $report_data .= '<td>' . get_client($dbc, $row_report['contactid']) . '</td>';
-            $report_data .= '<td>' . $row_report['sub_total'] . '</td>';
-            $report_data .= '<td>' . $row_report['discount_value'] . '</td>';
-            $report_data .= '<td>' . $row_report['delivery'] . '</td>';
-            $report_data .= '<td>' . $row_report['assembly'] . '</td>';
-            $report_data .= '<td>' . $row_report['total_before_tax'] . '</td>';
-            $report_data .= '<td>' . $row_report['gst'] . '</td>';
-            $report_data .= '<td>' . $row_report['pst'] . '</td>';
-            $report_data .= '<td>' . $row_report['total_price'] . '</td>';
-            $report_data .= '<td>' . $row_report['status'] . '</td>';
+            $report_data .= '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . '</td>';
+            $report_data .= '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
+            $report_data .= '<td data-title="Customer">' . get_contact($dbc, $contactid) . '</td>';
+            $report_data .= '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
+            $report_data .= '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
+            $report_data .= '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
+            $report_data .= '<td data-title="Comment">' .  $invoice['status'] . '</td>';
+
             $report_data .= "</tr>";
-            $sub_total += $row_report['sub_total'];
-            $discount_value += $row_report['discount_value'];
-            $delivery += $row_report['delivery'];
-            $assembly += $row_report['assembly'];
-            $total_before_tax += $row_report['total_before_tax'];
-            $gst += $row_report['gst'];
-            $pst += $row_report['pst'];
-            $total_price += $row_report['total_price'];
-            $total++;
         }
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<th colspan="3">Total Invoice : '.$total.'</th>';
-        $report_data .= '<th>' . number_format($sub_total, 2) . '</th>';
-        $report_data .= '<th>' . number_format($discount_value, 2) . '</th>';
-        $report_data .= '<th>' . number_format($delivery, 2) . '</th>';
-
-        $report_data .= '<th>' . number_format($assembly, 2) . '</th>';
-        $report_data .= '<th>' . number_format($total_before_tax, 2) . '</th>';
-        $report_data .= '<th>' . number_format($gst, 2) . '</th>';
-        $report_data .= '<th>' . number_format($pst, 2) . '</th>';
-        $report_data .= '<th>' . number_format($total_price, 2) . '</th>';
-        $report_data .= '<th></th>';
-
-        $report_data .= "</tr>";
         $report_data .= '</table>';
     }
 

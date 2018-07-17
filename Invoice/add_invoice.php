@@ -317,6 +317,9 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			$tile_name = (FOLDER_NAME == 'invoice') ? 'check_out' : 'posadvanced';
             foreach($tab_list as $tab_name) {
                 switch($tab_name) {
+					case 'checkin': ?>
+						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
+						<?php break;
                     case 'sell':
                         if(in_array('touch',$ux_options)) {
                             if(check_subtab_persmission($dbc, $tile_name, ROLE, 'sell') === TRUE) { ?>
@@ -334,7 +337,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             }
                         }
                         break;
-                    
+
                     case 'today': ?>
                         <span class="popover-examples list-inline">
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -345,7 +348,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Today's Invoices</button><?php
                         }
                         break;
-                    
+
                     case 'all': ?>
                         <span class="popover-examples list-inline">
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -356,7 +359,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">All Invoices</button><?php
                         }
                         break;
-                    
+
                     case 'invoices':
                         if (check_subtab_persmission($dbc, $tile_name, ROLE, 'invoices') === TRUE) { ?>
                             <a href='invoice_list.php' class="btn brand-btn mobile-block mobile-100">Invoices</a><?php
@@ -364,7 +367,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Invoices</button><?php
                         }
                         break;
-                    
+
                     case 'unpaid':
                         if (check_subtab_persmission($dbc, $tile_name, ROLE, 'unpaid') === TRUE) { ?>
                             <a href='unpaid_invoice_list.php' class="btn brand-btn mobile-block mobile-100">Accounts Receivable</a><?php
@@ -372,7 +375,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Accounts Receivable</button><?php
                         }
                         break;
-                        
+
                     case 'voided':
                         if (check_subtab_persmission($dbc, $tile_name, ROLE, 'voided') === TRUE) { ?>
                             <a href='void_invoices.php' class="btn brand-btn mobile-block mobile-100">Voided Invoices</a><?php
@@ -380,7 +383,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Voided Invoices</button><?php
                         }
                         break;
-                        
+
                     case 'refunds': ?>
                         <span class="popover-examples list-inline">
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Find invoices in order to issue Refunds or Create Adjustment Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -391,7 +394,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Refund / Adjustments</button><?php
                         }
                         break;
-                        
+
                     case 'ui_report': ?>
                         <span class="popover-examples list-inline">
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="In this section you can create Invoices for insurers."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -402,7 +405,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Unpaid Insurer Invoice Report</button><?php
                         }
                         break;
-                        
+
                     case 'cashout': ?>
                         <span class="popover-examples list-inline">
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Daily front desk Cashout."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -413,7 +416,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <button class="btn disabled-btn mobile-block mobile-100">Cash Out</button><?php
                         }
                         break;
-                        
+
                     case 'gf':
                         if (check_subtab_persmission($dbc, $tile_name, ROLE, 'gf') === TRUE) { ?>
                             <a href='giftcards.php' class="btn brand-btn mobile-block mobile-100">Gift Card</a><?php
