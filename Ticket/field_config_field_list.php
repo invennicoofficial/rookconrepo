@@ -3614,6 +3614,10 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Notify PDF') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notify PDF", $all_config) ? 'checked disabled' : (in_array("Notify PDF", $value_config) ? "checked" : '') ?> value="Notify PDF" name="tickets[]"> Create PDF</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Notify Anyone Can Add') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notify Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Notify Anyone Can Add", $value_config) ? "checked" : '') ?> value="Notify Anyone Can Add" name="tickets[]">
+									Anyone Can Add Notifications</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 						<?php if(!$action_mode && !$overview_mode) { ?>

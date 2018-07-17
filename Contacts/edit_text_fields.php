@@ -180,41 +180,16 @@
 		<input type="text" name="website" value="<?= $contact['website'] ?>" data-field="website" data-table="contacts" class="form-control">
 	</div>
 <?php } else if($field_option == 'Region' || $field_option == 'Profile Region') { ?>
-	<script>
-	function addRegion() {
-		var row = $('[name="region[]"]').last().closest('.region-row');
-		destroyInputs(row);
-		var clone = row.clone();
-		clone.find('select').val('').change(function() { saveField(this); });
-		row.after(clone);
-		initInputs('.region-row');
-	}
-	function remRegion(img) {
-		if($('.region-row').length == 1) {
-			addRegion();
-		}
-		$(img).closest('.region-row').remove();
-		$('[name="region[]"]').last().change();
-	}
-	</script>
-	<?php foreach(array_unique(explode(',',$contact['region'])) as $current_region) { ?>
-		<div class="region-row form-group">
-			<label class="col-sm-4 control-label">Region:</label>
-			<div class="col-sm-7">
-				<select name="region[]" data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect"><option></option>
-					<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
-					foreach ($each_tab as $cat_tab) {
-						echo "<option ".($current_region == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
-					} ?>
-				</select>
-			</div>
-			<div class="col-sm-1">
-				<img class="inline-img pull-right" src="../img/remove.png" onclick="remRegion(this);">
-				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addRegion();">
-			</div>
-		</div>
-	<?php }
-} else if($field_option == 'Location' || $field_option == 'Profile Location') { ?>
+	<label class="col-sm-4 control-label">Region:</label>
+	<div class="col-sm-8">
+		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect"><option></option>
+			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
+			foreach ($each_tab as $cat_tab) {
+				echo "<option ".(in_array($cat_tab, explode(',',$contact['region'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
+			} ?>
+		</select>
+	</div>
+<?php } else if($field_option == 'Location' || $field_option == 'Profile Location') { ?>
 	<label class="col-sm-4 control-label">Location:</label>
 	<div class="col-sm-8">
 		<select name="con_locations" data-field="con_locations" data-table="contacts" class="form-control chosen-select-deselect"><option></option>

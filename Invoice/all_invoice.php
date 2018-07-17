@@ -184,6 +184,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		foreach($tab_list as $tab_name) {
 			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
 				switch($tab_name) {
+					case 'checkin': ?>
+						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
+						<?php break;
 					case 'sell':
 						if(in_array('touch',$ux_options)) { ?>
 							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
@@ -238,7 +241,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 			}
 		}
 		?></div>
-		
+
         <form name="invoice" method="post" action="" class="form-horizontal" role="form">
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -406,7 +409,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 //$serviceid = $row['serviceid'];
                 //echo '<td>'. get_all_from_service($dbc, $serviceid, 'service_code').' : '.get_all_from_service($dbc, $serviceid, 'service_type') . '</td>';
-                
+
                 echo '<td data-title="Total">$<b>' . ($row['final_price']).'</b><br>';
 
                     $insurer = '';
@@ -566,7 +569,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
-        
+
 
         </form>
 

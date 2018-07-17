@@ -76,7 +76,8 @@ if($_GET['action'] == 'field_config') {
 	$staff_schedule_reminder_emails = filter_var($_POST['staff_schedule_reminder_emails'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'staff_schedule_reminder_emails', $staff_schedule_reminder_emails);
 	$staff_schedule_reminder_dates = is_array($_POST['staff_schedule_reminder_dates']) ? implode(',',$_POST['staff_schedule_reminder_dates']) : $_POST['staff_schedule_reminder_dates'];
-	echo $staff_schedule_reminder_dates = filter_var($staff_schedule_reminder_dates,FILTER_SANITIZE_STRING);
+	$staff_schedule_secondary_reminder_dates = is_array($_POST['staff_schedule_secondary_reminder_dates']) ? implode(',',$_POST['staff_schedule_secondary_reminder_dates']) : $_POST['staff_schedule_secondary_reminder_dates'];
+	set_config($dbc, 'staff_schedule_secondary_reminder_dates', $staff_schedule_secondary_reminder_dates);
 	set_config($dbc, 'staff_schedule_reminder_dates', is_array($staff_schedule_reminder_dates) ? implode(',',$staff_schedule_reminder_dates) : $staff_schedule_reminder_dates);
 	$staff_schedule_reminder_from = filter_var($_POST['staff_schedule_reminder_from'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'staff_schedule_reminder_from', $staff_schedule_reminder_from);

@@ -3231,3 +3231,55 @@ h4 { font-size:17px; }
     .tile-navbar.blue a span { background-color:transparent !important; }
     
 .image-btn { background:transparent; border:0 none; }
+
+.no-more-tables-forced { 	
+	overflow-x: visible;
+	overflow-y: visible;
+	width: 100%;
+	}
+.panel .no-more-tables-forced {
+top: 0px;
+margin-top:0px;
+position: relative;
+}
+.panel .no-more-tables-forced td { z-index:1; }
+.no-more-tables-forced td { word-break: break-word; }
+
+  .no-more-tables-forced table,
+  .no-more-tables-forced thead,
+  .no-more-tables-forced tbody,
+  .no-more-tables-forced th,
+  .no-more-tables-forced td,
+  .no-more-tables-forced tr {
+    display: block; }
+
+  .no-more-tables-forced thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px; }
+
+  .no-more-tables-forced tr {
+    border: 1px solid #ccc;
+    margin: 10px 10px 20px; }
+
+ .no-more-tables-forced td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 40% !important;
+    white-space: normal;
+    text-align: left;
+    min-height: 34px;
+}
+
+  .no-more-tables-forced td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold; }
+
+  .no-more-tables-forced td:before {
+    content: attr(data-title); }

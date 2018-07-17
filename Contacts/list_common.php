@@ -273,7 +273,7 @@ if ( !empty($note) ) { ?>
 					<?php endif; ?>
 					<?php if(in_array('Site', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/project-path.PNG" class="inline-img"><?= $row['site_name'] ?>
+							<img src="../img/project-path.png" class="inline-img"><?= $row['site_name'] ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Address', $field_display)): ?>

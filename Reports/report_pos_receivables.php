@@ -95,7 +95,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'View POS Receivables From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'View POS Receivables (Basic) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -132,7 +132,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
-    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables Report');
+    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables (Basic) Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -178,15 +178,13 @@ if (isset($_POST['printpdf'])) {
 					<div class="col-sm-8">
 						<select name="contactid" data-placeholder="Select a Customer..." class="chosen-select-deselect form-control1" width="380">
 							<option value=''>Customer</option>
-							<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE category='Customer' or category='Client' AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+							<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE (category='Customer' OR category='Customers') AND deleted=0 AND status=1"),MYSQLI_ASSOC));
 							foreach($query as $rowid) {
-								echo "<option ".($patient == $rowid ? 'selected' : '')." value='$rowid'>".get_client($dbc, $rowid)."</option>";
+								echo "<option ".($contactid == $rowid ? 'selected' : '')." value='$rowid'>".get_contact($dbc, $rowid, 'name_company')."</option>";
 							} ?>
 						</select></div>
 				</div>
             <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button></div></center>
-
-
 
             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">

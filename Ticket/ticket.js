@@ -472,11 +472,11 @@ function saveFieldMethod(field) {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
 				$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
 					response = response.split('|');
-					if(response.join('') != '' && response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val() && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
+					if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
 						block.find('[name=address]').val(response[0]).change();
 						block.find('[name=city]').val(response[1]).change();
 						block.find('[name=postal_code]').val(response[2]).change();
-					} else if(response.joing('') == '') {
+					} else if(response.join('') == '') {
 						alert('The address provided may not be valid. It will not be found in Google Maps.');
 					}
 				});
@@ -690,6 +690,7 @@ function saveFieldMethod(field) {
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
+							async: false,
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
@@ -848,6 +849,18 @@ function saveFieldMethod(field) {
 					}
 					if(table_name == 'mileage' && field_name == 'mileage') {
 						$(field).closest('.multi-block').find('[name="double_mileage"]').val(parseFloat(save_value)*2).change();
+					}
+					if(table_name == 'ticket_attached' && field_name == 'completed') {
+						if($(field).data('exit-ticket') != undefined && $(field).data('exit-ticket') == 1) {
+							if($(field).data('iframe') != undefined && $(field).data('iframe') == 1) {
+								window.top.$('iframe').attr('src','../blank_loading_page.php');
+								window.location.replace('../blank_loading_page.php');
+							} else {
+								window.location.replace($(field).data('back-url'));
+							}
+						} else if($(field).data('iframe') != undefined && $(field).data('iframe') == 1) {
+							window.location.replace('../blank_loading_page.php');
+						}
 					}
 					doneSaving();
 				}
@@ -1251,6 +1264,7 @@ function saveMethod(field) {
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
+							async: false,
 							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
@@ -2437,6 +2451,7 @@ function checkoutAll(button) {
 			if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1) {
 				if($('[name="sign_off_signature"]') != undefined) {
 					sign_off_complete_force();
+					return false;
 				} else if($('[name="summary_signature"]') != undefined) {
 					$('[name="summary_signature"]').change();
 				}
@@ -2466,6 +2481,7 @@ function checkinAll(button) {
 }
 function createRecurringTicket() {
 	$.ajax({
+		async: false,
 		url: 'ticket_ajax_all.php?action=create_recurring_ticket',
 		method: 'POST',
 		data: { ticketid: ticketid },

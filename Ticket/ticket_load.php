@@ -401,7 +401,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Site Address:</label>
-			<div class="col-sm-8">'.$site['address'].'</div>
+			<div class="col-sm-8">'.!empty($site['address']) ? $site['address'] : $site['mailing_address'].'</div>
 		</div>';
 	}
 	if(in_array('Site Notes',$db_config)) {
@@ -409,6 +409,17 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Site Notes:</label>
 			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
+		</div>';
+	}
+	if(in_array('Google Maps Link',$db_config)) {
+        $map_link = !empty($ticket['map_link']) ? $ticket['map_link'] : 'http://maps.google.com/maps/place/'.$ticket['address'].','.$ticket['city'];
+        if(empty($ticket['map_link']) && empty($ticket['address']) && !empty($ticket['siteid'])) {
+			$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+        	$map_link = !empty($site['google_maps_address']) ? $site['google_maps_address'] : 'http://maps.google.com/maps/place/'.(!empty($site['address']) ? $site['address'] : $site['mailing_address']).','.$site['city'];
+        }
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Google Maps Link:</label>
+			<div class="col-sm-8">'.(!empty($ticket['address']) || !empty($ticket['map_link'] || !empty($site['address']) || !empty($site['mailing_address']) || !empty($site['google_maps_address'])) ? '<a href="'.$map_link.'" target="_blank">Click Here</a>' : '').'</div>
 		</div>';
 	}
 

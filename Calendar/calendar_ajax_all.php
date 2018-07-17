@@ -253,6 +253,7 @@ if($_GET['fill'] == 'move_appt') {
 				mysqli_query($dbc, "UPDATE `tickets` SET `member_start_time` = '$start_time', `member_end_time` = '$end_time', `to_do_date` = '$start_date', `projectid` = '$projectid' WHERE `ticketid` = '$ticketid'");
 			}
 		} else if ($calendar_type == 'schedule') {
+			$updated_fields = [];
 			if($_POST['blocktype'] == 'dispatch_staff') {
 				$contact_id = $_POST['contact'];
 				$teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contact_id' AND `deleted` = 0"));
@@ -272,6 +273,7 @@ if($_GET['fill'] == 'move_appt') {
 					$offline_table_field[] = 'ticketid';
 					$offline_fields[] = 'contactid';
 					$offline_values[] = ','.$contact_id.',';
+					$updated_fields['contactid'] = ",$contact_id,";
 				}
 			} else {
 				$equipmentid = $_POST['contact'];
@@ -309,6 +311,7 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'ticketid';
 				$offline_fields[] = 'teamid';
 				$offline_values[] = $teamid;
+				$updated_fields['contactid'] = ",$contact,";
 			} else {
 				$equipassign_query = "";
 				if(!empty($equipmentid)) {
@@ -327,6 +330,14 @@ if($_GET['fill'] == 'move_appt') {
 					}
 				}
 			}
+			$updated_fields['equipmentid'] = $equipmentid;
+			$updated_fields['equipment_assignmentid'] = $equipment_assignmentid;
+			$updated_fields['teamid'] = empty($teamid) ? 0 : $teamid;
+			$updated_fields['region'] = $region;
+			$updated_fields['con_location'] = $location;
+			$updated_fields['classification'] = $classification;
+			
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 			if ($_POST['move_type'] == 'resize') {
 				$sql = "UPDATE `tickets` SET `equipmentid` = '$equipmentid', `equipment_assignmentid` = '$equipment_assignmentid', `to_do_end_time` = '$end_time' $equipassign_query $dispatch_staff_query WHERE `ticketid` = '$ticketid' AND `to_do_end_date` = '".date('Y-m-d', strtotime($_POST['time_slot']))."'";
 				$offline_table[] = 'tickets';
@@ -344,6 +355,7 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'ticketid';
 				$offline_fields[] = 'to_do_end_time';
 				$offline_values[] = $end_time;
+				$updated_fields['to_do_end_time'] = $end_time;
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -380,6 +392,9 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'ticketid';
 				$offline_fields[] = 'to_do_end_date';
 				$offline_values[] = $end_date;
+				$updated_fields['to_do_start_time'] = $start_time;
+				$updated_fields['to_do_date'] = $start_date;
+				$updated_fields['to_do_end_date'] = $end_date;
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -407,6 +422,26 @@ if($_GET['fill'] == 'move_appt') {
 			$offline_values[] = $end_time;
 			if($online) {
 				mysqli_query($dbc, $sql);
+
+				//Record history
+				$ticket_histories = [];
+				foreach($updated_fields as $key => $updated_field) {
+					if($ticket[$key] != $updated_field) {
+						$ticket_histories[$key] = "$key updated to $updated_field";
+					}
+				}
+				if($ticket['equipment_assignmentid'] != $equipment_assignmentid) {
+					$ea_contacts = [];
+					foreach(explode(',', $contact) as $ea_contact) {
+						if($ea_contact > 0) {
+							$ea_contacts[] = get_contact($dbc, $ea_contact);
+						}
+					}
+					$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+				}
+				if(!empty($ticket_histories)) {
+					mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #$ticketid of tickets updated: ".implode(', ',$ticket_histories)."')");
+				}
 			}
 		} else {
 			$contact_query = '';
@@ -574,6 +609,7 @@ if($_GET['fill'] == 'move_appt') {
 		$start_date = date('Y-m-d', strtotime($_POST['time_slot']));
 		$end_date = date('Y-m-d', strtotime($_POST['time_slot']));
 		if ($calendar_type == 'schedule') {
+			$updated_fields = [];
 			if($_POST['blocktype'] == 'dispatch_staff') {
 				$contact_id = $_POST['contact'];
 				$teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contact_id' AND `deleted` = 0"));
@@ -593,6 +629,7 @@ if($_GET['fill'] == 'move_appt') {
 					$offline_table_field[] = 'id';
 					$offline_fields[] = 'contactid';
 					$offline_values[] = ','.$contact_id.',';
+					$updated_fields['contactid'] = ",$contact_id,";
 				}
 			} else {
 				$equipmentid = $_POST['contact'];
@@ -630,6 +667,7 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'id';
 				$offline_fields[] = 'teamid';
 				$offline_values[] = $teamid;
+				$updated_fields['contactid'] = ",$contact,";
 			} else {
 				$equipassign_query = "";
 				if(!empty($equipmentid)) {
@@ -648,6 +686,14 @@ if($_GET['fill'] == 'move_appt') {
 					}
 				}
 			}
+			$updated_fields['equipmentid'] = $equipmentid;
+			$updated_fields['equipment_assignmentid'] = $equipment_assignmentid;
+			$updated_fields['teamid'] = empty($teamid) ? 0 : $teamid;
+			$updated_fields['region'] = $region;
+			$updated_fields['con_location'] = $location;
+			$updated_fields['classification'] = $classification;
+
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '$id'"));
 			if ($_POST['move_type'] == 'resize') {
 				$sql = "UPDATE `ticket_schedule` SET `equipmentid` = '$equipmentid', `equipment_assignmentid` = '$equipment_assignmentid', `to_do_end_time` = '$end_time' $equipassign_query $dispatch_staff_query WHERE `id` = '$id' AND `to_do_date` = '".date('Y-m-d', strtotime($_POST['time_slot']))."'";
 				$offline_table[] = 'ticket_schedule';
@@ -665,6 +711,7 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'id';
 				$offline_fields[] = 'to_do_end_time';
 				$offline_values[] = $end_time;
+				$updated_fields['to_do_end_time'] = $end_time;
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -701,6 +748,9 @@ if($_GET['fill'] == 'move_appt') {
 				$offline_table_field[] = 'id';
 				$offline_fields[] = 'to_do_end_date';
 				$offline_values[] = $end_date;
+				$updated_fields['to_do_start_time'] = $start_time;
+				$updated_fields['to_do_date'] = $start_date;
+				$updated_fields['to_do_end_date'] = $end_date;
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -728,6 +778,26 @@ if($_GET['fill'] == 'move_appt') {
 			$offline_values[] = $end_time;
 			if($online) {
 				mysqli_query($dbc, $sql);
+
+				//Record history
+				$ticket_histories = [];
+				foreach($updated_fields as $key => $updated_field) {
+					if($ticket[$key] != $updated_field) {
+						$ticket_histories[$key] = "$key updated to $updated_field";
+					}
+				}
+				if($ticket['equipment_assignmentid'] != $equipment_assignmentid) {
+					$ea_contacts = [];
+					foreach(explode(',', $contact) as $ea_contact) {
+						if($ea_contact > 0) {
+							$ea_contacts[] = get_contact($dbc, $ea_contact);
+						}
+					}
+					$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+				}
+				if(!empty($ticket_histories)) {
+					mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #$id of ticket_schedule updated: ".implode(', ',$ticket_histories)."')");
+				}
 			}
 		} else {
 			if ($status == 'Internal QA') {
@@ -1017,6 +1087,8 @@ if($_GET['fill'] == 'schedule_unbooked') {
 		$start_time = date('h:i a', strtotime($_POST['time_slot']));
 		if($calendar_type == 'schedule') {
 			if($_POST['blocktable'] == 'ticket_schedule') {
+				$updated_fields = [];
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '$id'"));
 				$start_time = date('H:i:s', strtotime($_POST['time_slot']));
 				if($_POST['blocktype'] == 'dispatch_staff') {
 					$contact_id = $_POST['contact'];
@@ -1032,12 +1104,13 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						$equipmentid = $equip_assign['equipmentid'];
 					} else {
 						$dispatch_staff_query = ", `contactid` = ',$contact_id,'";
+						$updated_fields['contactid'] = ",$contact_id,";
 					}
 				} else {
 					$equipmentid = $_POST['contact'];
 				}
 				if(!empty($_POST['equipassign'])) {
-					$equipment_assignmentid = $_POST['equipment_assignmentid'];
+					$equipment_assignmentid = $_POST['equipassign'];
 					$equipassign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"));
 					$teamid = $equipassign['teamid'];
 					$region = explode('*#*',$equipassign['region'])[0];
@@ -1059,6 +1132,7 @@ if($_GET['fill'] == 'schedule_unbooked') {
 					}
 					$contact = implode(',',$contact);
 					$equipassign_query = ", `contactid` = ',$contact,', `teamid` = '$teamid', `region` = '$region', `con_location` = '$location', `classification` = '$classification'";
+					$updated_fields['contactid'] = ",$contact,";
 				} else {
 					$equipassign_query = "";
 					if(!empty($equipmentid)) {
@@ -1077,6 +1151,12 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						}
 					}
 				}
+				$updated_fields['equipmentid'] = $equipmentid;
+				$updated_fields['equipment_assignmentid'] = $equipment_assignmentid;
+				$updated_fields['teamid'] = empty($teamid) ? 0 : $teamid;
+				$updated_fields['region'] = $region;
+				$updated_fields['con_location'] = $location;
+				$updated_fields['classification'] = $classification;
 				if (empty($status)) {
 					$ticket_status = 'Active';
 					$offline_table[] = 'ticket_schedule';
@@ -1142,7 +1222,34 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipmentid`='$equipmentid', `equipment_assignmentid` = '$equipment_assignmentid', `to_do_date`='$time', `to_do_end_date`='$time', `to_do_start_time` = IF(`scheduled_lock` > 0,`to_do_start_time`,'$start_time') WHERE `id`='$id'");
 					}
 				}
+				if($online) {
+					$updated_fields['to_do_date'] = $time;
+					$updated_fields['to_do_end_date'] = $time;
+					$updated_fields['to_do_start_time'] = ($ticket['scheduled_lock'] > 0 ? $ticket['to_do_start_time'] : $start_time);
+
+					//Record history
+					$ticket_histories = [];
+					foreach($updated_fields as $key => $updated_field) {
+						if($ticket[$key] != $updated_field) {
+							$ticket_histories[$key] = "$key updated to $updated_field";
+						}
+					}
+					if($ticket['equipment_assignmentid'] != $equipment_assignmentid) {
+						$ea_contacts = [];
+						foreach(explode(',', $contact) as $ea_contact) {
+							if($ea_contact > 0) {
+								$ea_contacts[] = get_contact($dbc, $ea_contact);
+							}
+						}
+						$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+					}
+					if(!empty($ticket_histories)) {
+						mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #$id of ticket_schedule updated: ".implode(', ',$ticket_histories)."')");
+					}
+				}
 			} else {
+				$updated_fields = [];
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$id'"));
 				if($_POST['blocktype'] == 'dispatch_staff') {
 					$contact_id = $_POST['contact'];
 					$teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contact_id' AND `deleted` = 0"));
@@ -1157,12 +1264,13 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						$equipmentid = $equip_assign['equipmentid'];
 					} else {
 						$dispatch_staff_query = ", `contactid` = ',$contact_id,'";
+						$updated_fields['contactid'] = ",$contact_id,";
 					}
 				} else {
 					$equipmentid = $_POST['contact'];
 				}
 				if(!empty($_POST['equipassign'])) {
-					$equipment_assignmentid = $_POST['equipment_assignmentid'];
+					$equipment_assignmentid = $_POST['equipassign'];
 					$equipassign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"));
 					$teamid = $equipassign['teamid'];
 					$region = explode('*#*',$equipassign['region'])[0];
@@ -1184,6 +1292,7 @@ if($_GET['fill'] == 'schedule_unbooked') {
 					}
 					$contact = implode(',',$contact);
 					$equipassign_query = ", `contactid` = ',$contact,', `teamid` = '$teamid', `region` = '$region', `con_location` = '$location', `classification` = '$classification'";
+					$updated_fields['contactid'] = ",$contact,";
 				} else {
 					$equipassign_query = "";
 					if(!empty($equipmentid)) {
@@ -1202,6 +1311,12 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						}
 					}
 				}
+				$updated_fields['equipmentid'] = $equipmentid;
+				$updated_fields['equipment_assignmentid'] = $equipment_assignmentid;
+				$updated_fields['teamid'] = empty($teamid) ? 0 : $teamid;
+				$updated_fields['region'] = $region;
+				$updated_fields['con_location'] = $location;
+				$updated_fields['classification'] = $classification;
 				if (empty($status)) {
 					$ticket_status = 'Active';
 					$offline_table[] = 'tickets';
@@ -1265,6 +1380,31 @@ if($_GET['fill'] == 'schedule_unbooked') {
 					$offline_values[] = $start_time;
 					if($online) {
 						mysqli_query($dbc, "UPDATE `tickets` SET `equipmentid`='$equipmentid', `equipment_assignmentid` = '$equipment_assignmentid', `to_do_date`='$time', `to_do_end_date`='$time', `to_do_start_time` = '$start_time' $equipassign_query $dispatch_staff_query WHERE `ticketid`='$id'");
+					}
+				}
+				if($online) {
+					$updated_fields['to_do_date'] = $time;
+					$updated_fields['to_do_end_date'] = $time;
+					$updated_fields['to_do_start_time'] = ($ticket['scheduled_lock'] > 0 ? $ticket['to_do_start_time'] : $start_time);
+
+					//Record history
+					$ticket_histories = [];
+					foreach($updated_fields as $key => $updated_field) {
+						if($ticket[$key] != $updated_field) {
+							$ticket_histories[$key] = "$key updated to $updated_field";
+						}
+					}
+					if($ticket['equipment_assignmentid'] != $equipment_assignmentid) {
+						$ea_contacts = [];
+						foreach(explode(',', $contact) as $ea_contact) {
+							if($ea_contact > 0) {
+								$ea_contacts[] = get_contact($dbc, $ea_contact);
+							}
+						}
+						$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+					}
+					if(!empty($ticket_histories)) {
+						mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #$id of tickets updated: ".implode(', ',$ticket_histories)."')");
 					}
 				}
 			}
@@ -1871,6 +2011,7 @@ if($_GET['fill'] == 'move_appt_month') {
 		} else {
 			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 		}
+		$updated_fields = [];
 		if($_POST['blocktype'] == 'dispatch_staff') {
 			$contact_id = $_POST['contact'];
 			if(empty($contact_id)) {
@@ -1888,6 +2029,7 @@ if($_GET['fill'] == 'move_appt_month') {
 				$equipmentid = $equip_assign['equipmentid'];
 			} else {
 				$dispatch_staff_query = ", `contactid` = ',$contact_id,'";
+				$updated_fields['contactid'] = ",$contact_id,";
 			}
 		} else {
 			$equipmentid = $_POST['contact'];
@@ -1918,6 +2060,7 @@ if($_GET['fill'] == 'move_appt_month') {
 			}
 			$contact = implode(',',$contact);
 			$equipassign_query = ", `contactid` = ',$contact,', `teamid` = '$teamid', `region` = '$region', `con_location` = '$location', `classification` = '$classification'";
+			$updated_fields['contactid'] = ",$contact,";
 		} else {
 			$equipassign_query = "";
 			if(!empty($equipmentid)) {
@@ -1936,6 +2079,12 @@ if($_GET['fill'] == 'move_appt_month') {
 				}
 			}
 		}
+		$updated_fields['equipmentid'] = $equipmentid;
+		$updated_fields['equipment_assignmentid'] = $equipment_assignmentid;
+		$updated_fields['teamid'] = empty($teamid) ? 0 : $teamid;
+		$updated_fields['region'] = $region;
+		$updated_fields['con_location'] = $location;
+		$updated_fields['classification'] = $classification;
 		$date_diff = strtotime($new_date) - strtotime(date('Y-m-d', strtotime($ticket['to_do_date'])));
 		$end_date = strtotime(date('Y-m-d', strtotime($ticket['to_do_end_date']))) + $date_diff;
 		$new_end_date = date('Y-m-d', $end_date);
@@ -1945,6 +2094,28 @@ if($_GET['fill'] == 'move_appt_month') {
 				mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipmentid` = '$equipmentid', `to_do_date` = '$new_date', `to_do_end_date` = '$new_end_date' $equipassign_query $dispatch_staff_query WHERE `id` = '$ticket_scheduleid'");
 			} else {
 				mysqli_query($dbc, "UPDATE `tickets` SET `equipmentid` = '$equipmentid', `to_do_date` = '$new_date', `to_do_end_date` = '$new_end_date' $equipassign_query $dispatch_staff_query WHERE `ticketid` = '$ticketid'");
+			}
+			$updated_fields['to_do_date'] = $new_date;
+			$updated_fields['to_do_end_date'] = $new_end_date;
+
+			//Record history
+			$ticket_histories = [];
+			foreach($updated_fields as $key => $updated_field) {
+				if($ticket[$key] != $updated_field) {
+					$ticket_histories[$key] = "$key updated to $updated_field";
+				}
+			}
+			if($ticket['equipment_assignmentid'] != $equipment_assignmentid) {
+				$ea_contacts = [];
+				foreach(explode(',', $contact) as $ea_contact) {
+					if($ea_contact > 0) {
+						$ea_contacts[] = get_contact($dbc, $ea_contact);
+					}
+				}
+				$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+			}
+			if(!empty($ticket_histories)) {
+				mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #".($_POST['ticket_table'] == 'ticket_schedule' ? $ticket_scheduleid : $ticketid)." of ".($_POST['ticket_table'] == 'ticket_schedule' ? 'ticket_schedule' : 'tickets')." updated: ".implode(', ',$ticket_histories)."')");
 			}
 		}
 	} else if($item_type == 'estimate') {
@@ -2176,6 +2347,8 @@ if($_GET['fill'] == 'equip_assign_draggable') {
 	$start_date = $equipment_assignment['start_date'];
 	$end_date = $equipment_assignment['end_date'];
 
+	$updated_fields = ['equipmentid'=>$equipmentid, 'teamid'=>(empty($teamid) ? 0 : $teamid), 'region'=>$region, 'con_location'=>$location, 'classification'=>$classification];
+
     //Retrieve existing Tickets with this equipmentid and lands between the start and end dates
     $all_tickets_sql = "SELECT 'tickets' `ticket_table`, `ticketid` `t_id` FROM `tickets` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0 UNION
     	SELECT 'ticket_schedule' `ticket_table`, `id` `t_id` FROM `ticket_schedule` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
@@ -2199,10 +2372,30 @@ if($_GET['fill'] == 'equip_assign_draggable') {
     foreach ($tickets as $ticket) {
         if($online) {
         	if($ticket['ticket_table'] == 'tickets') {
+				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `ticketid` = '".$ticket['t_id']."'");
         	} else {
+				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['t_id']."'");
         	}
+
+			//Record history
+			$ticket_histories = [];
+			foreach($updated_fields as $key => $updated_field) {
+				if($ticket_details[$key] != $updated_field) {
+					$ticket_histories[$key] = "$key updated to $updated_field";
+				}
+			}
+			$ea_contacts = [];
+			foreach(explode(',', $contact) as $ea_contact) {
+				if($ea_contact > 0) {
+					$ea_contacts[] = get_contact($dbc, $ea_contact);
+				}
+			}
+			$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+			if(!empty($ticket_histories)) {
+				mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['t_id']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['t_id']} of {$ticket['ticket_table']} updated: ".implode(', ',$ticket_histories)."')");
+			}
 		}
     }
 }
@@ -2279,12 +2472,26 @@ if($_GET['fill'] == 'equip_assign_remove_staff') {
     $contact = implode(',',$contact);
     foreach ($tickets as $ticket) {
         if($online) {
-			// mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `ticketid` = '".$ticket['ticketid']."'");
         	if($ticket['ticket_table'] == 'tickets') {
+				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `ticketid` = '".$ticket['t_id']."'");
         	} else {
+				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['t_id']."'");
         	}
+
+			//Record history
+			$ticket_histories = [];
+			$ea_contacts = [];
+			foreach(explode(',', $contact) as $ea_contact) {
+				if($ea_contact > 0) {
+					$ea_contacts[] = get_contact($dbc, $ea_contact);
+				}
+			}
+			$ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+			if(!empty($ticket_histories)) {
+				mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['t_id']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['t_id']} of {$ticket['ticket_table']} updated: ".implode(', ',$ticket_histories)."')");
+			}
 		}
     }
 } else if($_GET['action'] == 'finish_edits') {
@@ -2457,7 +2664,7 @@ if($_GET['fill'] == 'check_ticket_last_updated') {
 	$ticketid = $_POST['ticketid'];
 	$ticket_table = $_POST['ticket_table'];
 	$ticket_scheduleid = $_POST['ticket_scheduleid'];
-	$timestamp = $_POST['timestamp'];
+	$timestamp = convert_timestamp_mysql($dbc, $_POST['timestamp']);
 	if($ticket_table == 'ticket_schedule') {
 		$last_updated = mysqli_fetch_array(mysqli_query($dbc, "SELECT `last_updated_time` FROM `ticket_schedule` WHERE `id` = '$ticket_scheduleid'"))['last_updated_time'];
 	} else {

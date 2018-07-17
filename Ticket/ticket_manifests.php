@@ -298,7 +298,7 @@ if($siteid == 'recent') {
 									<?php } ?>
 								</div>
 							</td><?php } ?>
-						<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= html_entity_decode($site_notes) ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
+						<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= html_entity_decode($site_notes) ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>
 						<?php if((!in_array('req site',$manifest_fields) || $siteid > 0) && !in_array('group pieces',$manifest_fields)) { ?><td data-title="Add">
 							<label class="form-checkbox any-width"><input type="checkbox" name="include[]" value="<?= $ticket['id'] ?>">Include</label>
 							<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">

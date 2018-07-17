@@ -82,7 +82,7 @@ if (isset($_POST['printpdf'])) {
     <?php
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
-    } ?>
+} ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>

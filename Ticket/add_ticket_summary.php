@@ -87,7 +87,7 @@ $summary_hide_positions = array_filter(explode('#*#', $summary_hide_positions));
 
 $hide_positions = '';
 if(!empty($summary_hide_positions)) {
-	$hide_positions = " AND `position` NOT IN ('".implode("','", $summary_hide_positions)."')";
+	$hide_positions = " AND IFNULL(`position`,'') NOT IN ('".implode("','", $summary_hide_positions)."')";
 }
 ?>
 <h3><?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : (strpos($value_config, ','."Staff Summary".',') !== FALSE ? 'Staff Summary' : 'Summary')) ?><?= !empty($_GET['date']) ? ' - '.$_GET['date'] : '' ?></h3>
