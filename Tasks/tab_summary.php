@@ -49,6 +49,7 @@ checkAuthorised('tasks'); ?>
 
     </div><!-- #summary-div -->
 
+<!--
     <?php
         echo '<div class="col-xs-12 gap-top">';
             echo '<div class="overview-block">';
@@ -89,8 +90,8 @@ checkAuthorised('tasks'); ?>
             echo '</div>';
         echo '</div>';
 
-
         ?>
+-->
 
 </div><!-- .standard-dashboard-body-content -->
 
