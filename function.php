@@ -1387,7 +1387,7 @@ function get_software_name() {
 		$rookconnect = 'genuine';
     } else if ( stripos( $software_url, 'ffm.rookconnect.com' ) !== false || stripos( $software_url, 'demo.rookconnect.com' ) !== false ) {
         $rookconnect = 'rook';
-	} else if ( $software_url == 'localhost' ) {
+	} else if ( $software_url == 'localhost' || $software_url == 'local.rookconnect' ) {
 		$rookconnect = 'localhost';
 	}
 

@@ -4,6 +4,7 @@ Newsbaord
 FFM
 */
 include_once ('include.php');
+include ('database_connection_htg.php');
 ?>
 <!--Masonry Layout-->
 <script src="<?php echo WEBSITE_URL; ?>/js/imagesloaded.pkgd.min.js"></script>
@@ -47,7 +48,7 @@ $(document).ready(function() {
     
 	$query = "
 		SELECT DISTINCT
-			news.newsboardid AS nID, news.title AS title, news.description AS description, news.expiry_date,
+            news.newsboardid AS nID, news.title AS title, news.description AS description, news.expiry_date,
 			img.document_link AS image
 		FROM
 			newsboard AS news
@@ -59,14 +60,45 @@ $(document).ready(function() {
             (news.expiry_date > NOW() OR news.expiry_date='0000-00-00' OR news.issue_date > DATE_SUB(NOW(), INTERVAL 1 YEAR))
 		GROUP BY
 			news.newsboardid DESC";
+    
+    //Get softwarewide news boards
+    $query_sw = "
+		SELECT DISTINCT
+            news.newsboardid AS nID, news.title AS title, news.description AS description, news.expiry_date,
+			img.document_link AS image
+		FROM
+			newsboard AS news
+		JOIN
+			newsboard_uploads AS img ON (news.newsboardid = img.newsboardid)
+		WHERE
+			news.deleted = 0 AND
+            news.newsboard_type = 'Softwarewide' AND
+            (news.expiry_date > NOW() OR news.expiry_date='0000-00-00' OR news.issue_date > DATE_SUB(NOW(), INTERVAL 1 YEAR))
+		GROUP BY
+			news.newsboardid DESC";
 			
     echo '<div class="rows grid">';
-
+        
+        // Softwarewide news boards added by FFM
+        $results_sw = mysqli_query($dbc_htg, $query_sw);
+        if ( $results_sw->num_rows > 0 ) {
+            while ( $row_sw = mysqli_fetch_assoc ( $results_sw ) ) {
+                $desc = html_entity_decode ( $row_sw[ 'description' ] ); ?>
+                <div class="nb-block col-sm-3 col-md-3 grid-item">
+                    <div class="nb-title"><h2><?= str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $row_sw[ 'title' ]); ?></h2></div>
+                    <div class="nb-img"><?php if($row_sw[ 'image' ] !== NULL && $row_sw[ 'image' ] !== '') { ?><img src="https://ffm.rookconnect.com/News Board/download/<?= $row_sw[ 'image' ]; ?>" alt="<?= $row_sw[ 'title' ]; ?>" /><?php } ?></div>
+                    <div class="nb-desc"><?= limit_text( str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $desc), 50 ); ?></div>
+                    <div class="nb-more"><a href="newsitem.php?sw=yes&id=<?= $row_sw[ 'nID' ]; ?>" class="btn brand-btn mobile-block pull-right">Read More</a></div>
+                    <div class="clearfix"></div>
+                </div><?php
+            }
+        }
+        
         if ( isset($dbczen) && isset($sea_software_dbc) ) {
             // START If cross_software is set START //
             $results = mysqli_query($dbczen, $query);
             $cross_num_rows = mysqli_num_rows($results);
-            if ( $results->num_rows > 0 ) { 
+            if ( $results->num_rows > 0 ) {
                 while ( $row = mysqli_fetch_assoc ( $results ) ) {
                     $desc = html_entity_decode ( $row[ 'description' ] ); ?>
                     <div class="nb-block col-sm-3 col-md-3 grid-item">
