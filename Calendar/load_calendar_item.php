@@ -771,6 +771,200 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$shift_urls = rtrim($shift_urls, ', ');
 		$calendar_table[$calendar_date][$contact_id]['warnings'] = "The following Shifts/Days Off are either out of the Calendar time-frame, has a time conflict, or there are too many Shifts/Days Off: ".$shift_urls;
 	}
+} else if($calendar_type == 'ticket' && $_GET['block_type'] == 'team') {
+	// Contact Blocks - Tickets
+	// $contact_id = explode('team_',$contact_id)[1];
+
+	//Populate the text for the column header
+	$team =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$contact_id'"));
+	$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/teams.php?teamid='.$contact_id.'\'); return false;">Team #'.$team['teamid'].'</a><br />';
+
+	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
+	$contacts_query = [];
+	$contacts_arr = [];
+	foreach ($contact_list as $contact) {
+		$team_name .= '<span class="team_staff" data-contact="'.$contact['contactid'].'" data-contact-name="'.get_contact($dbc, $contact['contactid']).'">'.($edit_access == 1 ? '<sup><a href="" onclick="removeStaffTeam(this); return false;" style="font-size: x-small; color: #888; text-decoration: none; top: -02.em; position: relative;">x</a></sup>' : '').(!empty($contact['contact_position']) ? $contact['contact_position'] : get_contact($dbc, $contact['contactid'], 'category')).': '.get_contact($dbc, $contact['contactid']).'</span><br />';
+		if(strtolower(get_contact($dbc, $contact['contactid'], 'category')) == 'staff') {
+			$contacts_query[] = " CONCAT(',',IFNULL(`contactid`,''),',') LIKE '%,".$contact['contactid'].",%'";
+			$contacts_arr[] = $contact['contactid'];
+		}
+	}
+	if(!empty($contacts_query)) {
+		$contacts_query = " AND ".implode(" AND ", $contacts_query);
+		$contacts_arr = array_filter(array_unique($contacts_arr));
+		sort($contacts_arr);
+		$contacts_arr = implode(',',$contacts_arr);
+	} else {
+		$contacts_query = " AND 1=0";
+		$contacts_arr = ',PLACEHOLDER,';
+	}
+	$team_name = rtrim($team_name, '<br />');
+
+	$calendar_table[$calendar_date][$contact_id]['title'] = '<div class="team_assign_block" data-date="'.$calendar_date.'" data-team="'.$contact_id.'">'.$team_name.'</div>';
+	$calendar_table[$calendar_date][$contact_id]['calendar_type'] = $calendar_type;
+
+	//Pull all tickets for the current contact from the ticket table
+	$all_tickets_sql = "SELECT * FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND `to_do_end_date` AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query;
+	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
+	$tickets_time = [];
+	$tickets_notime = [];
+	$tickets_multiday = [];
+	while($row_tickets = mysqli_fetch_array($result_tickets_sql)) {
+		$ticket_contacts = array_filter(array_unique(explode(',',$row_tickets['contactid'])));
+		sort($ticket_contacts);
+		if(implode(',',$ticket_contacts) == $contacts_arr) {
+	        if ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) {
+	        	if ($row_tickets['to_do_date'] != $row_tickets['to_do_end_date']) {
+	        		$tickets_multiday[] = $row_tickets;
+	        	} else {
+	        		if (!empty($row_tickets['to_do_start_time'])) {
+		        		$tickets_time[] = $row_tickets;
+		        	} else {
+		        		$tickets_notime[] = $row_tickets;
+		        	}
+	        	}
+	        }
+	    }
+	}
+
+	//Pull all shifts for the current contact from the contacts_shifts table
+	$shifts = [];
+	$daysoff = [];
+
+	if(!empty($shifts)) {
+		$start_time = date('H:i:s', strtotime($shifts[0]['starttime']));
+	} else {
+		if($availability_indication == 1) {
+			$shifts = 'NO_SHIFT';
+			$daysoff = 'NO_DAYSOFF';
+		}
+		$start_time = date('H:i:s', strtotime($day_start));
+	}
+
+	//Loop through each time on the calendar and populate it
+	$current_duration = 0;
+	$current_row = date('H:i:s', strtotime($day_start));
+	while(strtotime($current_row) <= strtotime($day_end)) {
+		if ($current_duration > 0) {
+			$current_duration = $current_duration - ($day_period * 60);
+			$current_ticket = ['ticket', ''];
+		} else {
+			$current_ticket = '';
+		}
+		foreach ($tickets_time as $key => $ticket) {
+			$current_start_time = date('H:i:s', strtotime($ticket['to_do_start_time']));
+			if (!empty($ticket['to_do_end_time'])) {
+				$ticket_duration = (strtotime($ticket['to_do_end_time']) - strtotime($current_start_time));
+			} else {
+				$estimated_time = explode(':',$ticket['max_time']);
+				$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
+			}
+			if ($current_row <= $current_start_time && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > $current_start_time) {
+				$current_ticket = ['ticket', $ticket];
+				if ($current_duration <= $ticket_duration - ($day_period * 60)) {
+					$current_duration = $ticket_duration - ($day_period * 60);
+				}
+				unset($tickets_time[$key]);
+				$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+				if(in_array($ticket['status'],$calendar_checkmark_status)) {
+					$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+				}
+			}
+		}
+		if ($current_ticket == '' && !empty($tickets_notime) && $current_row >= $start_time) {
+			$ticket_notime = array_shift($tickets_notime);
+			$estimated_time = explode(':', $ticket_notime['max_time']);
+			$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
+			$current_ticket = ['ticket', $ticket_notime];
+			$current_duration = $ticket_duration - ($day_period * 60);
+			$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+			if(in_array($ticket_notime['status'],$calendar_checkmark_status)) {
+				$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+			}
+		}
+		if (empty($shifts) && $current_ticket == '') {
+			$current_ticket = ['ticket', 'SHIFT', $current_row, $calendar_date, $contact_id];
+		}
+		$calendar_table[$calendar_date][$contact_id][] = $current_ticket;
+		$current_row = date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row)));
+		if(date('Y-m-d H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) >= date('Y-m-d H:i:s', strtotime($day_end))) {
+			break;
+		}
+	}
+
+	if (!empty($tickets_multiday)) {
+		$current_ticket = $tickets_multiday[0];
+		if ($current_ticket['to_do_date'] == $calendar_date && !empty($current_ticket['to_do_start_time'])) {
+			$current_row = ceil((strtotime($current_ticket['to_do_start_time']) - strtotime($day_start)) / ($day_period * 60));
+			if(empty($calendar_table[$calendar_date][$contact_id][$current_row]) || $calendar_table[$calendar_date][$contact_id][$current_row][1] == 'SHIFT') {
+				array_shift($tickets_multiday);
+				$calendar_table[$calendar_date][$contact_id][$current_row] = ['ticket', $current_ticket, 'all_day_ticket'];
+				$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+				if(in_array($current_ticket['status'],$calendar_checkmark_status)) {
+					$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+				}
+			}
+		} else {
+			for ($ticket_i = 0; $ticket_i < count($calendar_table[$calendar_date][$contact_id]); $ticket_i++) {
+				if (date('H:i:s', strtotime($day_start) + ($ticket_i * $day_period * 60)) >= $start_time && ($calendar_table[$calendar_date][$contact_id][$ticket_i] == '' || $calendar_table[$calendar_date][$contact_id][$ticket_i] [1] == 'SHIFT')) {
+					$calendar_table[$calendar_date][$contact_id][$ticket_i] = ['ticket', $current_ticket, 'all_day_ticket'];
+					array_shift($tickets_multiday);
+					$current_row = $ticket_i;
+					$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+					if(in_array($current_ticket['status'],$calendar_checkmark_status)) {
+						$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+					}
+					break;
+				}
+			}
+		}
+		$ticket_end_time = (!empty($current_ticket['to_do_end_time']) && $current_ticket['to_do_end_date'] == $calendar_date) ? strtotime($current_ticket['to_do_end_time']) : strtotime($day_end);
+		$ticket_end_time = ceil(($ticket_end_time - strtotime($day_start)) / ($day_period * 60));
+		while ($current_row < $ticket_end_time) {
+			if ($calendar_table[$calendar_date][$contact_id][$current_row][1] == 'SHIFT') {
+				$calendar_table[$calendar_date][$contact_id][$current_row] = '';
+			}
+			$current_row++;
+		}
+	}
+
+	$tickets_not_scheduled = [];
+	foreach ($tickets_time as $ticket) {
+		$tickets_not_scheduled[] = $ticket['ticketid'];
+		$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+			$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+		}
+	}
+	foreach ($tickets_notime as $ticket) {
+		$tickets_not_scheduled[] = $ticket['ticketid'];
+		$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+			$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+		}
+	}
+	foreach ($tickets_multiday as $ticket) {
+		$tickets_not_scheduled[] = $ticket['ticketid'];
+		$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
+		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+			$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
+		}
+	}
+	$ticket_notes[$calendar_date][$contact_id] = $tickets_not_scheduled;
+
+	//Add warnings
+	if(!empty($ticket_notes[$calendar_date][$contact_id])) {
+		$ticket_urls = '';
+		foreach($ticket_notes[$calendar_date][$contact_id] as $ticketid) {
+			if($edit_access == 1) {
+				$ticket_urls .= "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticketid."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>#".$ticketid."</a>, ";
+			} else {
+				$ticket_urls .= '#'.$ticketid.', ';
+			}
+		}
+		$ticket_urls = rtrim($ticket_urls, ', ');
+		$calendar_table[$calendar_date][$contact_id]['warnings'] = "The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
+	}
 } else if($calendar_type == 'ticket') {
 	// Contact Blocks - Tickets
 

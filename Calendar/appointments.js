@@ -7,6 +7,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		// itemsResizable();
 		unbookedDraggable();
 		dispatchDraggable();
+		teamsDraggable();
 		reloadDragResize();
 		$('div.used-block').each(function() {
 			blockFontResize($(this));
@@ -34,6 +35,10 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		$('.equip_assign_div').find('.equip_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
 			$(this).addClass('sorting-initialize');
 			$('.equip_assign_div').sortable('refresh');
+		});
+		$('.team_assign_div').find('.team_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+			$(this).addClass('sorting-initialize');
+			$('.team_assign_div').sortable('refresh');
 		});
 		$('.unbooked, .bookable').find('.block-item:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
 			$(this).addClass('sorting-initialize');
@@ -68,6 +73,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		// itemsResizable();
 		unbookedDraggable();
 		dispatchDraggable();
+		teamsDraggable();
 	}
 
 	// Resizable shift to allow time ranges
@@ -186,8 +192,9 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					contact = target.data('contact');
 					calendar_type = target.data('calendartype');
 					equipassign = target.data('equipassign');
+					td_blocktype = target.data('blocktype');
 					if(target.closest('tr').find('td').first().text() != 'Notes' && target.closest('tr').find('td').first().text() != 'Reminders' && target.closest('tr').find('td').first().text() != 'Warnings' && $('.highlightCell').last().data('draggable') != '0' && parseInt(contact) > 0) {
-						data = { id: id, time_slot: new_time, duration: duration, appointment: appt, old_contact: old_contact, contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'move', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype };
+						data = { id: id, time_slot: new_time, duration: duration, appointment: appt, old_contact: old_contact, contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'move', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
 						if(item_type == 'shift') {
 							data.old_date = old_date;
 							data.recurring = recurring;
@@ -323,8 +330,9 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					new_date = target.data('date');
 					contact = target.data('contact');
 					calendar_type = target.data('calendartype');
+					td_blocktype = target.data('blocktype');
 
-					data = { id: id, time_slot: new_time, duration: duration, appointment: appt, contact: contact, old_contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'resize', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype };
+					data = { id: id, time_slot: new_time, duration: duration, appointment: appt, contact: contact, old_contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'resize', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
 					if(item_type == 'shift' && recurring == 'yes') {
 					    $( "#dialog-confirm" ).dialog({
 							resizable: false,
@@ -430,6 +438,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 				if($('.highlightCell').length > 0) {
 					var td = $('.highlightCell');
 					var calendar_type = td.data('calendartype');
+					var td_blocktype = td.data('blocktype');
 					var item_type = blocks[0].data('type');
 					if(item_type == 'ticket' && calendar_type != 'schedule' && calendar_type != 'event') {
 						$( "#dialog-staff-add" ).dialog({
@@ -439,11 +448,11 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 							modal: true,
 							buttons: {
 						        "Add Staff": function() {
-						        	ajaxUnbooked(blocks, block, 1);
+						        	ajaxUnbooked(blocks, block, 1, td_blocktype);
 						        	$(this).dialog('close');
 						        },
 						        "Replace Staff": function() {
-						        	ajaxUnbooked(blocks, block, 0);
+						        	ajaxUnbooked(blocks, block, 0, td_blocktype);
 						        	$(this).dialog('close');
 						        },
 						        Cancel: function() {
@@ -470,7 +479,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 	    });
 	}
 
-	function ajaxUnbooked(blocks, block, add_staff = 0) {
+	function ajaxUnbooked(blocks, block, add_staff = 0, td_blocktype = '') {
 		var i = 0;
 		var td = $('.highlightCell').removeClass('highlightCell');
 		var new_contact = td.data('contact');
@@ -525,7 +534,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 							var unbooked_request = $.ajax({
 								url: '../Calendar/calendar_ajax_all.php?fill=schedule_unbooked&offline='+offline_mode,
 								method: 'POST',
-								data: { time_slot: new_time, item: item.data('type'), id: item.data('id'), contact: td.data('contact'), duration: td.data('duration'), mode: page_mode, calendar_type: calendar_type, equipassign: td.data('equipassign'), blocktype: item.data('blocktype'), blocktable: item.data('table'), add_staff: add_staff },
+								data: { time_slot: new_time, item: item.data('type'), id: item.data('id'), contact: td.data('contact'), duration: td.data('duration'), mode: page_mode, calendar_type: calendar_type, equipassign: td.data('equipassign'), blocktype: item.data('blocktype'), blocktable: item.data('table'), add_staff: add_staff, td_blocktype: td_blocktype },
 								success: function(response) {
 									// var block_a = $(item).closest('a')
 									// $(block_a).prev('label').remove();
@@ -534,6 +543,9 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 										$(item).closest('.block-item').data('timestamp', response);
 									} else {
 										$(item).closest('.block-item').remove();
+									}
+									if($('#collapse_teams .block-item.active').length > 0) {
+										reload_teams();
 									}
 								}
 							});
@@ -544,7 +556,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					var unbooked_request = $.ajax({
 						url: '../Calendar/calendar_ajax_all.php?fill=schedule_unbooked&offline='+offline_mode,
 						method: 'POST',
-						data: { time_slot: new_time, item: item.data('type'), id: item.data('id'), contact: td.data('contact'), duration: td.data('duration'), mode: page_mode, calendar_type: calendar_type, equipassign: td.data('equipassign'), blocktype: item.data('blocktype'), blocktable: item.data('table'), add_staff: add_staff },
+						data: { time_slot: new_time, item: item.data('type'), id: item.data('id'), contact: td.data('contact'), duration: td.data('duration'), mode: page_mode, calendar_type: calendar_type, equipassign: td.data('equipassign'), blocktype: item.data('blocktype'), blocktable: item.data('table'), add_staff: add_staff, td_blocktype: td_blocktype },
 						success: function(response) {
 							// var block_a = $(item).closest('a')
 							// $(block_a).prev('label').remove();
@@ -588,35 +600,39 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			method: 'POST',
 			data: data,
 			success: function(response) {
-				if(response != '') {
-					all_contacts = JSON.parse(response);
-					$.each(all_contacts, function() {
-						var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
-						retrieve_items(anchor);
-					});
+				if($('#collapse_teams .block-item.active').length > 0) {
+					reload_teams();
 				} else {
-					// window.location.reload();
-					if(!(old_contact > 0) && !(new_contact > 0)) {
-						reload_all_data();
-					} else if(data.move_type == 'resize') {
-						$('#'+retrieve_collapse).find('.block-item.active').each(function() {
-							retrieve_items($(this).closest('a'), old_date);
+					if(response != '') {
+						all_contacts = JSON.parse(response);
+						$.each(all_contacts, function() {
+							var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
+							retrieve_items(anchor);
 						});
 					} else {
-						if(old_contact > 0) {
-							var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
-							if(old_date != new_date) {
-								retrieve_items(anchor);
-							} else {
-								retrieve_items(anchor, old_date);
+						// window.location.reload();
+						if(!(old_contact > 0) && !(new_contact > 0)) {
+							reload_all_data();
+						} else if(data.move_type == 'resize') {
+							$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+								retrieve_items($(this).closest('a'), old_date);
+							});
+						} else {
+							if(old_contact > 0) {
+								var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
+								if(old_date != new_date) {
+									retrieve_items(anchor);
+								} else {
+									retrieve_items(anchor, old_date);
+								}
 							}
-						}
-						if(new_contact > 0) {
-							var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
-							if(old_date != new_date) {
-								retrieve_items(anchor);
-							} else {
-								retrieve_items(anchor, new_date);
+							if(new_contact > 0) {
+								var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+								if(old_date != new_date) {
+									retrieve_items(anchor);
+								} else {
+									retrieve_items(anchor, new_date);
+								}
 							}
 						}
 					}
@@ -689,6 +705,42 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			},
 			sort: function(e, block) {
 				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.equip_assign_block').first();
+				$('.highlightCell').removeClass('highlightCell');
+				td.addClass('highlightCell');
+			}
+		});
+	}
+
+	// Teams draggables
+	function teamsDraggable() {
+		$('.team_assign_div').sortable({
+			connectWith: ".team_assign_block",
+			items: '.team_assign_draggable.sorting-initialize',
+			handle: '.drag-handle',
+			beforeStop: function(e, td) {
+				if($('.highlightCell').length > 0) {
+
+					var staffid = td.item.data('staff');
+					var target = $('.highlightCell').removeClass('highlightCell');
+					var teamid = target.data('team');
+					var date = target.data('date');
+
+					data = { staffid: staffid, teamid: teamid, date: date };
+					if(teamid != undefined && teamid > 0) {
+						$.ajax({
+							url: '../Calendar/calendar_ajax_all.php?fill=team_assign_draggable&offline='+offline_mode,
+							method: 'POST',
+							data: data,
+							success: function(response) {
+								// console.log(response);
+								reload_teams(response);
+							}
+						});
+					}
+				}
+			},
+			sort: function(e, block) {
+				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.team_assign_block').first();
 				$('.highlightCell').removeClass('highlightCell');
 				td.addClass('highlightCell');
 			}
@@ -916,7 +968,7 @@ function removeStaffEquipAssign(link) {
 	var confirm_string = "Are you sure you want to remove "+contact_name+" from "+equipment_label+" on "+date+"?";
 
 	if(confirm(confirm_string)) {
-		data = { contactid: contactid, equipment_assignid: equipment_assignid, date: date }
+		data = { contactid: contactid, equipment_assignid: equipment_assignid, date: date };
 		$.ajax({
 			url: '../Calendar/calendar_ajax_all.php?fill=equip_assign_remove_staff&offline='+offline_mode,
 			method: 'POST',
@@ -931,6 +983,26 @@ function removeStaffEquipAssign(link) {
 				} else {
 				    reload_all_data();
 				}
+			}
+		});
+	}
+}
+function removeStaffTeam(link) {
+	var contactid = $(link).closest('.team_staff').data('contact');
+	var contact_name = $(link).closest('.team_staff').data('contact-name');
+	var teamid = $(link).closest('.team_assign_block').data('team');
+	var date = $(link).closest('.team_assign_block').data('date');
+
+	var confirm_string = "Are you sure you want to remove "+contact_name+" from this team on "+date+"?";
+
+	if(confirm(confirm_string)) {
+		data = { contactid: contactid, teamid: teamid, date: date };
+		$.ajax({
+			url: '../Calendar/calendar_ajax_all.php?fill=team_assign_remove_staff',
+			method: 'POST',
+			data: data,
+			success: function(response) {
+				reload_teams(teamid);
 			}
 		});
 	}

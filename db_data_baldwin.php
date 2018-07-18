@@ -236,5 +236,11 @@
     }
     //2018-07-13 - Task #6494 - AAFS Positions
 
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `teams` ADD `hide_days` text NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
