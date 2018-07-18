@@ -454,7 +454,7 @@ foreach($_POST['projectids'] as $projectid) {
                 <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=document]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File"></a>
                 <!-- document -->
 
-                <a href="Add Timer" onclick="$(this).closest('.dashboard-item').find('.timer').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Add Note" /></a>
+                <a href="Add Timer" onclick="$(this).closest('.dashboard-item').find('.timer').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Start Timer" /></a>
                 <!-- Timer -->
 
                 <!-- archive -->
