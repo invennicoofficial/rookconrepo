@@ -831,7 +831,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 							return (row.contactid == contact && row.block_type == block_type);
 						});
 						if(!item_row[0].loaded) {
-							load_item = load_items(item_row[0], calendar_date, contact, block_type);
+							load_item = load_items(item_row[0], calendar_date, contact, 'next', block_type);
 							item_row[0].loaded = true;
 							i++;
 						}
@@ -904,7 +904,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 	loadingOverlayShow('.calendar_view');
 	var deferred = $.Deferred();
 	//Does this column already exist?
-	var contact_title = $('.calendar_view table:not(#time_html) th[data-contact='+contact+'][data-date='+date+']');
+	var contact_title = $('.calendar_view table:not(#time_html) th[data-contact='+contact+'][data-date='+date+'][data-blocktype='+block_type+']');
 
 	var filter_query = '';
 	if (contact_title.length > 0) {
@@ -1062,7 +1062,7 @@ function scrollToToday() {
 				columns_to_load.forEach(function(col) {
 					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
-						return row.contactid == col_arr[1];
+						return row.contactid == col_arr[1] && row.block_type == col_arr[2];
 					});
 					if(!item_row[0].loaded) {
 						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2]);
