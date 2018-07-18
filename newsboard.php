@@ -52,7 +52,7 @@ $(document).ready(function() {
 			img.document_link AS image
 		FROM
 			newsboard AS news
-		JOIN
+		LEFT JOIN
 			newsboard_uploads AS img ON (news.newsboardid = img.newsboardid)
 		WHERE
 			news.deleted = 0 AND
@@ -68,7 +68,7 @@ $(document).ready(function() {
 			img.document_link AS image
 		FROM
 			newsboard AS news
-		JOIN
+		LEFT JOIN
 			newsboard_uploads AS img ON (news.newsboardid = img.newsboardid)
 		WHERE
 			news.deleted = 0 AND
