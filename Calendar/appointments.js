@@ -1002,7 +1002,7 @@ function removeStaffTeam(link) {
 			method: 'POST',
 			data: data,
 			success: function(response) {
-				reload_teams(teamid);
+				reload_teams(response);
 			}
 		});
 	}

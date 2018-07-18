@@ -640,9 +640,11 @@ if($_GET['fill'] == 'move_appt') {
 			if($online) {
 				mysqli_query($dbc, $sql);
 			}
+			$all_contacts_old = $ticket['contactid'].','.$ticket['deliverable_contactid'].','.$ticket['internal_qa_contactid'];
+			$all_contacts_old = array_filter(explode(',', $all_contacts_old));
 			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 			$all_contacts = $ticket['contactid'].','.$ticket['deliverable_contactid'].','.$ticket['internal_qa_contactid'];
-			$all_contacts = array_filter(explode(',', $all_contacts));
+			$all_contacts = array_merge(array_filter(explode(',', $all_contacts)),$all_contacts_old);
 			echo json_encode($all_contacts);
 		}
 	} else if($_POST['item'] == 'ticket_schedule') {
@@ -2621,10 +2623,25 @@ if($_GET['fill'] == 'team_assign_remove_staff') {
 			$ticket_contacts = ','.implode(',',$ticket_contacts).',';
 			mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = '$ticket_contacts' WHERE `ticketid` = '".$ticket['ticketid']."'");
 		}
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1 WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'Staff' AND `item_id` = '$contactid'");
 	}
+	$team = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid'"));
+	if($team['start_date'] == $date && $team['end_date'] == $date) {
+		mysqli_query($dbc, "UPDATE `teams_staff` SET `deleted` = 1 WHERE `teamid` = '$teamid' AND `contactid` = '$contactid'");
+	} else {
+		$team_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `deleted` = 0 AND `teamid` = '$teamid'"),MYSQLI_ASSOC);
+		mysqli_query($dbc, "UPDATE `teams` SET `hide_days` = CONCAT(`hide_days`,',','$date') WHERE `teamid` = '$teamid'");
 
-	mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `src_table` = 'Staff' AND `item_id` = '$contactid'");
-	mysqli_query($dbc, "UPDATE `teams_staff` SET `deleted` = 1 WHERE `teamid` = '$teamid' AND `contactid` = '$contactid'");
+		mysqli_query($dbc, "INSERT INTO `teams` (`region`,`location`,`classification`,`start_date`,`end_date`,`notes`) SELECT `region`,`location`,`classification`,'$date','$date',`notes` FROM `teams` WHERE `teamid` = '$teamid'");
+		$teamid = mysqli_insert_id($dbc);
+
+		foreach($team_staff as $staff) {
+			if($staff['contactid'] != $contactid) {
+				mysqli_query($dbc, "INSERT INTO `teams_staff` (`teamid`, `contactid`, `contact_position`) VALUES ('$teamid', '".$staff['contactid']."', '".$staff['contact_position']."')");
+			}
+		}
+	}
+	echo $teamid;
 }
 if($_GET['action'] == 'finish_edits') {
 	$inserted = '';
