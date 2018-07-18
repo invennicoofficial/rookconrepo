@@ -511,6 +511,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_combine_time'])) {
+		$scheduling_combine_time = $_POST['scheduling_combine_time'];
+	} else {
+		$scheduling_combine_time = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_time' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_time') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_time."' WHERE `name`='scheduling_combine_time'");
 	if (!empty($_POST['scheduling_summary_view'])) {
 		$scheduling_summary_view = $_POST['scheduling_summary_view'];
 	} else {
@@ -518,6 +525,9 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_summary_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_summary_view') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_summary_view."' WHERE `name`='scheduling_summary_view'");
+	$scheduling_warning_num_tickets = filter_var($_POST['scheduling_warning_num_tickets'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_warning_num_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_warning_num_tickets') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_warning_num_tickets."' WHERE `name`='scheduling_warning_num_tickets'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -1974,6 +1984,13 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Time Conflicts:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_time = get_config($dbc, 'scheduling_combine_time'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_time" <?= $scheduling_combine_time == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
@@ -1985,6 +2002,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_summary_view" <?= $scheduling_summary_view == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will disable a Warning message if there are more than this # of <?= TICKET_TILE?>. Leave blank for no Warnings.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Display Warning After # of <?= TICKET_TILE ?>:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets'); ?>
+									<input type="number" name="scheduling_warning_num_tickets" value="<?= $scheduling_warning_num_tickets ?>" class="form-control"></label>
 								</div>
 							</div>
 						</div>

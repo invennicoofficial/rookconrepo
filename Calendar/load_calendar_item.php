@@ -482,8 +482,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		} else {
 			$current_ticket = '';
 		}
+		$current_tickets = [];
 		foreach($tickets as $key => $ticket) {
-			if($current_ticket == '' && $current_row <= date('H:i:s', strtotime($ticket['to_do_start_time'])) && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > date('H:i:s', strtotime($ticket['to_do_start_time']))) {
+			if(($current_ticket == '' || $combine_time == 1) && $current_row <= date('H:i:s', strtotime($ticket['to_do_start_time'])) && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > date('H:i:s', strtotime($ticket['to_do_start_time']))) {
 				$current_start_time = date('H:i:s', strtotime($ticket['to_do_start_time']));
 				$ticket_duration = (strtotime($ticket['to_do_end_time']) - strtotime($current_start_time));
 				if ($current_duration <= $ticket_duration - ($day_period * 60)) {
@@ -501,6 +502,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 				}
 				$current_assignstaff = implode(',', $current_assignstaff);
 				$current_ticket = ['ticket_equip', $ticket, $ticket['region'], $ticket['businessid'], $current_assignstaff, $ticket['teamid'], $equip_assign['equipment_assignmentid'], 'dispatch_equip', $ticket['ticket_table']];
+				$current_tickets[] = $current_ticket;
 				unset($tickets[$key]);
 				$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
 				if(in_array($ticket['status'],$calendar_checkmark_status)) {
@@ -529,6 +531,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		if($current_ticket == '' && $current_duration <= 0) {
 			$current_ticket = ['ticket_equip', 'SHIFT', $current_row, $calendar_date, $equipment, $equip_assign];
 		}
+		if(count($current_tickets) > 1 && $combine_time == 1) {
+			$current_ticket = ['ticket_equip_combine', $current_tickets];
+		}
 		$calendar_table[$calendar_date][$equipment['equipmentid']][] = $current_ticket;
 		$current_row = date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row)));
 		if(date('Y-m-d H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) >= date('Y-m-d H:i:s', strtotime($day_end))) {
@@ -550,6 +555,11 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$ticket_notes[$calendar_date][$equipment['equipmentid']] = $tickets_not_scheduled;
 
 	//Add warnings
+	$calendar_table[$calendar_date][$contact_id]['warnings'] = '';
+	if($warning_num_tickets > 0 && $calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets'] >= $warning_num_tickets) {
+		$calendar_table[$calendar_date][$contact_id]['warnings'] .= 'There are '.$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets'].' '.TICKET_TILE.' on this day which exceeds the set limit of '.$warning_num_tickets.'.';
+	}
+
 	if(!empty($ticket_notes[$calendar_date][$equipment['equipmentid']])) {
 		$ticket_urls = '';
 		foreach($ticket_notes[$calendar_date][$equipment['equipmentid']] as $ticketid) {
@@ -560,8 +570,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 			}
 		}
 		$ticket_urls = rtrim($ticket_urls, ', ');
-		$calendar_table[$calendar_date][$equipment['equipmentid']]['warnings'] = "The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
+		$calendar_table[$calendar_date][$equipment['equipmentid']]['warnings'] .= "<br />The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
 	}
+	$calendar_table[$calendar_date][$contact_id]['warnings'] = trim($calendar_table[$calendar_date][$contact_id]['warnings'], '<br />');
 } else if($_GET['type'] == 'schedule' && $_GET['block_type'] == 'dispatch_staff') {
 	// Contact Blocks - Tickets
 	$teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contact_id' AND `deleted` = 0"));
@@ -615,8 +626,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$current_row = date('H:i:s', strtotime($day_start));
 	while(strtotime($current_row) <= strtotime($day_end)) {
 		$current_ticket = '';
+		$current_tickets = [];
 		foreach($tickets as $key => $ticket) {
-			if($current_ticket == '' && $current_row <= date('H:i:s', strtotime($ticket['to_do_start_time'])) && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > date('H:i:s', strtotime($ticket['to_do_start_time']))) {
+			if(($current_ticket == '' || $combine_time == 1) && $current_row <= date('H:i:s', strtotime($ticket['to_do_start_time'])) && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > date('H:i:s', strtotime($ticket['to_do_start_time']))) {
 				$current_assignstaff = explode(',',$ticket['contactid']);
 				$current_team = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$ticket['teamid']."'"));
 				$current_team_contacts = '';
@@ -628,12 +640,16 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 				}
 				$current_assignstaff = implode(',', $current_assignstaff);
 				$current_ticket = ['ticket_equip', $ticket, $ticket['region'], $ticket['businessid'], $current_assignstaff, $ticket['teamid'], $equip_assign['equipment_assignmentid'], 'dispatch_staff', $ticket['ticket_table']];
+				$current_tickets[] = $current_ticket;
 				unset($tickets[$key]);
 				$calendar_table[$calendar_date][$contact_id]['total_tickets']++;
 				if(in_array($ticket['status'],$calendar_checkmark_status)) {
 					$calendar_table[$calendar_date][$contact_id]['completed_tickets']++;
 				}
 			}
+		}
+		if(count($current_tickets) > 1 && $combine_time == 1) {
+			$current_ticket = ['ticket_equip_combine', $current_tickets];
 		}
 		$calendar_table[$calendar_date][$contact_id][] = $current_ticket;
 		$current_row = date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row)));
@@ -653,6 +669,11 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$ticket_notes[$calendar_date][$contact_id] = $tickets_not_scheduled;
 
 	//Add warnings
+	$calendar_table[$calendar_date][$contact_id]['warnings'] = '';
+	if($warning_num_tickets > 0 && $calendar_table[$calendar_date][$contact_id]['total_tickets'] >= $warning_num_tickets) {
+		$calendar_table[$calendar_date][$contact_id]['warnings'] .= 'There are '.$calendar_table[$calendar_date][$contact_id]['total_tickets'].' '.TICKET_TILE.' on this day which exceeds the set limit of '.$warning_num_tickets.'.';
+	}
+
 	if(!empty($ticket_notes[$calendar_date][$contact_id])) {
 		$ticket_urls = '';
 		foreach($ticket_notes[$calendar_date][$contact_id] as $ticketid) {
@@ -663,8 +684,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 			}
 		}
 		$ticket_urls = rtrim($ticket_urls, ', ');
-		$calendar_table[$calendar_date][$contact_id]['warnings'] = "The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
+		$calendar_table[$calendar_date][$contact_id]['warnings'] .= "<br />The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
 	}
+	$calendar_table[$calendar_date][$contact_id]['warnings'] = trim($calendar_table[$calendar_date][$contact_id]['warnings'], '<br />');
 } else if(isset($_GET['shiftid']) || $_GET['type'] == 'shift' || $_GET['mode'] == 'shift') {
 	// Shift Blocks
 

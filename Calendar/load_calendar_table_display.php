@@ -51,6 +51,9 @@ function resizeBlocks() {
 		$(this).css('left', '0');
 		$(this).css('margin', '0');
 		$(this).css('padding', '0.2em');
+		if($(this).hasClass('combined_blocks')) {
+			$(this).css('padding', '0');
+		}
 		$(this).height((parent.innerHeight() * parseInt(rows)) - header);
 		$(this).height('calc(' + $(this).height() + 'px - 2px + ' + rows + 'px)');
 		$(this).closest('td').find('.ui-resizable-e').height((parent.innerHeight() * parseInt(rows)) - header);
