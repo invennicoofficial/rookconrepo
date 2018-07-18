@@ -97,7 +97,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'View POS Receivables (Basic) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'View POS Receivables (Advanced) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -134,7 +134,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
-    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables (Basic) Report');
+    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables (Advanced) Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
