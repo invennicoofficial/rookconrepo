@@ -4,5 +4,10 @@
 	 */
 	echo "<br /><br />\n\nJay's DB changes:<br />\n";
     
-	echo "Jay's DB Changes Done<br /><br />\n";
+    // 17-Jul-2018
+    if(!mysqli_query($dbc, "CREATE TABLE `newsboard_comments` ( `nbcommentid` INT(11) NOT NULL AUTO_INCREMENT, `newsboardid` INT(11) NOT NULL, `contactid` INT(11) NOT NULL, `created_date` DATE NOT NULL, `comment` TEXT NOT NULL, `deleted` INT(1) NOT NULL DEFAULT '0', PRIMARY KEY (`nbcommentid`));")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+	
+    echo "Jay's DB Changes Done<br /><br />\n";
 ?>
