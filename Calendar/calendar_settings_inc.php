@@ -168,7 +168,7 @@ if($_GET['mode'] == '') {
     }
 }
 if(empty($_GET['region'])) {
-    $_GET['region'] = $allowed_regions[0];
+    $_GET['region'] = 'Display All';
 }
 $region_query = '';
 if(($_GET['region'] == 'Display All' && $allowed_regions != $contact_regions) || $_GET['type'] == 'schedule' && $allowed_regions != $contact_regions) {
