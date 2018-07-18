@@ -69,7 +69,7 @@
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Overtime,') === FALSE ? 'display: none;' : '' ?>">Overtime</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Travel') { ?>
-			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time(KM)</label>
+			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Subsistence') { ?>
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Subsistence,') === FALSE ? 'display: none;' : '' ?>">Subsistence Pay</label>
