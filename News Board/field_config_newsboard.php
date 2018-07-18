@@ -137,9 +137,9 @@ if (isset($_POST['submit'])) {
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set the default comment reply recepient email for Softwarewide News Board posts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set the default comment reply recipient email for Softwarewide News Board posts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                     <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_reply_email">
-                        Choose Default Comment Reply Recepient Email<span class="glyphicon glyphicon-plus"></span>
+                        Choose Default Comment Reply Recipient Email<span class="glyphicon glyphicon-plus"></span>
                     </a>
                 </h4>
             </div>
@@ -149,7 +149,7 @@ if (isset($_POST['submit'])) {
                     <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc_htg, "SELECT comment_reply_recepient_email FROM newsboard_config")); ?>
 
                     <div class="row">
-                        <div class="col-sm-4"><label>Comment Reply Recepient Email</label></div>
+                        <div class="col-sm-4"><label>Comment Reply Recipient Email</label></div>
                         <div class="col-sm-8"><input type="email" class="form-control" name="comment_reply_recepient_email" value="<?= !empty($get_field_config['comment_reply_recepient_email']) ? $get_field_config['comment_reply_recepient_email'] : 'info@rookconnect.com' ?>" /></div>
                     </div>
                 </div>
