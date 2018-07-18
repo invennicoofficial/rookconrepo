@@ -42,7 +42,7 @@ function toggle_columns() {
 				if(all_staff.indexOf(parseInt(contact_id)) == -1) {
 					all_staff.push(parseInt(contact_id));
                     var staff_block = $('#collapse_staff').find('.block-item[data-staff='+contact_id+']');
-                    if(!$(staff_block).hasClass('active')) {
+                    if(!$(staff_block).hasClass('active') && $(staff_block).length > 0) {
                         staff_anchor = $(staff_block).closest('a');
                         retrieve_items_month(staff_anchor, '', true);
                     }
