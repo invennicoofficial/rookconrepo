@@ -568,6 +568,9 @@ checkAuthorised('security');
 						if(strpos($reports,',Ticket by Task,') !== false) { ?>
 							<tr><td><?= TICKET_NOUN ?> by Task</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_by_task' ); ?></tr>
 						<?php }
+						if(strpos($reports,',Ticket Activity Report,') !== false) { ?>
+							<tr><td><?= TICKET_NOUN ?> Activity Report per Customer</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_activity_report' ); ?></tr>
+						<?php }
 						if(strpos($reports,',Rate Card Report,') !== false) { ?>
 							<tr><td>Rate Cards Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'rate_card_report' ); ?></tr>
 						<?php }
