@@ -773,62 +773,63 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	}
 } else if($calendar_type == 'ticket' && $_GET['block_type'] == 'team') {
 	// Contact Blocks - Tickets
-	$contact_id = explode('team_',$contact_id)[1];
+	// $contact_id = explode('team_',$contact_id)[1];
 
 	//Populate the text for the column header
 	$team =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$contact_id'"));
 	$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/teams.php?teamid='.$contact_id.'\'); return false;">Team #'.$team['teamid'].'</a><br />';
 
-	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
+	$contacts_query = [];
+	$contacts_arr = [];
 	foreach ($contact_list as $contact) {
-		$team_name .= '<span class="team_staff" data-contact="'.$contact['contactid'].'" data-contact-name="'.get_contact($dbc, $contact['contactid']).'">'.($edit_access == 1 ? '<sup><a href="" onclick="removeStaffTeam(this); return false;" style="font-size: x-small; color: #888; text-decoration: none; top: -02.em; position: relative;">x</a></sup>' : '').(!empty($contact['contact_position']) ? $contact['contact_position'] : 'Staff').': '.get_contact($dbc, $contact['contactid']).'</span><br />';
+		$team_name .= '<span class="team_staff" data-contact="'.$contact['contactid'].'" data-contact-name="'.get_contact($dbc, $contact['contactid']).'">'.($edit_access == 1 ? '<sup><a href="" onclick="removeStaffTeam(this); return false;" style="font-size: x-small; color: #888; text-decoration: none; top: -02.em; position: relative;">x</a></sup>' : '').(!empty($contact['contact_position']) ? $contact['contact_position'] : get_contact($dbc, $contact['contactid'], 'category')).': '.get_contact($dbc, $contact['contactid']).'</span><br />';
+		if(strtolower(get_contact($dbc, $contact['contactid'], 'category')) == 'staff') {
+			$contacts_query[] = " CONCAT(',',IFNULL(`contactid`,''),',') LIKE '%,".$contact['contactid'].",%'";
+			$contacts_arr[] = $contact['contactid'];
+		}
+	}
+	if(!empty($contacts_query)) {
+		$contacts_query = " AND ".implode(" AND ", $contacts_query);
+		$contacts_arr = array_filter(array_unique($contacts_arr));
+		sort($contacts_arr);
+		$contacts_arr = implode(',',$contacts_arr);
+	} else {
+		$contacts_query = " AND 1=0";
+		$contacts_arr = ',PLACEHOLDER,';
 	}
 	$team_name = rtrim($team_name, '<br />');
 
-
-	$calendar_table[$calendar_date][$contact_id]['title'] = $team_name;
+	$calendar_table[$calendar_date][$contact_id]['title'] = '<div class="team_assign_block" data-date="'.$calendar_date.'" data-team="'.$contact_id.'">'.$team_name.'</div>';
 	$calendar_table[$calendar_date][$contact_id]['calendar_type'] = $calendar_type;
 
 	//Pull all tickets for the current contact from the ticket table
-	$all_tickets_sql = "SELECT * FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND `to_do_end_date`) AND (`contactid` LIKE '%,".$contact_id.",%' OR `internal_qa_contactid` LIKE '%,".$contact_id.",%' OR `deliverable_contactid` LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
+	$all_tickets_sql = "SELECT * FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND `to_do_end_date` AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query;
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
 	$tickets_notime = [];
 	$tickets_multiday = [];
 	while($row_tickets = mysqli_fetch_array($result_tickets_sql)) {
-        if(($row_tickets['status'] == 'Internal QA') && ($calendar_date == $row_tickets['internal_qa_date']) && (strpos($row_tickets['internal_qa_contactid'], ','.$contact_id.',') !== FALSE)) {
-        	if (!empty($row_tickets['internal_qa_start_time'])) {
-        		$tickets_time[] = $row_tickets;
-        	} else {
-        		$tickets_notime[] = $row_tickets;
-        	}
-        } else if (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($calendar_date == $row_tickets['deliverable_date']) && (strpos($row_tickets['deliverable_contactid'], ','.$contact_id.',') !== FALSE)) {
-        	if (!empty($row_tickets['deliverable_start_time'])) {
-        		$tickets_time[] = $row_tickets;
-        	} else {
-        		$tickets_notime[] = $row_tickets;
-        	}
-        } else if (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) && (strpos($row_tickets['contactid'], ','.$contact_id.',') !== FALSE)) {
-        	if ($row_tickets['to_do_date'] != $row_tickets['to_do_end_date']) {
-        		$tickets_multiday[] = $row_tickets;
-        	} else {
-        		if (!empty($row_tickets['to_do_start_time'])) {
-	        		$tickets_time[] = $row_tickets;
+		$ticket_contacts = array_filter(array_unique(explode(',',$row_tickets['contactid'])));
+		sort($ticket_contacts);
+		if(implode(',',$ticket_contacts) == $contacts_arr) {
+	        if ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) {
+	        	if ($row_tickets['to_do_date'] != $row_tickets['to_do_end_date']) {
+	        		$tickets_multiday[] = $row_tickets;
 	        	} else {
-	        		$tickets_notime[] = $row_tickets;
+	        		if (!empty($row_tickets['to_do_start_time'])) {
+		        		$tickets_time[] = $row_tickets;
+		        	} else {
+		        		$tickets_notime[] = $row_tickets;
+		        	}
 	        	}
-        	}
-        }
+	        }
+	    }
 	}
 
 	//Pull all shifts for the current contact from the contacts_shifts table
-	if($use_shifts !== '') {
-		$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'shifts');
-		$daysoff = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'daysoff');
-	} else {
-		$shifts = [];
-		$daysoff = [];
-	}
+	$shifts = [];
+	$daysoff = [];
 
 	if(!empty($shifts)) {
 		$start_time = date('H:i:s', strtotime($shifts[0]['starttime']));
@@ -851,30 +852,12 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 			$current_ticket = '';
 		}
 		foreach ($tickets_time as $key => $ticket) {
-			if ($ticket['status'] == 'Internal QA') {
-				$current_start_time = date('H:i:s', strtotime($ticket['internal_qa_start_time']));
-				if (!empty($ticket['internal_qa_end_time'])) {
-					$ticket_duration = (strtotime($ticket['internal_qa_end_time']) - strtotime($current_start_time));
-				} else {
-					$estimated_time = explode(':',$ticket['max_qa_time']);
-					$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
-				}
-			} else if ($ticket['status'] == 'Customer QA') {
-				$current_start_time = date('H:i:s', strtotime($ticket['deliverable_start_time']));
-				if (!empty($ticket['deliverable_end_time'])) {
-					$ticket_duration = (strtotime($ticket['deliverable_end_time']) - strtotime($current_start_time));
-				} else {
-					$estimated_time = explode(':',$ticket['max_qa_time']);
-					$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
-				}
+			$current_start_time = date('H:i:s', strtotime($ticket['to_do_start_time']));
+			if (!empty($ticket['to_do_end_time'])) {
+				$ticket_duration = (strtotime($ticket['to_do_end_time']) - strtotime($current_start_time));
 			} else {
-				$current_start_time = date('H:i:s', strtotime($ticket['to_do_start_time']));
-				if (!empty($ticket['to_do_end_time'])) {
-					$ticket_duration = (strtotime($ticket['to_do_end_time']) - strtotime($current_start_time));
-				} else {
-					$estimated_time = explode(':',$ticket['max_time']);
-					$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
-				}
+				$estimated_time = explode(':',$ticket['max_time']);
+				$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
 			}
 			if ($current_row <= $current_start_time && date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row))) > $current_start_time) {
 				$current_ticket = ['ticket', $ticket];
@@ -890,11 +873,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		}
 		if ($current_ticket == '' && !empty($tickets_notime) && $current_row >= $start_time) {
 			$ticket_notime = array_shift($tickets_notime);
-			if ($ticket_notime['status'] == 'Internal QA' || $ticket_notime['status'] == 'Customer QA') {
-				$estimated_time = explode(':', $ticket_notime['max_qa_time']);
-			} else {
-				$estimated_time = explode(':', $ticket_notime['max_time']);
-			}
+			$estimated_time = explode(':', $ticket_notime['max_time']);
 			$ticket_duration = ($estimated_time[0] * 3600) + ($estimated_time[1] * 60);
 			$current_ticket = ['ticket', $ticket_notime];
 			$current_duration = $ticket_duration - ($day_period * 60);
@@ -905,20 +884,6 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		}
 		if (empty($shifts) && $current_ticket == '') {
 			$current_ticket = ['ticket', 'SHIFT', $current_row, $calendar_date, $contact_id];
-		} else if ($current_ticket == '') {
-			foreach ($shifts as $shift) {
-				if($current_ticket == '' && $current_row >= date('H:i:s', strtotime($shift['starttime'])) && $current_row < date('H:i:s', strtotime($shift['endtime']))) {
-					$current_ticket = ['ticket', 'SHIFT', $current_row, $calendar_date, $contact_id];
-					if(!empty($shift['break_starttime']) && !empty($shift['break_endtime']) && ($current_row >= date('H:i:s', strtotime($shift['break_starttime'])) && $current_row < date('H:i:s', strtotime($shift['break_endtime'])))) {
-						$current_ticket = '';
-					}
-				}
-			}
-			foreach ($daysoff as $dayoff) {
-				if($current_ticket != '' && $current_row >= date('H:i:s', strtotime($dayoff['starttime'])) && $current_row < date('H:i:s', strtotime($dayoff['endtime']))) {
-					$current_ticket = '';
-				}
-			}
 		}
 		$calendar_table[$calendar_date][$contact_id][] = $current_ticket;
 		$current_row = date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row)));

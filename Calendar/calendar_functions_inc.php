@@ -258,3 +258,36 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	}
 	return $block_html;
 }
+function getTeamTickets($dbc, $date, $teamid) {
+	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+	$contacts_query = [];
+	$contacts_arr = [];
+	foreach ($contact_list as $contact) {
+		if(strtolower(get_contact($dbc, $contact['contactid'], 'category')) == 'staff') {
+			$contacts_query[] = " CONCAT(',',IFNULL(`contactid`,''),',') LIKE '%,".$contact['contactid'].",%'";
+			$contacts_arr[] = $contact['contactid'];
+		}
+	}
+	if(!empty($contacts_query)) {
+		$contacts_query = " AND ".implode(" AND ", $contacts_query);
+		$contacts_arr = array_filter(array_unique($contacts_arr));
+		sort($contacts_arr);
+		$contacts_arr = implode(',',$contacts_arr);
+	} else {
+		$contacts_query = " AND 1=0";
+		$contacts_arr = ',PLACEHOLDER,';
+	}
+
+	$all_tickets_sql = "SELECT * FROM `tickets` WHERE '".$date."' BETWEEN `to_do_date` AND `to_do_end_date` AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query;
+	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
+
+	$tickets_list = [];
+	while($row_tickets = mysqli_fetch_array($result_tickets_sql)) {
+		$ticket_contacts = array_filter(array_unique(explode(',',$row_tickets['contactid'])));
+		sort($ticket_contacts);
+		if(implode(',',$ticket_contacts) == $contacts_arr) {
+			$tickets_list[] = $row_tickets;
+		}
+	}
+	return $tickets_list;
+}
