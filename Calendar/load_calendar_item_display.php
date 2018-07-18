@@ -666,6 +666,14 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 			} else if (!empty($ticket)) {
 				$businessid = $ticket['businessid'];
+				$clients = [];
+				foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
+					$client = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
+					if(!empty($client) && $client != '-') {
+						$clients[] = $client;
+					}
+				}
+				$clients = implode(', ',$clients);
 				$contactid = $ticket['contactid'];
 				$internal_qa_contactid = $ticket['internal_qa_contactid'];
 				$deliverable_contactid = $ticket['deliverable_contactid'];
@@ -792,6 +800,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
 					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
+					(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
 					(in_array('time',$calendar_ticket_card_fields) ? '<br />'."(".$estimated_time.") ".$current_start_time." - ".$current_end_time : '');
 				if(in_array('available',$calendar_ticket_card_fields)) {
 					if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
