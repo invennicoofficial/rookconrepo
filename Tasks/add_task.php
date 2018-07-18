@@ -802,6 +802,15 @@ checkAuthorised('tasks');
                         <?php
                         $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
                         $timeline = explode('#*#', get_project_path_milestone($dbc, $task_path, 'timeline'));
+
+                        $j=0;
+                        foreach ($each_tab as $cat_tab) { ?>
+                            <option <?php if ($cat_tab == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $cat_tab; ?>' ><?php echo $cat_tab.' : '.$timeline[$j]; ?></option>
+                           <?php
+                           $j++;
+                        }
+
+                        /*
                         $additional_milestones_query = mysqli_query($dbc, "SELECT milestone FROM task_additional_milestones WHERE task_board_id='$task_board'");
                         if ( $additional_milestones_query->num_rows>0 ) {
                             while ( $row_milestone=mysqli_fetch_assoc($additional_milestones_query) ) {
@@ -830,6 +839,7 @@ checkAuthorised('tasks');
                                 echo "<option ".$selected." value='". $cat_tab."'>".$milestone['label'].' : '.$timeline[$j].'</option>';
                             }
                         }
+                        */
                       ?>
                     </select>
                 </div>

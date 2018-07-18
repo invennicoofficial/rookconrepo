@@ -65,7 +65,7 @@ if (isset($_POST['tasklist'])) {
 
     $checklist_type = filter_var($_POST['checklist_type'],FILTER_SANITIZE_STRING);
     $checklist_name = filter_var($_POST['checklist_name'],FILTER_SANITIZE_STRING);
-	
+
 	$reset_time = '12:00 am';
 	$reset_day = '1';
 	switch($checklist_type) {
@@ -84,6 +84,9 @@ if (isset($_POST['tasklist'])) {
     $assign_staff = ','.implode(',',$_POST['assign_staff']).',';
 
     if($_POST['checklistid'] == 'NEW') {
+        if($subtabid == '') {
+            $subtabid = 0;
+        }
         $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$client_projectid', '$ticketid', '$businessid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $checklistid = mysqli_insert_id($dbc);
@@ -346,7 +349,7 @@ function removeNewRow(button) {
         <div class="col-xs-11 col-sm-12 pad-5"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
     </h2>
 	<div class="clearfix"></div>
-    
+
     <div class="main-screen-container">
 		<div class="pad-left-15-desktop">
 			<div class="col-sm-6 col-xs-12 pull-right panel-group block-panels" id="edit_accordions">
@@ -469,7 +472,7 @@ function removeNewRow(button) {
                                 $('[name=checklist_type]').change();
                             });
                             </script>
-                            
+
                             <div class="form-group clearfix reset_time" style="display:none;">
                                 <label for="first_name" class="col-sm-12 clearfix" style="text-align:center;">
                                     <span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Daily, Weekly, and Monthly checklists will roll over to unchecked at the specified reset time."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -734,7 +737,7 @@ function removeNewRow(button) {
                                     </div>
                                 </div>
                             </div>
-							
+
                             <div class="form-group links">
                                 <label for="additional_note" class="col-sm-4 control-label">Attach Link:</label>
                                 <div class="col-sm-7">
@@ -806,9 +809,9 @@ function removeNewRow(button) {
                 <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a field."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div>
         </div><!-- .block-group -->
-        
+
         <div class="clearfix"></div>
-        
+
         <div class="form-group clearfix double-gap-top pull-right">
             <div class="pull-right">
                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Save</button>
