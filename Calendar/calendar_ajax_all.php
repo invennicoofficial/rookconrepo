@@ -2429,8 +2429,8 @@ if($_GET['fill'] == 'equip_assign_draggable') {
 	$updated_fields = ['equipmentid'=>$equipmentid, 'teamid'=>(empty($teamid) ? 0 : $teamid), 'region'=>$region, 'con_location'=>$location, 'classification'=>$classification];
 
     //Retrieve existing Tickets with this equipmentid and lands between the start and end dates
-    $all_tickets_sql = "SELECT 'tickets' `ticket_table`, `ticketid` `t_id` FROM `tickets` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0 UNION
-    	SELECT 'ticket_schedule' `ticket_table`, `id` `t_id` FROM `ticket_schedule` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
+    $all_tickets_sql = "SELECT 'tickets' `ticket_table`, `ticketid` `t_id` FROM `tickets` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND `equipmentid` > 0 AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0 UNION
+    	SELECT 'ticket_schedule' `ticket_table`, `id` `t_id` FROM `ticket_schedule` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND `equipmentid` > 0 AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
     $equipassign_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid' AND `deleted` = 0"),MYSQLI_ASSOC);
     $equipassign_hide_staff = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"))['hide_staff']);
     $tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
@@ -2530,8 +2530,8 @@ if($_GET['fill'] == 'equip_assign_remove_staff') {
 
     //Retrieve existing Tickets with this equipmentid and lands between the start and end dates
     // $all_tickets_sql = "SELECT * FROM `tickets` WHERE `equipmentid` = '$equipmentid' AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
-    $all_tickets_sql = "SELECT 'tickets' `ticket_table`, `ticketid` `t_id` FROM `tickets` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0 UNION
-    	SELECT 'ticket_schedule' `ticket_table`, `id` `t_id` FROM `ticket_schedule` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
+    $all_tickets_sql = "SELECT 'tickets' `ticket_table`, `ticketid` `t_id` FROM `tickets` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND `equipmentid` > 0 AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0 UNION
+    	SELECT 'ticket_schedule' `ticket_table`, `id` `t_id` FROM `ticket_schedule` WHERE (`equipmentid` = '$equipmentid' OR `equipmentid` = '$old_equipmentid') AND `equipmentid` > 0 AND DATE(`to_do_date`) >= '$start_date' AND (DATE(`to_do_date`) <= '$end_date' OR '$end_date' = '0000-00-00' OR '$end_date' = '') AND `deleted` = 0";
     $equipassign_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid' AND `deleted` = 0"),MYSQLI_ASSOC);
     $equipassign_hide_staff = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"))['hide_staff']);
     $tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
