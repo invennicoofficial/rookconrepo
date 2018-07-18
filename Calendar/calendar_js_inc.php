@@ -1046,7 +1046,7 @@ function reload_resize_all() {
 function scrollToToday() {
 	clearInterval(clear_today);
 	var clear_today = setInterval(function() {
-		if(still_loading <= 0) {
+		if(still_loading <= 0 && scroll_to_today) {
 			scroll_to_today = false;
 			clearInterval(clear_today);
 			while($('.calendar_view table:not(#time_html) th').length <= 10 && $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).length > 0) {
@@ -1079,6 +1079,7 @@ function scrollToToday() {
 			}
 		} else {
 			scroll_to_today = false;
+			clearInterval(clear_today);
 		}
 	}, 2000);
 }
