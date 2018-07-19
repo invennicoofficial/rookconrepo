@@ -2570,19 +2570,75 @@ function addTreatmentChart(link) {
 function sendInventoryReminder(id) {
 	$.post('ticket_ajax_all.php?action=inventory_reminder', { id: id }, function(response) { alert('A reminder has been sent!'); });
 }
-function archive() {
-	if(ticketid > 0) {
-		ticketid_list.push(ticketid);
+function archive(override = '') {
+	var confirmed = true;
+	if(override != 'override') {
+		var confirmed = confirm('Are you sure you want to delete this?');
 	}
-	ticketid_list.forEach(function(ticket) {
-		if(ticket > 0) {
-			$.ajax({
-				url: 'ticket_ajax_all.php?action=archive',
-				method: 'POST',
-				data: {
-					ticketid: ticket
-				}
-			});
+	if(confirmed) {
+		if(ticketid > 0) {
+			ticketid_list.push(ticketid);
+		}
+		ticketid_list.forEach(function(ticket) {
+			if(ticket > 0) {
+				$.ajax({
+					url: 'ticket_ajax_all.php?action=archive',
+					method: 'POST',
+					data: {
+						ticketid: ticket
+					},
+					success: function(response) {
+						if(typeof window.top.reload_all_data == 'function') {
+							window.top.reload_all_data();
+						} else if(typeof window.top.reload_all_data_month == 'function') {
+							window.top.reload_all_data_month();
+						}
+						return true;
+					}
+				});
+			}
+		});
+	} else {
+		return false;
+	}
+}
+function dialogDeleteNote(a) {
+	back_url = $(a).attr('href');
+	$('#dialog_delete_note').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		open: function() {
+			destroyInputs('#dialog_delete_note');
+			initInputs('#dialog_delete_note');
+		},
+		buttons: {
+			"Add Note and Delete": function() {
+				var ticket = ticketid;
+				var note = $('[name="delete_note"]').val();
+				$.ajax({
+					url: '../Ticket/ticket_ajax_all.php?action=add_delete_note',
+					method: 'POST',
+					data: {
+						ticketid: ticket,
+						note: note
+					},
+					success: function(response) {
+						archive('override');
+						window.location.replace(back_url);
+						$(this).dialog('close');
+					}
+				});
+			},
+			"Delete Without Note": function() {
+				archive('override');
+				window.location.replace(back_url);
+				$(this).dialog('close');
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
 		}
 	});
 }
