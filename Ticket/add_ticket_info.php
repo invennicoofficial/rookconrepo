@@ -820,7 +820,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		<label for="site_name" class="col-sm-4 control-label">Description:</label>
 		<div class="col-sm-12">
 			<label class="form-checkbox">Use Service Description: <input type="checkbox" onclick='changeDesc(this);'></label>
-			<textarea name="assign_work" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="assign_work" rows="4" cols="50" class="form-control" ><?php echo $assign_work; ?></textarea>
+			<textarea name="assign_work" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" rows="4" cols="50" class="form-control" ><?php echo $assign_work; ?></textarea>
 		</div>
 	  </div>
 		    <?php } ?>
