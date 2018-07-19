@@ -556,7 +556,7 @@ $(document).ready(function() {
 			return false;
 		}
 	}
-	$('#mobile_tabs .panel-heading').click(loadPanel);
+	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
 	<?php if($ticket_layout != 'Accordions' || $include_hidden == 'true') { ?>
 		if($('#calendar_view').val() != 'true') {
 			$('.add_gap_here').last().css('min-height',$('.tab-section').closest('.standard-body').height() - $('.tab-section').closest('.standard-body').find('.add_gap_here').last().innerHeight() - $('.tab-section').last().height() + 30);
@@ -607,11 +607,12 @@ $(document).ready(function() {
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
+		$(this).off('click',loadPanel);
 		var panel = $(this).closest('.panel').find('.panel-body');
 		var accordion = $(panel).data('accordion');
 		panel.html('Loading...');
 		$.ajax({
-			url: panel.data('file-name')+'&action_mode=<?= $_GET['action_mode'] ?>&overview_mode=<?= $_GET['overview_mode'] ?>',
+			url: panel.data('file-name')+'<?= $ticketid > 0 ? '' : '&'.http_build_query($_GET) ?>&action_mode=<?= $_GET['action_mode'] ?>&overview_mode=<?= $_GET['overview_mode'] ?>&ticketid='+ticketid,
 			method: 'POST',
 			data: { accordion: accordion },
 			response: 'html',
@@ -746,7 +747,7 @@ var setHeading = function() {
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
-			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <span class="ticketid_span"><?= get_ticket_label($dbc, $get_ticket) ?></span><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 			<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
 				$get_ticket['flag_colour'] = '';
 			}

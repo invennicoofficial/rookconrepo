@@ -345,7 +345,9 @@ function initInputs(container) {
 		var initClass = 'tinyMCEInit'+(tinyInitI++);
 		$(selectors+':not(.noMceEditor):not([class*=tinyMCEInit])').addClass(initClass);
 		var initSelector = selectors+'.'+initClass;
-		tinyMCE.remove(initSelector);
+		try {
+			tinyMCE.remove(initSelector);
+		} catch (err) {}
 		if(isMobile.any()) {
 			//If mobile, don't include contextmenu in plugins so the user can copy and paste text
 			tinymce.init({
@@ -396,99 +398,105 @@ function initInputs(container) {
 				]
 			});
 		} else {
-			tinymce.init({
-				setup: function(editor) {
-					editor.on('blur', function(e) {
-						this.save();
-						$(this.getElement()).change();
-					}).on('keyup', function(e) {
-						this.save();
-						$(this.getElement()).keyup();
-					}).on('focus', function(e) {
-						$(this.getElement()).focus();
+			try {
+				if($(initSelector+':not(.no_tools)').length > 0) {
+					tinymce.init({
+						setup: function(editor) {console.log(this);
+							editor.on('blur', function(e) {
+								this.save();
+								$(this.getElement()).change();
+							}).on('keyup', function(e) {
+								this.save();
+								$(this.getElement()).keyup();
+							}).on('focus', function(e) {
+								$(this.getElement()).focus();
+							});
+						},
+						relative_urls: false,
+						remove_script_host : false,
+						convert_urls : true,
+						selector: initSelector+':not(.no_tools)',
+						theme: "modern",
+						external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
+						nanospell_server: "php",
+						plugins: [
+							"advlist autolink lists link image charmap print preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"insertdatetime media nonbreaking save table "+(no_tools ? "" : "contextmenu")+" directionality",
+							"emoticons template paste textcolor colorpicker textpattern"
+						],
+						textpattern_patterns: [
+							{start: '*', end: '*', format: 'italic'},
+							{start: '**', end: '**', format: 'bold'},
+							{start: '=', format: 'h1'},
+							{start: '==', format: 'h2'},
+							{start: '===', format: 'h3'},
+							{start: '====', format: 'h4'},
+							{start: '=====', format: 'h5'},
+							{start: '======', format: 'h6'},
+							{start: '1. ', cmd: 'InsertOrderedList'},
+							{start: '* ', cmd: 'InsertUnorderedList'},
+							{start: '- ', cmd: 'InsertUnorderedList'}
+						],
+						menubar: no_tools ? false : true,
+						statusbar: no_tools ? false : true,
+						toolbar: no_tools ? false : true,
+						toolbar1: no_tools ? false : "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+						toolbar2: no_tools ? false : "print preview media | forecolor backcolor emoticons",
+						image_advtab: true,
+						templates: [
+							{title: 'Test template 1', content: 'Test 1'},
+							{title: 'Test template 2', content: 'Test 2'}
+						]
 					});
-				},
-				relative_urls: false,
-				remove_script_host : false,
-				convert_urls : true,
-				selector: initSelector+':not(.no_tools)',
-				theme: "modern",
-				external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
-				nanospell_server: "php",
-				plugins: [
-					"advlist autolink lists link image charmap print preview hr anchor pagebreak",
-					"searchreplace wordcount visualblocks visualchars code fullscreen",
-					"insertdatetime media nonbreaking save table "+(no_tools ? "" : "contextmenu")+" directionality",
-					"emoticons template paste textcolor colorpicker textpattern"
-				],
-				textpattern_patterns: [
-					{start: '*', end: '*', format: 'italic'},
-					{start: '**', end: '**', format: 'bold'},
-					{start: '=', format: 'h1'},
-					{start: '==', format: 'h2'},
-					{start: '===', format: 'h3'},
-					{start: '====', format: 'h4'},
-					{start: '=====', format: 'h5'},
-					{start: '======', format: 'h6'},
-					{start: '1. ', cmd: 'InsertOrderedList'},
-					{start: '* ', cmd: 'InsertUnorderedList'},
-					{start: '- ', cmd: 'InsertUnorderedList'}
-				],
-				menubar: no_tools ? false : true,
-				statusbar: no_tools ? false : true,
-				toolbar: no_tools ? false : true,
-				toolbar1: no_tools ? false : "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-				toolbar2: no_tools ? false : "print preview media | forecolor backcolor emoticons",
-				image_advtab: true,
-				templates: [
-					{title: 'Test template 1', content: 'Test 1'},
-					{title: 'Test template 2', content: 'Test 2'}
-				]
-			});
-			tinymce.init({
-				setup: function(editor) {
-					editor.on('blur', function(e) {
-						this.save();
-						$(this.getElement()).change();
-					}).on('keyup', function(e) {
-						this.save();
-						$(this.getElement()).keyup();
-					}).on('focus', function(e) {
-						$(this.getElement()).focus();
+				}
+				if($(initSelector+'.no_tools').length > 0) {
+					tinymce.init({
+						setup: function(editor) {
+							editor.on('blur', function(e) {
+								this.save();
+								$(this.getElement()).change();
+							}).on('keyup', function(e) {
+								this.save();
+								$(this.getElement()).keyup();
+							}).on('focus', function(e) {
+								$(this.getElement()).focus();
+							});
+						},
+						relative_urls: false,
+						remove_script_host : false,
+						convert_urls : true,
+						selector: initSelector+'.no_tools',
+						theme: "modern",
+						external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
+						nanospell_server: "php",
+						plugins: [
+							"advlist autolink lists link image charmap print preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"insertdatetime media nonbreaking save table directionality",
+							"emoticons template paste textcolor colorpicker textpattern"
+						],
+						textpattern_patterns: [
+							{start: '*', end: '*', format: 'italic'},
+							{start: '**', end: '**', format: 'bold'},
+							{start: '=', format: 'h1'},
+							{start: '==', format: 'h2'},
+							{start: '===', format: 'h3'},
+							{start: '====', format: 'h4'},
+							{start: '=====', format: 'h5'},
+							{start: '======', format: 'h6'},
+							{start: '1. ', cmd: 'InsertOrderedList'},
+							{start: '* ', cmd: 'InsertUnorderedList'},
+							{start: '- ', cmd: 'InsertUnorderedList'}
+						],
+						menubar: false,
+						statusbar: false,
+						toolbar: false,
+						toolbar1: false,
+						toolbar2: false
 					});
-				},
-				relative_urls: false,
-				remove_script_host : false,
-				convert_urls : true,
-				selector: initSelector+'.no_tools',
-				theme: "modern",
-				external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
-				nanospell_server: "php",
-				plugins: [
-					"advlist autolink lists link image charmap print preview hr anchor pagebreak",
-					"searchreplace wordcount visualblocks visualchars code fullscreen",
-					"insertdatetime media nonbreaking save table directionality",
-					"emoticons template paste textcolor colorpicker textpattern"
-				],
-				textpattern_patterns: [
-					{start: '*', end: '*', format: 'italic'},
-					{start: '**', end: '**', format: 'bold'},
-					{start: '=', format: 'h1'},
-					{start: '==', format: 'h2'},
-					{start: '===', format: 'h3'},
-					{start: '====', format: 'h4'},
-					{start: '=====', format: 'h5'},
-					{start: '======', format: 'h6'},
-					{start: '1. ', cmd: 'InsertOrderedList'},
-					{start: '* ', cmd: 'InsertUnorderedList'},
-					{start: '- ', cmd: 'InsertUnorderedList'}
-				],
-				menubar: false,
-				statusbar: false,
-				toolbar: false,
-				toolbar1: false,
-				toolbar2: false
-			});
+				}
+			} catch (err) { }
 		}
 	}
 
