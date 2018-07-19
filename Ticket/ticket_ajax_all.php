@@ -962,17 +962,17 @@ if($_GET['action'] == 'update_fields') {
 		insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$ticketid.(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $ticketid);
 	}
 } else if($_GET['action'] == 'validate_address') {
-	$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
+	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';
-	foreach($data->results->address_components as $element) {
-		if(in_array('street_number',$element['types'])) {
-			$number = $element['short_name'];
-		} else if(in_array('route',$element['types'])) {
-			$address = $element['short_name'];
-		} else if(in_array('locality',$element['types']) || in_array('political',$element['types'])) {
-			$city = $element['short_name'];
-		} else if(in_array('postal_code',$element['types']) || in_array('zip_code',$element['types'])) {
-			$postal = $element['short_name'];
+	foreach($data->results[0]->address_components as $element) {
+		if(in_array('street_number',$element->types)) {
+			$number = $element->short_name;
+		} else if(in_array('route',$element->types)) {
+			$address = $element->short_name;
+		} else if(in_array('locality',$element->types)) {
+			$city = $element->short_name;
+		} else if(in_array('postal_code',$element->types) || in_array('zip_code',$element->types)) {
+			$postal = $element->short_name;
 		}
 	}
 	echo trim($number.' '.$address.'|'.$city.'|'.$postal);
