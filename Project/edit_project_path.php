@@ -50,7 +50,8 @@ function setActions() {
 					id_field: item.data('id-field')
 				},
 				success: function(response) {
-					item.find('h4').append(response);
+					//item.find('h4').append(response);
+                    item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 				}
 			});
 			$(this).hide().val('');
@@ -148,7 +149,8 @@ function setActions() {
 					id_field: item.data('id-field')
 				},
 				success: function(response) {
-					item.find('h4').append(response);
+					//item.find('h4').append(response);
+                    item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 				}
 			});
 		});
@@ -169,7 +171,8 @@ function setActions() {
 						ref_id_field: item.data('id-field')
 					},
 					success: function(response) {
-						item.find('h4').append(response);
+						//item.find('h4').append(response);
+                        item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 					}
 				});
 				$(this).hide().val('');
@@ -237,7 +240,8 @@ function setActions() {
 						success: function(result) {
 							select.hide();
 							select.find('select').trigger('change.select2');
-							item.find('h4').append(result);
+							//item.find('h4').append(result);
+                            item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 						}
 					});
 				}
@@ -279,7 +283,8 @@ function setActions() {
 					},
 					success: function(result) {
 						select.hide();
-						item.find('h4').append(result);
+						//item.find('h4').append(result);
+                        item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 					}
 				});
 			}
@@ -445,6 +450,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
             $(this).next('.stop-timer-btn').removeClass('hidden');
         });
         $('.stop-timer-btn').on('click', function() {
+            var item = $(this).closest('.dashboard-item');
             $(this).closest('div').find('.timer').timer('stop');
             $(this).addClass('hidden');
             $(this).prev('.start-timer-btn').removeClass('hidden');
@@ -461,13 +467,30 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                     success: function(response) {
                         $.ajax({
                             method: 'POST',
-                            url: 'task_ajax_all.php?fill=taskreply',
-                            data: { taskid: taskid, reply: 'Time added '+timer_value },
-                            success: function(result) {}
+                            url: '../Tasks/task_ajax_all.php?fill=taskreply',
+                            data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
+                            success: function(result) {
+                            }
+                        });
+                        $.ajax({
+                            url: 'projects_ajax.php?action=project_actions',
+                            method: 'POST',
+                            data: {
+                                field: 'track_time',
+                                value: timer_value
+                            },
+                            success: function(response) {
+                                item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
+                            }
                         });
                     }
                 });
             }
+        });
+        
+        $('[name="status"]').change(function() {
+            var item = $(this).closest('.dashboard-item');
+            item.find('h4 div, .action_notifications p span').toggleClass('strikethrough');
         });
 	});
 	function initDragging() {

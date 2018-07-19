@@ -269,17 +269,17 @@ if($type == 'Ticket') {
 	$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$status_complete.'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
 		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].'</a>: '.html_entity_decode($item['heading']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
-	$contents = '';
-	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != ''");
+	$contents = '<div class="action_notifications">';
+	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != '' ORDER BY `taskcommid` DESC");
 	while($item_comment = mysqli_fetch_assoc($item_comments)) {
 		$comment = explode(':',$item_comment['comment']);
 		if($comment[0] == 'document' && $comment[1] > 0 && count($comment) == 2) {
 			$document = $dbc->query("SELECT * FROM `task_document` WHERE `taskdocid`='".$comment[1]."'")->fetch_assoc();
-			$contents .= '<p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks/download/'.$document['document'].'">'.$document['document'].'</a>';
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small></p>';
+			$contents .= '<hr style="border-color:#ddd; margin:10px 0;" /><p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks/download/'.$document['document'].'">'.$document['document'].'</a>';
+			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small><span class="clearfix"></span></p>';
 		} else {
-			$contents .= '<p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small></p>';
+			$contents .= '<hr style="border-color:#ddd; margin:10px 0;" /><p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
+			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small><span class="clearfix"></span></p>';
 		}
 	}
 	foreach(explode(',',$item['alerts_enabled']) as $alertid) {
@@ -295,7 +295,7 @@ if($type == 'Ticket') {
 			$contents .= '</span>';
 		}
 	}
-	$contents .= '';
+	$contents .= '</div><!-- .action_notifications -->';
 } else if($item[0] == 'Intake') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$item[1]."'"));
 	$intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$item['intakeformid']."'"));
