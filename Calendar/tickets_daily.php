@@ -33,7 +33,7 @@ function toggle_columns() {
         regions.push(region);
     });
     // Hide clients that are not in selected regions
-    $('#collapse_clients').find('.block-item').each(function() {
+    $('[id^=collapse_clients]').find('.block-item').each(function() {
         var client_region = $(this).data('region');
         if (regions.indexOf(client_region) == -1 && regions.length > 0) {
             $(this).hide();
@@ -43,7 +43,7 @@ function toggle_columns() {
         }
     });
     // Filter selected clients
-    $('#collapse_clients').find('.block-item.active').each(function() {
+    $('[id^=collapse_clients]').find('.block-item.active').each(function() {
         var clientid = $(this).data('client');
         clients.push(parseInt(clientid));
     })
@@ -103,8 +103,9 @@ function toggle_columns() {
 	});
     // Filter tickets in Calendar view based on the selected client
     $('div.used-block').each(function() {
-        var ticket_clientid = $(this).data('businessid');
-        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.length > 0) {
+        var ticket_businessid = $(this).data('businessid');
+        var ticket_clientid = $(this).data('clientid');
+        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
             $(this).hide();
         } else {
             $(this).show();
@@ -136,11 +137,10 @@ if($calendar_start == '') {
 	$calendar_start = date('Y-m-d', strtotime($calendar_start));
 }
 $calendar_type = get_config($dbc, 'ticket_wait_list');
-$client_type = get_config($dbc, 'ticket_client_type');
 ?>
 <div class="calendar-screen set-height">
 	<div class="collapsible pull-left">
-		<input type="text" class="search-text form-control" placeholder="Search <?= $client_type == '' ? 'Clients' : $client_type ?>">
+		<input type="text" class="search-text form-control" placeholder="Search All">
 		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: hidden; padding-bottom: 0;">
             <?php if(count($contact_regions) > 0) { ?>
             <div class="panel panel-default">
@@ -163,27 +163,31 @@ $client_type = get_config($dbc, 'ticket_client_type');
                 </div>
             </div>
             <?php } ?>
-            <?php if(get_config($dbc, 'ticket_client_type') !== '') { ?>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_clients">
-                            <span style="display: inline-block; width: calc(100% - 6em);"><?= $client_type ?></span><span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </h4>
-                </div>
+            <?php if(get_config($dbc, 'ticket_client_type') !== '') {
+                foreach(array_filter(explode(',', get_config($dbc, 'ticket_client_type'))) as $client_type) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_clients_<?= config_safe_str($client_type) ?>">
+                                    <span style="display: inline-block; width: calc(100% - 6em);"><?= $client_type ?></span><span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
 
-                <div id="collapse_clients" class="panel-collapse collapse">
-                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
-                        <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
-                        $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
-                        foreach($client_list as $clientid) {
-                            echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."'>".($client_type == 'Business' ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
-                        } ?>
+                        <div id="collapse_clients_<?= config_safe_str($client_type) ?>" class="panel-collapse collapse">
+                            <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                                <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
+                                $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
+                                foreach($client_list as $clientid) {
+                                    if(get_client($dbc, $clientid) != '' || get_contact($dbc, $clientid) != '-') {
+                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."'>".(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
+                                    }
+                                } ?>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <?php } ?>
+                <?php }
+            } ?>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">

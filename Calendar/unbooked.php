@@ -86,6 +86,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		location_filter = $('[name=filter_unbooked_location]').val();
 		classification_filter = $('[name=filter_unbooked_classification]').val();
 		cust_filter = $('[name=filter_unbooked_cust]').val();
+		client_filter = $('[name=filter_unbooked_client]').val();
 		staff_filter = $('[name=filter_unbooked_staff]').val();
 		status_filter = $('[name=filter_unbooked_status]').val();
 		from_date_filter = $('[name=filter_from_date]').val();
@@ -98,6 +99,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			ticket.region = ticket.region == null ? '' : ticket.region;
 			ticket.location = ticket.location == null ? '' : ticket.location;
 			ticket.classification = ticket.classification == null ? '' : ticket.classification;
+			ticket.client = ticket.client == null ? '' : ticket.client;
 			if(projecttype_filter != '' && projecttype_filter != undefined && ticket.projecttype != projecttype_filter) {
 				ticket_pass = false;
 			} else if(project_filter != '' && project_filter != undefined && ticket.project != project_filter) {
@@ -109,6 +111,8 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			} else if(classification_filter != '' && classification_filter != undefined && ticket.classification.indexOf(classification_filter) == -1) {
 				ticket_pass = false;
 			} else if(cust_filter != '' && cust_filter != undefined && ticket.cust != cust_filter) {
+				ticket_pass = false;
+			} else if(client_filter != '' && client_filter != undefined && ticket.client.indexOf(client_filter) == -1) {
 				ticket_pass = false;
 			} else if(staff_filter != '' && staff_filter != undefined && (','+ticket.staff+',').indexOf(','+staff_filter+',') == -1) {
 				ticket_pass = false;
@@ -206,6 +210,17 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			}
 		});
 		$('[name="filter_unbooked_cust"]').trigger('change.select2');
+		ticket_list['filter_count'].client_filters.forEach(function(filter) {
+			var clientid = filter.id;
+			var count = filter.count;
+			if(clientid > 0) {
+				var option = $('[name="filter_unbooked_client"] option').filter(function() { return $(this).val() == clientid });
+				option_text = option.text();
+				option_text = option_text.substr(0, option_text.lastIndexOf('('))+'('+count+')';
+				option.text(option_text);
+			}
+		});
+		$('[name="filter_unbooked_client"]').trigger('change.select2');
 		ticket_list['filter_count'].staff_filters.forEach(function(filter) {
 			var staffid = filter.id;
 			var count = filter.count;
@@ -343,6 +358,16 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 				<?php $customers = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name` FROM `contacts` WHERE `contactid` IN (SELECT `businessid` FROM `tickets` WHERE (IFNULL(`to_do_date`,'0000-00-00') IN ('0000-00-00','') OR `tickets`.`status` = 'To Be Scheduled') AND `deleted`=0)"),MYSQLI_ASSOC));
 				foreach($customers as $cust_id) { ?>
 					<option data-region="<?= get_contact($dbc, $cust_id, 'region') ?>" value="<?= $cust_id ?>"><?= get_client($dbc, $cust_id) ?> (<?= !empty($cust_filters[$cust_id]) ? $cust_filters[$cust_id] : '0' ?>)</option>
+				<?php } ?>
+			</select></label>
+		<?php } ?>
+		<?php if(strpos($unbooked_filters, ',client,') !== FALSE) {
+		$search_placeholder[] = 'Client'; ?>
+		<label class="super-label">Client:
+			<select name="filter_unbooked_client" data-placeholder="Select a Client" class="chosen-select-deselect unbooked_ticket_client"><option></option>
+				<?php $clients = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `contactid` IN (SELECT `clientid` FROM `tickets` WHERE (IFNULL(`to_do_date`,'0000-00-00') IN ('0000-00-00','') OR `tickets`.`status` = 'To Be Scheduled' OR REPLACE(IFNULL(`tickets`.`contactid`,''),',','') = '') AND `deleted`=0)"));
+				foreach($clients as $client) { ?>
+					<option value="<?= $client['contactid'] ?>"><?= $client['full_name'] ?> (<?= !empty($client_filters[$client['contactid']]) ? $client_filters[$client['contactid']] : '0' ?>)</option>
 				<?php } ?>
 			</select></label>
 		<?php } ?>
