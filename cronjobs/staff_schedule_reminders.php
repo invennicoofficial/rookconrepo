@@ -1,5 +1,5 @@
 <?php
-include	('../include.php');
+include(substr(dirname(__FILE__), 0, -8).'include.php');
 error_reporting(0);
 
 //Auto-Lock
@@ -101,7 +101,7 @@ if($reminder_emails == 1) {
 						$sent_emails[] = $email;
 						try {
 							send_email($from, $email, '', '', $subject, html_entity_decode($body), '');
-						} catch(Exception $e) { 
+						} catch(Exception $e) {
 							$log = "Unable to send e-mail to ".get_contact($dbc, $staff['contactid']).": ".$e->getMessage()."\n";
 							mysqli_query($dbc, "UPDATE `staff_schedule_autolock_reminders` SET `log` = CONCAT(`log`, '$log') WHERE `date` = '$reminder_date'"); }
 					}
