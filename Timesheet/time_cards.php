@@ -992,7 +992,7 @@ function addSignature(chk) {
                     echo '<div class="clearfix"></div>';
                 endif;
 
-			if($layout == '' || $layout == 'multi_line'): ?>
+			if(in_array($layout, ['', 'multi_line', 'position_dropdown', 'ticket_task'])): ?>
 				<script>
 				$(document).ready(function() {
 					$('.add-row').click(function() {
@@ -1014,11 +1014,109 @@ function addSignature(chk) {
 						line.find('[name^=add_comment]').show();
 					});
 				});
+				$(document).ready(function() {
+					checkTimeOverlaps();
+					initLines();
+				});
+				$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
+				function getTasks(sel) {
+					var tasks = $(sel).find('option:selected').data('tasks');
+					var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
+					var tasks_html = '<option></option>';
+					if(tasks != undefined) {
+						tasks.forEach(function(task) {
+							tasks_html += '<option value="'+task+'">'+task+'</option>';
+						});
+					}
+					$(tasks_sel).html(tasks_html).trigger('change.select2');
+					if($(sel).val() != undefined && $(sel).val() != '') {
+						$(sel).closest('tr').find('.view_ticket').data('ticketid', $(sel).val()).show();
+					} else {
+						$(sel).closest('tr').find('.view_ticket').data('ticketid', '').hide();
+					}
+				}
+				function checkDrivingTime(chk) {
+					var block = $(chk).closest('tr');
+					if($(chk).is(':checked')) {
+						$(block).find('.ticket_task_td').each(function() {
+							$(this).find('select').val('').trigger('change');
+							$(this).addClass('readonly-block');
+						});
+					} else {
+						$(block).find('.ticket_task_td').removeClass('readonly-block');
+					}
+				}
+				function initLines() {
+					$('.add-row').off('click').click(function() {
+						var line = $(this).closest('tr');
+						destroyInputs('#no-more-tables');
+						var new_line = line.clone();
+						new_line.find('input[name^=hours],select[name^=ticketid],select[name^=type_oof_time],input[name^=start_time],input[name^=end_time],input[name^=total_hrs]').val('');
+						new_line.find('input.driving_time').prop('checked',false);
+						new_line.find('.ticket_task_td').removeClass('readonly-block');
+						new_line.find('select').val('');
+						new_line.find('span').remove();
+						line.after(new_line);
+						initInputs('#no-more-tables');
+						initLines();
+					});
+					$('.rem-row').off('click').click(function() {
+						var line = $(this).closest('tr');
+						line.find('[name^=deleted]').val(1).change();
+						line.hide();
+					});
+					$('.comment-row').off('click').click(function() {
+						var line = $(this).closest('tr');
+						line.find('[name^=comment_box]').show().focus();
+					});
+				}
+				function checkTimeOverlaps() {
+					<?php if(in_array('time_overlaps',$value_config)) { ?>
+						$('.timesheet_div table tr').css('background-color', '');
+						var time_list = [];
+						var date_list = [];
+						$('.timesheet_div table').each(function() {
+							$(this).find('tr').each(function() {
+								var date = $(this).find('[name="date[]"]').val();
+								if(time_list[date] == undefined) {
+									time_list[date] = [];
+								}
+								if(date_list.indexOf(date) == -1) {
+									date_list.push(date);
+								}
+
+								var start_time = '';
+								var end_time = '';
+								if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
+									time_list[date].push($(this));
+								}
+							});
+						});
+						date_list.forEach(function(date) {
+							time_list[date].forEach(function(tr) {
+								$(tr).data('current_row', 1);
+								start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
+								end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
+								time_list[date].forEach(function(tr2) {
+									if($(tr2).data('current_row') != 1) {
+										start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
+										end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
+										if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
+											$(tr).css('background-color', 'red');
+										}
+									}
+								});
+								$(tr).data('current_row', 0);
+							});
+						});
+					<?php } ?>
+				}
 				</script>
 				<div id="no-more-tables">
 					<table class='table table-bordered'>
 						<tr class='hidden-xs hidden-sm'>
-							<td colspan="<?= 1 + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs',$value_config) ? 1 : 0) + (in_array('start_time',$value_config) ? 1 : 0)
+							<td colspan="<?= 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + ($layout == 'ticket_task' ? 1 : 0) + ($layout == 'position_dropdown' ? 1 : 0)
+								+ (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs',$value_config) ? 1 : 0) + (in_array('start_time',$value_config) ? 1 : 0)
 								+ (in_array('end_time',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0) + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0)
 								+ (in_array('reg_hrs',$value_config) ? 1 : 0) + (in_array('payable_hrs',$value_config) ? 1 : 0) + (in_array('direct_hrs',$value_config) ? 1 : 0) + (in_array('indirect_hrs',$value_config) ? 1 : 0)
 								+ (in_array('extra_hrs',$value_config) ? 1 : 0) + (in_array('relief_hrs',$value_config) ? 1 : 0) + (in_array('sleep_hrs',$value_config) ? 1 : 0) + (in_array('training_hrs',$value_config) ? 1 : 0)
@@ -1035,6 +1133,8 @@ function addSignature(chk) {
 						</tr>
 						<tr class='hidden-xs hidden-sm'>
 							<th style='text-align:center; vertical-align:bottom; width:8em;'><div>Date</div></th>
+							<?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
+							<?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Scheduled Hours</div></th><?php } ?>
 							<?php if(in_array('ticketid',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
 							<?php if(in_array('show_hours',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Hours</div></th><?php } ?>
 							<?php if(in_array('start_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Start<br />Time</div></th><?php } ?>
@@ -1043,6 +1143,12 @@ function addSignature(chk) {
 							<?php if(in_array('planned_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Planned<br />Hours</div></th><?php } ?>
 							<?php if(in_array('tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
 							<?php if(in_array('total_tracked_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
+							<?php if($layout == 'ticket_task') { $total_colspan++; ?>
+								<th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th>
+								<th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
+							<?php } else if($layout == 'position_dropdown') { ?>
+								<th style='text-align:center; vertical-align:bottom; width:12em;'><div>Position</div></th>
+							<?php } ?>
 							<?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular' ?><br />Hours</div></th><?php } ?>
 							<?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
 							<?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Direct<br />Hours</div></th><?php } ?>
@@ -1099,6 +1205,8 @@ function addSignature(chk) {
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
+						$position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
+						$ticket_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'"),MYSQLI_ASSOC);
 						$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 						while(strtotime($date) <= strtotime($search_end_date)) {
 							$attached_ticketid = 0;
@@ -1231,6 +1339,18 @@ function addSignature(chk) {
 							$planned_hrs = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 							$tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 							$total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $timecardid);
+							$ticket_options = '';
+							foreach($ticket_list as $ticket) {
+								$ticket_options .= "<option data-tasks='".json_encode(explode(',', $ticket['task_available']))."' ".($ticket['ticketid'] == $row['ticketid'] ? 'selected' : '').' value="'.$ticket['ticketid'].'">'.get_ticket_label($dbc, $ticket).'</option>';
+							}			
+							$task_options = '';
+							foreach(explode(',',$task_list) as $task) {
+								$task_options .= '<option '.($row['type_of_time'] == $task ? 'selected' : '').' value="'.$task.'">'.$task.'</option>';
+							}			
+							$position_options = '';
+							foreach($position_list as $position) {
+								$position_options .= '<option '.($position[0] == $row['type_of_time'] ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
+							}
 							echo '<tr style="'.$hl_colour.'">'.
 								($layout == 'multi_line' ? '<input type="hidden" name="time_cards_id_'.date('Y_m_d', strtotime($date)).'[]" value="'.$timecardid.'"><input type="hidden" name="ticket_attached_id_'.date('Y-m-d', strtotime($date)).'[]" value="'.$ticket_attached_id.'">' : '').
 								'<input type="hidden" name="deleted_'.date('Y_m_d', strtotime($date)).'[]" value="0">
@@ -1243,6 +1363,9 @@ function addSignature(chk) {
 								'.(in_array('planned_hrs',$value_config) ? '<td data-title="Planned Hours" style="text-align:center" class="theme-color-border-bottom">'.$planned_hrs.'</td>' : '').'
 								'.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours" style="text-align:center" class="theme-color-border-bottom">'.$tracked_hrs.'</td>' : '').'
 								'.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time" style="text-align:center" class="theme-color-border-bottom">'.$total_tracked_time.'</td>' : '').'
+								'.($layout == 'ticket_task' ? '<td data-title="'.TICKET_NOUN.'" class="ticket_task_td '.(in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a '.TICKET_NOUN.'" onchange="getTasks(this);"><option/>'.$ticket_options.'</select></td>
+									<td data-title="Task" class="ticket_task_td '.(in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select a Task"><option/>'.$task_options.'</select></td>' : '').'
+								'.($layout == 'position_dropdown' ? '<td data-title="Position" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select Position"><option />'.$position_options.'</select></td>' : '').'
 								'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="regular_'.date('Y_m_d', strtotime($date)).'[]" value="'.$hrs['REG'].'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="drive_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
 								'.(in_array('direct_hrs',$value_config) ? '<td data-title="Direct Hours" style="text-align:center" class="theme-color-border-bottom"><input type="text" '.$mod.' name="direct_'.date('Y_m_d', strtotime($date)).'[]" value="'.(empty($hrs['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DIRECT'],2) : time_decimal2time($hrs['DIRECT']))).'" class="form-control '.$mod_class.($security['edit'] > 0 ? 'timepicker"' : '" readonly').'></td>' : '').'
@@ -1339,260 +1462,6 @@ function addSignature(chk) {
 				$tb_field = $value['config_field'];
 				echo '</div>';
 				include('../Timesheet/time_cards_summary.php'); ?>
-			<?php elseif($layout == 'position_columns'): ?>
-			<?php elseif($layout == 'position_dropdown' || $layout == 'ticket_task'): ?>
-				<script>
-				$(document).ready(function() {
-					checkTimeOverlaps();
-					initLines();
-				});
-				$(document).on('change', '[name="start_time[]"],[name="end_time[]"]', function() { checkTimeOverlaps(); });
-				function getTasks(sel) {
-					var tasks = $(sel).find('option:selected').data('tasks');
-					var tasks_sel = $(sel).closest('tr').find('[name="type_of_time[]"]');
-					var tasks_html = '<option></option>';
-					if(tasks != undefined) {
-						tasks.forEach(function(task) {
-							tasks_html += '<option value="'+task+'">'+task+'</option>';
-						});
-					}
-					$(tasks_sel).html(tasks_html).trigger('change.select2');
-					if($(sel).val() != undefined && $(sel).val() != '') {
-						$(sel).closest('tr').find('.view_ticket').data('ticketid', $(sel).val()).show();
-					} else {
-						$(sel).closest('tr').find('.view_ticket').data('ticketid', '').hide();
-					}
-				}
-				function checkDrivingTime(chk) {
-					var block = $(chk).closest('tr');
-					if($(chk).is(':checked')) {
-						$(block).find('.ticket_task_td').each(function() {
-							$(this).find('select').val('').trigger('change');
-							$(this).addClass('readonly-block');
-						});
-					} else {
-						$(block).find('.ticket_task_td').removeClass('readonly-block');
-					}
-				}
-				function initLines() {
-					$('.add-row').off('click').click(function() {
-						var line = $(this).closest('tr');
-						destroyInputs('#no-more-tables');
-						var new_line = line.clone();
-						new_line.find('input[name^=hours],select[name^=ticketid],select[name^=type_oof_time],input[name^=start_time],input[name^=end_time],input[name^=total_hrs]').val('');
-						new_line.find('input.driving_time').prop('checked',false);
-						new_line.find('.ticket_task_td').removeClass('readonly-block');
-						new_line.find('select').val('');
-						new_line.find('span').remove();
-						line.after(new_line);
-						initInputs('#no-more-tables');
-						initLines();
-					});
-					$('.rem-row').off('click').click(function() {
-						var line = $(this).closest('tr');
-						line.find('[name^=deleted]').val(1).change();
-						line.hide();
-					});
-					$('.comment-row').off('click').click(function() {
-						var line = $(this).closest('tr');
-						line.find('[name^=comment_box]').show().focus();
-					});
-				}
-				function checkTimeOverlaps() {
-					<?php if(in_array('time_overlaps',$value_config)) { ?>
-						$('.timesheet_div table tr').css('background-color', '');
-						var time_list = [];
-						var date_list = [];
-						$('.timesheet_div table').each(function() {
-							$(this).find('tr').each(function() {
-								var date = $(this).find('[name="date[]"]').val();
-								if(time_list[date] == undefined) {
-									time_list[date] = [];
-								}
-								if(date_list.indexOf(date) == -1) {
-									date_list.push(date);
-								}
-
-								var start_time = '';
-								var end_time = '';
-								if($(this).find('[name="start_time[]"]').val() != undefined && $(this).find('[name="start_time[]"]').val() != '' && $(this).find('[name="end_time[]"]').val() != undefined && $(this).find('[name="end_time[]"]').val() != '') {
-									time_list[date].push($(this));
-								}
-							});
-						});
-						date_list.forEach(function(date) {
-							time_list[date].forEach(function(tr) {
-								$(tr).data('current_row', 1);
-								start_time = new Date(date+' '+$(tr).find('[name="start_time[]"]').val());
-								end_time = new Date(date+' '+$(tr).find('[name="end_time[]"]').val());
-								time_list[date].forEach(function(tr2) {
-									if($(tr2).data('current_row') != 1) {
-										start_time2 = new Date(date+' '+$(tr2).find('[name="start_time[]"]').val());
-										end_time2 = new Date(date+' '+$(tr2).find('[name="end_time[]"]').val())
-										if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
-											$(tr).css('background-color', 'red');
-										}
-									}
-								});
-								$(tr).data('current_row', 0);
-							});
-						});
-					<?php } ?>
-				}
-				</script>
-				<div id="no-more-tables">
-					<table class='table table-bordered timesheet_table'>
-						<tr class='hidden-xs hidden-sm'>
-							<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
-							<?php $total_colspan = 2; ?>
-							<?php if(in_array('schedule',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
-							<?php if(in_array('scheduled',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-							<?php if(in_array('start_time',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-							<?php if(in_array('end_time',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
-							<?php if(in_array('start_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-							<?php if(in_array('end_time_editable',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
-							<?php if(in_array('start_day_tile',$value_config)) { $total_colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-							<?php if($layout == 'ticket_task') { $total_colspan++; ?>
-								<th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th>
-								<th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
-							<?php } else { ?>
-								<th style='text-align:center; vertical-align:bottom; width:12em;'><div>Position</div></th>
-							<?php } ?>
-							<?php if(in_array('total_tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Time Tracked</div></th><?php } ?>
-							<th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th>
-							<?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Vacation Hours</div></th><?php } ?>
-							<?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-							<?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
-						</tr>
-						<?php $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
-						$ticket_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'"),MYSQLI_ASSOC);
-						$total = 0;
-						$total_vac = 0;
-						$limits = "AND `staff`='$search_staff'";
-						if($search_site > 0) {
-							$limits .= " AND IFNULL(`business`,'') LIKE '%$search_site%'";
-						}
-						if($search_ticket > 0) {
-							$limits .= " AND IFNULL(`ticketid`,'') = '$search_ticket'";
-						}
-						$result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
-						$date = $search_start_date;
-						$i = 0;
-						while(strtotime($date) <= strtotime($search_end_date)) {
-							$timecardid = 0;
-							$driving_time = '';
-							$hl_colour = '';
-							if($result[$i]['date'] == $date) {
-								$row = $result[$i++];
-								$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
-								$comments = '';
-								if(in_array('project',$value_config)) {
-									foreach(explode(',',$row['PROJECTS']) as $projectid) {
-										if($projectid > 0) {
-											$comments .= get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"))).'<br />';
-										}
-									}
-								}
-								if(in_array('search_client',$value_config)) {
-									foreach(explode(',',$row['CLIENTS']) as $clientid) {
-										if($clientid > 0) {
-											$comments .= get_contact($dbc, $clientid).'<br />';
-										}
-									}
-								}
-								$comments .= html_entity_decode($row['COMMENTS']);
-								if(empty(strip_tags($comments))) {
-									$comments = $timesheet_comment_placeholder;
-								}
-								if($row['type_of_time'] == 'Vac Hrs.') {
-									$total_vac += $row['hours'];
-								} else {
-									$total += $row['hours'];
-								}
-								$timecardid = $row['id'];
-								if(empty($row['ticketid'])) {
-									$driving_time = 'Driving Time';
-								}
-                                $show_separator = 0;
-							} else {
-								$row = '';
-								$comments = '';
-                                $show_separator = 1;
-							}
-							$day_of_week = date('l', strtotime($date));
-							$shifts = checkShiftIntervals($dbc, $search_staff, $day_of_week, $date, 'all');
-							if(!empty($shifts)) {
-								$hours = '';
-								$hours_off = '';
-								foreach ($shifts as $shift) {
-									$hours .= $shift['starttime'].' - '.$shift['endtime'].'<br>';
-									$hours_off = $shift['dayoff_type'] == '' ? $hours_off : $shift['dayoff_type'];
-
-								}
-								$hours = $hours_off == '' ? $hours : $hours_off;
-							} else {
-								$hours = $schedule_list[date('w',strtotime($date))];
-							}
-							$mod = '';
-							if($date < $last_period) {
-								$mod = 'readonly';
-							} ?>
-							<tr style="<?= $hl_colour ?>">
-								<input type="hidden" name="time_cards_id[]" value="<?= $row['type_of_time'] == 'Vac Hrs.' ? '' : $row['id'] ?>">
-								<input type="hidden" name="time_cards_id_vac[]" value="<?= $row['type_of_time'] == 'Vac Hrs.' ? $row['id'] : '' ?>">
-								<input type="hidden" name="date[]" value="<?= empty($row['date']) ? $date : $row['date'] ?>">
-								<input type="hidden" name="staff[]" value="<?= empty($row['staff']) ? $search_staff : $row['staff'] ?>">
-								<td data-title="Date" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= (in_array('editable_dates',$value_config) ? '<input type="text" name="date_editable[]" value="'.$date.'" class="form-control datepicker">' : $date) ?></td>
-								<?php if(in_array('schedule',$value_config)) { ?><td data-title="Schedule" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $hours ?></td><?php } ?>
-								<?php if(in_array('scheduled',$value_config)) { ?><td data-title="Scheduled Hours" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"></td><?php } ?>
-								<?php if(in_array('start_time',$value_config)) { ?><td data-title="Start Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $row['start_time'] ?></td><?php } ?>
-								<?php if(in_array('end_time',$value_config)) { ?><td data-title="End Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $row['end_time'] ?></td><?php } ?>
-								<?php if(in_array('start_time_editable',$value_config)) { ?><td data-title="Start Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><input type="text" name="start_time[]" class="form-control datetimepicker" value="<?= $row['start_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="start_time[]" value="<?= $row['start_time'] ?>"><?php } ?>
-								<?php if(in_array('end_time_editable',$value_config)) { ?><td data-title="End Time" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><input type="text" name="end_time[]" class="form-control datetimepicker" value="<?= $row['end_time'] ?>" <?= in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ?>></td><?php } else { ?><input type="hidden" name="end_time[]" value="<?= $row['end_time'] ?>"><?php } ?>
-								<?php if(in_array('start_day_tile',$value_config)) { ?><td data-title="<?= $timesheet_start_tile ?>" style="text-align: center;" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><label><input type="checkbox" value="Driving Time" <?= $driving_time == 'Driving Time' ? 'checked' : '' ?> class="driving_time" onchange="checkDrivingTime(this);"></label></span></td><?php } ?>
-								<?php if($layout == 'ticket_task') { ?>
-									<td data-title="<?= TICKET_NOUN ?>" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?> <?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a <?= TICKET_NOUN ?>"" onchange="getTasks(this);"><option></option>
-										<?php foreach($ticket_list as $ticket) { ?>
-											<option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $row['ticketid'] ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
-										<?php } ?></select></td>
-									<td data-title="Task" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?> <?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select a Task"><option></option>
-										<?php $task_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."'"))['task_available'];
-										foreach (explode(',',$task_list) as $task) { ?>
-											<option <?= $row['type_of_time'] == $task ? 'selected' : '' ?> value="<?= $task ?>"><?= $task ?></option>
-										<?php } ?>
-									</select></td>
-								<?php } else { ?>
-									<td data-title="Position" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select Position"><option />
-										<?php foreach($position_list as $position) { ?>
-											<option <?= $position[0] == $row['type_of_time'] ? 'selected' : '' ?> value="<?= $position[0] ?>"><?= $position[0] ?></option>
-										<?php } ?></select></td>
-								<?php } ?>
-								<?php if(in_array('total_tracked_hrs',$value_config)) { ?><td data-title="Time Tracked" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><?= $row['timer'] ?></td><?php } ?>
-								<td data-title="Hours" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><input type="text" name="total_hrs[]" value="<?= (empty($row['hours']) || $row['type_of_time'] == 'Vac Hrs.' ? '' : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))) ?>" class="form-control <?= ($security['edit'] > 0 ? 'timepicker"' : '" readonly') ?>"></td>
-								<?php if(in_array('vaca_hrs',$value_config)) { ?><td data-title="Vacation Hours" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><input type="text" name="total_hrs_vac[]" value="<?= (empty($row['hours']) || $row['type_of_time'] != 'Vac Hrs.' ? '' : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))) ?>" class="form-control <?= ($security['edit'] > 0 ? 'timepicker"' : '" readonly') ?>"></td><?php } ?>
-								<?php if(in_array('view_ticket',$value_config)) { ?><td data-title="<?= TICKET_NOUN ?>" style="text-align: center;" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><a href="" onclick="viewTicket(this); return false;" data-ticketid="<?= $row['ticketid'] ?>" class="view_ticket" <?= $row['ticketid'] > 0 ? '' : 'style="display:none;"' ?>>View</a></td><?php } ?>
-								<?php if(in_array('comment_box',$value_config)) { ?><td data-title="Comments" class="<?= $show_separator==1 ? 'theme-color-border-bottom' : '' ?>"><span><?= $comments ?></span><?= ($security['edit'] > 0 ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '') ?><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box[]" value="<?= $row['COMMENTS'] ?>" style="display:none;"></td><?php } ?>
-							</tr>
-							<?php if($date != $row['date']) {
-								$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
-							}
-						} ?>
-
-						<tr>
-							<td data-title="" colspan="<?= $total_colspan ?>">Totals</td>
-							<?php if(in_array('schedule',$value_config)) { ?><td></td><?php } ?>
-							<?php if(in_array('scheduled',$value_config)) { ?><td></td><?php } ?>
-							<?php if(in_array('total_tracked_hrs',$value_config)) { ?><td></td><?php } ?>
-							<td data-title="Total Hours"><?= ($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)) ?></td>
-							<?php if(in_array('vaca_hrs',$value_config)) { ?><td><?= ($timesheet_time_format == 'decimal' ? number_format($total_vac,2) : time_decimal2time($total_vac)) ?></td><?php } ?>
-							<?php if(in_array('view_ticket',$value_config)) { ?><td></td><?php } ?>
-							<?php if(in_array('comment_box',$value_config)) { ?><td></td><?php } ?>
-						</tr>
-					</table>
-
-				<?php $tb_field = $value['config_field']; ?>
-				</div>
-				<?php include('../Timesheet/time_cards_summary.php'); ?>
 			<?php elseif($layout == 'table_add_button'): ?>
 				<?php if(vuaed_visible_function($dbc, 'time_cards') > 0) { ?>
 					<a class="btn brand-btn pull-right" href="add_time_cards.php">Add Time</a>
