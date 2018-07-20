@@ -41,6 +41,8 @@ if(!$action_mode && !$overview_mode) {
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Finish button will be hidden, and you will only have the Save Button."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Hide Finish Button</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Delete Button Add Note", $all_config) ? 'checked disabled' : (in_array("Delete Button Add Note", $value_config) ? "checked" : '') ?> value="Delete Button Add Note" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Delete button will prompt the user to add a Note."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delete Button Add Note</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Labels for Multiple <?= TICKET_TILE ?>:<br /><em>Separate labels with a comma. Each successive <?= TICKET_NOUN ?> will use the next label.</em></label>
 			<div class="col-sm-8">

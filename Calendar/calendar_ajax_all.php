@@ -224,6 +224,12 @@ if($_GET['fill'] == 'move_appt') {
 		}
 	} else if($_POST['item'] == 'ticket') {
 		$ticketid = $_POST['ticket'];
+		if($online) {
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		}
 		$status = $_POST['ticket_status'];
 		$start_time = date('h:i a', strtotime($_POST['time_slot']));
 		$end_time = date('h:i a', strtotime($start_time) + $duration);
@@ -649,6 +655,13 @@ if($_GET['fill'] == 'move_appt') {
 		}
 	} else if($_POST['item'] == 'ticket_schedule') {
 		$id = $_POST['id'];
+		$schedule_ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `ticket_schedule` WHERE `id` = '$id'"))['ticketid'];
+		if($online) {
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$schedule_ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$schedule_ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$schedule_ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$schedule_ticketid'");
+		}
 		$start_time = date('H:i:s', strtotime($_POST['time_slot']));
 		$end_time = date('H:i:s', strtotime($start_time) + $duration);
 		$start_date = date('Y-m-d', strtotime($_POST['time_slot']));
@@ -1128,6 +1141,15 @@ if($_GET['fill'] == 'schedule_unbooked') {
 	$contact = $_POST['contact'];
 	$id = $_POST['id'];
 	if($_POST['item'] == 'ticket') {
+		if($_POST['blocktable'] == 'ticket_schedule') {
+			$main_ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `ticket_schedule` WHERE `id` = '$id'"))['ticketid'];
+		} else {
+			$main_ticketid = $id;
+		}
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$main_ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$main_ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$main_ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$main_ticketid'");
 		$calendar_type = $_POST['calendar_type'];
 		$status = $_POST['ticket_status'];
 		$start_time = date('h:i a', strtotime($_POST['time_slot']));
@@ -1967,6 +1989,10 @@ if($_GET['fill'] == 'move_appt_month') {
 		}
 	} else if($item_type == 'ticket') {
 		$ticketid = $_POST['ticket'];
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		$add_staff = $_POST['add_staff'];
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 		$status = $ticket['status'];
@@ -2087,8 +2113,16 @@ if($_GET['fill'] == 'move_appt_month') {
 		if($_POST['ticket_table'] == 'ticket_schedule') {
 			$ticket_scheduleid = $_POST['ticket_scheduleid'];
 			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '$ticket_scheduleid'"));
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 		} else {
 			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		}
 		$updated_fields = [];
 		if($_POST['blocktype'] == 'dispatch_staff') {
@@ -2208,6 +2242,10 @@ if($_GET['fill'] == 'move_appt_month') {
 		}
 	} else if($item_type == 'ticket_event') {
 		$ticketid = $_POST['ticket'];
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		$projectid = $_POST['contact'];
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 		if(empty($projectid)) {
@@ -2286,6 +2324,10 @@ if($_GET['fill'] == 'delete_shift') {
 		$end_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
 		if($online) {
 			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `pickup_date`=CONCAT(`to_do_date`,' $start_time'), `delivery_start_address`='$start_address', `delivery_end_address`='$end_address' WHERE `ticketid`='$ticketid'");
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		}
 		$start_time = date('H:i:s',strtotime($start_time.' + 1 hour'));
 	}
@@ -2457,6 +2499,10 @@ if($_GET['fill'] == 'equip_assign_draggable') {
 				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['t_id']."'");
         	}
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
 
 			//Record history
 			$ticket_histories = [];
@@ -2558,6 +2604,10 @@ if($_GET['fill'] == 'equip_assign_remove_staff') {
 				$ticket_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '{$ticket['t_id']}'"));
 				mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['t_id']."'");
         	}
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
+			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket_details['ticketid']."'");
 
 			//Record history
 			$ticket_histories = [];
@@ -2581,6 +2631,10 @@ if($_GET['fill'] == 'team_assign_draggable') {
 
 	$all_tickets = getTeamTickets($dbc, $date, $teamid);
 	foreach($all_tickets as $ticket) {
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 		if(!in_array($staff_id,explode(',',$ticket['contactid']))) {
 			$ticket_contacts = array_filter(explode(',',$ticket['contactid']));
 			$ticket_contacts[] = $staff_id;
@@ -2613,6 +2667,10 @@ if($_GET['fill'] == 'team_assign_remove_staff') {
 
 	$all_tickets = getTeamTickets($dbc, $date, $teamid);
 	foreach($all_tickets as $ticket) {
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 		if(in_array($staff_id,explode(',',$ticket['contactid']))) {
 			$ticket_contacts = array_filter(explode(',',$ticket['contactid']));
 			foreach($ticket_contacts as $key => $ticket_contact) {
@@ -3049,9 +3107,15 @@ if($_GET['fill'] == 'update_ticket_scheduled_time') {
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid']).' updated '.implode(', ',$history).'<br>');
 		if($ticket_table == 'ticket_schedule') {
 			$id_field = 'id';
+			$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `ticket_schedule` WHERE `id` = '$id'"))['ticketid'];
 		} else {
 			$id_field = 'ticketid';
+			$ticketid = $id;
 		}
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `$ticket_table` SET $query, `calendar_history` = CONCAT(IFNULL(`calendar_history`,''),'$history') WHERE `$id_field` = '$id'");
 	}
 }
