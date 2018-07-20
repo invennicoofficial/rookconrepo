@@ -276,12 +276,13 @@ $(document).ready(function() {
 		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
 		if(available_height > 200) {
             $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
+            $('#sales_div .main-screen-white').height(available_height - 6);
 		}
 	}).resize();
     
     $('.main-screen').height($('#sales_div').height());
     $('.tile-sidebar, .tile-content').height($('#sales_div').height() - $('.tile-header').height() + 15);
-    $('.main-screen-white').height($('.tile-content').height() + 96);
+    //$('.main-screen-white').height($('.tile-content').height() - 96);
     $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
     $('.main-screen-white').on('scroll', function(){
