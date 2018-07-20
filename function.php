@@ -1743,21 +1743,20 @@ function get_subtabs($tile_name) {
             $subtabs = array('Style', 'Formatting', 'Menu Formatting', 'Tile Sort Order', 'My Dashboards', 'Dashboards', 'Software Identity', 'Software Login Page', 'Social Media Links', 'Url Favicon', 'Logo', 'Display Preferences', 'Font Settings', 'Data Usage', 'Notes', 'Ticket Slider');
             break;
         case 'profile':
-            $subtabs = array('id card');
+            $subtabs = array('ID Card');
             break;
         case 'security':
         case 'client_info':
         case 'contacts':
         case 'contacts3':
         case 'contacts_rolodex':
-        case 'vendors':
             $subtabs = array('Summary', 'Active', 'Inactive', 'Regions', 'Locations', 'Classifications', 'Titles');
             break;
         case 'documents':
             $subtabs = array('Dashboard', 'Create Tile');
             break;
         case 'infogathering':
-            $subtabs = array('Dashbaord', 'Reporting', 'PDF Style');
+            $subtabs = array('Dashboard', 'Reporting', 'PDF Style');
             break;
         case 'hr':
             $hr_tabs = explode(',', get_config($dbc, 'hr_tabs'));
@@ -1772,10 +1771,23 @@ function get_subtabs($tile_name) {
         case 'training_quiz':
         case 'passwords':
         case 'software_guide':
+        case 'marketing_material':
+        case 'internal_documents':
+        case 'client_documents':
+        case 'archiveddata':
+        case 'daily_log_notes':
+        case 'checklist':
+        case 'routine':
+        case 'day_program':
+        case 'match':
+        case 'medication':
+        case 'individual_support_plan':
+        case 'documents_all':
+        case 'quote':
             $subtabs = array('Dashboard');
             break;
         case 'services':
-            $subtabs = array('Dashbaord', 'Import/Export', 'Pdf Styling', 'Export Templates', 'Service Templates');
+            $subtabs = array('Dashboard', 'Import/Export', 'Pdf Styling', 'Export Templates', 'Service Templates');
             break;
         /* case 'preformance_review':
             $subtabs = 'Performance Reviews';
@@ -1824,10 +1836,7 @@ function get_subtabs($tile_name) {
             if ( strpos($rate_card_tabs,',expense,') !== false ) { $subtabs[] = array_push($subtabs, 'Expense'); };
             break;
         case 'estimate':
-            $subtabs = array('Dashbaord', 'Templates', 'Reporting');
-            break;
-        case 'quote':
-            $subtabs = 'Dashbaord';
+            $subtabs = array('Dashboard', 'Templates', 'Reporting');
             break;
         case 'cost_estimate':
             $subtabs = array('Internal Cost Estimates', 'Customer Cost Estimates');
@@ -1863,7 +1872,7 @@ function get_subtabs($tile_name) {
             $subtabs = array('Dashboard', 'Start New Driving Log', 'Edit/View Driving Logs', '14 Day Driving Logs', 'Log Time Off', 'Mileage');
             break;
         case 'expense':
-            $subtabs = array('Dashbaord', 'Pending', 'Approved', 'Paid', 'Declined', 'Expense List', 'Reporting');
+            $subtabs = array('Dashboard', 'Pending', 'Approved', 'Paid', 'Declined', 'Expense List', 'Reporting');
             break;
         /* case 'marketing':
             $subtabs = 'Marketing Projects';
@@ -1904,16 +1913,11 @@ function get_subtabs($tile_name) {
         case 'certificate':
             $subtabs = array('Dashboard', 'Active Staff - Completed', 'Active Staff - Pending', 'Active Staff - Expiry Pending', 'Active Staff - Expired', 'Suspended Staff - Completed', 'Suspended Staff - Pending', 'Suspended Staff - Expiry Pending', 'Suspended Staff - Expired', 'Follow Up', 'Reporting');
             break;
-        case 'marketing_material':
-        case 'internal_documents':
-        case 'client_documents':
-            $subtabs = array('Dashbaord');
-            break;
         case 'contracts':
             $subtabs = array('Favourites');
             break;
         case 'products':
-            $subtabs = array('Dashbaord', 'Add Multiple Products');
+            $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
         case 'tasks':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
@@ -1922,24 +1926,24 @@ function get_subtabs($tile_name) {
             $subtabs = array('Agendas', 'Meetings');
             break;
         case 'sales':
-            $subtabs = array('Dashbaord');
+            $subtabs = array('Dashboard', 'Status', 'Staff', 'Region', 'Location', 'Classification');
             break;
         case 'gantt_chart':
-            $subtabs = 'Gantt Chart';
+            $subtabs = array('Estimated', 'Gantt Chart');
             break;
         case 'communication':
-            $subtabs = 'Communication';
+            $subtabs = array('Email Schedule', 'Phone Schedule', 'Internal', 'External', 'Log');
             break;
         case 'purchase_order':
-            $subtabs = 'Purchase Order';
+            $subtabs = array('Create an Order', 'Pending Orders', 'Receiving', 'Accounts Payable', 'Completed Purchase Orders');
             break;
-        case 'orientation':
+        /* case 'orientation':
             $subtabs = 'Orientation';
-            break;
+            break; */
         case 'sales_order':
-            $subtabs = SALES_ORDER_TILE;
+            $subtabs = array('Dashboard', 'Status', 'Region', 'Location', 'Classification');
             break;
-        case 'website':
+        /* case 'website':
             $subtabs = 'Website';
             break;
         case 'vpl':
@@ -1947,103 +1951,76 @@ function get_subtabs($tile_name) {
             break;
         case 'helpdesk':
             $subtabs = 'Help Desk';
-            break;
+            break; */
         case 'time_tracking':
-            $subtabs = 'Time Tracking';
+            $subtabs = array('Time Tracking', 'Shop Time Sheets');
             break;
         case 'newsboard':
-            $subtabs = 'News Board';
+            $subtabs = array('Dashboard');
             break;
-        case 'ffmsupport':
+        /* case 'ffmsupport':
             $subtabs = 'FFM Support';
-            break;
-        case 'archiveddata':
-            $subtabs = 'Archived Data';
-            break;
+            break; */
         case 'email_communication':
-            $subtabs = 'Email Communication';
+            $subtabs = array('Internal', 'External', 'Log');
             break;
         case 'scrum':
-            $subtabs = 'Scrum';
+            $subtabs = array('Notes', 'Tickets', 'Tasks', 'Staff', 'Status', 'Projects');
             break;
         case 'charts':
-            $subtabs = 'Charts';
-            break;
-        case 'daily_log_notes':
-            $subtabs = 'Daily Log Notes';
+            $subtabs = array('Blood Glucose', 'Bowel Movement', 'Daily Dishwasher Temp', 'Daily Freezer Temp', 'Daily Fridge Temp', 'Daily Water Temp (Client)', 'Daily Water Temp (Program)', 'New Custom Chart', 'Seizure Record');
             break;
         case 'timesheet':
-            $subtabs = 'Time Sheets';
+            $subtabs = array('Coordinator Approvals', 'Holidays', 'Manager Approvals', 'Pay Period', 'Payroll', 'Reporting', 'Time Sheets');
             break;
         case 'staff':
-            $subtabs = 'Staff';
-            break;
-        case 'checklist':
-            $subtabs = 'Checklist';
+            $subtabs = array('Active Users', 'Suspended Users', 'Security Privileges', 'Positions', 'Reminders');
             break;
         case 'calllog':
-            $subtabs = 'Cold Call';
+            $subtabs = array('Target Market', 'Objections', 'Scripts', '*#*', 'Not Scheduled', 'Scheduled', 'Missed Call', 'Past Due', '*#*', 'Schedule', '*#*', 'Available Leads', 'Abandoned Leads', '*#*', 'Daily', 'Weekly', 'Bi-Monthly', 'Monthly', 'Quarterly', 'Semi-Annually', 'Yearly', '*#*', 'Reporting');
             break;
         case 'budget':
-            $subtabs = 'Budget';
+            $subtabs = array('Pending Budgets', 'Active Budgets', 'Budget Expense Tracking');
             break;
         case 'gao':
-            $subtabs = 'Goals & Objectives';
-            break;
-        case 'routine':
-            $subtabs = 'Routine Creator';
-            break;
-        case 'day_program':
-            $subtabs = 'Day Program';
-            break;
-        case 'match':
-            $subtabs = 'Match';
+            $subtabs = array('Company Goals', 'Department Goals', 'My Goals');
             break;
         case 'fund_development':
-            $subtabs = 'Fund Development';
+            $subtabs = array('Funders', 'Funding');
             break;
-        case 'medication':
-            $subtabs = 'Medication';
-            break;
-        case 'client_documentation':
-            $subtabs = 'Client Documentation';
-            break;
-        case 'individual_support_plan':
-            $subtabs = 'Individual Service Plan';
-            break;
+        /* case 'client_documentation':
+            $subtabs = ''; //Files pulled from each directory
+            break; */
         case 'social_story':
-            $subtabs = 'Social Story';
+            $subtabs = array('Activities', 'Communication', 'Key Methodologies', 'Learning Techniques', 'Patterns', 'Protocols', 'Routines');
             break;
         case 'intake':
-            $subtabs = 'Intake Forms';
+            $subtabs = array('Website Forms', 'Forms');
             break;
-        case 'interactive_calendar':
+        /* case 'interactive_calendar':
             $subtabs = 'Interactive Calendar';
             break;
         case 'client_projects':
             $subtabs = 'Client Projects';
-            break;
+            break; */
         case 'non_verbal_communication':
-            $subtabs = 'Non Verbal Communication';
+            $subtabs = array('Emotions', 'Activities');
             break;
         case 'form_builder':
-            $subtabs = 'Form Builder';
+            $subtabs = array('Custom Forms', 'Reporting');
             break;
         case 'vendors':
-            $subtabs = VENDOR_TILE;
+            $subtabs = array('Summary', 'Active', 'Inactive', 'Regions', 'Locations', 'Classifications', 'Vendor Price List');
             break;
-        case 'reactivation':
+        /* case 'reactivation':
             $subtabs = 'Follow Up';
-            break;
+            break; */
         case 'confirmation':
-            $subtabs = 'Notifications';
+            $subtabs = array('48-Hour Confirmation Email', '1 Month Confirmation Email');
             break;
-        case 'calendar_rook':
+        /* case 'calendar_rook':
             $subtabs = 'Calendar';
-            break;
-        case 'documents_all':
-            $subtabs[] = 'Documents';
-            break;
+            break; */
     }
 
 	// Sort Sub Tabs alphabetically
