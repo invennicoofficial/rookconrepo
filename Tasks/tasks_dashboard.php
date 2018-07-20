@@ -722,9 +722,7 @@ function savePathName(name) {
 						while($milestone_row = $milestones->fetch_assoc()) {
 							$cat_tab = $milestone_row['milestone'];
 							$label = $milestone_row['label'] ?: 'Tasks';
-							if ( $url_tab == 'My' ) {
-								$result = mysqli_query($dbc, "SELECT tl.* FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) WHERE (tl.contactid IN (".$_SESSION['contactid'].") OR (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,".$_SESSION['contactid'].",%')) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate");
-							} elseif ( $url_tab == 'Private' ) {
+							if ( $url_tab == 'Private' ) {
 								//$result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE contactid IN (". $_SESSION['contactid'] .") AND (task_path='$task_path' OR '$task_path' = '') AND (task_milestone_timeline='$cat_tab' OR ('$cat_tab' = '' AND task_milestone_timeline NOT IN ('".implode("','",$each_tab)."'))) AND task_board = '$taskboardid' AND (DATE(`archived_date`) >= (DATE(NOW() - INTERVAL 3 DAY)) OR archived_date IS NULL OR archived_date = '0000-00-00') AND `deleted`=0 ORDER BY task_path ASC, tasklistid DESC");
 								$result = mysqli_query($dbc, "SELECT tl.* FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) WHERE tl.contactid IN (".$_SESSION['contactid'].") AND tb.taskboardid='$taskboardid' AND tb.board_security='Private' AND tb.company_staff_sharing LIKE '%,".$_SESSION['contactid'].",%' AND tl.task_path='$task_path' AND tl.task_milestone_timeline='$cat_tab' AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_path ASC, tl.tasklistid DESC");
 							} elseif ( $url_tab == 'Company' ) {
