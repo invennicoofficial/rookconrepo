@@ -528,7 +528,8 @@ function saveFieldMethod(field) {
 					category: $(field).data('category'),
 					tile_name: tile_name,
 					auto_create_unscheduled: $('[name="auto_create_unscheduled"]').val(),
-					track_timesheet: $(field).data('track-timesheet')
+					track_timesheet: $(field).data('track-timesheet'),
+					sync_recurring_data: $('#sync_recurrences').val()
 				},
 				success: function(response) {
 					updateTicketLabel();
@@ -2570,36 +2571,45 @@ function addTreatmentChart(link) {
 function sendInventoryReminder(id) {
 	$.post('ticket_ajax_all.php?action=inventory_reminder', { id: id }, function(response) { alert('A reminder has been sent!'); });
 }
-function archive(override = '') {
-	var confirmed = true;
-	if(override != 'override') {
-		var confirmed = confirm('Are you sure you want to delete this?');
-	}
-	if(confirmed) {
-		if(ticketid > 0) {
-			ticketid_list.push(ticketid);
+function archive(override = '', recurrence_confirm_skip = 0, delete_recurrences = 0) {
+	if($('#sync_recurrences').val() == 1 && recurrence_confirm_skip == 0) {
+		if(confirm('Would you like to delete all Recurrences?')) {
+			return archive(override, 1, 1);
+		} else {
+			return archive(override, 1, 0);
 		}
-		ticketid_list.forEach(function(ticket) {
-			if(ticket > 0) {
-				$.ajax({
-					url: 'ticket_ajax_all.php?action=archive',
-					method: 'POST',
-					data: {
-						ticketid: ticket
-					},
-					success: function(response) {
-						if(typeof window.top.reload_all_data == 'function') {
-							window.top.reload_all_data();
-						} else if(typeof window.top.reload_all_data_month == 'function') {
-							window.top.reload_all_data_month();
-						}
-						return true;
-					}
-				});
-			}
-		});
 	} else {
-		return false;
+		var confirmed = true;
+		if(override != 'override') {
+			confirmed = confirm('Are you sure you want to delete this?');
+		}
+		if(confirmed) {
+			if(ticketid > 0) {
+				ticketid_list.push(ticketid);
+			}
+			ticketid_list.forEach(function(ticket) {
+				if(ticket > 0) {
+					$.ajax({
+						url: 'ticket_ajax_all.php?action=archive',
+						method: 'POST',
+						data: {
+							ticketid: ticket,
+							delete_recurrences: delete_recurrences
+						},
+						success: function(response) {
+							if(typeof window.top.reload_all_data == 'function') {
+								window.top.reload_all_data();
+							} else if(typeof window.top.reload_all_data_month == 'function') {
+								window.top.reload_all_data_month();
+							}
+							return true;
+						}
+					});
+				}
+			});
+		} else {
+			return false;
+		}
 	}
 }
 function dialogDeleteNote(a) {
@@ -2789,6 +2799,61 @@ function submitApproval(status, email) {
 }
 function approve(field, status) {
 	
+}
+function dialogCreateRecurrence(a) {
+	back_url = $(a).attr('href');
+	$('#dialog_create_recurrence').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		open: function() {
+			destroyInputs('#dialog_create_recurrence');
+			initInputs('#dialog_create_recurrence');
+		},
+		buttons: {
+			"Create Recurrence": function() {
+				var ticket = $('#ticketid').val();
+				var recurrence_start_date = $('[name="recurrence_start_date"]').val();
+				var recurrence_end_date = $('[name="recurrence_end_date"]').val();
+				var recurrence_repeat_type = $('[name="recurrence_repeat_type"]').val();
+				var recurrence_repeat_interval = $('[name="recurrence_repeat_interval"]').val();
+				var recurrence_repeat_days = [];
+				$('[name="recurrence_repeat_days[]"]:checked').each(function() {
+					recurrence_repeat_days.push(this.value);
+				});
+				var recurrence_data = { ticketid: ticket, start_date: recurrence_start_date, end_date: recurrence_end_date, repeat_type: recurrence_repeat_type, repeat_interval: recurrence_repeat_interval, repeat_days: recurrence_repeat_days };
+				$.ajax({
+					url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets&validate=1',
+					method: 'POST',
+					data: recurrence_data,
+					success: function(response) {
+						var response = JSON.parse(response);
+						if(response.success == false) {
+							alert(response.message);
+						} else if(response.success == true) {
+							if(confirm(response.message)) {
+								$('#dialog_create_recurrence').closest('.ui-dialog').find('button:contains(\"Create Recurrence\")').prop('disabled', true).text('Creating...');
+								$.ajax({
+									url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets',
+									method: 'POST',
+									data: recurrence_data,
+									success: function(response) {
+										alert(response);
+										window.location.replace(back_url);
+										$('#dialog_create_recurrence').dialog('close');
+									}
+								});
+							}
+						}
+					}
+				});
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
 }
 function initSelectOnChanges() {
 	try {

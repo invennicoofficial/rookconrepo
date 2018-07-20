@@ -242,5 +242,29 @@
     }
     //2018-07-17 - Ticket #8311 - Cleans Calendar
 
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_ticketid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `ticketcommid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
