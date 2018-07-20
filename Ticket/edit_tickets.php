@@ -762,7 +762,7 @@ var setHeading = function() {
 			$('.recurrence_repeat_days').hide();
 		}
 	});
-	</script>
+	</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Start Date:</label>
 		<div class="col-sm-8">
