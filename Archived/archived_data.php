@@ -878,7 +878,7 @@ switch($archive) {
 							$po_info .= "'Vendor: [ENCRYPTED]<br />\n',";
 						$po_info .= "'')";
 						$sql = "SELECT IF(PO.`deleted`=1, 'Archived', 'Attached to Work Ticket') job_tab, PO.`fieldpoid` job_id, $po_info info, C.`name` `encrypted`, PO.`deleted`, PO.date_of_archival FROM `field_po` PO LEFT JOIN field_jobs FJ ON PO.jobid=FJ.jobid LEFT JOIN `contacts` C ON PO.`vendorid`=C.`contactid`
-							WHERE PO.deleted = 1 OR PO.`attach_workticket`=1 ORDER BY job_tab, job_id";
+							WHERE PO.deleted = 1 OR (PO.`attach_workticket`=1 AND PO.`deleted`=0) ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
                         $query = "SELECT '$num_rows' as numrows";
