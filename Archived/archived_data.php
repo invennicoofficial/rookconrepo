@@ -93,6 +93,7 @@ switch($archive) {
 	case "pos" : $current_tab = "pos"; break;
 	case "sales_order" : $current_tab = "sales_order"; break;
 	case "purchase_order" : $current_tab = "purchase_order"; break;
+	case "vpl" : $current_tab = "vpl"; break;
 	case "budget" : $current_tab = "budget"; break;
 	case "infogathering" : $current_tab = "infogathering"; break;
 	case "marketing_material" : $current_tab = "marketing_material"; break;
@@ -877,7 +878,7 @@ switch($archive) {
 							$po_info .= "'Vendor: [ENCRYPTED]<br />\n',";
 						$po_info .= "'')";
 						$sql = "SELECT IF(PO.`deleted`=1, 'Archived', 'Attached to Work Ticket') job_tab, PO.`fieldpoid` job_id, $po_info info, C.`name` `encrypted`, PO.`deleted`, PO.date_of_archival FROM `field_po` PO LEFT JOIN field_jobs FJ ON PO.jobid=FJ.jobid LEFT JOIN `contacts` C ON PO.`vendorid`=C.`contactid`
-							WHERE PO.deleted = 1 OR PO.`attach_workticket`=1 ORDER BY job_tab, job_id";
+							WHERE PO.deleted = 1 OR (PO.`attach_workticket`=1 AND PO.`deleted`=0) ORDER BY job_tab, job_id";
                         $result = mysqli_query($dbc, $sql);
 						$num_rows = mysqli_num_rows($result);
                         $query = "SELECT '$num_rows' as numrows";
@@ -904,8 +905,8 @@ switch($archive) {
                             echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
 	                            if($edit_access > 0) {
-								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
-									<a href=\'../delete_restore.php?action=delete_2&category=field_jobs&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
+								echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&category=field_po&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> |
+									<a href=\'../delete_restore.php?action=delete_2&category=field_po&field_job='.$row['job_id'].'&job_tab='.$row['job_tab'].'\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 								}
 								echo '</tr>';
 							}
@@ -1081,7 +1082,7 @@ switch($archive) {
 								<th>Status</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
-                            echo "<th>Restore</th>";
+                            echo "<th>Restore / Delete</th>";
                         }
 						echo "</tr>";
                         } else{
@@ -1096,7 +1097,7 @@ switch($archive) {
                             echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
                             if($edit_access > 0) {
-                            echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&projectmanageid='.$row['projectmanageid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a></td>';
+                            echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&projectmanageid='.$row['projectmanageid'].'&category=shop_work_order\' onclick="return confirm(\'Are you sure?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&projectmanageid='.$row['projectmanageid'].'&category=shop_work_order\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 	                        }
                             echo "</tr>";
                         }
@@ -1392,7 +1393,7 @@ switch($archive) {
                             echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
 
                             if($edit_access > 0) {
-                            echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&checklistid='.$row['checklistid'].'&category=checklist\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&checklistid='.$row['checklistid'].'&category=checklist\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
+                            echo '<td data-title="Restore"><a href="../delete_restore.php?action=restore&archive_checklistid='.$row['checklistid'].'&category=checklist" onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href="../delete_restore.php?action=delete_2&archive_checklistid='.$row['checklistid'].'&category=checklist" onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
                             }
                             echo "</tr>";
                         }
@@ -2180,7 +2181,7 @@ switch($archive) {
                           <select data-placeholder="Pick a User" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                           <option value=""></option>
                             <?php
-                            $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
+                            $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 1 AND patientid != 0");
                             while($row = mysqli_fetch_array($query)) {
                             ?><option <?php if ($row['patientid'] == $search_user) { echo " selected"; } ?> value='<?php echo  $row['patientid']; ?>' ><?php echo get_contact($dbc, $row['patientid']); ?></option>
                             <?php	}
@@ -2208,14 +2209,14 @@ switch($archive) {
                         $offset = ($pageNum - 1) * $rowsPerPage;
 
                         if($search_user != '') {
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 1 AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                         } else if($search_invoiceid != '') {
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 1 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                         }  else if($search_date != '') {
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_date='$search_date' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 1 AND invoice_date='$search_date' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                         } else {
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
-                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 1 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
+                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 1 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                         }
 
                         $num_rows = 0;
@@ -2239,6 +2240,7 @@ switch($archive) {
                             <th>Patient Invoice</th>
                             <th>Patient Receipt</th>
                             <th>Date of Archival</th>
+                            <th>Restore / Delete</th>
                             </tr>";
                         } else {
                             echo "<h2>No Record Found.</h2>";
@@ -2306,6 +2308,7 @@ switch($archive) {
                                 echo '<td>-</td>';
                             }
                             echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+                            echo '<td data-title="Restore / Delete"><a href="../delete_restore.php?action=restore&checkoutid='.$row['invoiceid'].'&category=check_out" onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href="../delete_restore.php?action=delete_2&checkoutid='.$row['invoiceid'].'&category=check_out" onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
 
                             echo "</tr>";
                         }
@@ -2592,7 +2595,7 @@ switch($archive) {
             <!-- Archived expenses -->
             <?php } ?>
 
-			<?php if($current_tab =='purchase_order') { ?>
+			<?php if($current_tab =='vpl') { ?>
              <!-- Archived match  -->
             <div id="tab8" class="tab-pane triple-gap-top">
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
@@ -3382,72 +3385,74 @@ switch($archive) {
 						$num_rows += mysqli_num_rows($result1);
 
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
-								<th>Type</th>
-                                <th>Funding For</th>
-                                <th>Staff</th>
-                                <th>Title</th>
-								<th>Description</th>
-                                <th>Date of Archival</th>";
-                        if($edit_access > 0) {
-                            echo "<th>Restore / Delete</th>";
-                        }
-						echo "</tr>";
-                        } else{
-                            echo "<h2>No Record Found.</h2>";
+                            echo "<table border='2' cellpadding='10' class='table'>";
+                            echo "<tr>
+                                    <th>Type</th>
+                                    <th>Funding For</th>
+                                    <th>Staff</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Date of Archival</th>";
+                                    if($edit_access > 0) {
+                                        echo "<th>Restore / Delete</th>";
+                                    }
+                            echo "</tr>";
+                            
+                            while($row = mysqli_fetch_array( $result1 ))
+                            {
+                                echo '<tr>';
+                                    echo '<td data-title="Tile">Funding</td>';
+                                    echo '<td data-title="Tile">' . $row['funding_for'] . '</td>';
+                                    echo '<td data-title="Tile">' . $row['first_name'] . '</td>';
+                                    echo '<td data-title="Tile">' . $row['last_name'] . '</td>';
+                                    echo '<td data-title="Tile">' . get_contact($dbc, $row['client_id']) . '</td>';
+                                    echo '<td data-title="Tile">' . $row['email_address'] . '</td>';
+                                    echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+                                    if($edit_access > 0) {
+                                    echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
+                                    }
+                                echo "</tr>";
+                            }
                         }
 
 						$result2 = mysqli_query($dbc, "select * from fund_development_funder where deleted=1");
-						$num_rows += mysqli_num_rows($result2);
-						if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
-								<th>Type</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Client</th>
-								<th>Email</th>
-                                <th>Date of Archival</th>";
-                        if($edit_access > 0) {
-                            echo "<th>Restore / Delete</th>";
-                        }
-						echo "</tr>";
-                        } else{
-                            echo "<h2>No Record Found.</h2>";
-                        }
-
-                        while($row = mysqli_fetch_array( $result1 ))
-                        {
-                            echo '<tr>';
-							echo '<td data-title="Tile">Funding</td>';
-                            echo '<td data-title="Tile">' . $row['funding_for'] . '</td>';
-                            echo '<td data-title="Tile">' . $row['first_name'] . '</td>';
-                            echo '<td data-title="Tile">' . $row['last_name'] . '</td>';
-							echo '<td data-title="Tile">' . get_contact($dbc, $row['client_id']) . '</td>';
-							echo '<td data-title="Tile">' . $row['email_address'] . '</td>';
-                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
-                            if($edit_access > 0) {
-                            echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
-	                        }
+						$num_rows2 += mysqli_num_rows($result2);
+						if($num_rows2 > 0) {
+                            echo "<table border='2' cellpadding='10' class='table'>";
+                            echo "<tr>
+                                    <th>Type</th>
+                                    <th>Funding For</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Client</th>
+                                    <th>Email</th>
+                                    <th>Date of Archival</th>";
+                                if($edit_access > 0) {
+                                    echo "<th>Restore / Delete</th>";
+                                }
                             echo "</tr>";
-                        }
-						while($row = mysqli_fetch_array( $result2 ))
-                        {
-                            echo '<tr>';
-							echo '<td data-title="Tile">Funders</td>';
-                            echo '<td data-title="Tile">' . $row['funding_for'] . '</td>';
-                            echo '<td data-title="Tile">' . get_contact($dbc, $row['staff']) . '</td>';
-                            echo '<td data-title="Tile">' . $row['title'] . '</td>';
-							echo '<td data-title="Tile">' . $row['description'] . '</td>';
-                            echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
-                            if($edit_access > 0) {
-                            echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
-	                        }
-                            echo "</tr>";
+                        
+                            while($row = mysqli_fetch_array( $result2 ))
+                            {
+                                echo '<tr>';
+                                echo '<td data-title="Tile">Funders</td>';
+                                echo '<td data-title="Tile">' . $row['funding_for'] . '</td>';
+                                echo '<td data-title="Tile">' . get_contact($dbc, $row['staff']) . '</td>';
+                                echo '<td data-title="Tile">' . $row['title'] . '</td>';
+                                echo '<td data-title="Tile">' . $row['description'] . '</td>';
+                                echo '<td data-title="Date of Archival">' . $row['date_of_archival'] . '</td>';
+                                if($edit_access > 0) {
+                                echo '<td data-title="Restore"><a href=\'../delete_restore.php?action=restore&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a> | <a href=\'../delete_restore.php?action=delete_2&fundingid='.$row['fundingid'].'&category=fund_development\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a></td>';
+                                }
+                                echo "</tr>";
+                            }
                         }
 
                         echo '</table>';
+                        
+                        if ( $num_rows<=0 && $num_rows2<=0 ) {
+                            echo "<h2>No Record Found.</h2>";
+                        }
                         ?>
                     </div>
                 </form>

@@ -666,13 +666,24 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Dispatch Calendar draggables
 	function dispatchDraggable() {
+		var clone, before, parent;
 		$('.equip_assign_div').sortable({
 			connectWith: ".equip_assign_block",
 			items: '.equip_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
-			beforeStop: function(e, td) {
+			start: function (e, block) {
+				$(block.item).show();
+				clone = $(block.item).clone();
+				before = $(block.item).prev();
+		        parent = $(block.item).parent();
+			},
+			stop: function(e, td) {
 				if($('.highlightCell').length > 0) {
-
+					if(before.length) {
+						before.after(clone);	
+					} else {
+						parent.prepend(clone);
+					}
 					var blocktype = td.item.data('blocktype');
 					var clientid = td.item.data('client');
 					var staffid = td.item.data('staff');
@@ -722,8 +733,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					// 	window.location.reload();
 					// }
 				} else {
-					// window.location.reload();
-					// reload_all_data();
+					$(this).sortable('cancel');
 				}
 			},
 			sort: function(e, block) {
@@ -736,13 +746,24 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Teams draggables
 	function teamsDraggable() {
+		var clone, before, parent;
 		$('.team_assign_div').sortable({
 			connectWith: ".team_assign_block",
 			items: '.team_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
-			beforeStop: function(e, td) {
+			start: function (e, block) {
+				$(block.item).show();
+				clone = $(block.item).clone();
+				before = $(block.item).prev();
+		        parent = $(block.item).parent();
+			},
+			stop: function(e, td) {
 				if($('.highlightCell').length > 0) {
-
+					if(before.length) {
+						before.after(clone);	
+					} else {
+						parent.prepend(clone);
+					}
 					var staffid = td.item.data('staff');
 					var target = $('.highlightCell').removeClass('highlightCell');
 					var teamid = target.data('team');
@@ -760,6 +781,8 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 							}
 						});
 					}
+				} else {
+					$(this).sortable('cancel');
 				}
 			},
 			sort: function(e, block) {

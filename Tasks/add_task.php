@@ -422,7 +422,7 @@ $(document).ready(function () {
                     $.ajax({
                         method: 'POST',
                         url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: taskid, reply: 'Time added '+timer_value },
+                        data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
                         success: function(result) {
                             $('.added-time').append('Tracked time: '+timer_value);
                         }

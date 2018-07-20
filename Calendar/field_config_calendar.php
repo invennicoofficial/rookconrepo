@@ -629,7 +629,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_equip_assign' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_equip_assign') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_equip_assign."' WHERE `name`='ticket_equip_assign'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_type' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_type') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['ticket_client_type']."' WHERE `name`='ticket_client_type'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['ticket_client_type'])."' WHERE `name`='ticket_client_type'");
 	if (!empty($_POST['ticket_calendar_notes'])) {
 		$ticket_calendar_notes = $_POST['ticket_calendar_notes'];
 	} else {
@@ -2286,13 +2286,13 @@ function showDefaultView(chk) {
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Calendar Client Type:</label>
 								<div class="col-sm-8">
-			                        <select name="ticket_client_type" data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
+			                        <select name="ticket_client_type[]" multiple data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
 			                            <option value="">NO CLIENT</option>
 			                            <?php $ticket_client_type = get_config($dbc, 'ticket_client_type');
 			                            $query = "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`";
 			                            $result = mysqli_query($dbc, $query);
 			                            while ($row = mysqli_fetch_array($result)) {
-			                                echo '<option value="'.$row['category'].'"'.($row['category'] == $ticket_client_type ? ' selected' : '').'>'.$row['category'].'</option>';
+			                                echo '<option value="'.$row['category'].'"'.(strpos(','.$ticket_client_type.',', ','.$row['category'].',') !== FALSE ? ' selected' : '').'>'.$row['category'].'</option>';
 			                            }
 			                            ?>
 			                        </select>

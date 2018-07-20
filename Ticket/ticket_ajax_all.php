@@ -2852,5 +2852,10 @@ if($_GET['action'] == 'update_fields') {
 	}
 	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
 	set_config($dbc, 'stamp_upload', $filename);
+} else if($_GET['action'] == 'add_delete_note') {
+	$ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+	$note = filter_var(htmlentities($_POST['note']),FILTER_SANITIZE_STRING);
+
+	mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','note','$note',DATE(NOW()),'{$_SESSION['contactid']}')");
 }
 ?>

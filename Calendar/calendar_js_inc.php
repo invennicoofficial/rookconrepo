@@ -361,6 +361,7 @@ function setSelectOnChange() {
 	$('select.unbooked_ticket_location').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_classification').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_customer').off('change').change(function() { filterTickets(); });
+	$('select.unbooked_ticket_client').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_staff').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_status').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_wo_project').off('change').change(function() { filterWorkOrders(); });
@@ -695,9 +696,14 @@ function calendarScrollLoad() {
 }
 function reload_all_data() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
-	$('#'+retrieve_collapse).find('.block-item.active').each(function() {
-		retrieve_items($(this).closest('a'));
-	});
+	var calendar_type = $('#calendar_type').val();
+	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
+		reload_teams();
+	} else {
+		$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+			retrieve_items($(this).closest('a'));
+		});
+	}
 }
 function clear_excess_data(remove_type) {
 	if($('.calendar_view table:not(#time_html) th').length >= 15) {
@@ -1046,7 +1052,7 @@ function reload_resize_all() {
 function scrollToToday() {
 	clearInterval(clear_today);
 	var clear_today = setInterval(function() {
-		if(still_loading <= 0) {
+		if(still_loading <= 0 && scroll_to_today) {
 			scroll_to_today = false;
 			clearInterval(clear_today);
 			while($('.calendar_view table:not(#time_html) th').length <= 10 && $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).length > 0) {
@@ -1079,6 +1085,7 @@ function scrollToToday() {
 			}
 		} else {
 			scroll_to_today = false;
+			clearInterval(clear_today);
 		}
 	}, 2000);
 }
