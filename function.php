@@ -1731,6 +1731,304 @@ function get_tile_names($tile_list) {
 }
 
 /*
+ * Title:		Get Sub Tab Names
+ * File:		Multiple files can call this function
+ * Function:	Return the list of Sub Tabs in each Tile when the tile name is sent to the function
+ * Notes        Update this when a new tile is added / get_tile_names function is updated
+ */
+function get_subtabs($tile_name) {
+	$subtabs = [];
+    switch($tile_name) {
+        case 'software_config':
+            $subtabs = array('Style', 'Formatting', 'Menu Formatting', 'Tile Sort Order', 'My Dashboards', 'Dashboards', 'Software Identity', 'Software Login Page', 'Social Media Links', 'Url Favicon', 'Logo', 'Display Preferences', 'Font Settings', 'Data Usage', 'Notes', 'Ticket Slider');
+            break;
+        case 'profile':
+            $subtabs = array('ID Card');
+            break;
+        case 'security':
+        case 'client_info':
+        case 'contacts':
+        case 'contacts3':
+        case 'contacts_rolodex':
+            $subtabs = array('Summary', 'Active', 'Inactive', 'Regions', 'Locations', 'Classifications', 'Titles');
+            break;
+        case 'documents':
+            $subtabs = array('Dashboard', 'Create Tile');
+            break;
+        case 'infogathering':
+            $subtabs = array('Dashboard', 'Reporting', 'PDF Style');
+            break;
+        case 'hr':
+            $hr_tabs = explode(',', get_config($dbc, 'hr_tabs'));
+            $general_tabs = array('Summary', 'Favourites', 'Reporting');
+            $subtabs = array_merge($hr_tabs, $general_tabs);
+            break;
+        case 'package':
+        case 'promotion':
+        case 'labour':
+        case 'assets':
+        case 'custom':
+        case 'training_quiz':
+        case 'passwords':
+        case 'software_guide':
+        case 'marketing_material':
+        case 'internal_documents':
+        case 'client_documents':
+        case 'archiveddata':
+        case 'daily_log_notes':
+        case 'checklist':
+        case 'routine':
+        case 'day_program':
+        case 'match':
+        case 'medication':
+        case 'individual_support_plan':
+        case 'documents_all':
+        case 'quote':
+            $subtabs = array('Dashboard');
+            break;
+        case 'services':
+            $subtabs = array('Dashboard', 'Import/Export', 'Pdf Styling', 'Export Templates', 'Service Templates');
+            break;
+        /* case 'preformance_review':
+            $subtabs = 'Performance Reviews';
+            break; */
+        case 'sred':
+            $subtabs = array('Dashboard', 'Favourite', 'Pending');
+            break;
+        case 'material':
+            $subtabs = array('Dashboard', 'Order Lists');
+            break;
+        case 'inventory':
+            $subtabs = array('Dashboard', 'Summary', 'Warehousing', 'Purchase Orders', 'Customer Orders', 'Pallet Nos', 'Pick Lists', 'Inventory Without Cost', 'Receive Shipment', 'Bill Of Material', 'Bill of Material Consumables', 'Waste/Write-Off', 'Checklists', 'Order Lists', 'Order Checklists', 'Import/Export', 'Templates', 'PDF Styling');
+            break;
+        case 'equipment':
+            $subtabs = explode(',',get_config($dbc,'equipment_main_tabs'));
+            break;
+        case 'invoicing':
+            $subtabs = array('Sell', 'Invoices', 'Returns', 'Accounts Receivable', 'Voided Invoices');
+            break;
+        case 'pos':
+            $subtabs = array('Create Invoice', 'Today\'s Invoices', 'All Invoices', 'Invoices', 'Accounts Receivable', 'Voided Invoices', 'Refund/Adjustments', 'Cash Out', 'Gift Card');
+            break;
+        case 'incident_report':
+            $subtabs = array('All Incident Reports', 'Summary', 'Motor Vehicle Accident Form', 'Incident Investigation Form', 'Near Miss');
+            break;
+        case 'policy_procedure':
+        case 'ops_manual':
+        case 'emp_handbook':
+            $subtabs = array('Manuals', 'Follow Up', 'Reporting');
+            break;
+        case 'safety':
+            $subtabs = 'Favourites';
+            break;
+        case 'rate_card':
+            $subtabs = array('Dashboard');
+            $rate_card_tabs = get_config($dbc, 'rate_card_tabs');
+            if ( strpos($rate_card_tabs,',customer,') !== false ) { $subtabs[] = array_push($subtabs, 'Customer Specific'); };
+            if ( strpos($rate_card_tabs,',company,') !== false ) { $subtabs[] = array_push($subtabs, 'My Company'); };
+            if ( strpos($rate_card_tabs,',universal,') !== false ) { $subtabs[] = array_push($subtabs, 'Universal'); };
+            if ( strpos($rate_card_tabs,',position,') !== false ) { $subtabs[] = array_push($subtabs, 'Position'); };
+            if ( strpos($rate_card_tabs,',staff,') !== false ) { $subtabs[] = array_push($subtabs, 'Staff'); };
+            if ( strpos($rate_card_tabs,',category,') !== false ) { $subtabs[] = array_push($subtabs, 'Equipment by Category'); };
+            if ( strpos($rate_card_tabs,',services,') !== false ) { $subtabs[] = array_push($subtabs, 'Services'); };
+            if ( strpos($rate_card_tabs,',labour,') !== false ) { $subtabs[] = array_push($subtabs, 'Labour'); };
+            if ( strpos($rate_card_tabs,',holiday,') !== false ) { $subtabs[] = array_push($subtabs, 'Holiday Pay'); };
+            if ( strpos($rate_card_tabs,',expense,') !== false ) { $subtabs[] = array_push($subtabs, 'Expense'); };
+            break;
+        case 'estimate':
+            $subtabs = array('Dashboard', 'Templates', 'Reporting');
+            break;
+        case 'cost_estimate':
+            $subtabs = array('Internal Cost Estimates', 'Customer Cost Estimates');
+            break;
+        case 'project':
+            $subtabs = array('Summary');
+            $project_tabs = explode(',', get_config($dbc, 'project_classify'));
+            if ( ($key = array_search('All', $project_tabs)) !== false ) {
+                unset($project_tabs[$key]);
+            }
+            $project_tabs = array_values($project_tabs);
+            $subtabs = array_merge($subtabs, $project_tabs);
+            break;
+        /* case 'jobs':
+            $subtabs = 'Jobs';
+            break; */
+        case 'project_workflow':
+            $subtabs = array('Active Workflow', 'Add/Edit Workflow');
+            break;
+        case 'ticket':
+            $subtabs = array('Summary', 'Reports', 'Import/Export');
+            break;
+        case 'field_job':
+            $subtabs = array('Sites', 'Jobs', 'Foreman Sheet', 'PO', 'Work Ticket', 'Outstanding Invoices', 'Paid Invoices', 'Payroll');
+            break;
+        case 'report':
+            $subtabs = array('% Breakdown of Services Sold', 'Appointment Summary', 'Archived Ticket Notes', 'Assessment Follow Ups', 'Assessment Tally Board', 'Attached to Tickets', 'Block Booking', 'Block Booking vs Not Block Booking', 'Checklist Time Tracking', 'Credit Card on File', 'Day Sheet Report', 'Detailed Import Report', 'Discharge Report', 'Dispatch Ticket Travel Time', 'Download Tracker', 'Drop Off Analysis', 'Equipment List', 'Equipment Transfer History', 'Field Jobs', 'Import Summary Report', 'Injury Type', 'Inventory Log', 'Manifest Daily Summary ', 'Point of Sale (Advanced)', 'Purchase Orders', 'Rate Cards Report', 'Scrum Business Productivity Summary', 'Scrum Staff Productivity Summary', 'Scrum Status Report', 'Shop Work Order Task Time', 'Shop Work Order Time', 'Shop Work Orders', 'Site Work Order Driving Logs', 'Site Work Order Time on Site', 'Site Work Orders', 'Staff Tickets', 'Task Time Tracking', 'Therapist Day Sheet', 'Therapist Stats', 'Ticket Activity Report per Customer', 'Ticket Report', 'Ticket Time Summary', 'Ticket Transport of Inventory', 'Ticket by Task', 'Time Sheets Report', 'Treatment Report', 'Work Order', '*#*', 'Customer History', 'Customer Invoices', 'Daily Deposit Report', 'Deposit Detail', 'Estimate Item Closing % By Quantity ', 'Expense Summary Report', 'Gross Revenue by Staff', 'Inventory Analysis', 'Invoice Sales Summary', 'Monthly Sales by Injury Type', 'POS (Advanced) Sales Summary', 'POS (Advanced) Validation', 'Payment Method List', 'Phone Communication', 'Profit-Loss', 'Receipts Summary Report', 'Sales Estimates', 'Sales History by Customer', 'Sales Summary by Injury Type', 'Sales by Customer Summary', 'Sales by Inventory Summary', 'Sales by Inventory/Service Detail', 'Sales by Service Category', 'Sales by Service Summary', 'Staff Revenue Report', 'Transaction List by Customer', 'Unassigned/Error Invoices', 'Unbilled Invoices', 'Validation by Therapist', '*#*', 'A/R Aging Summary', 'By Invoice# ', 'Collections Report by Customer', 'Customer Aging Receivable Summary', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Insurer Aging Receivable Summary', 'Invoice List', 'POS Receivables', 'UI Invoice Report', '*#*', 'Costs', 'Dollars By Service ', 'Expenses', 'Labour Report', 'Revenue & Receivables', 'Staff & Compensation', 'Summary', '*#*', 'CRM Recommendations - By Customer', 'CRM Recommendations - By Date', 'Cart Abandonment', 'Contact Postal Code', 'Contact Report by Status ', 'Customer Contact List', 'Customer Stats', 'Demographics', 'Driver Report', 'Net Promoter Score', 'POS Coupons', 'Postal Code', 'Pro-Bono', 'Referrals', 'Web Referrals Report', 'Website Visitors', '*#*', 'Adjustment Compensation', 'Compensation: Print Appt. Reports Button', 'Hourly Compensation', 'Statutory Holiday Pay Breakdown', 'Therapist Compensation', 'Time Sheet Payroll', '*#*', 'CRM Recommendations - By Customer', 'Collections Report by Customer', 'Contact Postal Code', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Customer Contact List', 'Customer Invoices', 'Customer Stats', 'Patient Aging Receivable Summary', 'Patient History', 'Sales History by Customer', 'Sales by Customer Summary', 'Service Rates & Hours ', 'Transaction List by Customer', '*#*', 'Day Sheet Report', 'Gross Revenue by Staff', 'Scrum Staff Productivity Summary', 'Staff Compensation ', 'Staff Revenue Report', 'Staff Tickets', 'Therapist Day Sheet', 'Therapist Stats', 'Validation by Therapist');
+            break;
+        case 'field_ticket_estimates':
+            $subtabs = array('Bid', 'Cost Estimate');
+            break;
+        case 'driving_log':
+            $subtabs = array('Dashboard', 'Start New Driving Log', 'Edit/View Driving Logs', '14 Day Driving Logs', 'Log Time Off', 'Mileage');
+            break;
+        case 'expense':
+            $subtabs = array('Dashboard', 'Pending', 'Approved', 'Paid', 'Declined', 'Expense List', 'Reporting');
+            break;
+        /* case 'marketing':
+            $subtabs = 'Marketing Projects';
+            break;
+        case 'internal':
+            $subtabs = 'Internal Projects';
+            break;
+        case 'rd':
+            $subtabs = 'R&D Projects';
+            break;
+        case 'business_development':
+            $subtabs = 'Business Development Projects';
+            break;
+        case 'process_development':
+            $subtabs = 'Process Development Projects';
+            break;
+        case 'addendum':
+            $subtabs = 'Addendum Projects';
+            break;
+        case 'addition':
+            $subtabs = 'Addition Projects';
+            break;
+        case 'manufacturing':
+            $subtabs = 'Manufacturing Projects';
+            break;
+        case 'assembly':
+            $subtabs = 'Assembly Projects';
+            break;
+        case 'work_order':
+            $subtabs = 'Work Orders';
+            break; */
+        case 'daysheet':
+            $subtabs = array('Day Sheet', 'My Journal', 'My Alerts', 'My Projects', 'My Tickets', 'My Tasks', 'My Checklists');
+            break;
+        /* case 'punch_card':
+            $subtabs = 'Time Clock';
+            break; */
+        case 'certificate':
+            $subtabs = array('Dashboard', 'Active Staff - Completed', 'Active Staff - Pending', 'Active Staff - Expiry Pending', 'Active Staff - Expired', 'Suspended Staff - Completed', 'Suspended Staff - Pending', 'Suspended Staff - Expiry Pending', 'Suspended Staff - Expired', 'Follow Up', 'Reporting');
+            break;
+        case 'contracts':
+            $subtabs = array('Favourites');
+            break;
+        case 'products':
+            $subtabs = array('Dashboard', 'Add Multiple Products');
+            break;
+        case 'tasks':
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
+            break;
+        case 'agenda_meeting':
+            $subtabs = array('Agendas', 'Meetings');
+            break;
+        case 'sales':
+            $subtabs = array('Dashboard', 'Status', 'Staff', 'Region', 'Location', 'Classification');
+            break;
+        case 'gantt_chart':
+            $subtabs = array('Estimated', 'Gantt Chart');
+            break;
+        case 'communication':
+            $subtabs = array('Email Schedule', 'Phone Schedule', 'Internal', 'External', 'Log');
+            break;
+        case 'purchase_order':
+            $subtabs = array('Create an Order', 'Pending Orders', 'Receiving', 'Accounts Payable', 'Completed Purchase Orders');
+            break;
+        /* case 'orientation':
+            $subtabs = 'Orientation';
+            break; */
+        case 'sales_order':
+            $subtabs = array('Dashboard', 'Status', 'Region', 'Location', 'Classification');
+            break;
+        /* case 'website':
+            $subtabs = 'Website';
+            break;
+        case 'vpl':
+            $subtabs = 'Vendor Price List';
+            break;
+        case 'helpdesk':
+            $subtabs = 'Help Desk';
+            break; */
+        case 'time_tracking':
+            $subtabs = array('Time Tracking', 'Shop Time Sheets');
+            break;
+        case 'newsboard':
+            $subtabs = array('Dashboard');
+            break;
+        /* case 'ffmsupport':
+            $subtabs = 'FFM Support';
+            break; */
+        case 'email_communication':
+            $subtabs = array('Internal', 'External', 'Log');
+            break;
+        case 'scrum':
+            $subtabs = array('Notes', 'Tickets', 'Tasks', 'Staff', 'Status', 'Projects');
+            break;
+        case 'charts':
+            $subtabs = array('Blood Glucose', 'Bowel Movement', 'Daily Dishwasher Temp', 'Daily Freezer Temp', 'Daily Fridge Temp', 'Daily Water Temp (Client)', 'Daily Water Temp (Program)', 'New Custom Chart', 'Seizure Record');
+            break;
+        case 'timesheet':
+            $subtabs = array('Coordinator Approvals', 'Holidays', 'Manager Approvals', 'Pay Period', 'Payroll', 'Reporting', 'Time Sheets');
+            break;
+        case 'staff':
+            $subtabs = array('Active Users', 'Suspended Users', 'Security Privileges', 'Positions', 'Reminders');
+            break;
+        case 'calllog':
+            $subtabs = array('Target Market', 'Objections', 'Scripts', '*#*', 'Not Scheduled', 'Scheduled', 'Missed Call', 'Past Due', '*#*', 'Schedule', '*#*', 'Available Leads', 'Abandoned Leads', '*#*', 'Daily', 'Weekly', 'Bi-Monthly', 'Monthly', 'Quarterly', 'Semi-Annually', 'Yearly', '*#*', 'Reporting');
+            break;
+        case 'budget':
+            $subtabs = array('Pending Budgets', 'Active Budgets', 'Budget Expense Tracking');
+            break;
+        case 'gao':
+            $subtabs = array('Company Goals', 'Department Goals', 'My Goals');
+            break;
+        case 'fund_development':
+            $subtabs = array('Funders', 'Funding');
+            break;
+        /* case 'client_documentation':
+            $subtabs = ''; //Files pulled from each directory
+            break; */
+        case 'social_story':
+            $subtabs = array('Activities', 'Communication', 'Key Methodologies', 'Learning Techniques', 'Patterns', 'Protocols', 'Routines');
+            break;
+        case 'intake':
+            $subtabs = array('Website Forms', 'Forms');
+            break;
+        /* case 'interactive_calendar':
+            $subtabs = 'Interactive Calendar';
+            break;
+        case 'client_projects':
+            $subtabs = 'Client Projects';
+            break; */
+        case 'non_verbal_communication':
+            $subtabs = array('Emotions', 'Activities');
+            break;
+        case 'form_builder':
+            $subtabs = array('Custom Forms', 'Reporting');
+            break;
+        case 'vendors':
+            $subtabs = array('Summary', 'Active', 'Inactive', 'Regions', 'Locations', 'Classifications', 'Vendor Price List');
+            break;
+        /* case 'reactivation':
+            $subtabs = 'Follow Up';
+            break; */
+        case 'confirmation':
+            $subtabs = array('48-Hour Confirmation Email', '1 Month Confirmation Email');
+            break;
+        /* case 'calendar_rook':
+            $subtabs = 'Calendar';
+            break; */
+    }
+
+	// Sort Sub Tabs alphabetically
+	asort($subtabs);
+	return $subtabs;
+}
+
+/*
  * Title:		Get How To Guide
  * Function:	Return the list result
  */
