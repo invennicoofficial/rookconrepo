@@ -372,8 +372,6 @@ checkAuthorised('tasks');
                 <ul><?php
                     echo '<li class="standard-sidebar-searchbox"><input class="form-control search_list" placeholder="Search Tasks" type="text" /></li>';
                     echo '<li class="sidebar-higher-level highest-level"><a href="?category=All&tab=Summary" class="cursor-hand '.($_GET['tab']=='Summary' ? 'active blue' : '').'">Summary</a></li>';
-					/* $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(tl.tasklistid) `task_count`, SUM(IF(IFNULL(`updated_date`,`created_date`) > IFNULL(`ts`.`seen_date`,'0000-00-00'),1,0)) `unseen` FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) LEFT JOIN taskboard_seen ts ON ts.`contactid`='{$_SESSION['contactid']}' AND ts.`taskboardid`=0 WHERE (tl.contactid IN ({$_SESSION['contactid']}) OR (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,{$_SESSION['contactid']},%')) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate"));
-                    echo '<li class="sidebar-higher-level highest-level"><a href="?category=My&tab=My" class="cursor-hand '.($_GET['tab']=='My' ? 'active blue' : '').'">My Tasks <span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row_mytasks['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</a></li>'; */
 
                     if (check_subtab_persmission($dbc, 'tasks', ROLE, 'my') === true) {
                         $result_mytasks = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' WHERE `board_security`='Private' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
@@ -616,9 +614,6 @@ checkAuthorised('tasks');
                         if ( $url_tab == 'Summary' ) {
                             $title = 'Summary';
                             $notes_subtab = 'tasks_summary';
-                        /* } elseif ( $url_tab == 'My' ) {
-                            $title = 'My Tasks';
-                            $notes_subtab = 'tasks_my'; */
                         } elseif ( $url_tab == 'Private' ) {
                             $title = 'Private Tasks';
                             $notes_subtab = 'tasks_private';
@@ -647,7 +642,6 @@ checkAuthorised('tasks');
                             echo '<div class="row">';
                                 echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
                                 echo '<div class="col-sm-6 text-right">';
-                                    //if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='My' && $url_tab!='Reporting' ) {
                                     if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
                                         echo '<div class="gap-top gap-right" style="font-size:1.5em;">';
                                             if ( $board_name['company_staff_sharing'] ) {
