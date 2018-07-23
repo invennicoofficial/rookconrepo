@@ -87,13 +87,6 @@ function saveFields() {
 </div>
 <div class="form-group">
 	<label class="col-sm-4 control-label">
-		<span class="popover-examples"><a data-toggle="tooltip" data-original-title="These options will control options for your PDF."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>PDF Settings:</label>
-	<div class="col-sm-8">
-		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."PDF Hide Blank Fields".',') !== false) { echo " checked"; } ?> value="PDF Hide Blank Fields" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Hide Blank Fields (Except Blank <?= TICKET_NOUN ?> Forms)</label>
-	</div>
-</div>
-<div class="form-group">
-	<label class="col-sm-4 control-label">
 		<span class="popover-examples"><a data-toggle="tooltip" data-original-title="These options will control what additional tabs display along the left side of the <?= TICKET_TILE ?> dashboard."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Dashboard Tabs:</label>
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Export".',') !== false) { echo " checked"; } ?> value="Export" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Import / Export Button</label>

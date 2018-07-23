@@ -1,6 +1,6 @@
 <script>
 $(document).ready(function() {
-	$('textarea,select').change(saveField);
+	$('input,textarea,select').change(saveField);
 	$('input[name="ticket_pdf_logo"]').change(function() {
 		saveLogo();
 	});
@@ -56,6 +56,14 @@ function deleteLogo() {
 			<option value="P" <?= $ticket_pdf_orientation == 'P' ? 'selected' : '' ?>>Portrait</option>
 			<option value="L" <?= $ticket_pdf_orientation == 'L' ? 'selected' : '' ?>>Landscape</option>
 		</select>
+	</div>
+</div>
+<hr>
+<div class="form-group">
+	<label class="col-sm-4 control-label">Hide Blank Fields (Except Blank <?= TICKET_NOUN ?> Forms):</label>
+	<div class="col-sm-8">
+		<?php $ticket_pdf_hide_blank = get_config($dbc, 'ticket_pdf_hide_blank'); ?>
+		<label class="form-checkbox"><input type="checkbox" <?php if ($ticket_pdf_hide_blank == 1) { echo " checked"; } ?> value="1" style="height: 20px; width: 20px;" name="ticket_pdf_hide_blank"> Enable</label>
 	</div>
 </div>
 <hr>
