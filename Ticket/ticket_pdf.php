@@ -1065,7 +1065,7 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 				array_pop($htmls);
 			}
 			$htmls[$header.'#*#'.$key] = '<tr><td class="pdf_header" style="text-align: center; background-color: #'.$pdf_header_color.'; color: #fff; font-weight: bold; width: 100%; border: 1px solid black;">'.$line.'</td></tr>';
-		} else if (!empty($line[1]) || !$hide_blank_fields) {
+		} else if (!empty(trim(strip_tags($line[1]))) || !$hide_blank_fields) {
 			if($img != 'img') {
 				$line = preg_replace('/<img((?!>).)*>/','',$line);
 			}
