@@ -96,6 +96,7 @@ if(!file_exists($filepath)) {
 		case 'xlt':
 		case 'xlw': $mime = 'application/vnd.ms-excel'; break;
 		case 'zip': $mime = 'application/zip'; break;
+		case 'eps': $mime = 'image/eps'; break;
 	}
 	header("Content-Length: " . filesize ( $filepath ) );
 	header("Content-type: ".$mime);
