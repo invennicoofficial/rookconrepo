@@ -1096,6 +1096,10 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 			}
 		}
 	}
+	end($htmls);
+	if($hide_blank_fields && explode('#*#',key($htmls))[0] == '**HEADING**') {
+		array_pop($htmls);
+	}
 	$html .= implode('',$htmls);
 	$html .= '</table>';
 
