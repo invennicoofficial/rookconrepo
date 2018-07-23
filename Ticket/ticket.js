@@ -161,6 +161,21 @@ function send_email(button) {
 				$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 			}
 		});
+	} else if($(button).closest('#approval_submit').length > 0) {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=send_email',
+			method: 'POST',
+			data: {
+				recipient: $(button).closest('#approval_submit').find('[name=email_recipient]').val().split(';'),
+				sender: $(button).closest('#approval_submit').find('.email_sender').val(),
+				sender_name: $(button).closest('#approval_submit').find('.email_sender_name').val(),
+				subject: $(button).closest('#approval_submit').find('.email_subject').val(),
+				body: $(button).closest('#approval_submit').find('.email_body').val()
+			},
+			success: function(response) {
+				$('[data-target=#approval_submit]').first().click();
+			}
+		});
 	} else {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=send_email',
