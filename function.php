@@ -815,7 +815,6 @@ function get_client_project_detail($dbc, $projectid, $field_name) {
 
 function get_company_rate_card($dbc, $item_id, $field_name) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM company_rate_card WHERE	item_id='$item_id' AND tile_name = 'Services' AND CURDATE() BETWEEN start_date AND end_date"));
-    return "SELECT $field_name FROM company_rate_card WHERE	item_id='$item_id' AND tile_name = 'Services' AND CURDATE() BETWEEN start_date AND end_date";
     return $get_staff[$field_name];
 }
 

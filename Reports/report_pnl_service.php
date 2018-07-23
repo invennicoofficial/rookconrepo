@@ -181,8 +181,6 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 
             $report_data .= '<td>'.get_all_from_service($dbc, $sid, 'heading').'</td>';
 
-echo get_company_rate_card($dbc, $sid, 'cost');
-
             $client_price = str_replace("$", "", get_company_rate_card($dbc, $sid, 'cost'));
             $report_data .= '<td>$'.$client_price.'</td>';
 
