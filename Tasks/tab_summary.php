@@ -80,7 +80,7 @@ checkAuthorised('tasks'); ?>
             echo '<div class="overview-block">';
                 echo '<h4>Time tracked/added to Tasks today : '.date('F jS, Y').'</h4>';
 
-                $today_tickets = $dbc->query("SELECT t.tasklistid, t.heading, t.status, tt.work_time FROM `tasklist` t, tasklist_time tt WHERE t.deleted=0 AND tt.timer_date = '".date('Y-m-d')."' AND t.tasklistid = tt.tasklistid");
+                $today_tickets = $dbc->query("SELECT t.tasklistid, t.heading, t.status, tt.work_time FROM `tasklist` t, tasklist_time tt WHERE t.deleted=0 AND (tt.timer_date = '".date('Y-m-d')."' OR (t.task_tododate = '".date('Y-m-d')."' AND work_time >0)) AND t.tasklistid = tt.tasklistid");
                 while($ticket = $today_tickets->fetch_assoc()) {
                     ?>
                         <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>

@@ -83,11 +83,11 @@ $(document).ready(function() {
             success: function(response) {}
         });
     });
-    
+
     $('li.t_item').each(function() {
         $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
     });
-    
+
 });
 $(document).on('change', 'select[name="change_milestone"]', function() { changeMilestone(this); });
 
