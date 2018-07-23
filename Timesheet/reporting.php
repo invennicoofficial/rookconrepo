@@ -410,7 +410,7 @@ $field_config = get_field_config($dbc, 'time_cards_dashboard');
         ?>
         </h1>
 
-        <?php echo get_tabs('Reporting', 'Custom', array('db' => $dbc, 'field' => $value['config_field'])); ?>
+        <?php echo get_tabs('Reporting', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
 
         <?php include('../Timesheet/reporting_content.php'); ?>

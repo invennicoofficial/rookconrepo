@@ -5,9 +5,32 @@ Client Listing
 include ('../include.php');
 checkAuthorised('report');
 include_once('../Timesheet/reporting_functions.php');
-include_once('../Timesheet/config.php'); ?>
+include_once('../Timesheet/config.php');
+$value = $config['settings']['Choose Fields for Time Sheets Dashboard']; ?>
 
 
 <div id="timesheet_div">
-    <?php include('../Timesheet/reporting_content.php'); ?>
+    <?php
+	$time_tabs = $config['tabs']['Reporting'];
+	$html = '';
+	if(is_array($time_tabs)) {
+		foreach($time_tabs as $subtitle => $content) {
+			$subactive = '';
+			if($subtitle == $_GET['tab']) {
+				$subactive = 'active_tab';
+			}
+
+			$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+			$value_config = ','.$get_field_config[$value['config_field']].',';
+
+			if (strpos($value_config, ','.$content.',') !== FALSE || strpos($value_config, ','.$subtitle.',') !== FALSE) {
+				$content = "?type=".$_GET['type']."&report=".$_GET['report']."&".explode('?', $content)[1];
+				$html .= "<a href='".$content."'><button type='button' class='btn brand-btn mobile-block ".$subactive."' >".$subtitle."</button></a>";
+			}
+		}
+		if(!empty($html)) {
+			echo '<br><div>'.$html.'</div><br>';
+		}
+	}
+    include('../Timesheet/reporting_content.php'); ?>
 </div>
