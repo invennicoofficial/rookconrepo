@@ -486,7 +486,7 @@ function viewTicket(a) {
                         $sql .= ", `time_cards_id`";
                         $post_i = 0;
                     }
-                    $sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
+                    $sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
                     $result = mysqli_query($dbc, $sql);
                     $date = $search_start_date;
                     $mileage_total = 0;
@@ -558,8 +558,8 @@ function viewTicket(a) {
 							if(empty($row['ticketid'])) {
 								$driving_time = 'Driving Time';
 							}
-                            $start_time = $row['start_time'];
-                            $end_time = $row['end_time'];
+                            $start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
+                            $end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
                             $approv = $row['approv'];
 
                             if(in_array('training_hrs',$value_config) && $timecardid > 0) {
