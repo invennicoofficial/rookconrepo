@@ -31,6 +31,25 @@ if($autolock == 1) {
 	}
 }
 
+//Staff settings
+$staff_schedule_limit_staff = get_config($dbc, 'staff_schedule_limit_staff');
+$limit_query = '';
+if($staff_schedule_limit_staff == 1) {
+	$limit_queries = [];
+	$staff_schedule_limit_by_staff = get_config($dbc, 'staff_schedule_limit_by_staff');
+	if(!empty($staff_schedule_limit_by_staff)) {
+		$limit_queries[] = " `contactid` IN (".$staff_schedule_limit_by_staff.")";
+	}
+	$staff_schedule_limit_by_security = get_config($dbc, 'staff_schedule_limit_by_security');
+	if(!empty($staff_schedule_limit_by_security)) {
+		foreach(array_filter(explode(',',$staff_schedule_limit_by_security)) as $security_level) {
+			$limit_queries[] = " CONCAT(',',`role`,',') LIKE '%,".$security_level.",%'";
+		}
+	}
+	$limit_query = " AND (".implode(" OR ", $limit_queries).")";
+}
+$staff_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE (`office_email` != '' OR `email_address` != '') AND `user_name` != '' AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND `deleted`=0".$limit_query),MYSQLI_ASSOC);
+
 //Auto-Lock Reminder Emails
 $reminder_emails = get_config($dbc, 'staff_schedule_reminder_emails');
 if($reminder_emails == 1) {
@@ -76,7 +95,6 @@ if($reminder_emails == 1) {
 				$from = get_config($dbc, 'staff_schedule_reminder_from');
 				$subject = str_replace(['[STARTDATE]','[ENDDATE]','[LOCKDATE]'],[$start_date,$end_date,$lock_date],get_config($dbc, 'staff_schedule_reminder_subject'));
 				$body = str_replace(['[STARTDATE]','[ENDDATE]','[LOCKDATE]'],[$start_date,$end_date,$lock_date],get_config($dbc, 'staff_schedule_reminder_body'));
-				$staff_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE (`office_email` != '' OR `email_address` != '') AND `user_name` != '' AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND `deleted`=0"),MYSQLI_ASSOC);
 				if($is_secondary == 'secondary') {
 					$last_sent = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT MAX(`date`) `last_sent` FROM `staff_schedule_autolock_reminders`"))['last_sent'];
 					if(empty($last_sent)) {
