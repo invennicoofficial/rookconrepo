@@ -1091,7 +1091,9 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 			}
 			$line_html .= '<td class="pdf_content" style="width: '.$width.'%; border: 1px solid black; display: inline;">'.($ticketid>0 ? $line : '').'</td>';
 			$line_html .= '</tr>';
-			$htmls[$header.'#*#'.$key] = $line_html;
+			if(!empty(trim(strip_tags($line[1]))) || !$hide_blank_fields) {
+				$htmls[$header.'#*#'.$key] = $line_html;
+			}
 		}
 	}
 	$html .= implode('',$htmls);
