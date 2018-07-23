@@ -10,8 +10,8 @@ function approve() {
 		signature: $('[name=approval]').val(),
 		contactid: '<?= $_SESSION['contactid'] ?>',
 		status: 1,
-		id: <?= $id ?>,
-		date: <?= $date ?>
+		id: '<?= $id ?>',
+		date: '<?= $date ?>'
 	}, function(response) { window.location.reload(); });
 }
 </script>

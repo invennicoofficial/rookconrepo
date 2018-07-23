@@ -519,6 +519,10 @@ foreach($security_levels as $security_level) {
 		}
 	}
 }
+$is_recurrence = false;
+if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
+	$is_recurrence = true;
+}
 
 
 $global_value_config = $value_config; ?>
@@ -603,6 +607,12 @@ $(document).ready(function() {
 	}
 	<?php if(strpos_any(['Inventory Basic Billing','Staff Billing','Miscellaneous Billing'],$value_config)) { ?>
 		reload_billing();
+	<?php } ?>
+	<?php if($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0)) { ?>
+		if(confirm('Would you like to edit for all Recurrences of this <?= TICKET_NOUN ?>?')) {
+			$('#sync_recurrences').val(1);
+			$('.sync_recurrences_note').show();
+		}
 	<?php } ?>
 });
 function loadPanel() {
@@ -742,10 +752,64 @@ var setHeading = function() {
 		</div>
 	</div>
 </div>
+<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<script type="text/javascript">
+	$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
+		var repeat_type = $('[name="recurrence_repeat_type"]').val();
+		if(repeat_type == 'weekly') {
+			$('.recurrence_repeat_days').show();
+		} else {
+			$('.recurrence_repeat_days').hide();
+		}
+	});
+	</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Start Date:</label>
+		<div class="col-sm-8">
+			<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">End Date:</label>
+		<div class="col-sm-8">
+			<input type="text" name="recurrence_end_date" class="form-control datepicker" value="">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Repeats:</label>
+		<div class="col-sm-8">
+			<select name="recurrence_repeat_type" class="form-control chosen-select-deselect">
+				<option value="day">Daily</option>
+				<option value="week" selected>Weekly</option>
+				<option value="month">Monthly</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Repeat Interval:</label>
+		<div class="col-sm-8">
+			<select name="recurrence_repeat_interval" class="form-control chosen-select-deselect">
+                <?php for ($repeat_i = 1; $repeat_i <= 30; $repeat_i++) {
+                    echo '<option value="'.$repeat_i.'">'.$repeat_i.'</option>';
+                } ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group recurrence_repeat_days">
+		<label class="col-sm-4 control-label">Repeat Days:</label>
+		<div class="col-sm-8">
+            <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            foreach ($days_of_week as $day_of_week_label) {
+                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="recurrence_repeat_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
+            } ?>
+		</div>
+	</div>
+</div>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
+<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;
@@ -832,6 +896,9 @@ var setHeading = function() {
 			<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
 		</div>
 	<?php } ?>
+	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
+		<span class="sync_recurrences_note" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
+	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
 		<?php $current_heading = '';
 		$current_heading_closed = true;
@@ -2116,6 +2183,9 @@ var setHeading = function() {
 			<?php if($access_any) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
 				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+				<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
+					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+				<?php } ?>
 				<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 				<?php } ?>
@@ -2247,6 +2317,7 @@ var setHeading = function() {
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid ?>" target="_blank" class="pull-right btn brand-btn gap-top gap-bottom">Export <?= TICKET_NOUN ?> Log</a>
 				<div class="clearfix"></div>
 			<?php } ?>
+			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
 					<h3><?= TICKET_NOUN ?> Type</h3>
@@ -2670,6 +2741,9 @@ var setHeading = function() {
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
 					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
+						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+					<?php } ?>
 					<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 					<?php } ?>
