@@ -12,6 +12,8 @@ switch(get_config($dbc, 'ticket_sorting')) {
 	case 'label': $ticket_sort = ' ORDER BY `tickets`.`ticket_label` ASC'; break;
 	case 'oldest': $ticket_sort = ' ORDER BY `tickets`.`ticketid` ASC'; break;
 	case 'project': $ticket_sort = ' ORDER BY `tickets`.`projectid` DESC'; break;
+	case 'to_do_date_desc': $ticket_sort = ' ORDER BY `tickets`.`to_do_date` DESC'; break;
+	case 'to_do_date_asc': $ticket_sort = ' ORDER BY `tickets`.`to_do_date` ASC'; break;
 }
 $ticket_fields = '';
 $ticket_filter = '';
