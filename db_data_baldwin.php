@@ -266,5 +266,19 @@
     }
     //2018-07-17 - Ticket #8311 - Cleans Calendar
 
+    //2018-07-20 - Ticket #8352 - Sales Auto Archive
+    if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `status_date` date NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `sales_status_date` BEFORE UPDATE ON `sales`
+         FOR EACH ROW BEGIN
+            IF NEW.`status` != OLD.`status` THEN
+                SET NEW.`status_date` = CURDATE();
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-20 - Ticket #8352 - Sales Auto Archive
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
