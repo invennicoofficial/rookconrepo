@@ -120,7 +120,15 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 7);
+		// July 23, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `status` TEXT AFTER `staff`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `unlocked_fields` TEXT AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
 	if(get_config($dbc, 'update_timesheet_config') < 1) {
