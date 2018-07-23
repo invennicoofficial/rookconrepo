@@ -7,7 +7,7 @@ foreach($config['tabs'] as $tab_name => $tab) {
 	if(strpos(",$tab_config,",",$tab_name,") === FALSE) {
 		unset($config['tabs'][$tab_name]);
 	} else if(is_array($tab)) {
-		$config['tabs'][$tab_name] = $tab['Custom'];
+		$config['tabs'][$tab_name] = $tab[$default_tab];
 	}
 }
 $config['tabs']['day_tracking'] = 'start_day.php';

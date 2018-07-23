@@ -123,6 +123,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_comment_placeholder', $_POST['timesheet_comment_placeholder']);
 	set_config($dbc, 'timesheet_time_format', $_POST['timesheet_time_format']);
 	set_config($dbc, 'timesheet_record_history', $_POST['timesheet_record_history']);
+	set_config($dbc, 'timesheet_default_tab', $_POST['timesheet_default_tab']);
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'day_tracking') {
 	$timesheet_start_tile = filter_var($_POST['timesheet_start_tile'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_start_tile' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_start_tile') CONFIG WHERE `rows`=0");
@@ -545,6 +546,23 @@ if($_GET['tab'] == 'approvals') {
 							echo "<label class='sortable_tabs'><input ".(strpos(','.$tab_config.',',','.$tab_name.',') !== FALSE?'checked':'')." type='checkbox' name='tab_config[]' value='".$tab_name."'>&nbsp;&nbsp;".$tab_name."</label>&nbsp;&nbsp;";
 						} ?>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_time_tab" >
+						Default Time Period Tab<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_time_tab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<?php $default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
+					foreach($config['time_tabs'] as $time_tab) {
+						echo "<input ".($time_tab == $default_tab ? 'checked' : '')." type='radio' name='timesheet_default_tab' value='".$time_tab."'>&nbsp;&nbsp;".$time_tab."</label>&nbsp;&nbsp;";
+					} ?>
 				</div>
 			</div>
 		</div>
