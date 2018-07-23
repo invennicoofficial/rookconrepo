@@ -4,9 +4,8 @@ include_once('../Ticket/field_list.php');
 if(!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
-$db_config = get_field_config($dbc, 'tickets_dashboard');
 $hide_blank_fields = false;
-if(strpos(','.$db_config.',', ',PDF Hide Blank Fields,') !== FALSE && $_GET['ticketid'] > 0) {
+if(get_config($dbc, 'ticket_pdf_hide_blank') == 1 && $_GET['ticketid'] > 0) {
 	$hide_blank_fields = true;
 }
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
