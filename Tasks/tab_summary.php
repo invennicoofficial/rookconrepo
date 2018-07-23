@@ -86,6 +86,13 @@ checkAuthorised('tasks'); ?>
                         <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
                     <?php
                     }
+
+                $today_tickets = $dbc->query("SELECT tasklistid, heading, status, work_time FROM `tasklist` WHERE deleted=0 AND task_tododate = '".date('Y-m-d')."' AND work_time != '00:00:00'");
+                while($ticket = $today_tickets->fetch_assoc()) {
+                    ?>
+                        <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <?php
+                    }
             echo '</div>';
         echo '</div>';
 
