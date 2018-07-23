@@ -79,9 +79,10 @@ if($_GET['fill'] == 'add_task') {
     $heading = str_replace("FFMHASH","#",$heading);
 
     $heading = filter_var($heading,FILTER_SANITIZE_STRING);
+    $created_date = date('Y-m-d');
 
     if($heading != '') {
-        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid')";
+        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
     }
 }

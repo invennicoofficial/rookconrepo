@@ -3109,3 +3109,22 @@ function convert_timestamp_mysql($dbc, $timestamp) {
 
     return $new_timestamp;
 }
+function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days) {
+    $recurring_dates = [];
+    $reached_limit = 0;
+    for($cur = $start_date; strtotime($cur) <= strtotime($end_date) && ($reached_limit <= $limit || $limit == 0); $cur = date('Y-m-d', strtotime($cur.' + '.$repeat_interval.' '.$repeat_type))) {
+        if($repeat_type == 'week') {
+            foreach($repeat_days as $repeat_day) {
+                $recurring_date = date('Y-m-d', strtotime('next '.$repeat_day, strtotime($cur)));
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                    $recurring_dates[] = $recurring_date;
+                    $reached_limit++;
+                }
+            }
+        } else {
+            $recurring_dates[] = $cur;
+            $reached_limit++;
+        }
+    }
+    return $recurring_dates;
+}

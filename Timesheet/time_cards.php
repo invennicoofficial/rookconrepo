@@ -82,7 +82,7 @@ if(!empty($_GET['export'])) {
 		if($layout == 'multi_line') {
 			$sql .= ", `time_cards_id`";
 		}
-		$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
+		$sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 		$date = $search_start_date;
 		$total = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0];
 
@@ -1095,7 +1095,7 @@ function addSignature(chk) {
 						if($layout == 'multi_line') {
 							$sql .= ", `time_cards_id`";
 						}
-						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
+						$sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
@@ -1152,8 +1152,8 @@ function addSignature(chk) {
 								$timecardid = $row['time_cards_id'];
 								$ticket_attached_id = $row['ticket_attached_id'];
 								$attached_ticketid = $row['ticketid'];
-								$start_time = $row['start_time'];
-								$end_time = $row['end_time'];
+								$start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
+								$end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
 
 								if($timesheet_approval_status_comments == 1) {
 									if(!empty(trim($row['manager_approvals'],','))) {
