@@ -282,18 +282,20 @@ function checkMandatoryFields() {
                             $('select[name="pr_staff"]').trigger('change.select2');
                         }
                         </script>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Staff Position:</label>
-                            <div class="col-sm-8" style="padding-top: 7px;">
-                                <select name="pr_position" class="chosen-select-deselect">
-                                    <option></option>
-                                    <?php $pr_positions = explode(',', get_config($dbc, 'performance_review_positions'));
-                                    foreach ($pr_positions as $pr_position) {
-                                        echo '<option value="'.$pr_position.'" '.($get_pr['position'] == $pr_position ? 'selected' : '').'>'.$pr_position.'</option>';
-                                    } ?>
-                                </select>
+                        <?php $pr_positions = array_filter(explode(',', get_config($dbc, 'performance_review_positions')));
+                        if(!empty($pr_positions)) { ?>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Staff Position:</label>
+                                <div class="col-sm-8" style="padding-top: 7px;">
+                                    <select name="pr_position" class="chosen-select-deselect">
+                                        <option></option>
+                                        <?php foreach ($pr_positions as $pr_position) {
+                                            echo '<option value="'.$pr_position.'" '.($get_pr['position'] == $pr_position ? 'selected' : '').'>'.$pr_position.'</option>';
+                                        } ?>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                        <?php } ?>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Staff:</label>
                             <div class="col-sm-8" style="padding-top: 7px;">
