@@ -1477,7 +1477,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'package', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale</td>
+                                        <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced', 'admin'); ?>
                                     </tr>
                                     <tr>

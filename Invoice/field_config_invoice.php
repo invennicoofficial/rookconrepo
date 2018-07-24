@@ -11,7 +11,17 @@ if(FOLDER_NAME == 'posadvanced') {
 error_reporting(0);
 $invoice_ux = FOLDER_NAME.'_ux';
 
+$pos_advanced_tile = POS_ADVANCE_TILE;
+$pos_advanced_noun = POS_ADVANCE_NOUN;
+
 if (isset($_POST['submit'])) {
+
+    //pos_advanced_tile
+    set_config($dbc, 'pos_advance_tile_name', filter_var($_POST['pos_advanced_tile'].'#*#'.$_POST['pos_advanced_noun'],FILTER_SANITIZE_STRING));
+	$pos_advanced_tile = $_POST['pos_advanced_tile'];
+	$pos_advanced_noun = $_POST['pos_advanced_noun'];
+    //pos_advanced_tile
+
     //check in
 
     $communication_check_in_way = $_POST['communication_check_in_way'];
@@ -237,6 +247,38 @@ $(document).ready(function() {
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
     <div class="panel-group" id="accordion">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_tabs1" >
+                        Tile Settings<span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapse_tabs1" class="panel-collapse collapse">
+                <div class="panel-body">
+
+                    <div class="gap-top">
+                        <div class="form-group">
+                            <label for="fax_number" class="col-sm-4 control-label">Tile Name:<br /><em>Enter the name you would like the POS Advanced tile to be labelled as.</em></label>
+                            <div class="col-sm-8">
+                                <input name="pos_advanced_tile" type="text" value="<?= $pos_advanced_tile ?>" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fax_number" class="col-sm-4 control-label">Tile Noun:<br /><em>Enter the name you would like individual <?= POS_ADVANCE_TILE ?> to be labelled as.</em></label>
+                        <div class="col-sm-8">
+                            <input name="pos_advanced_noun" type="text" value="<?= $pos_advanced_noun ?>" class="form-control"/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
 
         <div class="panel panel-default">
             <div class="panel-heading">

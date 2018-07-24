@@ -133,7 +133,7 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
 				echo '<a href="#" class="btn config-btn btn-lg " onclick="history.go(-1);return false;">Back</a>';
 		} ?>
 		<div class="col-sm-10">
-			<h1>Point of Sale Dashboard: Returns</h1>
+			<h1><?= POS_ADVANCE_TILE ?> Dashboard: Returns</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
