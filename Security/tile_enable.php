@@ -1280,7 +1280,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'package'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale</td>
+                                        <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced'); ?>
                                     </tr>
                                     <tr>

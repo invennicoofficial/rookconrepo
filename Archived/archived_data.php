@@ -236,7 +236,7 @@ switch($archive) {
                     <li><a href="archived_data.php?archive_type=expense">Expenses</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'pos') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=pos">Point of Sale</a></li>
+                    <li><a href="archived_data.php?archive_type=pos"><?= POS_ADVANCE_TILE ?></a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'purchase_order') == 1): ?>
                     <li><a href="archived_data.php?archive_type=purchase_order">Purchase Orders</a></li>
@@ -3397,7 +3397,7 @@ switch($archive) {
                                         echo "<th>Restore / Delete</th>";
                                     }
                             echo "</tr>";
-                            
+
                             while($row = mysqli_fetch_array( $result1 ))
                             {
                                 echo '<tr>';
@@ -3431,7 +3431,7 @@ switch($archive) {
                                     echo "<th>Restore / Delete</th>";
                                 }
                             echo "</tr>";
-                        
+
                             while($row = mysqli_fetch_array( $result2 ))
                             {
                                 echo '<tr>';
@@ -3449,7 +3449,7 @@ switch($archive) {
                         }
 
                         echo '</table>';
-                        
+
                         if ( $num_rows<=0 && $num_rows2<=0 ) {
                             echo "<h2>No Record Found.</h2>";
                         }
