@@ -23,8 +23,10 @@ if (isset($_POST['submit'])) {
     <div class="form-group">
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_site',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_site">Show Site Information</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_rate_card',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_rate_card">Show Rate Card Name</label>
+		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_staff_group',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_staff_group">Group by <?= TICKET_NOUN ?> on Report</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_staff_count',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_staff_count">Show Staff Count</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_notes',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_notes">Show Notes</label>
+		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_created_dates',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_created_dates">Filter by <?= TICKET_NOUN ?> Created Date</label>
     </div>
 
     <div class="form-group pull-right">
