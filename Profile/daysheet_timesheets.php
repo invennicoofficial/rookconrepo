@@ -1,10 +1,6 @@
+<!-- Daysheet My Time Sheets -->
 <?php
-/*
- * Day Sheet Report
- * Any updates here should be updated on /Profile/daysheet_timesheets.php 
- */
 include ('../include.php');
-checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 
@@ -93,14 +89,14 @@ if (isset($_POST['printpdf'])) {
 
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/daysheet_report_'.$today_date.'.pdf', 'F');
+	$pdf->Output('../Reports/Download/daysheet_report_'.$today_date.'.pdf', 'F');
 
     track_download($dbc, 'reports_daysheet_reports', 0, WEBSITE_URL.'/Reports/Download/daysheet_report_'.$today_date.'.pdf', 'Daysheet Report');
 
     ?>
 
 	<script type="text/javascript" language="Javascript">
-	window.open('Download/daysheet_report_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
+	window.open('../Reports/Download/daysheet_report_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
 	</script>
     <?php
     $starttime = $starttimepdf;
@@ -140,48 +136,34 @@ function handleClick(sel) {
                 $endtime = date('Y-m-d');
             }
             ?>
-            <center><div class="form-group">
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Staff:</label>
-					<div class="col-sm-8">
-						<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status=1 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")); ?>
-						<select name="staffid[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect"><option />
-							<?php foreach($query as $staff) { ?>
-								<option <?= in_array($staff['contactid'],explode(',',$staffid)) ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
-							<?php } ?>
-						</select>
-					</div>
+            <center>
+                <div class="form-group">
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-4 control-label">From:</label>
+                        <div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="col-sm-4 control-label">Until:</label>
+                        <div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
+                    </div>
                 </div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">From:</label>
-					<div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
-                </div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Until:</label>
-					<div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
-				</div>
-            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button></div></center>
+            </center>
 
             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
-            <input type="hidden" name="staffidpdf" value="<?php echo $staffid; ?>">
-
-            <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
-            <br><br>
+            <input type="hidden" name="staffidpdf" value="<?php echo $_SESSION['contactid']; ?>">
 
             <?php
                 $start_date = date('Y-m-d', strtotime($starttime));
                 $end_date = date('Y-m-d', strtotime($endtime));
 
-				if(count(array_filter(explode(',',$staffid))) > 0) {
-					echo report_receivables($dbc, $start_date, $end_date, $staffid, '', '', '');
-				} else {
-					for($date = $start_date; $date <= $end_date; $date = date('Y-m-d', strtotime($date. ' + 1 days')))
-					{
-						echo report_receivables($dbc, $date, $date, $staffid, '', '', '');
-						echo "<br>";
-					}
-				}
+				echo report_receivables($dbc, $start_date, $end_date, $_SESSION['contactid'], '', '', '');
 
             ?>
 
@@ -211,7 +193,6 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
     <th width="5%">Total Timer Time</th>
     <th width="5%">Total Entered Time</th>
     <th width="5%">Total Time</th>
-    <th width="5%">Sign Off</th>
     </tr>';
     
     $final_total_timer = [];
@@ -261,8 +242,6 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
                     $report_data .= '<td>'. $ticket['timer_total'] .'</td>';
                     $report_data .= '<td>'. $ticket['manual_time'] .'</td>';
                     $report_data .= '<td>'. AddPlayTime($total_all) .'</td>';
-                    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(daysheetreportid) AS daysheetreportid FROM daysheet_report WHERE contactid='$cid' AND today_date='$date'"));
-                    $report_data .= ($get_config['daysheetreportid'] >= 1) ? '<td><img src="../img/checkmark.png" width="11" height="11" border="0" alt=""></td>' : '<td><input type="checkbox" onclick="handleClick(this);" name="contactid" value="1"></td>';
                 $report_data .= '</tr>';
 
                 $final_total_timer[] = $ticket['timer_total'];
@@ -285,8 +264,6 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
                     $report_data .= '<td>'. $task['timer_total'] .'</td>';
                     $report_data .= '<td>'. $task['manual_time'] .'</td>';
                     $report_data .= '<td>'. $task['total_time'] .'</td>';
-                    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(daysheetreportid) AS daysheetreportid FROM daysheet_report WHERE contactid='$cid' AND today_date='$date'"));
-                    $report_data .= ($get_config['daysheetreportid'] >= 1) ? '<td><img src="../img/checkmark.png" width="11" height="11" border="0" alt=""></td>' : '<td><input type="checkbox" onclick="handleClick(this);" name="contactid" value="1"></td>';
                 $report_data .= '</tr>';
 
                 $final_total_timer[] = $task['timer_total'];
@@ -304,55 +281,24 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
                     $report_data .= '<td>00:00:00</td>';
                     $report_data .= '<td>'. $checklist['work_time'] .'</td>';
                     $report_data .= '<td>'. $checklist['work_time'] .'</td>';
-                    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(daysheetreportid) AS daysheetreportid FROM daysheet_report WHERE contactid='$cid' AND today_date='$date'"));
-                    $report_data .= ($get_config['daysheetreportid'] >= 1) ? '<td><img src="../img/checkmark.png" width="11" height="11" border="0" alt=""></td>' : '<td><input type="checkbox" onclick="handleClick(this);" name="contactid" value="1"></td>';
                 $report_data .= '</tr>';
 
                 $final_total_timer[] = '00:00:00';
                 $final_total_entered[] = $checklist['work_time'];
                 $final_total_time[] = $checklist['work_time'];
 			}
-
-
-			/* $report_data .= '<td><p>'.implode('</p><p>',$ticket_list).'</p></td>';
-			$report_data .= '<td>'.$task_list.'</td>';
-			$report_data .= '<td>'.$checklist_list.'</td>';
-			$report_data .= '<td>'.AddPlayTime($total_timer).'</td>';
-			$report_data .= '<td>'.AddPlayTime($total_spent).'</td>';
-			$report_data .= '<td>'.AddPlayTime($total_all).'</td>'; */
-
-			/* $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(daysheetreportid) AS daysheetreportid FROM daysheet_report WHERE contactid='$cid' AND today_date='$date'"));
-
-			if($get_config['daysheetreportid'] >= 1) {
-				$report_data .= '<td><img src="../img/checkmark.png" width="11" height="11" border="0" alt=""></td>';
-			} else {
-				$report_data .= '<td><input type="checkbox" onclick="handleClick(this);" name="contactid" value="1"></td>';
-			} */
-
-            /*
-			$report_data .= '<td>';
-			$pdf_url = 'Day_'.$starttime.'-'.trim($contactid,',').'.pdf';
-			if(file_exists($_SERVER["DOCUMENT_ROOT"].'/Profile/download/'.$pdf_url)) {
-				$report_data .= '<a target="_blank" href="'.WEBSITE_URL.'/Profile/download/'.$pdf_url.'"><img src="'.WEBSITE_URL.'/img/pdf.png"></a>';
-			} else if(file_exists($_SERVER["DOCUMENT_ROOT"].'/Daysheet/download/'.$pdf_url)) {
-				$report_data .= '<a target="_blank" href="'.WEBSITE_URL.'/Daysheet/download/'.$pdf_url.'"><img src="'.WEBSITE_URL.'/img/pdf.png"></a>';
-			}
-			$report_data .= '</td>';
-            */
-
-			//$report_data .= "</tr>";
 		}
 
         if(count($staff) == 1 && $staff[0] > 0) {
         } else {
             // All staff
-            $report_data .= '<tr><td><b>Total</b></td><td colspan="2"><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td><td></td></tr>';
+            $report_data .= '<tr><td><b>Total</b></td><td colspan="2"><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td></tr>';
         }
     }
     
     if(count($staff) == 1 && $staff[0] > 0) {
         // Search by staff
-        $report_data .= '<tr><td><b>Total</b></td><td colspan="2"><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td><td></td></tr>';
+        $report_data .= '<tr><td><b>Total</b></td><td colspan="2"><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td></tr>';
     }
 
     $report_data .= "</table>";

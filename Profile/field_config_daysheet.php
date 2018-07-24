@@ -171,6 +171,7 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Checklists', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Checklists">My Checklists</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tasks', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tasks">My Tasks</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Shifts', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Shifts">My Shifts</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Time Sheets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Time Sheets">My Time Sheets</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Attached Contact Forms', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Attached Contact Forms">Attached Contact Forms (based on Match)</label>
 			<?php if($settings_type == 'software') { ?>
 				<label class="form-checkbox"><input type="checkbox" <?= in_array('My Notifications', $daysheet_button_config) ? 'checked' : '' ?> data-off="hide" name="daysheet_button_config[]" value="My Notifications">My Notifications</label>
