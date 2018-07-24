@@ -6,6 +6,7 @@ $(document).ready(function() {
 });
 var today_date = '<?= date('Y-m-d') ?>';
 var current_user = '<?= get_contact($dbc, $_SESSION['contactid']) ?>';
+var salesid = '<?= $_GET['salesid'] ?>';
 function search_project() {
 	var key = $('.search_list').val();
 	if(key == '') {

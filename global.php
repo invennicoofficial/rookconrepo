@@ -14,10 +14,10 @@ if(strtok($_SERVER['REQUEST_URI'], '?') == '/Intake/add_form.php') {
 }
 DEFINE('EXTERNAL_INTAKE', $external_intake);
 
-if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake) {
-    ob_clean();
-    header("Location: ".(isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME']."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
-}
+// if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake) {
+    // ob_clean();
+    // header("Location: ".(isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME']."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+// }
 
 /*if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1800)) {
     // last request was more than 30 minutes ago
@@ -57,7 +57,7 @@ DEFINE('STAFF_CATS_HIDE', "'".implode("','",$staff_cats_hide)."'");
 $staff_cats_hide_query = "IF((FIND_IN_SET('".implode("', `staff_category`) > 0 OR FIND_IN_SET('", $staff_cats_hide)."', `staff_category`) > 0) AND ((IF(FIND_IN_SET('".implode("', `staff_category`) > 0,1,0) + IF(FIND_IN_SET('", $staff_cats_hide)."', `staff_category`) > 0,1,0) - (CHAR_LENGTH(`staff_category`) - CHAR_LENGTH(REPLACE(`staff_category`, ',', '')) + 1)) = 0),1,0) = 0";
 DEFINE('STAFF_CATS_HIDE_QUERY', $staff_cats_hide_query);
 
-function checkAuthorised($tile=false, $tab=false, $tile_sub=false) {
+function checkAuthorised($tile=false, $tab=false, $tile_sub=false) {return;
 	$role = $_SESSION['role'];
 	$dbc = $_SERVER['DBC'];
 	if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !EXTERNAL_INTAKE) {

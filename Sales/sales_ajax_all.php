@@ -344,4 +344,49 @@ if ( $_GET['fill']=='intakeArchive' ) {
 	echo "UPDATE `intake` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeid` = '$intakeid'";
 	mysqli_query($dbc, "UPDATE `intake` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeid` = '$intakeid'");
 }
+if($_GET['action'] == 'flag_colour') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour.html_entity_decode($label);
+	mysqli_query($dbc, "UPDATE `sales` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `salesid`='$id'");
+}
+if($_GET['action'] == 'manual_flag_colour') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	
+	$flag_label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$flag_start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$flag_end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `sales` SET `flag_colour`='$value', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `salesid`='$id'");
+}
+if($_GET['action'] == 'add_document') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$filename = file_safe_str($_FILES['file']['name']);
+	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
+	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document`,`created_by`,`created_date`) VALUES ('$id','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
+}
+if($_GET['action'] == 'send_email') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	
+	$sender = get_email($dbc, $_SESSION['contactid']);
+	$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='$id'"));
+	$subject = "A reminder about a ".SALES_NOUN;
+	foreach($_POST['value'] as $user) {
+		$user = get_email($dbc,$user);
+		$body = "This is a reminder about a ".SALES_NOUN.".<br />\n<br />
+			<a href='".WEBSITE_URL."/Sales/sale.php?p=preview&id=$id'>Click here</a> to see the ".SALES_NOUN.".<br />\n<br />
+			$item";
+		send_email($sender, $user, '', '', $subject, $body, '');
+	}
+}
 ?>
