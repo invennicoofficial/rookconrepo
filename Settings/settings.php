@@ -125,7 +125,7 @@ checkAuthorised('software_config');
 						</h4>
 					</div>
 					<div id="collapse_mydashboard" class="panel-collapse collapse">
-						<div class="panel-body" data-url="identity.php">
+						<div class="panel-body" data-url="dashboards.php?tab=dashboard">
 							Loading...
 						</div>
 					</div>
