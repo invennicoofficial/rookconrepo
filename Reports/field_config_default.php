@@ -73,6 +73,7 @@ if (isset($_POST['submit'])) {
                     <option value="Drop Off Analysis" <?= $mobile_landing_subtab_config['value']=='Drop Off Analysis' ? 'selected="selected"' : '' ?>>Drop Off Analysis</option>
                     <option value="Discharge Report" <?= $mobile_landing_subtab_config['value']=='Discharge Report' ? 'selected="selected"' : '' ?>>Discharge Report</option>
                     <option value="Ticket Report" <?= $mobile_landing_subtab_config['value']=='Ticket Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Report</option>
+                    <option value="Action Item Summary" <?= $mobile_landing_subtab_config['value']=='Action Item Summary' ? 'selected="selected"' : '' ?>>Action Item Summary</option>
                     <option value="Site Work Time" <?= $mobile_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
                     <option value="Site Work Driving" <?= $mobile_landing_subtab_config['value']=='Site Work Driving' ? 'selected="selected"' : '' ?>>Site Work Order Driving Logs</option>
                     <option value="Shop Work Order Time" <?= $mobile_landing_subtab_config['value']=='Shop Work Order Time' ? 'selected="selected"' : '' ?>>Shop Work Order Time</option>
@@ -234,7 +235,8 @@ if (isset($_POST['submit'])) {
                     <option value="Drop Off Analysis" <?= $desktop_landing_subtab_config['value']=='Drop Off Analysis' ? 'selected="selected"' : '' ?>>Drop Off Analysis</option>
                     <option value="Discharge Report" <?= $desktop_landing_subtab_config['value']=='Discharge Report' ? 'selected="selected"' : '' ?>>Discharge Report</option>
                     <option value="Ticket Report" <?= $desktop_landing_subtab_config['value']=='Ticket Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Report</option>
-                    <option value="Site Work Time" <?= $desktop_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
+                    <option value="Action Item Summary" <?= $desktop_landing_subtab_config['value']=='Action Item Summary' ? 'selected="selected"' : '' ?>>Action Item Summary</option>
+                   <option value="Site Work Time" <?= $desktop_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
                     <option value="Site Work Driving" <?= $desktop_landing_subtab_config['value']=='Site Work Driving' ? 'selected="selected"' : '' ?>>Site Work Order Driving Logs</option>
                     <option value="Shop Work Order Time" <?= $desktop_landing_subtab_config['value']=='Shop Work Order Time' ? 'selected="selected"' : '' ?>>Shop Work Order Time</option>
                     <option value="Equipment Transfer" <?= $desktop_landing_subtab_config['value']=='Equipment Transfer' ? 'selected="selected"' : '' ?>>Equipment Transfer History</option>
