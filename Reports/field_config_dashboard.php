@@ -64,6 +64,9 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Report</label>
 	</div>
 	<div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Action Item Summary".',') !== FALSE) { echo " checked"; } ?> value="Action Item Summary" name="reports_dashboard[]"> Action Item Summary</label>
+	</div>
+	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Treatment Report".',') !== FALSE) { echo " checked"; } ?> value="Treatment Report" name="reports_dashboard[]"> Treatment Report</label>
 	</div>
 	<div class="col-sm-4">
