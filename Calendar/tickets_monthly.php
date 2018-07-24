@@ -24,20 +24,47 @@ function check_contact_category(link) {
 	toggle_columns();
 }
 function toggle_columns() {
+    if($('#collapse_teams .block-item.active').length > 0) {
+        $('#collapse_staff .block-item').removeClass('active');
+    }
 	// Hide deselected columns
 	var visibles = [];
+    var regions = [];
+    var clients = [];
 	var teams = [];
 	var all_staff = [];
+    // Filter selected regions
+    $('#collapse_region').find('.block-item.active').each(function() {
+        var region = $(this).data('region');
+        regions.push(region);
+    });
+    // Hide clients that are not in selected regions
+    $('[id^=collapse_clients]').find('.block-item').each(function() {
+        var client_region = $(this).data('region');
+        if (regions.indexOf(client_region) == -1 && regions.length > 0) {
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
+    // Filter selected clients
+    $('[id^=collapse_clients]').find('.block-item.active').each(function() {
+        var clientid = $(this).data('client');
+        clients.push(parseInt(clientid));
+    })
 	$('#collapse_teams').find('.block-item.active').each(function() {
 		var contactids = $(this).data('contactids').split(',');
 		var teamid = $(this).data('teamid');
 		teams.push(parseInt(teamid));
+        clear_all_data_month();
+        retrieve_items_month($('#collapse_teams').find('.block-item[data-teamid="'+teamid+'"]'), '', true, teamid);
 		contactids.forEach(function (contact_id) {
 			if(contact_id > 0) {
 				if(all_staff.indexOf(parseInt(contact_id)) == -1) {
 					all_staff.push(parseInt(contact_id));
                     var staff_block = $('#collapse_staff').find('.block-item[data-staff='+contact_id+']');
-                    if(!$(staff_block).hasClass('active')) {
+                    if(!$(staff_block).hasClass('active') && $(staff_block).length > 0) {
                         staff_anchor = $(staff_block).closest('a');
                         retrieve_items_month(staff_anchor, '', true);
                     }
@@ -58,6 +85,19 @@ function toggle_columns() {
 	all_staff.forEach(function (contact_id) {
 		$('.calendar_table .calendarSortable').filter(function() { return $(this).data('contact') == contact_id; }).show();
 	});
+
+    // Filter tickets in Calendar view based on the selected client
+    $('.sortable-blocks').each(function() {
+        var ticket_businessid = $(this).data('businessid');
+        var ticket_clientid = $(this).data('clientid');
+        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
+            $(this).prevAll('.quick_actions:first').hide();
+            $(this).hide();
+        } else {
+            $(this).prevAll('.quick_actions:first_name').show();
+            $(this).show();
+        }
+    });
 	
 	// Save which contacts or staff are active
 	$.ajax({
@@ -68,19 +108,12 @@ function toggle_columns() {
 		}
 	});
 
-	$('.calendar_table .calendarSortable').filter(function() { return $(this).data('contact') > 0; }).hide();
-	all_staff.forEach(function (contact_id) {
-		$('.calendar_table .calendarSortable').filter(function() { return $(this).data('contact') == contact_id; }).show();
-	});
 	resize_calendar_view_monthly();
 }
 </script>
-<?php
-$client_type = get_config($dbc, 'ticket_client_type');
-?>
 <div class="hide_on_iframe ticket-calendar calendar-screen" style="padding-bottom: 0px;">
 	<div class="pull-left collapsible">
-		<input type="text" class="search-text form-control" placeholder="Search <?= $shift_client_type ?>">
+		<input type="text" class="search-text form-control" placeholder="Search All">
 		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: hidden; padding-bottom: 0;">
             <?php if(count($contact_regions) > 0) { ?>
             <div class="panel panel-default">
@@ -103,27 +136,31 @@ $client_type = get_config($dbc, 'ticket_client_type');
                 </div>
             </div>
             <?php } ?>
-            <?php if(get_config($dbc, 'ticket_client_type') !== '') { ?>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_clients">
-                            <span style="display: inline-block; width: calc(100% - 6em);"><?= $client_type ?></span><span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </h4>
-                </div>
+            <?php if(get_config($dbc, 'ticket_client_type') !== '') {
+                foreach(array_filter(explode(',', get_config($dbc, 'ticket_client_type'))) as $client_type) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_clients_<?= config_safe_str($client_type) ?>">
+                                    <span style="display: inline-block; width: calc(100% - 6em);"><?= $client_type ?></span><span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
 
-                <div id="collapse_clients" class="panel-collapse collapse">
-                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
-                        <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
-                        $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
-                        foreach($client_list as $clientid) {
-                            echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."'>".($client_type == 'Business' ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
-                        } ?>
+                        <div id="collapse_clients_<?= config_safe_str($client_type) ?>" class="panel-collapse collapse">
+                            <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                                <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
+                                $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
+                                foreach($client_list as $clientid) {
+                                    if(get_client($dbc, $clientid) != '' || get_contact($dbc, $clientid) != '-') {
+                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."'>".(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
+                                    }
+                                } ?>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <?php } ?>
+                <?php }
+            } ?>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -146,7 +183,7 @@ $client_type = get_config($dbc, 'ticket_client_type');
 						}
 						$contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
 						foreach($contact_list as $contact_id) {
-							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($contact_id,$active_contacts) ? 'active' : '')."' data-staff='$contact_id' data-category='".get_contact($dbc, $contact_id, 'category_contact')."'><span style=''>";
+							echo "<a href='' onclick='$(\"#collapse_teams .block-item\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($contact_id,$active_contacts) ? 'active' : '')."' data-staff='$contact_id' data-category='".get_contact($dbc, $contact_id, 'category_contact')."'><span style=''>";
 							profile_id($dbc, $contact_id);
 							echo '</span> '.get_contact($dbc, $contact_id)."</div></a>";
 						}
@@ -166,21 +203,7 @@ $client_type = get_config($dbc, 'ticket_client_type');
 
 				<div id="collapse_teams" class="panel-collapse collapse">
 					<div class="panel-body" style="overflow-y: auto; padding: 0;">
-                        <?php 
-                        $team_list = mysqli_query($dbc, "SELECT * FROM `teams` WHERE `deleted` = 0 AND (DATE(`start_date`) <= DATE(CURDATE()) OR `start_date` IS NULL OR `start_date` = '' OR `start_date` = '0000-00-00') AND (DATE(`end_date`) >= DATE(CURDATE()) OR `end_date` IS NULL OR `end_date` = '' OR `end_date` = '0000-00-00')".$region_query);
-                        $active_teams = array_filter(explode(',',get_user_settings()['appt_calendar_teams']));
-                        while($row = mysqli_fetch_array($team_list)) {
-                            $team_contactids = [];
-                            $team_name = getTeamName($dbc, $row['teamid']);
-                            $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$row['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
-                            foreach ($team_contacts as $team_contact) {
-                                if (get_contact($dbc, $team_contact['contactid'], 'category') == 'Staff') {
-                                    $team_contactids[] = $team_contact['contactid'];
-                                }
-                            }
-                            $team_contactids = implode(',', $team_contactids);
-                            echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view_monthly(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
-                        } ?>
+                        <?php include('../Calendar/teams_sidebar.php'); ?>
 					</div>
 				</div>
 			</div>

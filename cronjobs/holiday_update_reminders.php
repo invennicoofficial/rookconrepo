@@ -1,5 +1,5 @@
 <?php
-include	('../include.php');
+include(substr(dirname(__FILE__), 0, -8).'include.php');
 // error_reporting(E_ALL);
 
 $holiday_update_noti = get_config($dbc, 'holiday_update_noti');

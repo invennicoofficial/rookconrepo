@@ -3,6 +3,7 @@ checkAuthorised('calendar_rook');
 include_once('calendar_settings_inc.php');
 include_once('calendar_functions_inc.php');
 
+$equip_multi_assign_staff_disallow = get_config($dbc, 'equip_multi_assign_staff_disallow');
 $classification_onclick = '';
 if($multi_class_admin == 1 && strpos(','.ROLE.',', ',admin,') === FALSE && strpos(','.ROLE.',', ',super,') === FALSE) {
 	$classification_onclick = '$(this).closest(".panel").find(".block-item").not($(this).find(".block-item")).removeClass("active");';
@@ -210,23 +211,23 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
-				$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
-				foreach ($staff_list as $staff_id) {
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'staff') {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					} else {
-						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$staff_id' AND `deleted` = 0"));
+						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '".$staff_row['contactid']."' AND `deleted` = 0"));
 						if(!empty($staff_teams['teams_list'])) {
 							$teams_query = 'OR `teamid` IN ('.$staff_teams['teams_list'].')';
 						} else {
 							$teams_query = '';
 						}
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."'>";
-						profile_id($dbc, $staff_id);
-						echo "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".get_contact($dbc, $staff_id)."</div></a>";
+						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND ((eas.`contactid` = '".$staff_row['contactid']."' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,".$staff_row['contactid'].",%'"));
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$staff_row['full_name']."</div></a>";
 					}
 				}
 
@@ -235,12 +236,12 @@ if($_GET['view'] == 'weekly') {
 			</div>
 		</div>
 		<div class="active_blocks_staff active_blocks" data-accordion="collapse_staff" style="display: none;">
-			<?php foreach($staff_list as $staff_id) { ?>
-				<div class="block-item active" data-staff="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></div> 
+			<?php foreach($staff_list as $staff_row) { ?>
+				<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
 			<?php } ?>
 		</div>
 		<?php } ?>
-		<?php if($allowed_dispatch_contractors > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
+		<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -255,23 +256,23 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
-				$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
-				foreach ($staff_list as $staff_id) {
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'contractors') {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-contractor='1'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-contractor='1'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					} else {
-						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$staff_id' AND `deleted` = 0"));
+						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '".$staff_row['contactid']."' AND `deleted` = 0"));
 						if(!empty($staff_teams['teams_list'])) {
 							$teams_query = 'OR `teamid` IN ('.$staff_teams['teams_list'].')';
 						} else {
 							$teams_query = '';
 						}
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-contractor='1'>";
-						profile_id($dbc, $staff_id);
-						echo "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".get_contact($dbc, $staff_id)."</div></a>";
+						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND ((eas.`contactid` = '".$staff_row['contactid']."' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,".$staff_row['contactid'].",%'"));
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."' data-contractor='1'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$staff_row['full_name']."</div></a>";
 					}
 				}
 
@@ -280,8 +281,8 @@ if($_GET['view'] == 'weekly') {
 			</div>
 		</div>
 		<div class="active_blocks_contractors active_blocks" data-accordion="collapse_contractors" style="display: none;">
-			<?php foreach($staff_list as $staff_id) { ?>
-				<div class="block-item active" data-staff="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></div> 
+			<?php foreach($staff_list as $staff_row) { ?>
+				<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
 			<?php } ?>
 		</div>
 		<?php } ?>
@@ -313,7 +314,7 @@ if($_GET['view'] == 'weekly') {
 	                    $team_contactids = implode(',', $team_contactids);
 	                    $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND ((',$team_contactids,' LIKE CONCAT('%,',eas.`contactid`,',%') AND eas.`deleted` = 0) OR `teamid` = '".$row['teamid']."')"));
 						// $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `equipment_assignmentid` SEPARATOR ',') as ea_list FROM `equipment_assignment` WHERE `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check' OR DATE(`end_date`) BETWEEN '$week_start_date_check' AND '$week_end_date_check') AND `teamid` = '".$row['teamid']."'"))['ea_list'];
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-blocktype='team' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."'' data-equipment='".$team_equipassigns['eq_list']."'>".($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "")."<span style=''>$team_name</span></div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-blocktype='team' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."'' data-equipment='".$team_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."'>".($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "")."<span style=''>$team_name</span></div></a>";
 					} ?>
 				</div>
 			</div>
@@ -504,23 +505,23 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
-				$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
-				foreach ($staff_list as $staff_id) {
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'staff') {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					} else {
-						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$staff_id' AND `deleted` = 0"));
+						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '".$staff_row['contactid']."' AND `deleted` = 0"));
 						if(!empty($staff_teams['teams_list'])) {
 							$teams_query = 'OR `teamid` IN ('.$staff_teams['teams_list'].')';
 						} else {
 							$teams_query = '';
 						}
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(ea.`end_date`) >= '$calendar_start' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(ea.`end_date`) >= '$calendar_start' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND ((eas.`contactid` = '".$staff_row['contactid']."' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,".$staff_row['contactid'].",%'"));
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					}
 				}
 
@@ -529,12 +530,12 @@ if($_GET['view'] == 'weekly') {
 			</div>
 		</div>
 		<div class="active_blocks_staff active_blocks" data-accordion="collapse_staff" style="display: none;">
-			<?php foreach($staff_list as $staff_id) { ?>
-				<div class="block-item active" data-staff="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></div> 
+			<?php foreach($staff_list as $staff_row) { ?>
+				<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
 			<?php } ?>
 		</div>
 		<?php } ?>
-		<?php if($allowed_dispatch_contractors > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
+		<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -549,23 +550,23 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
-				$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
-				foreach ($staff_list as $staff_id) {
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'contractors') {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-contractor='1'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-contractor='1'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					} else {
-						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$staff_id' AND `deleted` = 0"));
+						$staff_teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '".$staff_row['contactid']."' AND `deleted` = 0"));
 						if(!empty($staff_teams['teams_list'])) {
 							$teams_query = 'OR `teamid` IN ('.$staff_teams['teams_list'].')';
 						} else {
 							$teams_query = '';
 						}
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(ea.`end_date`) >= '$calendar_start' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'con_locations')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-contractor='1'>";
-						profile_id($dbc, $staff_id);
-						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").get_contact($dbc, $staff_id)."</div></a>";
+						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(ea.`end_date`) >= '$calendar_start' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND ((eas.`contactid` = '".$staff_row['contactid']."' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,".$staff_row['contactid'].",%'"));
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."' data-contractor='1'>";
+						profile_id($dbc, $staff_row['contactid']);
+						echo ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "").$staff_row['full_name']."</div></a>";
 					}
 				}
 
@@ -574,8 +575,8 @@ if($_GET['view'] == 'weekly') {
 			</div>
 		</div>
 		<div class="active_blocks_contractors active_blocks" data-accordion="collapse_contractors" style="display: none;">
-			<?php foreach($staff_list as $staff_id) { ?>
-				<div class="block-item active" data-staff="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></div> 
+			<?php foreach($staff_list as $staff_row) { ?>
+				<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
 			<?php } ?>
 		</div>
 		<?php } ?>
@@ -606,7 +607,7 @@ if($_GET['view'] == 'weekly') {
                         $team_contactids = implode(',', $team_contactids);
 	                    $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(ea.`end_date`) >= '$calendar_start' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND ((',$team_contactids,' LIKE CONCAT('%,',eas.`contactid`,',%') AND eas.`deleted` = 0) OR `teamid` = '".$row['teamid']."')"));
 						// $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `equipment_assignmentid` SEPARATOR ',') as ea_list FROM `equipment_assignment` WHERE `deleted` = 0 AND DATE(`start_date`) <= '$calendar_start' AND DATE(`end_date`) >= '$calendar_start' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,$calendar_start,%' AND `teamid` = '".$row['teamid']."'"))['ea_list'];
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-blocktype='team' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."' data-equipment='".$team_equipassigns['eq_list']."'>".($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "")."<span style=''>$team_name</span></div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item equip_assign_draggable ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-blocktype='team' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."' data-equipment='".$team_equipassigns['eq_list']."' data-restrict-assign='".$equip_multi_assign_staff_disallow."'>".($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : "")."<span style=''>$team_name</span></div></a>";
 					} ?>
 				</div>
 			</div>

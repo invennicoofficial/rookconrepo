@@ -24,20 +24,20 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 				} else {
 					$label = 'Running '.TICKET_NOUN.' #'.$active_ticket['ticketid'];
 				}
-				$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Ticket/index.php?'.($ticket_tile_visible ? '' : 'tile_name='.$active_ticket['ticket_type'].'&').'edit='.$active_ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
+				$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Ticket/index.php?'.($ticket_tile_visible ? '' : 'tile_name='.$active_ticket['ticket_type'].'&').'edit='.$active_ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
 			}
 		}
 		if(SHOW_SIGN_IN == '1') {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		}
 	} else if(SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') {
 		$timer_running = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
 		if(ACTIVE_DAY_BANNER != '' && $timer_running > 0) {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';
 		} else if(SHOW_SIGN_IN == '1' && $timer_running > 0) {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		} else if(SHOW_SIGN_IN == '1') {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.START_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.START_DAY.'</a>';
 		}
 	}
 $_SERVER['page_load_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
@@ -131,12 +131,28 @@ $(document).ready(function() {
     if ( fullscreen==1 ) {
         $('#main-header, #nav, #footer').hide();
         $('.pullup').addClass('rotate');
+        $('.hide-header-footer-down').show();
         $('.main-screen').addClass('double-pad-top');
         $(window).resize();
     } else {
         $('#main-header, #nav, #footer').show();
         $('.pullup').removeClass('rotate');
+        $('.hide-header-footer-down').hide();
         $('.main-screen').removeClass('double-pad-top');
+    }
+    
+    if ( $(window).width() < 768 ) {
+        var runningTicket = $('.active-ticket');
+        var container = $('.container').offset().top + 20;
+
+        $(window).scroll(function(){
+            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
+                runningTicket.stop().hide();
+            }
+            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
+                runningTicket.stop().show();
+            }
+        });
     }
 });
 
@@ -258,7 +274,7 @@ if(!isset($_SESSION['info_toggle'])) {
 
 $fullscreen = $_SESSION['fullscreen'];
 if(!isset($_SESSION['fullscreen'])) {
-	$fullscreen = 1;
+	$fullscreen = 0;
 } ?>
 
 <!-- Static navbar -->
@@ -270,7 +286,7 @@ if(!isset($_SESSION['fullscreen'])) {
             <div class="container no-pad-mobile">
             <?php include('tile_menu.php'); ?>
                 <div class="navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right pad-right hide-on-mobile pull-right">
+                    <ul class="nav navbar-nav navbar-right pad-right pull-right">
                         <?php //include('Navigation/social_media_links.php'); ?>
                         <li><?= $active_ticket_buttons ?></li><?php
                         $contact_category = $_SESSION['category'];
@@ -293,6 +309,9 @@ if(!isset($_SESSION['fullscreen'])) {
                             $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
                         }
                         echo '<li>'.$profile_html .'</li>'; ?>
+                        <li class="hide-header-footer">
+                            <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
+                        </li>
                         <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15" /></a></li>
                     </ul>
                     <ul class="nav navbar-nav scale-to-fill">
@@ -380,10 +399,9 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
-        <div class="hide-header-footer">
-            <div class="pull-right">
-                <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
-            </div>
+        
+        <div class="hide-header-footer-down">
+            <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
         </div>
         <?php include('sticky_tile_menu.php'); ?>
     </div>

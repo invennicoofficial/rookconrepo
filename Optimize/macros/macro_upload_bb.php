@@ -37,8 +37,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	if (!file_exists('cds_exports')) {
 		mkdir('cds_exports', 0777, true);
 	}
-	$today_date = date('Y_m_d_h_i');
-	$FileName = "cds_exports/cds_macro_".$today_date.".csv";
+	$today_date = date('Y_m_d');
+	$FileName = "cds_exports/".file_safe_str("cds_macro_".$today_date.".csv",'cds_exports/');
 	$file = fopen($FileName, "w");
 	$new_csv = ['', '', 'Client', 'Date', 'Invoice Number', 'Best Buy', 'Warehouse', 'Address', 'City/Town', 'Customer Name', 'Phone Number', 'SKU Information', 'Comments'];
 	fputcsv($file, $new_csv);
@@ -55,7 +55,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 }
 ?>
 
-<h1>CDS Macro</h1>
+<h1>Best Buy Macro</h1>
 
 <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
 	<ol>

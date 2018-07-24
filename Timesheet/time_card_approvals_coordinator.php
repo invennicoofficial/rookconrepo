@@ -68,8 +68,9 @@ function viewTicket(a) {
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
 
         <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal" role="form">
+    	<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 
-        <?php echo get_tabs('Coordinator Approvals', 'Custom', array('db' => $dbc, 'field' => $value['config_field'])); ?>
+        <?php echo get_tabs('Coordinator Approvals', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
         <?php
 			$highlight = get_config($dbc, 'timesheet_highlight');
@@ -190,8 +191,8 @@ function viewTicket(a) {
                   <label for="site_name" class="col-sm-4 control-label"></label>
                   <div class="col-sm-8">
 					<?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
-						<a href="?pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next Pay Period</a>
-						<a href="?pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior Pay Period</a>
+						<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
+						<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
 					<?php } ?>
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL_STAFF]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
@@ -211,7 +212,7 @@ function viewTicket(a) {
 			</form>
 			<?php } ?>
 
-             <form id="form1" name="form1" action="add_time_card_approvals.php?pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
+             <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
 
             <div id="no-more-tables">
             <?php $value_config = explode(',',get_field_config($dbc, 'time_cards'));
@@ -333,6 +334,7 @@ function viewTicket(a) {
 							<?php if(in_array('tracked_hrs',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('total_tracked_time',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
+							<?php if(in_array('start_day_tile',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('extra_hrs',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('relief_hrs',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('sleep_hrs',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
@@ -345,7 +347,7 @@ function viewTicket(a) {
 							<?php if(in_array('vaca_used',$value_config)) { ?><td style='text-align:center;'><?php echo $vacation_taken; ?></td><?php } ?>
 							<?php if(in_array('breaks',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
 							<?php if(in_array('view_ticket',$value_config)) { ?><td style='text-align:center;'></td><?php } ?>
-							<td colspan="2"></td>
+							<td colspan="<?= in_array('comment_box',$value_config) ? 2 : 1 ?>"></td>
 						</tr>
 						<tr class='hidden-xs hidden-sm'>
 							<th style='text-align:center; vertical-align:bottom; width:8em;'><div>Date</div></th>
@@ -358,6 +360,7 @@ function viewTicket(a) {
 							<?php if(in_array('tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
 							<?php if(in_array('total_tracked_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
 							<?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular' ?><br />Hours</div></th><?php } ?>
+							<?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
 							<?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Extra<br />Hours</div></th><?php } ?>
 							<?php if(in_array('relief_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Relief<br />Hours</div></th><?php } ?>
 							<?php if(in_array('sleep_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Sleep<br />Hours</div></th><?php } ?>
@@ -370,7 +373,7 @@ function viewTicket(a) {
 							<?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Vacation<br />Hrs. Taken</div></th><?php } ?>
 							<?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Breaks</div></th><?php } ?>
 							<?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-							<th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
+							<?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
 							<th style="width:<?= $timesheet_approval_initials == 1 ? '15em' : '6em' ?>;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
 								data-original-title="Check the boxes on multiple lines, then click Sign and click Approve."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Approve<?php if(in_array('approve_all', $value_config)) { ?><br><label><input type="checkbox" name="select_all_approve" onclick="approveAll(this);"> Select All<?php } ?></th>
 						</tr>
@@ -388,11 +391,11 @@ function viewTicket(a) {
 							$sql .= ", `time_cards_id`";
 							$post_i = 0;
 						}
-						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
+						$sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
-						$total = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
+						$total = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 						while(strtotime($date) <= strtotime($search_end_date)) {
 							$attached_ticketid = 0;
 							$timecardid = 0;
@@ -431,8 +434,8 @@ function viewTicket(a) {
 								$timecardid = $row['time_cards_id'];
 								$ticket_attached_id = $row['ticket_attached_id'];
 								$attached_ticketid = $row['ticketid'];
-								$start_time = $row['start_time'];
-								$end_time = $row['end_time'];
+								$start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
+								$end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
 
 								if(in_array('training_hrs',$value_config) && $timecardid > 0) {
 									if(is_training_hrs($dbc, $timecardid)) {
@@ -445,6 +448,14 @@ function viewTicket(a) {
 									}
 								} else {
 									$hrs['TRAINING'] = 0;
+								}
+								if(in_array('start_day_tile',$value_config) && !($row['ticketid'] > 0)) {
+									$hrs['DRIVE'] = $hrs['REG'];
+									$hrs['REG'] = 0;
+									$total['REG'] -= $hrs['DRIVE'];
+									$total['DRIVE'] += $hrs['DRIVE'];
+								} else {
+									$hrs['DRIVE'] = 0;
 								}
 
 								if($timesheet_approval_status_comments == 1) {
@@ -466,7 +477,7 @@ function viewTicket(a) {
 
 								$row = mysqli_fetch_array($result);
 							} else {
-								$hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
+								$hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 								$comments = '';
 							}
 							$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(`dayoff_type` != '',`dayoff_type`,CONCAT(`starttime`,' - ',`endtime`)) FROM `contacts_shifts` WHERE `deleted`=0 AND `contactid`='$search_staff' AND '$date' BETWEEN `startdate` AND `enddate` ORDER BY `startdate` DESC"))[0];
@@ -497,6 +508,7 @@ function viewTicket(a) {
 								'.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours" style="text-align:center">'.$tracked_hrs.'</td>' : '').'
 								'.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time" style="text-align:center">'.$total_tracked_time.'</td>' : '').'
 								'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center"><input type="text" name="regular_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control timepicker"></td>' : '').'
+								'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center"><input type="text" name="drive_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control timepicker"></td>' : '').'
 								'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours" style="text-align:center"><input type="text" name="extra_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).'" class="form-control timepicker"></td>' : '').'
 								'.(in_array('relief_hrs',$value_config) ? '<td data-title="Relief Hours" style="text-align:center"><input type="text" name="relief_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['RELIEF']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['RELIEF'],2) : time_decimal2time($hrs['RELIEF']))).'" class="form-control timepicker"></td>' : '').'
 								'.(in_array('sleep_hrs',$value_config) ? '<td data-title="Sleep Hours" style="text-align:center"><input type="text" name="sleep_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['SLEEP']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SLEEP'],2) : time_decimal2time($hrs['SLEEP']))).'" class="form-control timepicker"></td>' : '').'
@@ -509,7 +521,7 @@ function viewTicket(a) {
 								'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="text" name="vaca_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control timepicker"></td>' : '').'
 								'.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
 								'.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_tickets.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
-								<td data-title="Comments">'.$approval_status.'<input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control">'.($layout == 'multi_line' ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'</td>
+								'.(in_array('comment_box',$value_config) ? '<td data-title="Comments">'.$approval_status.'<input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control">'.($layout == 'multi_line' ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'</td>' : '').'
 								<td data-title="Select to Approve">';
 								if($layout == 'multi_line') {
 									if($timesheet_approval_initials == 1) {
@@ -568,6 +580,7 @@ function viewTicket(a) {
 							<td data-title="" colspan="'.$colspan.'">Totals</td>
 							'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title="Total Tracked Hours">'.($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS'])).'</td>' : '').'
 							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
+							'.(in_array('start_day_tile',$value_config) ? '<td data-title="Extra Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE'])).'</td>' : '').'
 							'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA'])).'</td>' : '').'
 							'.(in_array('relief_hrs',$value_config) ? '<td data-title="Relief Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['RELIEF'],2) : time_decimal2time($total['RELIEF'])).'</td>' : '').'
 							'.(in_array('sleep_hrs',$value_config) ? '<td data-title="Sleep Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['SLEEP'],2) : time_decimal2time($total['SLEEP'])).'</td>' : '').'
@@ -580,12 +593,13 @@ function viewTicket(a) {
 							'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA'],2) : time_decimal2time($total['VACA'])).'</td>' : '').'
 							'.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS'])).'</td>' : '').'
 							'.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
-							<td data-title="" colspan="2"></td>
+							<td data-title="" colspan="'.(in_array('comment_box',$value_config) ? 2 : 1).'"></td>
 						</tr>';
 						echo '<tr>
 							<td colspan="'.$colspan.'">Year-to-date Totals</td>
 							'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title=""></td>' : '').'
+							'.(in_array('start_day_tile',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('extra_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('relief_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('sleep_hrs',$value_config) ? '<td data-title=""></td>' : '').'
@@ -598,7 +612,7 @@ function viewTicket(a) {
 							'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA']+$vacation_taken,2) : time_decimal2time($total['VACA']+$vacation_taken)).'</td>' : '').'
 							'.(in_array('breaks',$value_config) ? '<td data-title="Breaks"></td>' : '').'
 							'.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
-							<td colspan="2"></td>
+							<td colspan="'.(in_array('comment_box',$value_config) ? 2 : 1).'"></td>
 						</tr>'; ?>
 						<?php while($row = mysqli_fetch_array( $result ))
 						{
@@ -796,7 +810,7 @@ function viewTicket(a) {
 									<th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th>
 									<?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Vacation Hours</div></th><?php } ?>
 									<?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-									<th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th>
+									<?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
 									<th style='text-align:center; vertical-align:bottom; width:<?= $timesheet_approval_initials == 1 ? '15em' : '6em' ?>;'><div>Approve<?php if(in_array('approve_all', $value_config)) { ?><br><label><input type="checkbox" name="select_all_approve" onclick="approveAll(this);"> Select All<?php } ?></div></th>
 								</tr>
 								<?php $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
@@ -920,7 +934,7 @@ function viewTicket(a) {
 										<td data-title="Hours"><input type="text" name="total_hrs[]" value="<?= (empty($row['hours']) || $row['type_of_time'] == 'Vac Hrs.' ? '' : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))) ?>" class="form-control <?= ($security['edit'] > 0 ? 'timepicker"' : '" readonly') ?>"></td>
 										<?php if(in_array('vaca_hrs',$value_config)) { ?><td data-title="Vacation Hours"><input type="text" name="total_hrs_vac[]" value="<?= (empty($row['hours']) || $row['type_of_time'] != 'Vac Hrs.' ? '' : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))) ?>" class="form-control <?= ($security['edit'] > 0 ? 'timepicker"' : '" readonly') ?>"></td><?php } ?>
 										<?php if(in_array('view_ticket',$value_config)) { ?><td data-title="<?= TICKET_NOUN ?>" style="text-align: center;"><a href="" onclick="viewTicket(this); return false;" data-ticketid="<?= $row['ticketid'] ?>" class="view_ticket" <?= $row['ticketid'] > 0 ? '' : 'style="display:none;"' ?>>View</a></td><?php } ?>
-										<td data-title="Comments"><span><?= $comments ?></span><img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box[]" value="<?= $row['COMMENTS'] ?>" style="display:none;"></td>
+										<?php if(in_array('comment_box',$value_config)) { ?><td data-title="Comments"><span><?= $comments ?></span><img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box[]" value="<?= ($row['COMMENTS'] == $timesheet_comment_placeholder ? '' : $row['COMMENTS'])?>" style="display:none;"></td><?php } ?>
 										<td data-title="Select to Approve">
 											<?php if($timesheet_approval_initials == 1) { ?>
 												<label <?= strpos(','.$row['coord_approvals'].',', ','.$_SESSION['contactid'].',') !== FALSE ? 'style="display:none;"' : '' ?>><input type="checkbox" name="approve_date_id[]" value="<?= $row['id'] ?>" /></label>
@@ -948,7 +962,7 @@ function viewTicket(a) {
 									<td data-title="Total Hours"><?= ($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)) ?></td>
 									<?php if(in_array('vaca_hrs',$value_config)) { ?><td><?= ($timesheet_time_format == 'decimal' ? number_format($total_vac,2) : time_decimal2time($total_vac)) ?></td><?php } ?>
 									<?php if(in_array('view_ticket',$value_config)) { ?><td></td><?php } ?>
-									<td></td><td></td>
+									<?= in_array('comment_box',$value_config) ? '<td></td>' : '' ?><td></td>
 								</tr>
 							</table>
 

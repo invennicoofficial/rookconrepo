@@ -270,6 +270,9 @@ function saveFieldMethod(field) {console.log('saving');
 						this.href = this.href.replace('edit%3D0','edit%3D'+id);
 					}
 				});
+				if(salesid > 0) {
+					$.post('projects_ajax.php?action=load_sales_scope',{ project: id, sales: salesid });
+				}
 			} else if(response > 0 && type != undefined && type != '') {
 				$('[data-table='+table+'][data-type='+type+']').data('id',response);
 			} else if(response > 0) {

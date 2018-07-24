@@ -27,6 +27,7 @@ if(IFRAME_PAGE) {
 
 //echo $_SERVER[REQUEST_URI];
 
+/*
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -104,9 +105,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
             if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
 
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_insert_ca = mysqli_query($zenearth_rook_db, $query_insert_ca);
                 $result_insert_ca = mysqli_query($gees_rook_db, $query_insert_ca);
@@ -126,9 +127,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
 
         if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_update_vendor = mysqli_query($zenearth_rook_db, $query_update_vendor);
                 $result_update_vendor = mysqli_query($gees_rook_db, $query_update_vendor);
@@ -232,6 +233,7 @@ if (isset($_POST['tasklist'])) {
 
     echo '<script type="text/javascript"> window.location.replace("'.$url.'"); </script>';
 }
+*/
 ?>
 
 <script type="text/javascript">
@@ -420,7 +422,7 @@ $(document).ready(function () {
                     $.ajax({
                         method: 'POST',
                         url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: taskid, reply: 'Time added '+timer_value },
+                        data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
                         success: function(result) {
                             $('.added-time').append('Tracked time: '+timer_value);
                         }
@@ -800,6 +802,15 @@ checkAuthorised('tasks');
                         <?php
                         $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
                         $timeline = explode('#*#', get_project_path_milestone($dbc, $task_path, 'timeline'));
+
+                        $j=0;
+                        foreach ($each_tab as $cat_tab) { ?>
+                            <option <?php if ($cat_tab == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $cat_tab; ?>' ><?php echo $cat_tab.' : '.$timeline[$j]; ?></option>
+                           <?php
+                           $j++;
+                        }
+
+                        /*
                         $additional_milestones_query = mysqli_query($dbc, "SELECT milestone FROM task_additional_milestones WHERE task_board_id='$task_board'");
                         if ( $additional_milestones_query->num_rows>0 ) {
                             while ( $row_milestone=mysqli_fetch_assoc($additional_milestones_query) ) {
@@ -828,6 +839,7 @@ checkAuthorised('tasks');
                                 echo "<option ".$selected." value='". $cat_tab."'>".$milestone['label'].' : '.$timeline[$j].'</option>';
                             }
                         }
+                        */
                       ?>
                     </select>
                 </div>
@@ -859,7 +871,7 @@ checkAuthorised('tasks');
             <?php } ?>
 
             <?php if($slider_layout == 'accordion') { ?>
-                <div class="panel panel-default" style="<?= $contact_section_display ?>">
+                <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_contacts">
@@ -871,7 +883,7 @@ checkAuthorised('tasks');
                         <div class="panel-body">
             <?php } ?>
 
-            <div class="contact-section" style="<?= $contact_section_display ?>">
+            <div class="contact-section">
                 <div class="form-group clearfix">
                     <?= $slider_layout != 'accordion' ? '<h4>'.CONTACTS_TILE.'</h4>' : '' ?>
                     <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>
@@ -1022,6 +1034,29 @@ checkAuthorised('tasks');
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
             <?php } ?>
+
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
+                <div class="col-sm-8">
+                    <select data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
+                        <option value=""></option>
+					  <?php
+						$tabs = get_config($dbc, 'ticket_status');
+						$each_tab = explode(',', $tabs);
+						foreach ($each_tab as $cat_tab) {
+							if ($task_status == $cat_tab) {
+								$selected = 'selected="selected"';
+							} else {
+								$selected = '';
+							}
+							echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+						}
+					  ?>
+                    </select>
+                </div>
+            </div>
+
+            <!--
             <div class="form-group clearfix">
                 <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
                 <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
@@ -1029,6 +1064,7 @@ checkAuthorised('tasks');
                     <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
                 </div>
             </div>
+            -->
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
@@ -1300,27 +1336,6 @@ checkAuthorised('tasks');
             <?php if($slider_layout == 'accordion') { ?>
                 </div>
             <?php } ?>
-
-            <!--
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
-                <div class="col-sm-8">
-                    <select data-placeholder="Select a Status..." name="task_status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
-                        <option value=""></option><?php
-                        /* $tabs = get_config($dbc, 'task_status');
-                        $each_tab = explode(',', $tabs);
-                        foreach ($each_tab as $cat_tab) {
-                            if ($task_status == $cat_tab) {
-                                $selected = 'selected="selected"';
-                            } else {
-                                $selected = '';
-                            }
-                            echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-                        } */ ?>
-                    </select>
-                </div>
-            </div>
-            -->
 
             <div class="form-group pull-right">
                 <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>

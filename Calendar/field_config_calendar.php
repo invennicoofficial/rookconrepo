@@ -427,6 +427,7 @@ if (isset($_POST['add_tab'])) {
 	} else {
 		$scheduling_use_shift_tickets = '';
 	}
+	set_config($dbc, 'equip_multi_assign_staff_disallow', $_POST['equip_multi_assign_staff_disallow']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_use_shift_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_use_shift_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_use_shift_tickets."' WHERE `name`='scheduling_use_shift_tickets'");
 	if (!empty($_POST['scheduling_new_ticket_button'])) {
@@ -510,6 +511,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_combine_time'])) {
+		$scheduling_combine_time = $_POST['scheduling_combine_time'];
+	} else {
+		$scheduling_combine_time = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_time' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_time') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_time."' WHERE `name`='scheduling_combine_time'");
 	if (!empty($_POST['scheduling_summary_view'])) {
 		$scheduling_summary_view = $_POST['scheduling_summary_view'];
 	} else {
@@ -517,6 +525,9 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_summary_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_summary_view') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_summary_view."' WHERE `name`='scheduling_summary_view'");
+	$scheduling_warning_num_tickets = filter_var($_POST['scheduling_warning_num_tickets'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_warning_num_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_warning_num_tickets') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_warning_num_tickets."' WHERE `name`='scheduling_warning_num_tickets'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -618,7 +629,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_equip_assign' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_equip_assign') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_equip_assign."' WHERE `name`='ticket_equip_assign'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_type' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_type') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['ticket_client_type']."' WHERE `name`='ticket_client_type'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['ticket_client_type'])."' WHERE `name`='ticket_client_type'");
 	if (!empty($_POST['ticket_calendar_notes'])) {
 		$ticket_calendar_notes = $_POST['ticket_calendar_notes'];
 	} else {
@@ -1897,6 +1908,14 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Multiple Equipment per Staff:</label>
+								<div class="col-sm-8">
+									<?php $equip_multi_assign_staff_disallow = get_config($dbc, 'equip_multi_assign_staff_disallow'); ?>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? 'checked' : '' ?> value="1">Do Not Allow Staff to be Assigned to Multiple</label>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? '' : 'checked' ?> value="0">Allow Staff to be Assigned to Multiple</label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Dispatch Calendar Use Filters:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_filters = get_config($dbc, 'scheduling_filters'); ?>
@@ -1965,6 +1984,13 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Time Conflicts:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_time = get_config($dbc, 'scheduling_combine_time'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_time" <?= $scheduling_combine_time == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
@@ -1976,6 +2002,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_summary_view" <?= $scheduling_summary_view == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will disable a Warning message if there are more than this # of <?= TICKET_TILE?>. Leave blank for no Warnings.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Display Warning After # of <?= TICKET_TILE ?>:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets'); ?>
+									<input type="number" name="scheduling_warning_num_tickets" value="<?= $scheduling_warning_num_tickets ?>" class="form-control"></label>
 								</div>
 							</div>
 						</div>
@@ -2253,13 +2286,13 @@ function showDefaultView(chk) {
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Calendar Client Type:</label>
 								<div class="col-sm-8">
-			                        <select name="ticket_client_type" data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
+			                        <select name="ticket_client_type[]" multiple data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
 			                            <option value="">NO CLIENT</option>
 			                            <?php $ticket_client_type = get_config($dbc, 'ticket_client_type');
 			                            $query = "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`";
 			                            $result = mysqli_query($dbc, $query);
 			                            while ($row = mysqli_fetch_array($result)) {
-			                                echo '<option value="'.$row['category'].'"'.($row['category'] == $ticket_client_type ? ' selected' : '').'>'.$row['category'].'</option>';
+			                                echo '<option value="'.$row['category'].'"'.(strpos(','.$ticket_client_type.',', ','.$row['category'].',') !== FALSE ? ' selected' : '').'>'.$row['category'].'</option>';
 			                            }
 			                            ?>
 			                        </select>

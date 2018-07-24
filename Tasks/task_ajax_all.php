@@ -48,9 +48,9 @@ if($_GET['fill'] == 'tasklist') {
 
         if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
 
-            $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-            $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-            $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+            $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+            $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+            $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
             $result_update_project = mysqli_query($zenearth_rook_db, $query_update_project);
             $result_update_project = mysqli_query($gees_rook_db, $query_update_project);
@@ -79,9 +79,10 @@ if($_GET['fill'] == 'add_task') {
     $heading = str_replace("FFMHASH","#",$heading);
 
     $heading = filter_var($heading,FILTER_SANITIZE_STRING);
+    $created_date = date('Y-m-d');
 
     if($heading != '') {
-        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid')";
+        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
     }
 }

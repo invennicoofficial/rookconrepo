@@ -108,8 +108,13 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 		if($id_card_fields == '') {
 			$id_card_fields = $field_config;
 		} else {
-			$id_card_fields = explode(',',$id_card_fields);
-		} ?>
+			if(strtolower($contact['category']) != 'staff') {
+				$id_card_fields = array_merge($field_config, explode(',',$id_card_fields));
+			} else {
+				$id_card_fields = explode(',',$id_card_fields);
+			}
+		}
+		?>
 		<?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?></h3>
 	<div class="col-sm-6">
 		<ul class="chained-list col-sm-6 small">
@@ -172,6 +177,27 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 			<?php if(in_array_any(['Pinterest','Profile Pinterest'], $id_card_fields) && $contact['pinterest'] != '') { ?><li><a href="<?= $contact['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" style="height:1.5em;" title="Pinterest" /> Pinterest</a></li><?php } ?>
 			<?php if(in_array_any(['YouTube','Profile YouTube'], $id_card_fields) && $contact['youtube'] != '') { ?><li><a href="<?= $contact['youtube'] ?>"><img src="../img/icons/social/youtube.png" style="height:1.5em;" title="Youtube" /> YouTube</a></li><?php } ?>
 			<?php if(in_array_any(['Blog','Profile Blog'], $id_card_fields) && $contact['blog'] != '') { ?><li><a href="<?= $contact['blog'] ?>"><img src="../img/icons/social/rss.png" style="height:1.5em;" title="Blog" /> Blog</a></li><?php } ?>
+			<?php if(in_array_any(['Ticket Service Total Hours'], $id_card_fields)) {
+				$ticket_type_times = [];
+				$ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs')));
+				foreach($ticket_tabs as $ticket_tab) {
+					$total_service_time = 0;
+					$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE CONCAT(',',`clientid`,',') LIKE '%,".$contact['contactid'].",%' AND `deleted` = 0 AND `ticket_type` = '".config_safe_str($ticket_tab)."'");
+					while($ticket = mysqli_fetch_assoc($tickets)) {
+						foreach(array_filter(explode(',',$ticket['service_total_time'])) as $service_time) {
+							$time_arr = explode(' ',$service_time);
+							for($time_i = 0; $time_i < count($time_arr); $time_i = $time_i+2) {
+								if($time_arr[$time_i+1] == 'Hr') {
+									$total_service_time += (intval($time_arr[$time_i])*60);
+								} else if($time_arr[$time_i+1] == 'Min') {
+									$total_service_time += intval($time_arr[$time_i]);
+								}
+							}
+						}
+					}
+					$ticket_type_times[] = $ticket_tab.' Hours: '.time_decimal2time($total_service_time/60);
+				} ?><li><div class="col-xs-2" style="max-width:35px;"><img src="../img/icons/clock-button.png" title="<?= TICKET_NOUN ?> Service Total Hours" class="inline-img"></div><div class="col-xs-10"><?= implode('<br />',$ticket_type_times) ?></div><div class="clearfix"></div></li>
+			<?php } ?>
 			<?php if($contact['category'] == 'Staff') {
 				$business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
 				<li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />

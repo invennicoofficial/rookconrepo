@@ -83,11 +83,11 @@ $(document).ready(function() {
             success: function(response) {}
         });
     });
-    
+
     $('li.t_item').each(function() {
         $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
     });
-    
+
 });
 $(document).on('change', 'select[name="change_milestone"]', function() { changeMilestone(this); });
 
@@ -598,7 +598,7 @@ function savePathName(name) {
 		}
 
         //if($_GET['category'] !== 'All') {
-            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
             $task_flag = $task_board['flag_colour'];
 			if ( !empty($taskboardid) ) {
 				$task_path = get_task_board($dbc, $taskboardid, 'task_path');
@@ -722,9 +722,7 @@ function savePathName(name) {
 						while($milestone_row = $milestones->fetch_assoc()) {
 							$cat_tab = $milestone_row['milestone'];
 							$label = $milestone_row['label'] ?: 'Tasks';
-							if ( $url_tab == 'My' ) {
-								$result = mysqli_query($dbc, "SELECT tl.* FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) WHERE (tl.contactid IN (".$_SESSION['contactid'].") OR (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,".$_SESSION['contactid'].",%')) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate");
-							} elseif ( $url_tab == 'Private' ) {
+							if ( $url_tab == 'Private' ) {
 								//$result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE contactid IN (". $_SESSION['contactid'] .") AND (task_path='$task_path' OR '$task_path' = '') AND (task_milestone_timeline='$cat_tab' OR ('$cat_tab' = '' AND task_milestone_timeline NOT IN ('".implode("','",$each_tab)."'))) AND task_board = '$taskboardid' AND (DATE(`archived_date`) >= (DATE(NOW() - INTERVAL 3 DAY)) OR archived_date IS NULL OR archived_date = '0000-00-00') AND `deleted`=0 ORDER BY task_path ASC, tasklistid DESC");
 								$result = mysqli_query($dbc, "SELECT tl.* FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) WHERE tl.contactid IN (".$_SESSION['contactid'].") AND tb.taskboardid='$taskboardid' AND tb.board_security='Private' AND tb.company_staff_sharing LIKE '%,".$_SESSION['contactid'].",%' AND tl.task_path='$task_path' AND tl.task_milestone_timeline='$cat_tab' AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_path ASC, tl.tasklistid DESC");
 							} elseif ( $url_tab == 'Company' ) {
@@ -964,6 +962,9 @@ function savePathName(name) {
 
                                 $task_path = $row['task_path'];
                                 $task_board = $row['task_board'];
+							}
+							if(is_array($task_board)) {
+								$task_board = $task_board['taskboardid'];
 							}
 
 							echo '<li class="new_task_box no-sort"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to quickly add a task and then hit Enter."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>

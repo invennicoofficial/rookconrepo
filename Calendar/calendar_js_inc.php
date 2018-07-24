@@ -278,6 +278,7 @@ function changeDate(date, type = '') {
 	scroll_to_today = true;
 	var summary_view = $('#retrieve_summary').val();
 	var view = $('#calendar_view').val();
+	var calendar_type = $('#calendar_type').val();
 	var config_type = $('#calendar_config_type').val();
 	if(date == '') {
 		date = $('#calendar_start').val();
@@ -296,11 +297,22 @@ function changeDate(date, type = '') {
 				retrieve_whole_month();
 			} else if(view == 'monthly') {
 				reload_calendar_month(response_arr[0]);
+				if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+					reload_teams();
+				}
 				reload_all_data_month();
 			} else {
 				still_loading = 0;
 				clear_all_data();
-				dispatchDraggable();
+				if(typeof dispatchDraggable == 'function') {
+					dispatchDraggable();
+				}
+				if(typeof teamsDraggable == 'function') {
+					teamsDraggable();
+				}
+				if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+					reload_teams();
+				}
 				reload_all_data();
 			}
 			reload_equipment_assignment();
@@ -322,6 +334,7 @@ function changeView(view, anchor) {
 			success: function(response) {
 				$('.collapsible').html(response);
 				$('.sidebar.panel-group').css('padding-right','0');
+				setTimeout(function() { toggle_columns() },500);
 			}
 		}));
 	<?php } ?>
@@ -348,6 +361,7 @@ function setSelectOnChange() {
 	$('select.unbooked_ticket_location').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_classification').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_customer').off('change').change(function() { filterTickets(); });
+	$('select.unbooked_ticket_client').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_staff').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_ticket_status').off('change').change(function() { filterTickets(); });
 	$('select.unbooked_wo_project').off('change').change(function() { filterWorkOrders(); });
@@ -609,6 +623,19 @@ function reload_equipment_assignment(equipmentid = '') {
 		});
 	<?php } ?>
 }
+function reload_teams(teamid = '') {
+	var date = $('#calendar_start').val();
+	var view = $('#calendar_view').val();
+	$.ajax({
+		url: '../Calendar/teams_sidebar.php?<?= http_build_query($_GET) ?>&reload_sidebar=1&date='+date+'&teamid='+teamid+'&view='+view,
+		method: 'GET',
+		dataType: 'html',
+		success: function(response) {
+			$('#collapse_teams .panel-body').html(response);
+			toggle_columns();
+		}
+	});
+}
 function calendarScrollLoad() {
 	$('.calendar_view').scroll(function() {
 		if($(this).scrollLeft() != lastScrollLeft) {
@@ -617,14 +644,15 @@ function calendarScrollLoad() {
 				var column = $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).last();
 				var ref_date = column.data('date');
 				var ref_contact = column.data('contact');
-				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'next', 5);
+				var ref_blocktype = column.data('blocktype');
+				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'next', 5, ref_blocktype);
 				columns_to_load.forEach(function(col) {
-					var col_arr = col.split('_');
+					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
 						return row.contactid == col_arr[1];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1]);
+						load_items(item_row[0], col_arr[0], col_arr[1], 'next', col_arr[2]);
 						item_row[0].loaded = true;
 					}
 					clear_excess_data('prev');
@@ -641,14 +669,15 @@ function calendarScrollLoad() {
 				var column = $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).first();
 				var ref_date = column.data('date');
 				var ref_contact = column.data('contact');
-				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'prev', 5);
+				var ref_blocktype = column.data('blocktype');
+				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'prev', 5, ref_blocktype);
 				columns_to_load.forEach(function(col) {
-					var col_arr = col.split('_');
+					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
 						return row.contactid == col_arr[1];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1], 'prev');
+						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2]);
 						item_row[0].loaded = true;
 					}
 					clear_excess_data('next');
@@ -667,26 +696,34 @@ function calendarScrollLoad() {
 }
 function reload_all_data() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
-	$('#'+retrieve_collapse).find('.block-item.active').each(function() {
-		retrieve_items($(this).closest('a'));
-	});
+	var calendar_type = $('#calendar_type').val();
+	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
+		reload_teams();
+	} else {
+		$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+			retrieve_items($(this).closest('a'));
+		});
+	}
 }
 function clear_excess_data(remove_type) {
 	if($('.calendar_view table:not(#time_html) th').length >= 15) {
 		var date = '';
 		var contact = '';
+		var block_type = '';
 		if(remove_type == 'next') {
 			var column = $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).last();
 			date = column.data('date');
 			contact = column.data('contact');
+			block_type = column.data('blocktype');
 		} else if(remove_type == 'prev') {
 			var column = $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).first();
 			date = column.data('date');
 			contact = column.data('contact');
+			block_type = column.data('blocktype');
 		}
-		$('.calendar_view th[data-date='+date+'][data-contact='+contact+'],.calendar_view td[data-date='+date+'][data-contact='+contact+']').remove();
+		$('.calendar_view th[data-date='+date+'][data-contact='+contact+'],.calendar_view td[data-date='+date+'][data-contact='+contact+'][data-blocktype='+block_type+']').remove();
 		item_row = $.grep(item_list[date], function(row) {
-			return row.contactid == contact;
+			return (row.contactid == contact && row.block_type == block_type);
 		});
 		item_row[0].loaded = false;
 	}
@@ -694,15 +731,17 @@ function clear_excess_data(remove_type) {
 function clear_all_data() {
 	$('.calendar_view th,.calendar_view td').filter(function() { return $(this).data('contact') > 0 }).remove();
 	item_list = [];
+	result_list = [];
+	still_loading_item = false;
 	still_loading = 0;
 }
 var still_loading = 0;
 var item_list = [];
 var still_loading_item = false;
 var result_list = [];
-function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve_type = '') {
+function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve_type = '', teamid = '') {
 	if(still_loading_item) {
-		var next_item = function() { retrieve_items(anchor, calendar_date, force_show, retrieve_type) };
+		var next_item = function() { retrieve_items(anchor, calendar_date, force_show, retrieve_type, teamid) };
 		result_list.push(next_item);
 	} else {
 		still_loading_item = true;
@@ -713,6 +752,10 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 		var config_type = $('#calendar_config_type').val();
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
+		if(teamid != '' && teamid > 0) {
+			contact = teamid;
+			block_type = 'team';
+		}
 		var calendar_view = $('#calendar_view').val();
 
 		var calendar_dates = JSON.parse($('#calendar_dates').val());
@@ -722,9 +765,11 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 
 		var ref_date = '';
 		var ref_contact = '';
+		var ref_blocktype = '';
 		if(scroll_to_today && calendar_dates.indexOf(today_date) > -1) {
 			ref_date = today_date;
 			ref_contact = contact;
+			ref_blocktype = block_type;
 		}
 		loadingOverlayShow('.calendar_view');
 
@@ -748,10 +793,11 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 					success: function(response) {
 						var item_data = JSON.parse(response);
 						item_data['contactid'] = contact;
+						item_data['block_type'] = block_type;
 						item_data['loaded'] = false;
 						var item_index = -1;
 						$.each(item_list[calendar_date], function(i,v){
-						    if(v.contactid == contact){
+						    if(v.contactid == contact && v.block_type == block_type){
 						        item_index = i;
 						        return true;
 						    }
@@ -775,21 +821,23 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 				if(column.length < 1 && ref_date == '') {
 					ref_date = cal_dates[0];
 					ref_contact = contact;
+					ref_blocktype = block_type;
 				} else if(column.length >= 1) {
 					ref_date = column.data('date');
 					ref_contact = column.data('contact');
+					ref_blocktype = column.data('blocktype');
 				}
-				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'next');
+				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'next', 10, ref_blocktype);
 				var i = 0;
 				var promises_items = calendar_dates.forEach(function(calendar_date) {
 					var deferred = $.Deferred();
 					var load_item = null;
-					if(columns_to_load.indexOf(calendar_date+'_'+contact) >= 0) {
+					if(columns_to_load.indexOf(calendar_date+'#*#'+contact+'#*#'+block_type) >= 0) {
 						item_row = $.grep(item_list[calendar_date], function(row) {
-							return row.contactid == contact;
+							return (row.contactid == contact && row.block_type == block_type);
 						});
 						if(!item_row[0].loaded) {
-							load_item = load_items(item_row[0], calendar_date, contact);
+							load_item = load_items(item_row[0], calendar_date, contact, 'next', block_type);
 							item_row[0].loaded = true;
 							i++;
 						}
@@ -813,7 +861,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 				});
 			});
 		} else {
-			destroy_items(contact);
+			destroy_items(contact, block_type);
 			reload_resize_all();
 			still_loading_item = false;
 			if(result_list.length > 0) {
@@ -824,7 +872,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 		}
 	}
 }
-function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit = 10) {
+function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit = 10, block_type = '') {
 	var calendar_dates = JSON.parse($('#calendar_dates').val());
 	var include_list = [];
 	var first_item_found = false;
@@ -832,12 +880,12 @@ function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit
 	if(retrieve_type == 'next') {
 		calendar_dates.forEach(function(calendar_date) {
 			item_list[calendar_date].forEach(function(row) {
-				if(calendar_date == date && contact == row.contactid) {
+				if(calendar_date == date && contact == row.contactid && block_type == row.block_type) {
 					i = 0;
 					first_item_found = true;
 				}
 				if(first_item_found && i < limit) {
-					include_list.push(calendar_date+'_'+row.contactid);
+					include_list.push(calendar_date+'#*#'+row.contactid+'#*#'+row.block_type);
 				}
 				i++;
 			});
@@ -845,12 +893,12 @@ function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit
 	} else if(retrieve_type == 'prev') {
 		calendar_dates.slice().reverse().forEach(function(calendar_date) {
 			item_list[calendar_date].slice().reverse().forEach(function(row) {
-				if(calendar_date == date && contact == row.contactid) {
+				if(calendar_date == date && contact == row.contactid && block_type == row.block_type) {
 					i = 0;
 					first_item_found = true;
 				}
 				if(first_item_found && i < limit) {
-					include_list.push(calendar_date+'_'+row.contactid);
+					include_list.push(calendar_date+'#*#'+row.contactid+'#*#'+row.block_type);
 				}
 				i++;
 			});
@@ -858,16 +906,16 @@ function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit
 	}
 	return include_list;
 }
-function load_items(item_row, date, contact, insert_type = 'next') {
+function load_items(item_row, date, contact, insert_type = 'next', block_type = '') {
 	loadingOverlayShow('.calendar_view');
 	var deferred = $.Deferred();
 	//Does this column already exist?
-	var contact_title = $('.calendar_view table:not(#time_html) th[data-contact='+contact+'][data-date='+date+']');
+	var contact_title = $('.calendar_view table:not(#time_html) th[data-contact='+contact+'][data-date='+date+'][data-blocktype='+block_type+']');
 
 	var filter_query = '';
 	if (contact_title.length > 0) {
 		//If column already exists, replace html here
-		filter_query += '[data-contact='+contact+'][data-date='+date+']';
+		filter_query += '[data-contact='+contact+'][data-date='+date+'][data-blocktype='+block_type+']';
 		contact_title.replaceWith(item_row['title']);
 		$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).replaceWith(item_row['notes']);
 		$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).replaceWith(item_row['reminders']);
@@ -940,13 +988,13 @@ function load_items(item_row, date, contact, insert_type = 'next') {
 	}
 	return deferred.promise();
 }
-function destroy_items(contact) {
-	$('.calendar_view th[data-contact='+contact+'],.calendar_view td[data-contact='+contact+']').remove();
+function destroy_items(contact, block_type) {
+	$('.calendar_view th[data-contact='+contact+'][data-blocktype='+block_type+'],.calendar_view td[data-contact='+contact+'][data-blocktype='+block_type+']').remove();
 	var calendar_dates = JSON.parse($('#calendar_dates').val());
 	calendar_dates.forEach(function(calendar_date) {
 		if(item_list[calendar_date] != undefined) {
 			item_list[calendar_date] = $.grep(item_list[calendar_date], function(row) {
-				return row.contactid != contact;
+				return (row.contactid != contact && row.block_type != block_type);
 			});
 		}
 	});
@@ -1004,7 +1052,7 @@ function reload_resize_all() {
 function scrollToToday() {
 	clearInterval(clear_today);
 	var clear_today = setInterval(function() {
-		if(still_loading <= 0) {
+		if(still_loading <= 0 && scroll_to_today) {
 			scroll_to_today = false;
 			clearInterval(clear_today);
 			while($('.calendar_view table:not(#time_html) th').length <= 10 && $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).length > 0) {
@@ -1015,19 +1063,20 @@ function scrollToToday() {
 				var column = $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).first();
 				var ref_date = column.data('date');
 				var ref_contact = column.data('contact');
-				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'prev', 2);
+				var ref_blocktype = column.data('blocktype');
+				var columns_to_load = retrieve_columns_to_load(item_list, ref_date, ref_contact, 'prev', 2, ref_blocktype);
 				columns_to_load.forEach(function(col) {
-					var col_arr = col.split('_');
+					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
-						return row.contactid == col_arr[1];
+						return row.contactid == col_arr[1] && row.block_type == col_arr[2];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1], 'prev');
+						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2]);
 						item_row[0].loaded = true;
 					}
 				});
 				reload_resize_all();
-				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'_'+ref_contact) {
+				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'#*#'+ref_contact+'#*#'+ref_blocktype) {
 					start_of_list = true;
 				}
 			}
@@ -1036,6 +1085,7 @@ function scrollToToday() {
 			}
 		} else {
 			scroll_to_today = false;
+			clearInterval(clear_today);
 		}
 	}, 2000);
 }
@@ -1055,6 +1105,8 @@ function reload_all_data_month() {
 }
 function clear_all_data_month() {
 	$('.calendar_view .calendar_block').remove();
+	still_loading_item_month = false;
+	result_list_month = [];
 }
 function retrieve_whole_month() {
 	var calendar_date = $('#calendar_start').val();
@@ -1072,11 +1124,11 @@ function retrieve_whole_month() {
 		}
 	});
 }
-var still_loading_item_month = 0;
+var still_loading_item_month = false;
 var result_list_month = [];
-function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
+function retrieve_items_month(anchor, calendar_date = '', force_show = false, teamid = '') {
 	if(still_loading_item_month) {
-		var next_item = function() { retrieve_items_month(anchor, calendar_date, force_show) };
+		var next_item = function() { retrieve_items_month(anchor, calendar_date, force_show, teamid) };
 		result_list_month.push(next_item);
 	} else {
 		still_loading_item_month = true;
@@ -1087,10 +1139,17 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
 		var calendar_view = $('#calendar_view').val();
+		if(teamid != '' && teamid > 0) {
+			block_type = 'team';
+			contact = teamid;
+		}
 
 		//If contact doesn't exist yet, initialize the contact
-		if(item_list[contact] == undefined) {
-			item_list[contact] = [];
+		if(item_list[block_type] == undefined) {
+			item_list[block_type] = [];
+		}
+		if(item_list[block_type][contact] == undefined) {
+			item_list[block_type][contact] = [];
 		}
 
 		var calendar_dates = JSON.parse($('#calendar_dates_month').val());
@@ -1112,7 +1171,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
 					},
 					success: function(response) {
 						loadingOverlayShow('.calendar_view');
-						item_list[contact][calendar_date] = response;
+						item_list[block_type][contact][calendar_date] = response;
 					}
 				});
 
@@ -1121,9 +1180,9 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
 
 			//When all ajax promises are done, display items and reload js and resize calendar
 			$.when.apply(null, promises).done(function(){
-				destroy_items_month(contact);
+				destroy_items_month(contact, block_type);
 				calendar_dates.forEach(function(calendar_date) {
-					load_items_month(item_list[contact][calendar_date], calendar_date, contact);
+					load_items_month(item_list[block_type][contact][calendar_date], calendar_date, contact);
 				});
 				if(!force_show && $('#calendar_type').val() != 'schedule') {
 					toggle_columns(1);
@@ -1136,7 +1195,11 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
 				}
 			});
 		} else {
-			destroy_items_month(contact);
+			if($(block).data('teamid') != undefined && $(block).data('teamid') > 0) {
+				contact = $(block).data('teamid');
+				block_type = 'team';
+			}
+			destroy_items_month(contact, block_type);
 			still_loading_item_month = false;
 			if(result_list_month.length > 0) {
 				result_list_month.shift()();
@@ -1149,8 +1212,8 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false) {
 function load_items_month(item_row, date, contact) {
 	$('.calendar_view td[data-date='+date+']').append(item_row);
 }
-function destroy_items_month(contact) {
-	$('.calendar_view .calendar_block[data-contact='+contact+']').remove();
+function destroy_items_month(contact, block_type = '') {
+	$('.calendar_view .calendar_block[data-contact='+contact+'][data-blocktype='+block_type+']').remove();
 }
 function reload_resize_all_month() {
 	loadingOverlayHide();

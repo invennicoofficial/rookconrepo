@@ -21,10 +21,6 @@ checkAuthorised();
 <script type="text/javascript">
 $(document).on('change', 'select[name="choose_table"]', function() { location = this.value; });
 </script>
-<div class="container">
-	<div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc); ?>
         <form name="form_sites" method="post" action="" class="form-inline" role="form">
         <div style="background-color:rgba(142,142,142,0.50); border-radius:10px; border:1px solid white; padding:10px;" >
             <h2><?php
@@ -39,7 +35,7 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
                     <div class="col-sm-4"><label for="search_email">Report Type:</label></div>
                     <div class="col-sm-8">
                         <select name="choose_table" id="dynamic_select" class="chosen-select-deselect form-control" data-placeholder="Choose a Report">
-                            <option <?php if($_GET['type'] == 'accpay') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=accpay">Accounts Payable</option>
+                            <option <?php if($_GET['type'] == 'accpay') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=accpay&report=<?= $_GET['report'] ?>">Accounts Payable</option>
                         </select>
                     </div></div>
 				<div class="form-group col-sm-5">
@@ -189,8 +185,3 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
         }
             ?>
 			</div>
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>

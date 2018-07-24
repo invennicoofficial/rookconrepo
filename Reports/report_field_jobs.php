@@ -14,16 +14,21 @@ if(isset($_POST['printpdf'])) {
 	$until_date = $_POST['report_until'];
     $today_date = date('Y-m-d');
 	$pdf_name = "Download/field_jobs_$today_date.pdf";
+    $logo = str_replace(' ','%20',get_config($dbc, 'report_logo'));
+    DEFINE(REPORT_LOGO_URL, $logo);
 
-	class MYPDF extends TCPDF {
+    class MYPDF extends TCPDF {
 
-		public function Header() {
-			$image_file = WEBSITE_URL.'/img/fresh-focus-logo-dark.png';
-			$this->SetFont('helvetica', '', 13);
+		  public function Header() {
+			      $image_file = WEBSITE_URL.'/img/fresh-focus-logo-dark.png';
+            if(!empty(REPORT_LOGO_URL)) {
+                $image_file = WEBSITE_URL.'/Reports/download/'.REPORT_LOGO_URL;
+            }
+      			$this->SetFont('helvetica', '', 13);
             $this->Image($image_file, 0, 10, 60, '', 'PNG', '', 'T', false, 300, 'C', false, false, 0, false, false, false);
             $footer_text = 'Field Job Reports';
             $this->writeHTMLCell(0, 0, 0 , 40, $footer_text, 0, 0, false, "R", true);
-		}
+        }
 
 		// Page footer
 		public function Footer() {
@@ -65,17 +70,6 @@ if(isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $projectid = $jobpdf;
 } ?>
-
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -133,11 +127,6 @@ if(isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function work_tickets($dbc, $jobid, $from_date, $until_date, $table_style = '', $table_row_style = '', $grand_total_style = '') {

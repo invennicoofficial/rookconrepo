@@ -69,7 +69,7 @@
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Overtime,') === FALSE ? 'display: none;' : '' ?>">Overtime</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Travel') { ?>
-			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time(KM)</label>
+			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Subsistence') { ?>
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Subsistence,') === FALSE ? 'display: none;' : '' ?>">Subsistence Pay</label>
@@ -115,7 +115,7 @@ do {
 				<label class="show-on-mob control-label">Staff:</label>
 				<select name="item_id" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 					<?php foreach($staff_list as $staff_row) { ?>
-						<option <?= $staff_row['contactid'] == $staff['item_id'] ? 'selected' : '' ?> data-positions-allowed="<?= $staff_row['positions_allowed'] ?>" value="<?= $staff_row['contactid'] ?>"><?= $staff_row['first_name'].' '.$staff_row['last_name'] ?></option>
+						<option <?= $staff_row['contactid'] == $staff['item_id'] ? 'selected' : '' ?> data-positions-allowed="<?= $staff_row['positions_allowed'] ?>" data-position="<?= $staff_row['position'] ?>" value="<?= $staff_row['contactid'] ?>"><?= $staff_row['first_name'].' '.$staff_row['last_name'] ?></option>
 						<?php if($staff_row['contactid'] == $staff['item_id']) {
 							$positions_allowed = array_filter(explode(',',$staff_row['positions_allowed']));
 						}

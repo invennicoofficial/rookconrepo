@@ -56,6 +56,9 @@ switch($rate_contact) {
 		$rate_contact = $rate_contactid[$rate_contact[1]];
 		break;
 }
+if(explode(':',$get_ticket['rate_card'])[1] == 'company') {
+	$rate_card = get_field_value('rate_card_name','company_rate_card','companyrcid',explode(':',$get_ticket['rate_card'])[1]);
+}
 
 $clientid = '';
 $businessid = '';
@@ -205,7 +208,7 @@ if(!empty($_GET['edit'])) {
 <?php } else if(!empty($_GET['type'])) {
 	$ticket_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
 }
-if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
+if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
 	exit();
@@ -377,6 +380,22 @@ if(isset($_GET['min_view'])) {
 	$value_config = $min_view;
 }
 
+// Get Approval Settings
+$wait_on_approval = false;
+$admin_group = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE (CONCAT(',',`action_items`,',') LIKE '%,Tickets,%' OR CONCAT(',',`action_items`,',') LIKE '%,ticket_type_".$ticket_type.",%') AND ',".$get_ticket['businessid'].",".$get_ticket['clientid'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`customer`,''),'%'),',%') AND ',".$get_ticket['contactid'].",".$get_ticket['internal_qa_contactid'].",".$get_ticket['deliverable_contactid'].",".$get_ticket['created_by'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`staff`,''),'%'),',%') AND `region` IN ('".$get_ticket['region']."','')  AND `location` IN ('".$get_ticket['con_location']."','')  AND `classification` IN ('".$get_ticket['classification']."','') AND IFNULL(`status`,'') != '' AND `deleted`=0");
+if($admin_group->num_rows > 0) {
+	$admin_group = $admin_group->fetch_assoc();
+	if($get_ticket['status'] == $admin_group['status']) {
+		$wait_on_approval = true;
+	}
+	$value_config_all = $value_config;
+	if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+		$value_config = $admin_group['unlocked_fields'];
+	}
+} else {
+	$admin_group = [];
+}		
+
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
 $ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted` = 0 $query_daily");
@@ -392,7 +411,7 @@ $uneditable_statuses = ','.get_config($dbc, 'ticket_uneditable_status').',';
 if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 	$strict_view = 1;
 }
-if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
+if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
 	$access_project = false;
 	$access_staff = false;
 	$access_contacts = false;
@@ -516,6 +535,10 @@ foreach($security_levels as $security_level) {
 		}
 	}
 }
+$is_recurrence = false;
+if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
+	$is_recurrence = true;
+}
 
 
 $global_value_config = $value_config; ?>
@@ -553,7 +576,7 @@ $(document).ready(function() {
 			return false;
 		}
 	}
-	$('#mobile_tabs .panel-heading').click(loadPanel);
+	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
 	<?php if($ticket_layout != 'Accordions' || $include_hidden == 'true') { ?>
 		if($('#calendar_view').val() != 'true') {
 			$('.add_gap_here').last().css('min-height',$('.tab-section').closest('.standard-body').height() - $('.tab-section').closest('.standard-body').find('.add_gap_here').last().innerHeight() - $('.tab-section').last().height() + 30);
@@ -601,14 +624,21 @@ $(document).ready(function() {
 	<?php if(strpos_any(['Inventory Basic Billing','Staff Billing','Miscellaneous Billing'],$value_config)) { ?>
 		reload_billing();
 	<?php } ?>
+	<?php if($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0)) { ?>
+		if(confirm('Would you like to edit for all Recurrences of this <?= TICKET_NOUN ?>?')) {
+			$('#sync_recurrences').val(1);
+			$('.sync_recurrences_note').show();
+		}
+	<?php } ?>
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
+		$(this).off('click',loadPanel);
 		var panel = $(this).closest('.panel').find('.panel-body');
 		var accordion = $(panel).data('accordion');
 		panel.html('Loading...');
 		$.ajax({
-			url: panel.data('file-name')+'&action_mode=<?= $_GET['action_mode'] ?>&overview_mode=<?= $_GET['overview_mode'] ?>',
+			url: panel.data('file-name')+'<?= $ticketid > 0 ? '' : '&'.http_build_query($_GET) ?>&action_mode=<?= $_GET['action_mode'] ?>&overview_mode=<?= $_GET['overview_mode'] ?>&ticketid='+ticketid,
 			method: 'POST',
 			data: { accordion: accordion },
 			response: 'html',
@@ -730,10 +760,72 @@ var setHeading = function() {
 		</div>
 	</div>
 </div>
+<div id="dialog_delete_note" title="Please enter a deletion Note" style="display: none;">
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Note:</label>
+		<div class="col-sm-8">
+			<textarea type="text" name="delete_note" class="form-control"></textarea>
+		</div>
+	</div>
+</div>
+<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<script type="text/javascript">
+	$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
+		var repeat_type = $('[name="recurrence_repeat_type"]').val();
+		if(repeat_type == 'weekly') {
+			$('.recurrence_repeat_days').show();
+		} else {
+			$('.recurrence_repeat_days').hide();
+		}
+	});
+	</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Start Date:</label>
+		<div class="col-sm-8">
+			<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">End Date:</label>
+		<div class="col-sm-8">
+			<input type="text" name="recurrence_end_date" class="form-control datepicker" value="">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Repeats:</label>
+		<div class="col-sm-8">
+			<select name="recurrence_repeat_type" class="form-control chosen-select-deselect">
+				<option value="day">Daily</option>
+				<option value="week" selected>Weekly</option>
+				<option value="month">Monthly</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Repeat Interval:</label>
+		<div class="col-sm-8">
+			<select name="recurrence_repeat_interval" class="form-control chosen-select-deselect">
+                <?php for ($repeat_i = 1; $repeat_i <= 30; $repeat_i++) {
+                    echo '<option value="'.$repeat_i.'">'.$repeat_i.'</option>';
+                } ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group recurrence_repeat_days">
+		<label class="col-sm-4 control-label">Repeat Days:</label>
+		<div class="col-sm-8">
+            <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            foreach ($days_of_week as $day_of_week_label) {
+                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="recurrence_repeat_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
+            } ?>
+		</div>
+	</div>
+</div>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
+<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;
@@ -743,7 +835,7 @@ var setHeading = function() {
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
-			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+			<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <span class="ticketid_span"><?= get_ticket_label($dbc, $get_ticket) ?></span><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 			<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
 				$get_ticket['flag_colour'] = '';
 			}
@@ -820,7 +912,13 @@ var setHeading = function() {
 			<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
 		</div>
 	<?php } ?>
+	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
+		<span class="sync_recurrences_note" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
+	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
+		<?php if($wait_on_approval) {
+			echo '<h4>Awaiting Admin Approval</h4>';
+		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;
 		$indent_accordion_text = '';
@@ -2103,7 +2201,10 @@ var setHeading = function() {
 			<?php } ?>
 			<?php if($access_any) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="archive(ticketid);"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+				<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
+					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+				<?php } ?>
 				<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 				<?php } ?>
@@ -2179,7 +2280,7 @@ var setHeading = function() {
 			<?php } ?>
 			<?php if($_GET['calendar_view'] == 'true') { ?>
 				<div class="col-sm-12">
-					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <span class="ticketid_span"><?= get_ticket_label($dbc, $get_ticket) ?></span><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 						<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
 							$get_ticket['flag_colour'] = '';
 						}
@@ -2235,6 +2336,10 @@ var setHeading = function() {
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid ?>" target="_blank" class="pull-right btn brand-btn gap-top gap-bottom">Export <?= TICKET_NOUN ?> Log</a>
 				<div class="clearfix"></div>
 			<?php } ?>
+			<?php if($wait_on_approval) {
+				echo '<h4>Awaiting Admin Approval</h4>';
+			} ?>
+			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
 					<h3><?= TICKET_NOUN ?> Type</h3>
@@ -2651,13 +2756,65 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 			<div class="clearfix"></div>
+			<?php if(!empty($admin_group)) {
+				$recipients = [];
+				foreach(explode(',',$admin_group['contactid']) as $admin_recipient) {
+					$recipients[] = get_email($dbc,$admin_recipient);
+				}
+				$body = 'A '.TICKET_NOUN.' has been submitted for approval. Please log in and review it.<br/><br/>
+					<b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?tab=administration_'.$admin_group['id'].'_pending__">Approvals</a></b><br/>
+					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit="></a>'; ?>
+				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" onclick="updateApprovalIDLabel()">Submit for Approval</a>
+				<script>
+				function updateApprovalIDLabel() {
+					$('#approval_submit [name=approval_subject]').val($('.ticketid_span').text()+' has been submitted for approval');
+					$('#approval_submit [name=approval_body]').val($('#approval_submit [name=approval_body]').val().replace(/\?edit=.*/,'?edit='+ticketid+'">'+$('.ticketid_span').text()+'</a>'));
+					tinyMCE.get('approval_body').setContent($('#approval_submit [name=approval_body]').val());
+				}
+				</script>
+				<div class="collapse" id="approval_submit">
+					<div class="clearfix"></div>
+					<h3>Submit for Approval</h3>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Submitter's Name:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_name" class="form-control email_sender_name" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Submitter's Address:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_email" class="form-control email_sender" value="<?= get_email($dbc, $_SESSION['contactid']) ?>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Email Subject:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_subject" class="form-control email_subject" value="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Email Body:</label>
+						<div class="col-sm-12">
+							<textarea name="approval_body" class="form-control email_body"><?php echo $body; ?></textarea>
+						</div>
+					</div>
+					<input type="hidden" name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid">
+					<input type="hidden" name="email_recipient" value="<?= implode(';',array_filter($recipients)) ?>">
+					<button class="btn brand-btn pull-right" onclick="send_email(this); $('[name=status]').first().val('<?= $admin_group['status'] ?>').change(); return false;">Send Email</button>
+					<div class="clearfix"></div>
+				</div>
+			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
 					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="archive(ticketid);"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
+						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+					<?php } ?>
 					<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 					<?php } ?>

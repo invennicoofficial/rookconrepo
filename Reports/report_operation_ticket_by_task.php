@@ -100,22 +100,6 @@ function filterTasks() {
     $('[name="task"]').trigger('change.select2');
 }
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
-        <div class="iframe">
-            <div class="iframe_loading">Loading...</div>
-            <iframe name="calendar_iframe" src=""></iframe>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -206,12 +190,7 @@ function filterTasks() {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
+        
 <?php
 function report_output($dbc, $starttime, $endtime, $task_group_search, $task_search, $pdf_style, $report_type) {
 	$report_data = '';

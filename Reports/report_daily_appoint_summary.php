@@ -88,20 +88,6 @@ if (isset($_POST['printpdf'])) {
     $therapist = $therapistpdf;
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-        <br>
         <a href='report_daily_appoint_summary.php?type=operations'><button type="button" class="btn brand-btn mobile-block active_tab" >Summary</button></a>&nbsp;&nbsp;
         <a href='report_daily_appoint_summary_breakdown.php?type=operations'><button type="button" class="btn brand-btn mobile-block" >Breakdown</button></a>&nbsp;&nbsp;
 
@@ -174,10 +160,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_appoint_summary($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $therapist) {

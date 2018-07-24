@@ -61,14 +61,6 @@ if(isset($_POST['printpdf'])) {
 	</script>
 <?php } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
 
 		<?php $search_status = (!empty($_GET['wo_type']) ? filter_var($_GET['wo_type'],FILTER_SANITIZE_STRING) : 'Approved');
 		$search_from = '';
@@ -76,16 +68,15 @@ if(isset($_POST['printpdf'])) {
 
 		if (isset($_POST['search_from'])) {
 			$search_from = $_POST['search_from'];
+		} else {
+			$search_from = date('Y-m-01');
 		}
 		if (isset($_POST['search_until'])) {
 			$search_until = $_POST['search_until'];
+		} else {
+			$search_until = date('Y-m-d');
 		} ?>
-        <?php echo reports_tiles($dbc);  ?>
-		<h2><?= ($search_status == 'Approved' ? 'Active ' : (($search_status == 'Archived' ? 'Closed ' : 'Pending '))) ?>Site Work Orders</h2>
-        <a href='report_site_work_orders.php?type=operations&wo_type=Pending'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Pending' ? 'active_tab' : '') ?>" >Pending</button></a>&nbsp;&nbsp;
-        <a href='report_site_work_orders.php?type=operations&wo_type=Approved'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Approved' ? 'active_tab' : '') ?>" >Active</button></a>&nbsp;&nbsp;
-        <a href='report_site_work_orders.php?type=operations&wo_type=Archived'><button type="button" class="btn brand-btn mobile-block <?= ($search_status == 'Archived' ? 'active_tab' : '') ?>" >Closed</button></a>&nbsp;&nbsp;
-
+		<h2>Work Orders</h2>
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <center><div class="form-group">
 				<div class="form-group col-sm-5">
@@ -111,25 +102,13 @@ if(isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = '', $table_style = '', $table_row_style = '', $grand_total_style = '') {
     $report_data = '';
-
-    $sql = "SELECT * FROM `site_work_orders` swo WHERE swo.`status`='$status'";
-    if($from_date != '') {
-        $sql .= " AND swo.`work_end_date` >= '$from_date'";
-    }
-    if($until_date != '') {
-        $sql .= " AND swo.`work_start_date` <= '$until_date'";
-    }
-	$result = mysqli_query($dbc, $sql.' ORDER BY swo.`site_location`, swo.`workorderid` DESC');
-
-	if(mysqli_num_rows($result) == 0) {
+	$sql = "SELECT `tickets`.*, `date_stamp` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` WHERE `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table` IN ('Staff','Staff_Tasks') AND `ticket_attached`.`date_stamp` BETWEEN '$from_date' AND '$until_date' AND `tickets`.`deleted`=0 GROUP BY `ticketid`, `date_stamp` ORDER BY `date_stamp` ASC";
+	$result = mysqli_query($dbc, $sql);
+	
+	if($result->num_rows == 0) {
 		return "<h3>No Work Orders Found</h3>";
 	}
 
@@ -139,57 +118,32 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
 			<th>Site</th>
 			<th>Staff & Crew</th>
 			<th>Services</th>
-			<th>Equipment</th>
-			<th>Material</th>
-			<th>PO</th>';
+			<th>Material</th>';
     $report_data .=  "</tr>";
 
     while($work_order = mysqli_fetch_array( $result ))
     {
-			$crew_list = [ 'Lead: '.get_contact($dbc, $work_order['staff_lead']) ];
-			$staff_crew = explode(',',$work_order['staff_crew']);
-			$staff_pos = explode(',',$work_order['staff_positions']);
-			$staff_est = explode(',',$work_order['staff_estimate']);
-			foreach($staff_crew as $i => $id) {
-				$crew_list[] = get_contact($dbc, $id).': '.get_positions($dbc, $staff_pos[$i], 'name').' - '.$staff_est[$i];
-			}
-			$service_list = [];
-			$service_cat = explode('#*#',$work_order['service_cat']);
-			$service_headings = explode('#*#',$work_order['service_heading']);
-			foreach($service_headings as $j => $heading) {
-				$service_list[] = $service_cat[$j].': '.$heading;
-			}
-			$equip_list = [];
-			$equipments = explode(',',$work_order['equipment_id']);
-			$equip_rates = explode(',',$work_order['equipment_rate']);
-			foreach($equipments as $i => $id) {
-				$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `type`, `unit_number`, `make`, `model`, `hourly_rate`, `monthly_rate`, `semi_monthly_rate`, `daily_rate`, `status` FROM `equipment` WHERE `equipmentid`='$id'"));
-				$rate = $equip_rates[$i];
-				$equip_list[] = $equipment['category'].' '.$equipment['type'].' #'.$equipment['unit_number'].': '.$equipment['make'].' '.$equipment['model'].' ($'.$rate.')';
-			}
-			$material_list = [];
-			$materials = explode(',',$work_order['material_id']);
-			$material_qty = explode(',',$work_order['material_qty']);
-			foreach($materials as $i => $id) {
-				$material = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `name`, `quantity` FROM `material` WHERE `materialid`='$id'"));
-				$material_list[] = $material['category'].' '.$material['name'].' Qty: '.$material_qty[$i].(!empty($material['quantity']) ? '('.$material['quantity'].' available)' : '');
-			}
-			$po_list = [];
-			$orders = explode(',',$work_order['po_id']);
-			foreach($orders as $id) {
-				if($id != '') {
-					$po = mysqli_fetch_array(mysqli_query($dbc, "SELECT `poid`, `issue_date` FROM `site_work_po` WHERE `poid`='$id'"));
-					$po_list[] = 'PO #'.$po['poid'].': '.$po['issue_date'];
-				}
-			}
+		$crew_list = [];
+		$crew_added = $dbc->query("SELECT `item_id`, `position`, `hours_tracked` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks') AND `deleted`=0 AND `ticketid`='{$work_order['ticketid']}' AND `date_stamp`='{$work_order['date_stamp']}'");
+		while($crew = $crew_added->fetch_assoc()) {
+			$crew_list[] = get_contact($dbc, $crew['item_id']).': '.$crew['position'].' - '.$crew['hours_tracked'];
+		}
+		$service_list = [];
+		foreach(array_filter(explode(',',$work_order['serviceid'])) as $service) {
+			$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
+			$service_list[] = $service['category'].': '.$service['heading'];
+		}
+		$material_list = [];
+		$material_added = $dbc->query("SELECT `item_id`, `description`, `qty` FROM `ticket_attached` WHERE `src_table` IN ('material') AND `deleted`=0 AND `ticketid`='{$work_order['ticketid']}' AND `date_stamp`='{$work_order['date_stamp']}'");
+		while($material = $material_added->fetch_assoc()) {
+			$material_list[] = ($material['item_id'] > 0 ? get_field_value('name','material','materialid',$material['item_id']) : $material['description']).' Qty: '.$crew['qty'];
+		}
         $report_data .= '<tr nobr="true">
-			<td data-title="Work Order #:">'.$work_order['workorderid'].'</td>
-			<td data-title="Site:">'.$work_order['site_location'].'</td>
+			<td data-title="Work Order #:"><a href="../Ticket/index.php?edit='.$work_order['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.get_ticket_label($dbc, $work_order).' on '.$work_order['date_stamp'].'</a></td>
+			<td data-title="Site:">'.get_contact($dbc,$work_order['siteid']).'</td>
 			<td data-title="Staff & Crew:">'.implode("<br />\n", $crew_list).'</td>
 			<td data-title="Services:">'.implode("<br />\n", $service_list).'</td>
-			<td data-title="Equipment:">'.implode("<br />\n", $equip_list).'</td>
-			<td data-title="Materials:">'.implode("<br />\n", $material_list).'</td>
-			<td data-title="PO:">'.implode("<br />\n", $po_list).'</td></tr>';
+			<td data-title="Materials:">'.implode("<br />\n", $material_list).'</td></tr>';
     }
 
     $report_data .= '</table>';

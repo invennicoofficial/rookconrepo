@@ -55,9 +55,18 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	?>
 	<h3 <?= $extra_billing['num'] > 0 ? 'style="color:red;"' : '' ?>><?= $tile_security['edit'] > 0 || in_array('Hide Slider',$db_config) ? '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.urlencode($_GET['from']).'\' '.($extra_billing['num'] > 0 ? 'style="color:red;"' : '').'>' : '' ?>
 		<?= !in_array('Label',$db_config) ? TICKET_NOUN.' #'.($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']) : get_ticket_label($dbc, $ticket) ?>
+        <?php
+				foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
+					$all_client = get_contact($dbc, $clientid);
+				}
+        ?>
+		<?= in_array('Client As Label',$db_config) ? ' - '.$all_client : '' ?>
+		<?= in_array('Created Date As Label',$db_config) ? ' - '.substr($ticket['created_date'], 0, 10) : '' ?>
+		<?= in_array('Status As Label',$db_config) ? ' - Finished' : '' ?>
+
 		<?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?>
 		<img class="inline-img small no-toggle total_budget_time_icon" title="Total Budget Time exceeded by <?= $total_budget_time_exceeded ?> hours." src="../img/icons/ROOK-status-paid.png" style="filter: invert(30%) sepia(94%) saturate(50000%) hue-rotate(356deg) brightness(103%) contrast(117%); <?= $total_budget_time_exceeded > 0 ? '' : 'display:none;' ?>">
-		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" class="btn brand-btn" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In').'</a>' : '' ?>
+		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
 		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
 	<!-- Quick Action inputs -->
 
@@ -71,6 +80,11 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note">' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+
+			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
+
+            //echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img emailpdf-icon" title="Email PDF">' : '');
+
 			$status_icon = get_ticket_status_icon($dbc, $ticket['status']);
 			if(!empty($status_icon)) {
 	            if($status_icon == 'initials') {
@@ -81,7 +95,6 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			} ?>
 		</div><br />
 	<?php } ?>
-
 
 	<?php if(in_array('flag_manual',$quick_actions)) {
 		$colours = explode(',', get_config($dbc, "ticket_colour_flags")); ?>
@@ -100,6 +113,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
 	<?php } ?>
 	<input type='text' name='reply' value='' class="form-control" style="display:none;">
+	<input type='text' name='emailpdf' value='' class="form-control" style="display:none;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<div class="select_users" style="display:none;">
 		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
@@ -387,7 +401,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Site Address:</label>
-			<div class="col-sm-8">'.$site['address'].'</div>
+			<div class="col-sm-8">'.!empty($site['address']) ? $site['address'] : $site['mailing_address'].'</div>
 		</div>';
 	}
 	if(in_array('Site Notes',$db_config)) {
@@ -395,6 +409,70 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Site Notes:</label>
 			<div class="col-sm-8">'.html_entity_decode($site['notes']).'</div>
+		</div>';
+	}
+	if(in_array('Google Maps Link',$db_config)) {
+        $map_link = !empty($ticket['map_link']) ? $ticket['map_link'] : 'http://maps.google.com/maps/place/'.$ticket['address'].','.$ticket['city'];
+        if(empty($ticket['map_link']) && empty($ticket['address']) && !empty($ticket['siteid'])) {
+			$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+        	$map_link = !empty($site['google_maps_address']) ? $site['google_maps_address'] : 'http://maps.google.com/maps/place/'.(!empty($site['address']) ? $site['address'] : $site['mailing_address']).','.$site['city'];
+        }
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Google Maps Link:</label>
+			<div class="col-sm-8">'.(!empty($ticket['address']) || !empty($ticket['map_link'] || !empty($site['address']) || !empty($site['mailing_address']) || !empty($site['google_maps_address'])) ? '<a href="'.$map_link.'" target="_blank">Click Here</a>' : '').'</div>
+		</div>';
+	}
+
+	if(in_array('Key Number',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT key_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Key Number:</label>
+			<div class="col-sm-8">'.$site['key_number'].'</div>
+		</div>';
+	}
+
+	if(in_array('Door Code Number',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT door_code_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Door Code Number:</label>
+			<div class="col-sm-8">'.$site['door_code_number'].'</div>
+		</div>';
+	}
+
+	if(in_array('Alarm Code Number',$db_config)) {
+		$site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT alarm_code_number FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Alarm Code Number:</label>
+			<div class="col-sm-8">'.$site['alarm_code_number'].'</div>
+		</div>';
+	}
+
+	if(in_array('Ticket Notes',$db_config)) {
+		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Notes:</label>
+			<div class="col-sm-8">';
+			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+				echo trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+				echo "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em><br />";
+			}
+			echo '</div>
+		</div>';
+	}
+	if(in_array('Delivery Notes',$db_config)) {
+		$ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'");
+		$stop_count = 0;
+		$delivery_stops = [];
+		while($stop = mysqli_fetch_assoc($ticket_stops)) {
+			$stop_count++;
+			if(!empty($stop['notes'])) {
+				$delivery_stops[] = 'Stop #'.$stop_count.': '.trim(trim(html_entity_decode($stop['notes']),'<p>'),'</p>');
+			}
+		}
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Delivery Notes:</label>
+			<div class="col-sm-8">'.implode('<br>',$delivery_stops).'
+			</div>
 		</div>';
 	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>

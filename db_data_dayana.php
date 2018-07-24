@@ -240,5 +240,17 @@ if($get_config['configid'] > 0) {
     $result_insert_config = mysqli_query($dbc, $query_insert_config);
 }
 
+
+mysqli_query($dbc, "ALTER TABLE `estimate_scope` ADD `today_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `sort_order`");
+
+mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `project_timer` (
+  `projecttimerid` int(10) NOT NULL AUTO_INCREMENT,
+  `projectid` int(10) DEFAULT NULL,
+  `staff` int(10) DEFAULT NULL,
+  `today_date` date DEFAULT NULL,
+  `timer_value` time DEFAULT NULL,
+  PRIMARY KEY (`projecttimerid`)
+");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>

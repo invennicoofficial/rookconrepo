@@ -48,14 +48,23 @@ function multiPieces(input) {
 		while($('#tab_section_ticket_inventory_general .multi-block[data-type=general]').length < input.value) {
 			addMulti($('#tab_section_ticket_inventory_general .multi-block h4').last().get(0));
 		}
-		var i = 1;
-		$('#tab_section_ticket_inventory_general .multi-block[data-type=general] h4').each(function() {
-			var val = $(this).closest('.multi-block').find('[name=piece_type]').val()
-			$(this).text('Shipment Piece '+(i++)+(val != '' ? ': '+val : ''));
-		});
+		setPieceNumbers();
 		$('.tab-section[data-type=general]').data('triggered',0);
 		triggerSaveGeneralPiece();
 	<?php } ?>
+}
+function updatePieceCount() {
+	$.post('ticket_ajax_all.php?action=update_piece_count', { ticket: ticketid }, function(response) {
+		$('[name=qty][data-type=inventory_shipment]').first().val(response).change();
+		$('[name=weight][data-type=inventory_shipment]').first().change();
+	});
+}
+function setPieceNumbers() {
+	var i = 1;
+	$('#tab_section_ticket_inventory_general .multi-block[data-type=general] h4').each(function() {
+		var val = $(this).closest('.multi-block').find('[name=piece_type]').val()
+		$(this).text('Shipment Piece '+(i++)+(val != '' ? ': '+val : ''));
+	});
 }
 function addPieces(button) {
 	$(button).prop('disabled',true).text('Adding Pieces...');
@@ -508,6 +517,9 @@ do {
 			<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE) { ?>
 				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
 				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+			<?php } ?>
+			<?php if(strpos($value_config,',Inventory General Manual Remove Pieces,') !== FALSE) { ?>
+				<img class="inline-img pull-right" onclick="remMulti(this); setPieceNumbers(); updatePieceCount(); reload_sidebar();" src="../img/remove.png">
 			<?php } ?>
 			<?php if(strpos($value_config,',Inventory General Detail,') !== FALSE && $pallet_line['pallet'] == '' && $general_description != 'import') {
 				$general_item = ['id'=>$general_inventory['id'],'piece_type'=>$general_inventory['piece_type'],'piece_num'=>$general_inventory['piece_num']]; ?>

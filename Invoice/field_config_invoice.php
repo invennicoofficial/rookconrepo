@@ -12,6 +12,19 @@ error_reporting(0);
 $invoice_ux = FOLDER_NAME.'_ux';
 
 if (isset($_POST['submit'])) {
+    //check in
+
+    $communication_check_in_way = $_POST['communication_check_in_way'];
+
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='communication_check_in_way'"));
+    if($get_config['configid'] > 0) {
+        $query_update_employee = "UPDATE `general_configuration` SET value = '$communication_check_in_way' WHERE name='communication_check_in_way'";
+        $result_update_employee = mysqli_query($dbc, $query_update_employee);
+    } else {
+        $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('communication_check_in_way', '$communication_check_in_way')";
+        $result_insert_config = mysqli_query($dbc, $query_insert_config);
+    }
+    // check in
 
     //Logo
 	if (!file_exists('download')) {
@@ -238,6 +251,7 @@ $(document).ready(function() {
                 <div class="panel-body">
 					<h3>Select Tabs to Display</h3>
 					<?php $tab_list = explode(',', get_config($dbc, 'invoice_tabs')); ?>
+					<label class="form-checkbox"><input <?= (in_array('checkin',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="checkin"> Check In</label>
 					<label class="form-checkbox"><input <?= (in_array('sell',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="sell"> Create Invoice</label>
 					<label class="form-checkbox"><input <?= (in_array('today',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="today"> Today's Invoices</label>
 					<label class="form-checkbox"><input <?= (in_array('all',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="all"> All Invoices</label>
@@ -347,6 +361,45 @@ $(document).ready(function() {
                 </div>
             </div>
         </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_survey" >
+                            Check In Communication Method<span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_survey" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                       <?php
+                        $communication_check_in_way = get_config($dbc, 'communication_check_in_way');
+                       ?>
+
+                      <div class="form-group">
+                        <label for="fax_number"	class="col-sm-4	control-label">Method of Communication:</label>
+                        <div class="col-sm-8">
+                            <select data-placeholder="Choose a Way..."  name="communication_check_in_way" class="chosen-select-deselect form-control" width="380">
+                                <option value=""></option>
+                                <option <?php if ($communication_check_in_way == "Email") { echo " selected"; } ?> value="Email">Email</option>
+                            </select>
+                        </div>
+                      </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <a href="checkin.php" class="btn config-btn btn-lg">Back</a>
+                        </div>
+                        <div class="col-sm-6">
+                            <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
+                        </div>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
 
         <div class="panel panel-default">
             <div class="panel-heading">

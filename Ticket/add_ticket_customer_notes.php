@@ -1,6 +1,7 @@
 <script type="text/javascript">
 function completeStopStatus(btn, stop_id) {
 	$.ajax({
+		async: false,
 		url: '../Ticket/ticket_ajax_all.php?action=customer_sign_off_complete_status',
 		method: 'POST',
 		data: { id: stop_id },
@@ -11,7 +12,6 @@ function completeStopStatus(btn, stop_id) {
 						window.parent.$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
 					<?php } ?>
 					window.parent.$('[name="complete"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').prop('checked', true);
-					window.location.replace('../blank_loading_page.php');
 				<?php } else { ?>
 					<?php if(strpos($value_config, ','."Customer Stop Status".',') === FALSE) { ?>
 						$('select[name="status"][data-table="ticket_schedule"][data-id="'+stop_id+'"]').val(response).trigger('change.select2');
@@ -146,6 +146,14 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							</div>
 						</div>
 					<?php }
+					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details') { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Any Additional Comments:</label>
+							<div class="col-sm-12">
+								<textarea name="weight" class="full-width noMceEditor" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['weight']) ?></textarea>
+							</div>
+						</div>
+					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Signature:</label>
@@ -158,12 +166,12 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 					<?php }
 					if(strpos($value_config, ','."Customer Complete".',') !== FALSE && $field_sort_field == 'Customer Complete') { ?>
 						<div class="form-group">
-							<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" class="no_time">
+							<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" data-back-url="<?= $back_url ?>" <?= IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE ? 'data-iframe="1"' : '' ?> <?= strpos($value_config, ','."Customer Complete Exits Ticket".',') !== FALSE ? 'data-exit-ticket="1"' : '' ?> class="no_time">
 							<?php if(strpos($value_config,',Checkin Delivery,') !== FALSE) {
 								$checkout_id = $dbc->query("SELECT `id` FROM `ticket_attached` WHERE `src_table`='Delivery' AND `line_id`='".$customer_approval['line_id']."' AND `deleted`=0")->fetch_assoc(); ?>
 								<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkout_id['id'] ?>" data-id-field="id" class="no_time">
 							<?php } ?>
-							<button class="btn brand-btn pull-right" onclick="<?= strpos($value_config,',Finish Button Hide,') !== FALSE ? "$(this).hide();" : "$(this).attr('disabled',true).text('Completed!');" ?>$(this).closest('.customer_notes').find('[name=signature]').change();$(this).closest('.customer_notes').find('input,select,textarea').attr('readonly',true).click(function() { return false; });$(this).closest('.form-group').find('[name=completed]').val(1).change(); <?= strpos($value_config, ','."Customer Sign Off Complete Status".',') !== FALSE ? "completeStopStatus(this, '".$customer_approval['stop']."');" : '' ?> <?= IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE ? "window.location.replace('../blank_loading_page.php');" : '' ?> <?= strpos($value_config, ','."Customer Complete Exits Ticket".',') !== FALSE ? (IFRAME_PAGE ? "window.location.replace('../blank_loading_page.php');" : "window.location.replace('".$back_url."');") : '' ?> return false;">Complete</button>
+							<button class="btn brand-btn pull-right" onclick="<?= strpos($value_config,',Finish Button Hide,') !== FALSE ? "$(this).hide();" : "$(this).attr('disabled',true).text('Completed!');" ?>$(this).closest('.customer_notes').find('[name=signature]').change();$(this).closest('.customer_notes').find('input,select,textarea').attr('readonly',true).click(function() { return false; });<?= strpos($value_config, ','."Customer Sign Off Complete Status".',') !== FALSE ? "completeStopStatus(this, '".$customer_approval['stop']."');" : '' ?> $(this).closest('.form-group').find('[name=completed]').val(1).change(); return false;">Complete</button>
 						</div>
 					<?php }
 				} else {
@@ -222,6 +230,15 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							</div>
 						</div>
 						<?php $pdf_contents[] = ['Would you recommend us?', number_format($customer_approval['contact_info'],0)]; ?>
+					<?php }
+					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details' && !empty(strip_tags(html_entity_decode($customer_approval['weight'])))) { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Additional Comments:</label>
+							<div class="col-sm-8">
+								<?= html_entity_decode($customer_approval['weight']) ?>
+							</div>
+						</div>
+						<?php $pdf_contents[] = ['Additional Comments', html_entity_decode($customer_approval['weight'])]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
 						<div class="form-group">

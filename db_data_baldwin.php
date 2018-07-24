@@ -194,5 +194,91 @@
     }
     //2018-07-04 - Ticket #8009 - Sessions Additions
 
+    //2018-07-11 - Ticket #8060 - Estimate Templates VPL
+    if(!mysqli_query($dbc, "ALTER TABLE `estimate_template_lines` ADD `product_pricing` varchar(500) AFTER `qty`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #8060 - Estimate Templates VPL
+
+    //2018-07-11 - Ticket #8150 - Contacts Additions
+    if(!mysqli_query($dbc, "ALTER TABLE `rate_card` ADD `total_estimated_hours` decimal(10,2) AFTER `total_price`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #8150 - Contacts Additions
+
+    //2018-07-11 - Ticket #7997 - Certificates
+    $updated_already = get_config($dbc, 'updated_ticket7997_certificates');
+    if(empty($updated_already)) {
+        $result = mysqli_query($dbc, "SELECT DISTINCT(`certificate_type`) FROM `certificate` WHERE `deleted` = 0 ORDER BY `certificate_type`");
+        $certificate_types = [];
+        while($row = mysqli_fetch_assoc($result)) {
+            $certificate_types[] = $row['certificate_type'];
+        }
+        set_config($dbc, 'certificate_types', implode('#*#', $certificate_types));
+
+        $result = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `certificate` WHERE `deleted` = 0 ORDER BY `category`");
+        $certificate_categories = [];
+        while($row = mysqli_fetch_assoc($result)) {
+            $certificate_categories[] = $row['category'];
+        }
+        set_config($dbc, 'certificate_categories', implode('#*#', $certificate_categories));
+
+        set_config($dbc, 'updated_ticket7997_certificates', 1);
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `certificate` CHANGE `certificate_reminder` `certificate_reminder` varchar(1000)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-11 - Ticket #7997 - Certificates
+
+    //2018-07-13 - Task #6494 - AAFS Positions
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `position` `position` VARCHAR(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-13 - Task #6494 - AAFS Positions
+
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `teams` ADD `hide_days` text NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_ticketid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `main_id` int(11) NOT NULL DEFAULT 0 AFTER `ticketcommid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `is_recurrence` int(1) NOT NULL DEFAULT 0 AFTER `main_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-17 - Ticket #8311 - Cleans Calendar
+
+    //2018-07-20 - Ticket #8352 - Sales Auto Archive
+    if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `status_date` date NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `sales_status_date` BEFORE UPDATE ON `sales`
+         FOR EACH ROW BEGIN
+            IF NEW.`status` != OLD.`status` THEN
+                SET NEW.`status_date` = CURDATE();
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-20 - Ticket #8352 - Sales Auto Archive
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

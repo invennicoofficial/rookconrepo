@@ -935,6 +935,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Location Cookie".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Google Location Cookie:</label>
+<div class="col-sm-8">
+  <input name="location_cookie" type="text" value="<?php	echo $location_cookie; ?>" class="form-control"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Current Address".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Current Address <em>(Street, City, Province, Postal Code)</em>:</label>

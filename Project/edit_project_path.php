@@ -50,7 +50,8 @@ function setActions() {
 					id_field: item.data('id-field')
 				},
 				success: function(response) {
-					item.find('h4').append(response);
+					//item.find('h4').append(response);
+                    item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 				}
 			});
 			$(this).hide().val('');
@@ -148,7 +149,8 @@ function setActions() {
 					id_field: item.data('id-field')
 				},
 				success: function(response) {
-					item.find('h4').append(response);
+					//item.find('h4').append(response);
+                    item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 				}
 			});
 		});
@@ -169,7 +171,8 @@ function setActions() {
 						ref_id_field: item.data('id-field')
 					},
 					success: function(response) {
-						item.find('h4').append(response);
+						//item.find('h4').append(response);
+                        item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 					}
 				});
 				$(this).hide().val('');
@@ -237,7 +240,8 @@ function setActions() {
 						success: function(result) {
 							select.hide();
 							select.find('select').trigger('change.select2');
-							item.find('h4').append(result);
+							//item.find('h4').append(result);
+                            item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 						}
 					});
 				}
@@ -279,7 +283,8 @@ function setActions() {
 					},
 					success: function(result) {
 						select.hide();
-						item.find('h4').append(result);
+						//item.find('h4').append(result);
+                        item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
 					}
 				});
 			}
@@ -335,6 +340,59 @@ function setActions() {
 	$('.info-block-header [name=sort').off('change').change(function() {
 		$.post('projects_ajax.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), field: 'sort', value: this.value });
 	});
+    
+    /* Timer */
+    $('.start-timer-btn').on('click', function() {
+        $(this).closest('div').find('.timer').timer({
+            editable: true
+        });
+        $(this).addClass('hidden');
+        $(this).next('.stop-timer-btn').removeClass('hidden');
+    });
+    $('.stop-timer-btn').on('click', function() {
+        var item = $(this).closest('.dashboard-item');
+        $(this).closest('div').find('.timer').timer('stop');
+        $(this).addClass('hidden');
+        $(this).prev('.start-timer-btn').removeClass('hidden');
+        var taskid = $(this).data('id');
+        var timer_value = $(this).closest('div').find('#timer_value').val();
+        var contactid = '<?= $_SESSION['contactid'] ?>';
+        $(this).closest('div').find('.timer').timer('remove');
+        $('.timer_block_'+taskid).toggle();
+        if ( timer_value != '' ) {
+            $.ajax({
+                type: "GET",
+                url: "../Tasks/task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
+                dataType: "html",
+                success: function(response) {
+                    $.ajax({
+                        method: 'POST',
+                        url: '../Tasks/task_ajax_all.php?fill=taskreply',
+                        data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
+                        success: function(result) {
+                        }
+                    });
+                    $.ajax({
+                        url: 'projects_ajax.php?action=project_actions',
+                        method: 'POST',
+                        data: {
+                            field: 'track_time',
+                            value: timer_value
+                        },
+                        success: function(response) {
+                            item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
+                        }
+                    });
+                }
+            });
+        }
+    });
+    
+    $('[name="status"]').change(function() {
+        var item = $(this).closest('.dashboard-item');
+        item.find('h4 div, .action_notifications p span').toggleClass('strikethrough');
+    });
+    
 	initDragging();
 }
 </script>
@@ -420,7 +478,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 	$summary_tasks = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tasks, SUM(IF(`tasklist`.`status`='".$status_complete."',1,0)) complete, SUM(TIME_TO_SEC(`work_time`)) task_time FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0")); ?>
 	<script>
 	$(document).ready(function() {
-		$('.dashboard-item:first-of-type [name=task],.dashboard-item:first-of-type .btn.brand-btn').closest('.dashboard-item.add_block').prepend('<div class="empty-list text-center">Nothing to do.</div>');
+        $('.dashboard-item:first-of-type [name=task],.dashboard-item:first-of-type .btn.brand-btn').closest('.dashboard-item.add_block').prepend('<div class="empty-list text-center">Nothing to do.</div>');
 		setActions();
 		resizeProjectPath();
 		$(window).resize(function() {
@@ -435,40 +493,6 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		$('.right_jump').off('click').click(function() {
 			$('.dashboard-container').scrollLeft($('div.dashboard-list').filter(function() { return $(this).position().left > 15 }).first().get(0).offsetLeft - 10);
 		});
-
-        /* Timer */
-        $('.start-timer-btn').on('click', function() {
-            $(this).closest('div').find('.timer').timer({
-                editable: true
-            });
-            $(this).addClass('hidden');
-            $(this).next('.stop-timer-btn').removeClass('hidden');
-        });
-        $('.stop-timer-btn').on('click', function() {
-            $(this).closest('div').find('.timer').timer('stop');
-            $(this).addClass('hidden');
-            $(this).prev('.start-timer-btn').removeClass('hidden');
-            var taskid = $(this).data('id');
-            var timer_value = $(this).closest('div').find('#timer_value').val();
-            var contactid = '<?= $_SESSION['contactid'] ?>';
-            $(this).closest('div').find('.timer').timer('remove');
-            $('.timer_block_'+taskid).toggle();
-            if ( timer_value != '' ) {
-                $.ajax({
-                    type: "GET",
-                    url: "../Tasks/task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
-                    dataType: "html",
-                    success: function(response) {
-                        $.ajax({
-                            method: 'POST',
-                            url: 'task_ajax_all.php?fill=taskreply',
-                            data: { taskid: taskid, reply: 'Time added '+timer_value },
-                            success: function(result) {}
-                        });
-                    }
-                });
-            }
-        });
 	});
 	function initDragging() {
 		// Dragging Milestones

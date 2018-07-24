@@ -80,7 +80,7 @@ function initDragging() {
 	$add_action = '';
 	$action_title = '';
 	if(in_array('Tickets',$tab_config)) {
-		$add_action = "window.location.href='../Ticket/index.php?edit=0&projectid=".$projectid."&milestone_timeline=".urlencode($milestone)."&from=".urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI'])."';";
+		$add_action = "overlayIFrameSlider('../Ticket/index.php?calendar_view=true&edit=0&projectid=".$projectid."&milestone_timeline=".urlencode($milestone)."&from=".urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI'])."'); return false;";
 		$action_title = 'Add '.TICKET_NOUN;
 	} else if(in_array('Tasks',$tab_config)) {
 		$add_action = "overlayIFrameSlider('../Tasks/add_task.php?projectid=$projectid','50%',false);";

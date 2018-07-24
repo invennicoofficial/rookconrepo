@@ -280,7 +280,10 @@ if($_GET['action'] == 'mark_favourite') {
 			mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$id','".filter_var(htmlentities($value),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
 			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$value.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
 		}
-	}
+	} else if($field == 'track_time') {
+        $note = "<em>Tracked time: $value";
+        echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$note.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
+    }
 } else if($_GET['action'] == 'project_fields') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
@@ -766,14 +769,16 @@ if($_GET['action'] == 'mark_favourite') {
 	$contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
 	$signature = filter_var($_POST['signature'], FILTER_SANITIZE_STRING);
 	$precedence = filter_var($_POST['precedence'], FILTER_SANITIZE_STRING);
+	$status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
 	$action_items = filter_var($_POST['action_items'], FILTER_SANITIZE_STRING);
 	$region = filter_var($_POST['region'], FILTER_SANITIZE_STRING);
 	$location = filter_var($_POST['location'], FILTER_SANITIZE_STRING);
 	$classification = filter_var($_POST['classification'], FILTER_SANITIZE_STRING);
 	$customer = filter_var($_POST['customer'], FILTER_SANITIZE_STRING);
 	$staff = filter_var($_POST['staff'], FILTER_SANITIZE_STRING);
+	$unlocked_fields = filter_var($_POST['fields'], FILTER_SANITIZE_STRING);
 	$deleted = filter_var($_POST['deleted'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `deleted`='$deleted'  WHERE `id`='$id'");
+	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `status`='$status', `unlocked_fields`='$unlocked_fields', `deleted`='$deleted'  WHERE `id`='$id'");
 	echo $id;
 } else if($_GET['action'] == 'approvals') {
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
@@ -1044,5 +1049,30 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='$staff'");
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, '$staff', '$today', '$time', '$seconds', '".PROJECT_NOUN." Time', 'Checked in on ".PROJECT_NOUN." #$projectid', '$staff' FROM `project` WHERE `projectid`='$projectid'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `projectid`!='$projectid' AND `staff`='$staff' AND `timer_start` > 0");
+	}
+} else if($_GET['action'] == 'timer') {
+	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+	$timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
+	$staff = $_SESSION['contactid'];
+    $today_date = date('Y-m-d');
+	mysqli_query($dbc, "INSERT INTO `project_timer` (`projectid`, `staff`, `today_date`, `timer_value`) VALUES ('$projectid', '$staff', '$today_date', '$timer_value')");
+} else if($_GET['action'] == 'load_sales_scope') {
+	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
+	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
+	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+	foreach(explode(',',$sales_scope['serviceid']) as $service) {
+		if($service > 0) {
+			$service_rate = $dbc->query("SELECT * FROM `company_rate_card` WHERE `item_id`='$service' AND `tile_name`='Services' AND DATE(NOW()) > `start_date` AND DATE(NOW()) < IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') AND `deleted`=0 ORDER BY `start_date` DESC")->fetch_assoc();
+			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
+		}
+	}
+	foreach(explode(',',$sales_scope['productid']) as $product) {
+		if($product > 0) {
+			$product_rate = $dbc->query("SELECT `final_retail_price` `cust_price`,`cost` FROM `products` WHERE `productid`='$product'")->fetch_assoc();
+			if(empty($product_rate['final_retail_price'])) {
+				$product_rate = $dbc->query("SELECT `cust_price`,`cost` FROM `company_rate_card` WHERE `item_id`='$product' AND `tile_name`='Products' AND DATE(NOW()) > `start_date` AND DATE(NOW()) < IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') AND `deleted`=0 ORDER BY `start_date` DESC")->fetch_assoc();
+			}
+			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
+		}
 	}
 }

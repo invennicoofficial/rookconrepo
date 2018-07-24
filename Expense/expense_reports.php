@@ -499,20 +499,25 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 				<th style="max-width: 25%; width: 15em;">Category</th>
 				<th>Expense Amount</th>
 			</tr>';
-			$expense_report = mysqli_query($dbc, "SELECT IFNULL(`category`,''), SUM(`total`) expense_sum FROM `expense` WHERE $filter_query GROUP BY IFNULL(`category`,'') ORDER BY expense_sum DESC");
+			$expense_report = mysqli_query($dbc, "SELECT CONCAT(IFNULL(CONCAT(`categories`.`EC`,': '),''),IFNULL(`expense`.`category`,'')) `category`, SUM(`total`) expense_sum, CONCAT(LPAD(0,100,IFNULL(`categories`.`EC`,'')),IFNULL(`expense`.`category`,'')) expense_sort FROM `expense` LEFT JOIN (SELECT `EC`, `category` FROM `expense_categories` GROUP BY `category`) `categories` ON `expense`.`category`=`categories`.`category` WHERE $filter_query GROUP BY IFNULL(`expense`.`category`,'') ORDER BY expense_sum DESC");
 			$max_expenses = 0;
+			$lines = [];
 			while($report = mysqli_fetch_array($expense_report)) {
 				if($report['expense_sum'] > $max_expenses) {
 					$report_level = floor($report['expense_sum'] / 10);
 					$max_expenses = ceil($report['expense_sum'] / $report_level) * $report_level;
 				}
-				$html .= '<tr>
+				$lines[$report['expense_sort']] = '<tr>
 					<td data-title="Category" style="max-width: 25%; width: 15em;">'.($report['category'] != '' ? $report['category'] : 'Uncategorized').'</td>
 					<td data-title="Expense Amount" style="background-color: #AAA; padding: 0 0 0 0;">
 						<div style="background-color: #6DCFF6; line-height: 2.5em; width:'.($report['expense_sum'] / $max_expenses * 100).'%;">&nbsp;</div>
 						<div style="margin: -1.75em 1em 0;"><b>$'.number_format($report['expense_sum'],2).'</b></div>
 					</td>
 				</tr>';
+			}
+			ksort($lines);
+			foreach($lines as $line) {
+				$html .= $line;
 			}
 		$html .= '</table>';
 	} else if($_GET['view'] == 'vendor') {

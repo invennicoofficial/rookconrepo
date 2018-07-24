@@ -170,7 +170,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="region" data-placeholder="Select Region"><option />
 							<?php foreach($allowed_regions as $region_name) { ?>
-								<option value="<?= $region_name ?>"><?= $region_name ?></option>
+								<option <?= $_GET['region'] == $region_name ? 'selected' : '' ?> value="<?= $region_name ?>"><?= $region_name ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -182,7 +182,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="location" data-placeholder="Select Location"><option />
 							<?php foreach($allowed_locations as $location) { ?>
-								<option value="<?= $location ?>"><?= $location ?></option>
+								<option <?= $_GET['location'] == $location ? 'selected' : '' ?> value="<?= $location ?>"><?= $location ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -194,7 +194,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="classification" data-placeholder="Select Classification"><option />
 							<?php foreach($contact_classifications as $i => $class) { ?>
-								<option data-region='<?= json_encode($classification_regions[$i]) ?>' value="<?= $class ?>"><?= $class ?></option>
+								<option <?= $_GET['classification'] == $class ? 'selected' : '' ?> data-region='<?= json_encode($classification_regions[$i]) ?>' value="<?= $class ?>"><?= $class ?></option>
 							<?php } ?>
 						</select>
 					</div>

@@ -143,7 +143,7 @@ function saveField() {
 	<div class="clearfix"></div>
 </div>
 <div class="form-group type-option">
-	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want a <?= TICKET_NOUN ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [BUSINESS], [CONTACT], [SITE_NAME], [TICKET_TYPE], [STOP_LOCATION], [STOP_CLIENT].</em></label>
+	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want a <?= TICKET_NOUN ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [BUSINESS], [CONTACT], [SITE_NAME], [TICKET_TYPE], [STOP_LOCATION], [STOP_CLIENT], [ORDER_NUM].</em></label>
 	<div class="col-sm-8">
 		<input type="text" name="ticket_label" value="<?= get_config($dbc, "ticket_label") ?>" class="form-control">
 	</div>
@@ -158,6 +158,8 @@ function saveField() {
 		<label class="form-checkbox"><input type="radio" <?= ('oldest' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="oldest"> Oldest First</label>
 		<label class="form-checkbox"><input type="radio" <?= ('project' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="project"> <?= PROJECT_NOUN ?> Name (A - Z)</label>
 		<label class="form-checkbox"><input type="radio" <?= ('label' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="label"> <?= TICKET_NOUN ?> Label (A - Z)</label>
+		<label class="form-checkbox"><input type="radio" <?= ('to_do_date_desc' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="to_do_date_desc"> Scheduled Date (Descending)</label>
+		<label class="form-checkbox"><input type="radio" <?= ('to_do_date_asc' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="to_do_date_asc"> Scheduled Date (Ascending)</label>
 	</div>
 	<div class="clearfix"></div>
 </div>

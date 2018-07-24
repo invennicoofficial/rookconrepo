@@ -49,6 +49,9 @@ function viewTicket(a) {
 
 
 <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal timesheet_div" role="form">
+<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
+<input type="hidden" name="type" value="<?= $_GET['type'] ?>">
+<input type="hidden" name="report" value="<?= $_GET['report'] ?>">
 <input type="hidden" name="timesheet_time_format" value="<?= get_config($dbc, 'timesheet_time_format') ?>">
 <?php
     $search_staff = '';
@@ -76,6 +79,8 @@ function viewTicket(a) {
     if(!empty($_GET['search_ticket'])) {
         $search_ticket = $_GET['search_ticket'];
     }
+    $current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
+
 		include('pay_period_dates.php');
 
     $timesheet_security_roles = array_filter(explode(',',get_config($dbc, 'timesheet_security_roles')));
@@ -248,8 +253,12 @@ function viewTicket(a) {
                 - <a href="<?= WEBSITE_URL ?>/Timesheet/time_cards.php?export=csv" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a>
                 -->
                 </div>
-          <a href="?" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block pull-right" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;">Display All</a>
-          <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block pull-right">Search</button>
+          <div class="form-group">
+            <a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>&search_staff[]=<?= $search_staff ?>&type=<?= $_GET['type'] ?>&report=<?= $_GET['report'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
+            <a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>&search_staff[]=<?= $search_staff ?>&type=<?= $_GET['type'] ?>&report=<?= $_GET['report'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
+            <a href="?" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block pull-right" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;">Display All</a>
+            <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block pull-right">Search</button>
+          </div>
           <div class="clearfix"></div>
         </div>
         <div class="clearfix"></div>

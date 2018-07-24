@@ -82,11 +82,13 @@ $(document).ready(function() {
 });
 var current_fields = [];
 var site_ids = [];
-<?php $main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$contactid'"))['main_siteid'];
-$site_query = mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` = '".$main_siteid."' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` != '".$main_siteid."'");
-while($site_result = mysqli_fetch_assoc($site_query)) { ?>
-	site_ids.push('<?= $site_result['contactid'] ?>');
-<?php } ?>
+<?php if($contactid > 0) {
+	$main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$contactid'"))['main_siteid'];
+	$site_query = mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` = '".$main_siteid."' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted` = 0 AND `contactid` != '".$main_siteid."'");
+	while($site_result = mysqli_fetch_assoc($site_query)) { ?>
+		site_ids.push('<?= $site_result['contactid'] ?>');
+	<?php }
+} ?>
 function jumpTab(tab_name, sub_class) {
 	edit_profile();
 	if(sub_class == undefined) {
@@ -216,10 +218,12 @@ function loadSiteHtml(site_id) {
 				clone.html(response);
 				$('.site_address').last().after(clone);
 			} else {
-				if($('[name="address_site_sync"]').is(':checked')) {
-					$('[data-tab-name="address"] .form-group').hide();
-					$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
-				}
+				<?php if(in_array('Synced Site Hide Address',$field_config)) { ?>
+					if($('[name="address_site_sync"]').is(':checked')) {
+						$('[data-tab-name="address"] .form-group').hide();
+						$('[data-tab-name="address"] [name="address_site_sync"]').closest('.form-group').show();
+					}
+				<?php } ?>
 				$('.site_address').html(response);
 				$('.site_address').data('contactid', site_id);
 				setMainSite(site_id);
@@ -248,6 +252,9 @@ function setMainSite(site_id) {
 function saveFieldMethod(field) {
 	if(($('[name=contactid]').val() == 'new' || $('[name=contactid]').val() == '' || $('[name=contactid]').val() == undefined) && field.name != 'category' && window.previous_field == undefined) {
 		current_fields.push(field);
+		if($('[name="address_default_site_sync"]') != undefined && $('[name="address_default_site_sync"]').val() == 1 && $('[name="address_site_sync"]') != undefined && !($('[name="address_site_sync"]').is(':checked'))) {
+			$('[name="address_site_sync"]').prop('checked', true).change();
+		}
 		field = $('[name=category]').get(0);
 	}
 	if($(field).closest('div[data-tab-name]').data('locked') == 'held' || field.name == 'category' || ('<?= IFRAME_PAGE ? 'IFRAME' : '' ?>' != '' || '<?= $contactid ?>' == 'new')) {
@@ -438,7 +445,10 @@ function saveFieldMethod(field) {
 							}
 						}
 						if(site > 0) {
-							site_id = site;
+							if(site_ids.indexOf(site) == -1) {
+								site_ids.push(site);
+							}
+							loadSite();
 						}
 						doneSaving();
 					}

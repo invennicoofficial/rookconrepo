@@ -194,7 +194,7 @@ if (isset($_POST['submit'])) {
 			}
 		}
 	}
-	echo "<script>window.location.replace('".$back_url."?search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
+	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
 } else if(isset($_POST['approv_db'])) {
 	$layout = get_config($dbc, "timesheet_layout");
 	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
@@ -227,6 +227,7 @@ if (isset($_POST['submit'])) {
 			switch($name[0]) {
 				case 'regular': $type = 'Regular Hrs.'; break;
 				case 'training': $type = 'Regular Hrs.'; break;
+				case 'drive': $type = 'Regular Hrs.'; break;
 				case 'direct': $type = 'Direct Hrs.'; break;
 				case 'indirect': $type = 'Indirect Hrs.'; break;
 				case 'extra': $type = 'Extra Hrs.'; break;
@@ -352,7 +353,7 @@ if (isset($_POST['submit'])) {
 		}
 		$back_url = 'payroll.php';
 	}
-	echo "<script>window.location.replace('".$back_url."?search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
+	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
 }
 ?>
 </head>

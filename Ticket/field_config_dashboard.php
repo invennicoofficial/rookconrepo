@@ -34,10 +34,16 @@ function saveFields() {
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Label".',') !== false) { echo " checked"; } ?> value="Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will switch whether the card displays the customer <?= TICKET_NOUN ?> label, or simply displays the <?= TICKET_NOUN ?> ID."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_NOUN ?> Label</label>
+
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Client As Label".',') !== false) { echo " checked"; } ?> value="Client As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Client As Label</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Created Date As Label".',') !== false) { echo " checked"; } ?> value="Created Date As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Created Date As Label</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Status As Label".',') !== false) { echo " checked"; } ?> value="Status As Label" style="height: 20px; width: 20px;" name="tickets_dashboard[]">Status As Label</label>
+
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Extra Billing".',') !== false) { echo " checked"; } ?> value="Extra Billing" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Extra Billing Alert</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Overview Icon".',') !== false) { echo " checked"; } ?> value="Overview Icon" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Overview Icon</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Hide Slider".',') !== false) { echo " checked"; } ?> value="Hide Slider" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Hide Action Mode Button</label>
 		<label class="form-checkbox"><input type="text" class="form-control" placeholder="Action Mode Button Label" value="<?= get_config($dbc, 'ticket_slider_button') ?>" name="slider_button"></label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Action Mode Button Eyeball".',') !== false) { echo " checked"; } ?> value="Action Mode Button Eyeball" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Use Eyeball Icon For Action Mode Button</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Project".',') !== false) { echo " checked"; } ?> value="Project" style="height: 20px; width: 20px;" name="tickets_dashboard[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will list the <?= PROJECT_NOUN ?> attached to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= PROJECT_NOUN ?> Information</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Business".',') !== false) { echo " checked"; } ?> value="Business" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Business</label>
@@ -69,6 +75,13 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Milestone Timeline".',') !== false) { echo " checked"; } ?> value="Milestone Timeline" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Milestone & Timeline</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Address".',') !== false) { echo " checked"; } ?> value="Site Address" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Address</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Site Notes".',') !== false) { echo " checked"; } ?> value="Site Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Site Notes</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Google Maps Link".',') !== false) { echo " checked"; } ?> value="Google Maps Link" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Google Maps Link</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Ticket Notes".',') !== false) { echo " checked"; } ?> value="Ticket Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> <?= TICKET_NOUN ?> Notes</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Delivery Notes".',') !== false) { echo " checked"; } ?> value="Delivery Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Delivery Notes</label>
+
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Key Number".',') !== false) { echo " checked"; } ?> value="Key Number" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Key Number</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Door Code Number".',') !== false) { echo " checked"; } ?> value="Door Code Number" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Door Code Number</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Alarm Code Number".',') !== false) { echo " checked"; } ?> value="Alarm Code Number" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Alarm Code Number</label>
 
 	</div>
 </div>
