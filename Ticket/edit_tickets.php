@@ -1432,6 +1432,78 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
+			<?php if (strpos($value_config, ','."Inventory".',') !== FALSE && $sort_field == 'Inventory') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_general">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory General".',') !== FALSE && $sort_field == 'Inventory General') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory Detail".',') !== FALSE && $sort_field == 'Inventory Detail') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Detailed Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory Return".',') !== FALSE && $sort_field == 'Inventory Return') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_return">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Return Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_return" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_return">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if (strpos($value_config, ','."Checklist".',') !== FALSE && $access_all > 0 && $sort_field == 'Checklist') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -2020,6 +2092,60 @@ var setHeading = function() {
 
 					<div id="collapse_ticket_billing" class="panel-collapse collapse">
 						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_billing">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Residue".',') !== FALSE && $sort_field == 'Residue') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_residues">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Residue' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_residues" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_residues">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_readings">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Reading' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_readings" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_readings">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Other List".',') !== FALSE && $sort_field == 'Other List') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_other_list">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Other List' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_other_list" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_other_list">
 							Loading...
 						</div>
 					</div>
