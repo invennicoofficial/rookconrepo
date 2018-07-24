@@ -1056,4 +1056,23 @@ if($_GET['action'] == 'mark_favourite') {
 	$staff = $_SESSION['contactid'];
     $today_date = date('Y-m-d');
 	mysqli_query($dbc, "INSERT INTO `project_timer` (`projectid`, `staff`, `today_date`, `timer_value`) VALUES ('$projectid', '$staff', '$today_date', '$timer_value')");
+} else if($_GET['action'] == 'load_sales_scope') {
+	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
+	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
+	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+	foreach(explode(',',$sales_scope['serviceid']) as $service) {
+		if($service > 0) {
+			$service_rate = $dbc->query("SELECT * FROM `company_rate_card` WHERE `item_id`='$service' AND `tile_name`='Services' AND DATE(NOW()) > `start_date` AND DATE(NOW()) < IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') AND `deleted`=0 ORDER BY `start_date` DESC")->fetch_assoc();
+			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
+		}
+	}
+	foreach(explode(',',$sales_scope['productid']) as $product) {
+		if($product > 0) {
+			$product_rate = $dbc->query("SELECT `final_retail_price` `cust_price`,`cost` FROM `products` WHERE `productid`='$product'")->fetch_assoc();
+			if(empty($product_rate['final_retail_price'])) {
+				$product_rate = $dbc->query("SELECT `cust_price`,`cost` FROM `company_rate_card` WHERE `item_id`='$product' AND `tile_name`='Products' AND DATE(NOW()) > `start_date` AND DATE(NOW()) < IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') AND `deleted`=0 ORDER BY `start_date` DESC")->fetch_assoc();
+			}
+			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
+		}
+	}
 }

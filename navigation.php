@@ -24,20 +24,20 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 				} else {
 					$label = 'Running '.TICKET_NOUN.' #'.$active_ticket['ticketid'];
 				}
-				$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Ticket/index.php?'.($ticket_tile_visible ? '' : 'tile_name='.$active_ticket['ticket_type'].'&').'edit='.$active_ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
+				$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Ticket/index.php?'.($ticket_tile_visible ? '' : 'tile_name='.$active_ticket['ticket_type'].'&').'edit='.$active_ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
 			}
 		}
 		if(SHOW_SIGN_IN == '1') {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		}
 	} else if(SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') {
 		$timer_running = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
 		if(ACTIVE_DAY_BANNER != '' && $timer_running > 0) {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';
 		} else if(SHOW_SIGN_IN == '1' && $timer_running > 0) {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		} else if(SHOW_SIGN_IN == '1') {
-			$active_ticket_buttons .= '<a class="btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.START_DAY.'</a>';
+			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.START_DAY.'</a>';
 		}
 	}
 $_SERVER['page_load_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
