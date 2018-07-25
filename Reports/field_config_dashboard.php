@@ -480,6 +480,12 @@ if (isset($_POST['submit'])) {
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Staff Staff Compensation".',') !== FALSE) { echo " checked"; } ?> value="Staff Staff Compensation" name="reports_dashboard[]"> Staff Compensation</label>
 	</div>
+  <div class="clearfix"></div>
+  
+  <h3>History</h3>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Staff History".',') !== FALSE) { echo " checked"; } ?> value="History Staff History" name="reports_dashboard[]"> Staff History</label>
+	</div>
 
     <div class="form-group pull-right">
         <a href="report_tiles.php" class="btn brand-btn">Back</a>

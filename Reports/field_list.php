@@ -162,5 +162,8 @@ $staff_reports = [
 	'Staff Validation by Therapist'=>['report_daily_validation.php','Validation by Therapist','Staff Validation by Therapist','staff_pt_validation'],
 	'Staff Staff Compensation'=>['report_pnl_staff_compensation.php','Staff Compensation','Staff Staff Compensation','staff_staff_compensation'],
 ];
+$history_reports = [
+	'History Staff History'=>['reports_staff_history.php','Staff History','History Staff History','history_staff_history'],
+];
 
-$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports);
+$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports);
