@@ -292,10 +292,10 @@ $(document).ready(function() {
             var divPosition = $(this).offset().top;
             if( divPosition - 1 < currentScroll ){
                 $currentSection = $(this);
+				var id = $currentSection.attr('id');
+				$('.tile-sidebar li').removeClass('active');
+				$('.tile-sidebar [href=#'+id+'] li').addClass('active');
             }
-            var id = $currentSection.attr('id');
-            $('.tile-sidebar li').removeClass('active');
-            $('.tile-sidebar [href=#'+id+'] li').addClass('active');
         });
     });
     
