@@ -2572,7 +2572,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'template_file') {
 	$filename = file_safe_str($_FILES['file']['name'],'pdf_contents/');
 	if(!file_exists('pdf_contents')) {
-		mkdir('pdf_content', 0777, true);
+		mkdir('pdf_contents', 0777, true);
 	}
 	move_uploaded_file($_FILES['file']['tmp_name'],'pdf_contents/'.$filename);
 	if($_POST['id'] > 0) {
