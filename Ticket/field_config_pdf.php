@@ -6,12 +6,21 @@ $(document).ready(function() {
 	});
 });
 function saveField() {
+	if(this.type == 'checkbox') {
+		if($(this).is(':checked')) {
+			field_value = $(this).val();
+		} else {
+			field_value = '';
+		}
+	} else {
+		field_value = this.value;
+	}
 	$.ajax({
 		url: 'ticket_ajax_all.php?action=ticket_text',
 		method: 'POST',
 		data: {
 			config: this.name,
-			text: this.value
+			text: field_value
 		}
 	});
 }
