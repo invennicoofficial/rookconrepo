@@ -106,7 +106,7 @@ if($_GET['fill'] == 'assignphoneemail') {
 //Services
 if($_GET['fill'] == 's_service_config') {
     $value = $_GET['value'];
-	$query = mysqli_query($dbc,"SELECT `serviceid`, `heading` FROM `services` WHERE `service_type`='$value'");
+	$query = mysqli_query($dbc,"SELECT `serviceid`, IFNULL(NULLIF(`heading`,''),`title`) `heading` FROM `services` WHERE `service_type`='$value'");
 	echo '<option value=""></option>';
 	while($row = mysqli_fetch_array($query)) {
 		echo "<option value='".$row['serviceid']."'>".$row['heading'].'</option>';
@@ -143,7 +143,7 @@ if($_GET['fill'] == 'p_product_config') {
 
 if($_GET['fill'] == 'p_cat_config') {
     $value = $_GET['value'];
-	$query = mysqli_query($dbc,"SELECT productid, heading FROM products WHERE category = '$value'");
+	$query = mysqli_query($dbc,"SELECT productid, IFNULL(NULLIF(`heading`,''),`title`) heading FROM products WHERE category = '$value'");
 	echo '<option value=""></option>';
 	while($row = mysqli_fetch_array($query)) {
 		echo "<option value='".$row['productid']."'>".$row['heading'].'</option>';
@@ -162,7 +162,7 @@ if($_GET['fill'] == 'm_material_config') {
 
 if($_GET['fill'] == 'm_cat_config') {
     $value = $_GET['value'];
-	$query = mysqli_query($dbc,"SELECT marketing_materialid, heading FROM marketing_material WHERE category = '$value'");
+	$query = mysqli_query($dbc,"SELECT marketing_materialid, IFNULL(NULLIF(`heading`,''),`title`) heading FROM marketing_material WHERE category = '$value'");
 	echo '<option value=""></option>';
 	while($row = mysqli_fetch_array($query)) {
 		echo "<option value='".$row['marketing_materialid']."'>".$row['heading'].'</option>';
