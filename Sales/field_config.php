@@ -11,6 +11,10 @@ $sales_tile = SALES_TILE;
 $sales_noun = SALES_NOUN;
 
 switch($_GET['tab']) {
+	case 'dashboards':
+        $page_title = SALES_TILE." Dashboards";
+        $include_file = 'field_config_dashboards.php';
+		break;
     case 'general':
     default:
         $_GET['tab'] = 'general';
@@ -54,6 +58,7 @@ function resizeScreen() {
                     <ul>
                         <a href="index.php"><li>Back to Dashboard</li></a>
                         <a href="field_config.php?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
+                        <a href="field_config.php?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Dashboards</li></a>
                     </ul>
                 </div>
 

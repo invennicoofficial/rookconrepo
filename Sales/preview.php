@@ -17,8 +17,8 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                         <div class="row">
                             <div class="col-xs-4 default-color">Business:</div>
                             <div class="col-xs-8"><?php
-                                $business_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `contacts` WHERE `contactid`={$row['businessid']}"))['name'];
-                                echo decryptIt($business_name); ?>
+                                $business_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `contacts` WHERE `contactid`={$row['businessid']}"))['name']; ?>
+                                <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $row['businessid'] ?>" class="no-toggle" title="<?= get_contact($dbc, $row['businessid'], 'name_company') ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= decryptIt($business_name) ?><img src="../img/icons/eyeball.png" class="inline-img"></a>
                             </div>
                         </div>
                         <div class="row">
@@ -27,7 +27,7 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                                 $contacts = '';
                                 foreach ( explode(',', $row['contactid']) as $contact ) {
                                     if ( get_contact($dbc, $contact) != '-' ) {
-                                        $contacts .= get_contact($dbc, $contact) . '<br />';
+                                        $contacts .= '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$contact.'" class="no-toggle" title="'.get_contact($dbc, $contact).'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $contact) . '<img src="../img/icons/eyeball.png" class="inline-img"></a><br />';
                                     }
                                 }
                                 echo rtrim($contacts, ', '); ?>
