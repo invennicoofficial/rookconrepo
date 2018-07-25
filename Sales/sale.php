@@ -161,19 +161,32 @@ if (isset($_POST['add_sales'])) {
     $status_won     = get_config($dbc, 'lead_status_won');
     
     $contactid = $contactid .','. $new_contactid;
+	$old_details = [];
     if ( empty($_POST['salesid']) ) {
         $query_insert = "INSERT INTO `sales` (`created_date`, `lead_created_by`, `primary_staff`, `share_lead`, `businessid`, `contactid`, `primary_number`, `email_address`, `lead_value`, `estimated_close_date`, `serviceid`, `productid`, `lead_source`, `marketingmaterialid`, `next_action`, `new_reminder`, `status`, `region`, `location`, `classification`) VALUES ('$created_date', '$lead_created_by', '$primary_staff', '$share_lead', '$businessid', '$contactid', '". decryptIt($primary_number) ."', '". decryptIt($email_address) ."', '$lead_value', '$estimated_close_date', '$serviceid', '$productid', '$lead_source', '$marketingmaterialid', '$next_action', '$new_reminder', '$status', '$region', '$location', '$classification')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert);
         $salesid = mysqli_insert_id($dbc);
+		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Sales Lead Added')");
         $url = 'Added';
 		$old_action = '';
     } else {
         $salesid = $_POST['salesid'];
+		$old_details = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
         $query_update = "UPDATE `sales` SET `primary_staff`='$primary_staff', `share_lead`='$share_lead', `businessid`='$businessid', `contactid`='$contactid', `primary_number`='". decryptIt($primary_number) ."', `email_address`='". decryptIt($email_address) ."', `lead_value`='$lead_value', `estimated_close_date`='$estimated_close_date', `serviceid`='$serviceid', `productid`='$productid', `lead_source`='$lead_source', `marketingmaterialid`='$marketingmaterialid', `next_action`='$next_action', `new_reminder`='$new_reminder', `status`='$status', `region`='$region', `location`='$location', `classification`='$classification' WHERE `salesid`='$salesid'";
         $result_update_vendor = mysqli_query($dbc, $query_update);
         $url = 'Updated';
 		$old_action = mysqli_fetch_array(mysqli_query($dbc, "SELECT `next_action` FROM `sales` WHERE `salesid`='$salesid'"))['next_action'];
     }
+	$new_details = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+	$changes = [];
+	foreach($new_details as $field => $value) {
+		if($value != $old_details[$field]) {
+			$changes[] = filter_var(htmlentities("'$field' updated to $value"),FILTER_SANITIZE_STRING);
+		}
+	}
+	if(!empty($changes)) {
+		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Updated: ".implode(', ',$changes)."')");
+	}
     
     //Convert Sales Lead to a Customer
     if ( $status_won==$status ) {
@@ -213,6 +226,7 @@ if (isset($_POST['add_sales'])) {
         $email_comment = $_POST['email_comment'];
         $query_insert_ca = "INSERT INTO `sales_notes` (`salesid`, `comment`, `email_comment`, `created_date`, `created_by`) VALUES ('$salesid', '$t_comment', '$email_comment', '$created_date', '$created_by')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Note added: $t_comment')");
 
         if ($_POST['send_email_on_comment'] == 'Yes') {
             $email = get_email($dbc, $email_comment);
@@ -236,6 +250,7 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['document_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_client_doc = "INSERT INTO `sales_document` (`salesid`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
+			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Document added: $label')");
         }
     }
 
@@ -244,6 +259,7 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['link_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_client_doc = "INSERT INTO `sales_document` (`salesid`, `label`, `link`, `created_date`, `created_by`) VALUES ('$salesid', '$label', '$support_link', '$created_date', '$created_by')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
+			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Link added: $label')");
         }
     }
     
@@ -254,6 +270,7 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['infodoc_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_infodoc = "INSERT INTO `sales_document` (`salesid`, `document_type`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', 'Information Gathering', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_infodoc = mysqli_query($dbc, $query_insert_infodoc);
+			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Information Gathering Added: $label')");
         }
     }
     
@@ -264,6 +281,7 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['estimate_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_estimate = "INSERT INTO `sales_document` (`salesid`, `document_type`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', 'Estimate', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_estimate = mysqli_query($dbc, $query_insert_estimate);
+			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Estimate added: $label')");
         }
     }
 
@@ -303,7 +321,7 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='salespath' ) {
             echo 'window.location.replace("?p=salespath&id='.$_GET['id'].'");';
         } ?>
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
     
@@ -311,7 +329,7 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=staffinfo");';
         } ?>
-        $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
     
@@ -320,7 +338,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_services').click(function() {<?php
@@ -328,7 +346,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=services");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_products').click(function() {<?php
@@ -336,7 +354,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=products");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_leadsource').click(function() {<?php
@@ -344,7 +362,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadsource");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_refdocs').click(function() {<?php
@@ -352,7 +370,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=refdocs");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_marketing').click(function() {<?php
@@ -360,7 +378,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=marketing");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_infogathering').click(function() {<?php
@@ -368,7 +386,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=infogathering");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_estimate').click(function() {<?php
@@ -376,7 +394,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=estimate");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_quote').click(function() {<?php
@@ -384,7 +402,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=quote");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_nextaction').click(function() {<?php
@@ -392,7 +410,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=nextaction");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_leadstatus').click(function() {<?php
@@ -400,7 +418,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadstatus");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_leadnotes').click(function() {<?php
@@ -408,7 +426,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadnotes");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks, #nav_history').removeClass('active');
     });
     
     $('#nav_tasks').click(function() {<?php
@@ -416,7 +434,15 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=tasks");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_history').removeClass('active');
+    });
+    
+    $('#nav_history').click(function() {<?php
+        if ( isset($_GET['p']) && $_GET['p']!='details' ) {
+            echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=history");';
+        } ?>
+        $(this).addClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
     });
     
     <?php
@@ -434,6 +460,7 @@ $(document).ready(function() {
         if ( isset($_GET['a']) && $_GET['a']=='leadstatus' ) { echo "$('#nav_leadstatus').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='leadnotes' ) { echo "$('#nav_leadnotes').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='tasks' ) { echo "$('#nav_tasks').trigger('click');"; }
+        if ( isset($_GET['a']) && $_GET['a']=='history' ) { echo "$('#nav_history').trigger('click');"; }
     ?>
     
     $('form').submit(function(e){
@@ -529,6 +556,9 @@ $(document).ready(function() {
                         }
                         if (strpos($value_config, ',Tasks,') !== false) { ?>
                             <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a><?php
+                        }
+                        if (strpos($value_config, ',History,') !== false) { ?>
+                            <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a><?php
                         } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->

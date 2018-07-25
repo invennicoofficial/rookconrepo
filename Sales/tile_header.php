@@ -38,8 +38,9 @@
                         <option value="<?= $_SESSION['contactid'] ?>">My Dashboard</option><?php
                         if ( $config_access > 0 ) {
                             echo '<option '.($_GET['dashboard'] == 'company_dashboard' ? 'selected' : '').' value="company_dashboard">Company Dashboard</option>';
+							$dashboard_users = array_filter(explode(',',get_config($dbc, 'sales_dashboard_users')));
                             foreach(sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC)) as $contactid) {
-                                if($contactid != $_SESSION['contactid']) {
+                                if($contactid != $_SESSION['contactid'] && (empty($dashboard_users) || in_array($contactid,$dashboard_users))) {
                                     echo '<option '.($_GET['dashboard'] == $contactid ? 'selected' : '').' value="'.$contactid.'">'.get_contact($dbc, $contactid).'\'s Dashboard</option>';
                                 }
                             }
