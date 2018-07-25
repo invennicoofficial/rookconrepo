@@ -1054,4 +1054,6 @@ if($_GET['action'] == 'mark_favourite') {
 	$staff = $_SESSION['contactid'];
     $today_date = date('Y-m-d');
 	mysqli_query($dbc, "INSERT INTO `project_timer` (`projectid`, `staff`, `today_date`, `timer_value`) VALUES ('$projectid', '$staff', '$today_date', '$timer_value')");
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$projectid','$staff','$today_date','Regular Hrs.','".((strtotime($timer_value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Project #$projectid')");
+	insert_day_overview($dbc, $staff, 'Project', $today_date, '', "Updated Project #$projectid - Added Time : $timer_value");
 }

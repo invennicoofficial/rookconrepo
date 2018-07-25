@@ -375,13 +375,14 @@ function quick_add_time(task) {
 				method: 'POST',
 				url: 'task_ajax_all.php?fill=task_quick_time',
 				data: { id: task_id, time: time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
-			});
-            $.ajax({
-				method: 'POST',
-				url: 'task_ajax_all.php?fill=taskreply',
-				data: { taskid: task_id, reply: 'Time added '+time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
 			});
 		}
 	});

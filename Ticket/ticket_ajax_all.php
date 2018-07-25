@@ -339,6 +339,7 @@ if($_GET['fill'] == 'stoptickettimer') {
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
         $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `ticketid` = '$ticketid' AND created_by='$created_by' AND `start_timer_time` > 0";
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+        mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$created_by','$created_date','Regular Hrs.','".((strtotime($timer) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 		echo insert_day_overview($dbc, $created_by, 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Added Time : $timer");
     }
 	$ticket = $dbc->query("SELECT `pickup_address`, `pickup_city`, `pickup_postal_code`, `to_do_date`, `to_do_start_time` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
@@ -466,6 +467,9 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
+    
+    //Insert into Time Sheet tile
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
 	$value_config = get_field_config($dbc, 'tickets');
 	if($ticketid > 0) {
@@ -970,6 +974,7 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 	}
+    
 } else if($_GET['action'] == 'validate_address') {
 	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';

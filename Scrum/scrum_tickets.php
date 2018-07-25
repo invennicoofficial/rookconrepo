@@ -56,7 +56,7 @@ foreach ($each_tab as $cat_tab) {
 				case 'Customer QA': $row['deliverable_date'] != '0000-00-00' ? $status_date = '['.$row['deliverable_date'].']' : ''; break;
 			}
 			echo '<li id="'.$row['ticketid'].'" class="ui-state-default '.$class_on.'" style=" '.($row['flag_colour'] != '' ? 'background-color: #'.$row['flag_colour'].';' : '').'">';
-			echo '<span class="pull-right" style="width: 100%;" data-ticket="'.$row['ticketid'].'">';
+			echo '<span class="pull-right" style="width: 100%;" data-ticket="'.$row['ticketid'].'" data-class="ticket">';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Alert" onclick="send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
@@ -87,7 +87,7 @@ foreach ($each_tab as $cat_tab) {
 			$status_date = "";
 			$status_date = $row['task_tododate'] != '0000-00-00' ? '['.$row['task_tododate'].']' : '';
 			echo '<li id="'.$row['tasklistid'].'" class="ui-state-default '.$class_on.'" style=" '.($row['flag_colour'] != '' ? 'background-color: #'.$row['flag_colour'].';' : '').'">';
-			echo '<span class="pull-right" style="width: 100%;" data-ticket="'.$row['tasklistid'].'">';
+			echo '<span class="pull-right" style="width: 100%;" data-ticket="'.$row['tasklistid'].'" data-class="task">';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Alert" onclick="send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';

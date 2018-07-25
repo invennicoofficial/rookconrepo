@@ -130,6 +130,7 @@ function send_reply(ticket) {
 }
 function add_time(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
+    ticket_class = $(ticket).parents('span').data('class');
 	$('[name=ticket_time_'+ticket_id+']').show();
 	$('[name=ticket_time_'+ticket_id+']').timepicker('option', 'onClose', function(time) {
 		var time = $(this).val();
@@ -139,7 +140,7 @@ function add_time(ticket) {
 			$.ajax({
 				method: 'POST',
 				url: 'scrum_ajax_all.php?fill=quicktime',
-				data: { id: ticket_id, time: time+':00' },
+				data: { id: ticket_id, time: time+':00', tile: ticket_class },
 				complete: function(result) { console.log(result.responseText); }
 			})
 		}
