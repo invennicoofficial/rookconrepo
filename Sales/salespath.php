@@ -582,11 +582,11 @@ function task_mark_done(sel) {
 					while($milestone_row = $milestones->fetch_assoc()) {
 						$cat_tab = $milestone_row['milestone'];
 						$label = $milestone_row['label'] ?: 'Tasks';
-						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='{$milestone_row['milestone']}' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' ORDER BY tasklistid DESC");
+						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' ORDER BY tasklistid DESC");
 						$task_count = mysqli_num_rows($task_result) ?: 0;
-						$ticket_result = mysqli_query($dbc, "SELECT * FROM tickets WHERE IFNULL(sales_milestone,'')='{$milestone_row['milestone']}' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `status` NOT IN ('Archive','Archived','Done') AND `clientid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') ORDER BY ticketid DESC");
+						$ticket_result = mysqli_query($dbc, "SELECT * FROM tickets WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `status` NOT IN ('Archive','Archived','Done') AND `clientid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') ORDER BY ticketid DESC");
 						$ticket_count = mysqli_num_rows($ticket_result) ?: 0;
-							$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='{$milestone_row['milestone']}' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
+						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
 						$form_count = mysqli_num_rows($form_result) ?: 0;
 						
 						$status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
@@ -612,7 +612,7 @@ function task_mark_done(sel) {
 						echo '<li class="new_task_box no-sort"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to quickly add a task and then hit Enter."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>
 							<input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
-						while($milestone_row['id'] > 0 && $row = mysqli_fetch_array( $task_result )) {
+						while($row = mysqli_fetch_array( $task_result )) {
 							if ( $row['status']==$status_complete ) {
 								$style_strikethrough = 'text-decoration:line-through;';
 							} else {

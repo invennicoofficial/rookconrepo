@@ -269,6 +269,11 @@ $(document).ready(function(){
                             <input type="checkbox" <?php if (strpos($value_config, ','."Tasks".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Tasks" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Tasks
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."History".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="History" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;History
+                        </td>
+                    </tr>
 
                 </table>
     	    </div>
