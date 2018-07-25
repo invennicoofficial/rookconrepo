@@ -356,6 +356,10 @@ if (isset($_POST['submit'])) {
                     <option value="Staff Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Staff Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
                     <option value="Staff Staff Compensation" <?= $desktop_landing_subtab_config['value']=='Staff Staff Compensation' ? 'selected="selected"' : '' ?>>Staff Compensation</option>
                 </optgroup>
+              </optgroup>
+              <optgroup label="History">
+                  <option value="History Staff History" <?= $desktop_landing_subtab_config['value']=='History Staff History' ? 'selected="selected"' : '' ?>>Staff History</option>
+              </optgroup>
             </select>
         </div>
     </div>
