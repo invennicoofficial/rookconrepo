@@ -3009,6 +3009,12 @@ if($_GET['action'] == 'update_fields') {
 			echo 'Successfully created Recurring '.TICKET_TILE;
 		}
 	}
+} else if($_GET['action'] == 'removePdfForm') {
+	$form = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
+	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
+	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
+	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
+	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
 }
 
 function sync_recurring_data($dbc, $ticketid) {

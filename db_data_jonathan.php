@@ -128,6 +128,15 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		set_config($dbc, 'db_version_jonathan', 7);
+	}
+	
+	if($db_version_jonathan < 9) {
+		// July 25, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf_field_values` ADD `deleted` TINYINT(1) NOT NULL DEFAULT 0")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	

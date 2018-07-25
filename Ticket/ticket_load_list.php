@@ -22,8 +22,8 @@ $file_name = '';
 if(strpos($ticket_type,'ticket_') !== FALSE) {
 	$ticket_filter = " AND '".substr($ticket_type,7)."' IN (IFNULL(NULLIF(`tickets`.`ticket_type`,''),'other'),'')";
 } else if(strpos($ticket_type,'form_') !== FALSE) {
-	$ticket_filter = " AND `ticket_pdf_field_values`.`pdf_type`='".substr($ticket_type,5)."'";
-	$ticket_join = "LEFT JOIN `ticket_pdf_field_values` ON `tickets`.`ticketid`=`ticket_pdf_field_values`.`ticketid` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `revisions` ON `tickets`.`ticketid`=`revisions`.`ticketid` AND `ticket_pdf_field_values`.`pdf_type`=`revisions`.`pdf_type`";
+	$ticket_filter = " AND `ticket_pdf_field_values`.`pdf_type`='".substr($ticket_type,5)."' AND `ticket_pdf_field_values`.`deleted`=0";
+	$ticket_join = "LEFT JOIN `ticket_pdf_field_values` ON `tickets`.`ticketid`=`ticket_pdf_field_values`.`ticketid` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `tickets`.`ticketid`=`revisions`.`ticketid` AND `ticket_pdf_field_values`.`pdf_type`=`revisions`.`pdf_type`";
 	$form = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='".substr($ticket_type,5)."'")->fetch_assoc();
 	$revisions = $form['revisions'];
 	$file_name = config_safe_str($form['pdf_name']);
