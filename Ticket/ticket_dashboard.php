@@ -324,7 +324,7 @@ function showResults(result_list, target, search_id) {
 function remForm(form, ticket, rev, div) {
 	if(confirm('Are you sure you want to remove this form?')) {
 		$(div).remove();
-		$.post('ticket_ajax_all.php?action=removePdfForm',[formid:form,ticket:ticket,revision:rev]);
+		$.post('ticket_ajax_all.php?action=removePdfForm',{formid:form,ticket:ticket,revision:rev});
 	}
 }
 function setActions() {
