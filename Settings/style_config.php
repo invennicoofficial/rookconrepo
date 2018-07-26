@@ -253,6 +253,10 @@ if ( !empty($note) ) { ?>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'realtorlight') { echo "checked"; } ?> value='realtorlight'></td>
 			</tr>
 			<tr>
+				<td>Red &amp; Silver</td>
+				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'redsilver') { echo "checked"; } ?> value='redsilver'></td>
+			</tr>
+			<tr>
 				<td>ROOK Connect</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'blw') { echo "checked"; } ?> value='blw'></td>
 			</tr>
