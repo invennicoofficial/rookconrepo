@@ -18,17 +18,17 @@ if (isset($_POST['printpdf'])) {
 		public function Header() {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
-                $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, '', '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $image_file = '../Reports/download/'.REPORT_LOGO;
+                $this->Image($image_file, 'C', 10, '', '', '', false, 'C', false, 300, 'C', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
             $footer_text = '<p style="text-align:right;">'.REPORT_HEADER.'</p>';
-            $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
+            $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "C", true);
 
-            $this->SetFont('helvetica', '', 13);
+            $this->SetFont('helvetica', 'B', 15);
             $footer_text = 'Daysheet Report';
-            $this->writeHTMLCell(0, 0, 0 , 40, $footer_text, 0, 0, false, "R", true);
+            $this->writeHTMLCell(0, 0, 0 , 50, $footer_text, 0, 0, false, "C", true);
 		}
 
 		// Page footer
@@ -52,15 +52,10 @@ if (isset($_POST['printpdf'])) {
 	$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
 	$pdf->setFooterData(array(0,64,0), array(0,64,128));
 
-	$pdf->SetMargins(PDF_MARGIN_LEFT, 50, PDF_MARGIN_RIGHT);
+	$pdf->SetMargins(PDF_MARGIN_LEFT, 60, PDF_MARGIN_RIGHT);
 	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
 	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-	//$pdf->AddPage('L', 'LETTER');
-    //$pdf->SetFont('helvetica', '', 9);
-
-    //$html .= report_receivables($dbc, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
 
     $start_date = date('Y-m-d', strtotime($starttimepdf));
     $end_date = date('Y-m-d', strtotime($endtimepdf));
@@ -69,20 +64,14 @@ if (isset($_POST['printpdf'])) {
 	if(count(array_filter(explode(',',$staffidpdf))) > 0) {
         $pdf->AddPage('L', 'LETTER');
         $pdf->SetFont('helvetica', '', 9);
-        $html = '';
-
         $html .= '<br><br>' . report_receivables($dbc, $start_date, $end_date, $staffidpdf, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
-
         $pdf->writeHTML($html, true, false, true, false, '');
 	} else {
 		for($date = $start_date; $date <= $end_date; $date = date('Y-m-d', strtotime($date. ' + 1 days')))
 		{
 			$pdf->AddPage('L', 'LETTER');
 			$pdf->SetFont('helvetica', '', 9);
-			$html = '';
-
 			$html .= '<br><br>' . report_receivables($dbc, $date, $date, $staffidpdf, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
-
 			$pdf->writeHTML($html, true, false, true, false, '');
 		}
 	}
@@ -188,11 +177,11 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'" width="100%">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="15%">'.(count($staff) == 1 && $staff[0] > 0 ? 'Date' : 'Staff').'</th>
-    <th width="20%">Tile</th>
-    <th width="45%">Description</th>
-    <th width="5%">Total Timer Time</th>
-    <th width="5%">Total Entered Time</th>
-    <th width="5%">Total Time</th>
+    <th width="15%">Tile</th>
+    <th width="46%">Description</th>
+    <th width="8%">Total Timer Time</th>
+    <th width="8%">Total Entered Time</th>
+    <th width="8%">Total Time</th>
     </tr>';
     
     $final_total_timer = [];
