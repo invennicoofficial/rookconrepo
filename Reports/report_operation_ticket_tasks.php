@@ -16,6 +16,7 @@ if (isset($_GET['printpdf'])) {
     $businessidpdf = $_GET['businessidpdf'];
     $siteidpdf = json_decode($_GET['siteidpdf']);
     $ticketidpdf = $_GET['ticketidpdf'];
+    $extra_ticketpdf = $_GET['extra_ticketpdf'];
     $projectidpdf = $_GET['projectidpdf'];
     $hide_staffpdf = $_GET['hide_staffpdf'];
     $hide_wopdf = $_GET['hide_wopdf'];
@@ -91,6 +92,7 @@ if (isset($_GET['printpdf'])) {
     $businessid = $businessidpdf;
     $siteid = $siteidpdf;
     $ticketid = $ticketidpdf;
+    $extra_ticket = $extra_ticketpdf;
     $projectid = $projectidpdf;
     $hide_staff = $hide_staffpdf;
     $hide_wo = $hide_wopdf;
@@ -131,6 +133,7 @@ function bus_filter(select) {
                 $createend = $_GET['createend'];
                 $businessid = $_GET['businessid'];
                 $siteid = $_GET['siteid'];
+                $extra_ticket = $_GET['search_extra_ticket'];
                 $ticketid = $_GET['ticketid'];
                 $projectid = $_GET['projectid'];
                 $hide_staff = $_GET['hide_staff'];
@@ -198,6 +201,58 @@ function bus_filter(select) {
 						</select>
 					</div>
                 </div>
+				<?php if(in_array('filter_extra_billing',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_extra_ticket" class="col-sm-4 control-label">Search By Extra Billing <?= TICKET_NOUN ?>:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_extra_ticket" class="chosen-select-deselect form-control">
+								<option value=""></option>
+								<?php
+								$query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `ticket_comment` WHERE `type`='service_extra_billing' AND `deleted`=0) ORDER BY `ticketid`");
+								while($row = mysqli_fetch_array($query)) { ?>
+									<option <?php if ($row['ticketid'] == $extra_ticket) { echo " selected"; } ?> value='<?= $row['ticketid'] ?>' ><?= get_ticket_label($dbc, $row) ?></option>
+								<?php } ?>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(in_array('filter_materials',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_material" class="col-sm-4 control-label">Search By Materials:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select Material" name="search_material" class="chosen-select-deselect form-control">
+								<option value=""></option>
+								<?php
+								$query = mysqli_query($dbc,"SELECT `description` FROM (SELECT `description` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='material' UNION SELECT `name` `description` FROM `material` WHERE `deleted`=0) `materials` WHERE IFNULL(`description`,'')!='' GROUP BY `description` ORDER BY `description`");
+								while($row = mysqli_fetch_array($query)) { ?>
+									<option <?php if ($row['description'] == $search_material) { echo " selected"; } ?> value='<?= $row['description'] ?>' ><?= $row['description'] ?></option>
+								<?php } ?>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(in_array('filter_staff_expenses',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_expenses" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Expenses:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
+								<option <?= $search_expenses == 'No' ? 'selected' : '' ?> value="No">Display All</option>
+								<option <?= $search_expenses == 'Yes' ? 'selected' : '' ?> value="Yes">Only with Expenses</option>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(in_array('filter_ticket_notes',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_notes" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Notes:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
+								<option <?= $search_notes == 'No' ? 'selected' : '' ?> value="No">Display All</option>
+								<option <?= $search_notes == 'Yes' ? 'selected' : '' ?> value="Yes">Only with Notes</option>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
 				<div class="form-group col-sm-5">
 					<label class="col-sm-4">Date From:</label>
 					<div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
@@ -233,6 +288,7 @@ function bus_filter(select) {
             <input type="hidden" name="businessidpdf" value="<?php echo $businessid; ?>">
             <input type="hidden" name="siteidpdf" value='<?= json_encode($siteid) ?>'>
             <input type="hidden" name="ticketidpdf" value="<?php echo $ticketid; ?>">
+            <input type="hidden" name="extra_ticketpdf" value="<?php echo $extra_ticket; ?>">
             <input type="hidden" name="projectidpdf" value="<?php echo $projectid; ?>">
             <input type="hidden" name="hide_staffpdf" value="<?php echo $hide_staff; ?>">
             <input type="hidden" name="hide_wopdf" value="<?php echo $hide_wo; ?>">
@@ -243,7 +299,7 @@ function bus_filter(select) {
 			<div class="clearfix"></div>
 
             <?php if(isset($_GET['search_email_submit'])) {
-                foreach(report_output($dbc, $starttime, $endtime, $createstart, $createend, $businessid, $siteid, $ticketid, $projectid, $hide_staff, $hide_wo, $disable_staff) as $page) {
+                foreach(report_output($dbc, $starttime, $endtime, $createstart, $createend, $businessid, $siteid, $ticketid, $extra_ticket, $projectid, $hide_staff, $hide_wo, $disable_staff) as $page) {
 					echo $page;
 				}
 				display_pagination($dbc,"SELECT '".$_SERVER['page_rows']."' `numrows`", $_GET['page'], 25);
@@ -253,7 +309,7 @@ function bus_filter(select) {
         </form>
 
 <?php
-function report_output($dbc, $starttime, $endtime, $createstart, $createend, $businessid, $siteid, $ticketid, $projectid, $hide_staff, $hide_wo, $disable_staff, $table_style, $table_row_style, $grand_total_style, $output_mode) {
+function report_output($dbc, $starttime, $endtime, $createstart, $createend, $businessid, $siteid, $ticketid, $extra_ticket, $projectid, $hide_staff, $hide_wo, $disable_staff, $table_style, $table_row_style, $grand_total_style, $output_mode) {
 	$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 	$report_pages = [];
 	$starttime = filter_var($starttime,FILTER_SANITIZE_STRING);
@@ -262,6 +318,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 	$createend = date('Y-m-d',strtotime(filter_var($createend,FILTER_SANITIZE_STRING).' +1day'));
 	$businessid = filter_var($businessid,FILTER_SANITIZE_STRING);
 	$ticketid = filter_var($ticketid,FILTER_SANITIZE_STRING);
+	$extra_ticket = filter_var($extra_ticket,FILTER_SANITIZE_STRING);
 	$projectid = filter_var($projectid,FILTER_SANITIZE_STRING);
 	$disable_staff = filter_var($disable_staff,FILTER_SANITIZE_STRING);
 	$report_head = '<table width="100%" style="border:0 solid black;">
