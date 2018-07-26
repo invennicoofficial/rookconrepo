@@ -64,6 +64,9 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Report</label>
 	</div>
 	<div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Action Item Summary".',') !== FALSE) { echo " checked"; } ?> value="Action Item Summary" name="reports_dashboard[]"> Action Item Summary</label>
+	</div>
+	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Treatment Report".',') !== FALSE) { echo " checked"; } ?> value="Treatment Report" name="reports_dashboard[]"> Treatment Report</label>
 	</div>
 	<div class="col-sm-4">
@@ -112,7 +115,7 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Scrum Staff Productivity Summary".',') !== FALSE) { echo " checked"; } ?> value="Scrum Staff Productivity Summary" name="reports_dashboard[]"> Scrum Staff Productivity Summary</label>
 	</div>
 	<div class="col-sm-4">
-		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS".',') !== FALSE) { echo " checked"; } ?> value="POS" name="reports_dashboard[]"> Point of Sale (Advanced)</label>
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS".',') !== FALSE) { echo " checked"; } ?> value="POS" name="reports_dashboard[]"> <?= POS_ADVANCE_TILE ?></label>
 	</div>
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Staff Tickets".',') !== FALSE) { echo " checked"; } ?> value="Staff Tickets" name="reports_dashboard[]"> Staff <?= TICKET_TILE ?></label>
@@ -479,6 +482,15 @@ if (isset($_POST['submit'])) {
 	</div>
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Staff Staff Compensation".',') !== FALSE) { echo " checked"; } ?> value="Staff Staff Compensation" name="reports_dashboard[]"> Staff Compensation</label>
+	</div>
+  <div class="clearfix"></div>
+
+  <h3>History</h3>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Staff History".',') !== FALSE) { echo " checked"; } ?> value="History Staff History" name="reports_dashboard[]"> Staff History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Checklist History".',') !== FALSE) { echo " checked"; } ?> value="History Checklist History" name="reports_dashboard[]"> Checklist History</label>
 	</div>
 
     <div class="form-group pull-right">

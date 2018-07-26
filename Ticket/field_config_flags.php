@@ -16,7 +16,7 @@ function saveGroups() {
 		quick_action_icons.push(this.value);
 	});
 	$.ajax({
-		url: 'ticket_ajax_all.php?action=quick_action_settings',
+		url: '../Ticket/ticket_ajax_all.php?action=quick_action_settings',
 		method: 'POST',
 		data: {
 			quick_action_icons: quick_action_icons.join(','),

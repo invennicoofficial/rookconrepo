@@ -14,6 +14,10 @@ switch($_GET['tab']) {
 	case 'dashboards':
         $page_title = SALES_TILE." Dashboards";
         $include_file = 'field_config_dashboards.php';
+    case 'actions':
+        $_GET['tab'] = 'actions';
+        $page_title = "Quick Action Flags";
+        $include_file = '../Ticket/field_config_flags.php';
 		break;
     case 'general':
     default:
@@ -57,8 +61,9 @@ function resizeScreen() {
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile">
                     <ul>
                         <a href="index.php"><li>Back to Dashboard</li></a>
-                        <a href="field_config.php?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
-                        <a href="field_config.php?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Dashboards</li></a>
+                        <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
+                        <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
+                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Dashboards</li></a>
                     </ul>
                 </div>
 

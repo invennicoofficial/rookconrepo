@@ -128,7 +128,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Other List';
 } else if($_GET['tab'] == 'ticket_pressure') {
 	$sort_field = 'Pressure';
-} else if($_GET['tab'] == 'ticket_chemcials') {
+} else if($_GET['tab'] == 'ticket_chemicals') {
 	$sort_field = 'Chemicals';
 } else if($_GET['tab'] == 'ticket_intake') {
 	$sort_field = 'Intake';

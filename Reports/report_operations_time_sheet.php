@@ -3,6 +3,7 @@
 Client Listing
 */
 include ('../include.php');
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 checkAuthorised('report');
 include_once('../Timesheet/reporting_functions.php');
 include_once('../Timesheet/config.php');

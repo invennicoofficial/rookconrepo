@@ -2,6 +2,8 @@
 /*
 Customer Listing
 */
+include_once('../include.php');
+
 
 if (isset($_POST['add_style'])) {
        //Task Status

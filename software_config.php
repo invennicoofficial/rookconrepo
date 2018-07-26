@@ -660,7 +660,7 @@ checkAuthorised();
             <?php } ?>
 			<?php if (strpos($pos, 'turn_on') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Point of Sale</td>
+                <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                 <?php echo tile_config_function($dbc,'pos'); ?>
             </tr>
             <?php } ?>

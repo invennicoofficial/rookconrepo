@@ -11,6 +11,7 @@ if($_GET['action'] == 'settings_tabs') {
 	}
 	set_config($dbc, 'hr_tabs', filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'hr_tiles', filter_var(implode(',',$_POST['tiles']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'hr_include_profile', filter_var($_POST['hr_include_profile'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'settings_fields') {
 	set_config($dbc, 'hr_fields', filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'mark_favourite') {
@@ -247,7 +248,15 @@ if($_GET['action'] == 'settings_tabs') {
 } else if($_GET['action'] == 'pr_settings') {
 	set_config($dbc, 'performance_review_fields', filter_var(implode(',', $_POST['pr_fields'])),FILTER_SANITIZE_STRING);
 	set_config($dbc, 'performance_review_positions', filter_var(implode(',', $_POST['pr_positions'])),FILTER_SANITIZE_STRING);
-	set_config($dbc, 'performance_review_forms', filter_var(implode(',', $_POST['pr_forms'])),FILTER_SANITIZE_STRING);
+	$pr_forms = json_decode($_POST['pr_forms']);
+	foreach($pr_forms as $pr_form) {
+		$pr_form = json_decode(json_encode($pr_form),true);
+		$user_form_id = filter_var($pr_form['user_form_id'],FILTER_SANITIZE_STRING);
+		$enabled = filter_var($pr_form['enabled'],FILTER_SANITIZE_STRING);
+		$limit_staff = filter_var($pr_form['limit_staff'],FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "INSERT INTO `field_config_performance_reviews` (`user_form_id`) SELECT '$user_form_id' FROM (SELECT COUNT(*) rows FROM `field_config_performance_reviews` WHERE `user_form_id` = '$user_form_id') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_performance_reviews` SET `enabled` = '$enabled', `limit_staff` = '$limit_staff' WHERE `user_form_id` = '$user_form_id'");
+	}
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
     $date_of_archival = date('Y-m-d');
