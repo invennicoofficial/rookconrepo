@@ -166,6 +166,7 @@ $staff_reports = [
 $history_reports = [
 	'History Staff History'=>['reports_staff_history.php','Staff History','History Staff History','history_staff_history'],
 	'History Checklist History'=>['reports_checklist_history.php','Checklist History','History Checklist History','history_checklist_history'],
+	'History Sales History'=>['reports_sales_history.php','Sales History','History Sales History','history_sales_history'],
 ];
 
 $report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports);
