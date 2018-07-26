@@ -50,7 +50,7 @@ function go_to_dashboard(target) {
 }
 </script>
 </head>
-<body>
+<body class="home-page">
 
 <?php include ('navigation.php');
 
