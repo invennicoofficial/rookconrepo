@@ -3148,5 +3148,8 @@ function add_update_history($dbc, $table, $history, $contactid, $before_change) 
 function capture_before_change($dbc, $table, $find, $where, $wherevalue) {
 	$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue'"));
 	$find_index = "'".$find."'";
-	return "$find value was " . $before_change_query[$find];
+	return "$find value was " . $before_change_query[$find] . ".<br />";
+}
+function capture_after_change($find, $value) {
+	return "$find is set to " . $value . ".<br />";
 }
