@@ -743,6 +743,8 @@ if($_GET['action'] == 'update_fields') {
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
+            $ticket_heading = mysqli_fetch_array(mysqli_query($dbc, "SELECT `heading` FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'"))['heading'];
+            insert_day_overview($dbc, $attached['item_id'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$attached['ticketid'].(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $attached['ticketid']);
 			echo $hours;
 		}
 	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1))) {

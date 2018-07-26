@@ -115,6 +115,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$pid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
 	if($field == 'flag_colour') {
 		$colours = [];
 		$labels = [];
@@ -152,8 +153,8 @@ if($_GET['action'] == 'mark_favourite') {
 		} else if($table == 'tasklist_time') {
 			$hours = (strtotime($value) - strtotime('00:00:00')) / 3600;
 			$result = mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$id', '$value', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
-			mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$projectid','".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','$hours','0','Time Added on Task #$id')");
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$id on Project #$projectid - Added Time: $value");
+			mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$pid','".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','$hours','0','Time Added on Task #$id')");
+			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$id on Project #$pid - Added Time: $value");
 			$note = '<em>Time added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$value.'</em>';
 			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$note.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
 			$ref = filter_var($_POST['ref'],FILTER_SANITIZE_STRING);

@@ -163,12 +163,14 @@ function setActions() {
 					url: 'projects_ajax.php?action=project_actions',
 					method: 'POST',
 					data: {
-						field: this.name,
+						id: item.data('id'),
+                        field: this.name,
 						value: this.value,
 						table: $(this).data('table'),
 						ref: item.data('table'),
 						ref_id: item.data('id'),
-						ref_id_field: item.data('id-field')
+						ref_id_field: item.data('id-field'),
+                        projectid: '<?= $_GET['edit'] ?>'
 					},
 					success: function(response) {
 						//item.find('h4').append(response);

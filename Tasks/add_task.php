@@ -477,7 +477,6 @@ $(document).ready(function () {
 function quick_add_time(task) {
     task_id = $('[name=tasklistid]').val();
 	$(task).timepicker('option', 'onClose', function(time) {
-		alert('close');
         var time = $(task).val();
 		if(time != '' && time != '00:00') {
 			$.ajax({
