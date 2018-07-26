@@ -297,7 +297,7 @@ $(document).ready(function () {
                     echo '<li>';
                 }
 
-                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status);
+                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status, $daily_date);
                 $status_icon = get_ticket_status_icon($dbc, $ticket['status']);
                 if(!empty($status_icon)) {
                     if($status_icon == 'initials') {

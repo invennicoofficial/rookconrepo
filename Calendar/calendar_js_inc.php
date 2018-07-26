@@ -994,7 +994,7 @@ function destroy_items(contact, block_type) {
 	calendar_dates.forEach(function(calendar_date) {
 		if(item_list[calendar_date] != undefined) {
 			item_list[calendar_date] = $.grep(item_list[calendar_date], function(row) {
-				return (row.contactid != contact && row.block_type != block_type);
+				return (row.contactid != contact || row.block_type != block_type);
 			});
 		}
 	});

@@ -145,7 +145,7 @@ checkAuthorised('security');
 					echo '<h2 class="double-pad-bottom">Payment Tile Permissions</h2>';
 					break;
 				case 'posadvanced':
-					echo '<h2 class="double-pad-bottom">Point of Sale Tile Permissions</h2>';
+					echo '<h2 class="double-pad-bottom">'.POS_ADVANCE_TILE.' Tile Permissions</h2>';
 					break;
 				case 'form_builder':
 					echo '<h2 class="double-pad-bottom">Form Builder Permissions</h2>';
@@ -538,11 +538,11 @@ checkAuthorised('security');
 						<?php }
 						if(strpos($reports,',Point of Sale,') !== false) {
 							$pos_title = get_tile_title($dbc);
-							$pos_title = (empty($pos_title) ? 'Point of Sale' : $pos_title); ?>
+							$pos_title = (empty($pos_title) ? POS_ADVANCE_TILE : $pos_title); ?>
 							<tr><td><?= $pos_title ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale' ); ?></tr>
 						<?php }
 						if(strpos($reports,',POS,') !== false) { ?>
-							<tr><td>Point of Sale (Advanced)</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale_advanced' ); ?></tr>
+							<tr><td><?= POS_ADVANCE_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale_advanced' ); ?></tr>
 						<?php }
 						if(strpos($reports,',Credit Card on File,') !== false) { ?>
 							<tr><td>Credit Card on File</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'credit_card_on_file' ); ?></tr>

@@ -72,6 +72,9 @@ if($ticket_mode == 'action') {
 // $past_due_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` < '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `deleted` = 0 AND `done` = 0");
 ?>
 <script type="text/javascript">
+$(document).ready(function() {
+    $('.status_opacity').find('a:first').css('opacity', '0.5');
+});
 function changeDailyDate(input) {
     var url = '?daily_date='+$(input).val()+'&side_content=<?= $_GET['side_content'] ?>&weekly_date=<?= $_GET['weekly_date'] ?>';
     window.location.href = url;
