@@ -158,6 +158,8 @@ function saveField() {
 		<label class="form-checkbox"><input type="radio" <?= ('oldest' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="oldest"> Oldest First</label>
 		<label class="form-checkbox"><input type="radio" <?= ('project' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="project"> <?= PROJECT_NOUN ?> Name (A - Z)</label>
 		<label class="form-checkbox"><input type="radio" <?= ('label' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="label"> <?= TICKET_NOUN ?> Label (A - Z)</label>
+		<label class="form-checkbox"><input type="radio" <?= ('to_do_date_desc' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="to_do_date_desc"> Scheduled Date (Descending)</label>
+		<label class="form-checkbox"><input type="radio" <?= ('to_do_date_asc' == $ticket_sorting) ? 'checked' : '' ?> name="ticket_sorting" value="to_do_date_asc"> Scheduled Date (Ascending)</label>
 	</div>
 	<div class="clearfix"></div>
 </div>
