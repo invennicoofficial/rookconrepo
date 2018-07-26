@@ -3154,4 +3154,32 @@ if($_GET['fill'] == 'get_ticket_client_frequency') {
 	}
 	echo json_encode($client_freq);
 }
+if($_GET['fill'] == 'book_client_ticket') {
+	$clientid = $_POST['clientid'];
+	$contact = $_POST['contact'];
+	$blocktype = $_POST['blocktype'];
+	$start_time = $_POST['start_time'];
+	$start_date = $_POST['start_date'];
+	$ticket_type = get_config($dbc, 'default_ticket_type');
+
+	if($blocktype == 'team') {
+		$team_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '".$contact."' AND `deleted` = 0"),MYSQLI_ASSOC);
+		$contact = [];
+		foreach ($team_staff as $team_contact) {
+			if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+				$contact[] = $team_contact['contactid'];
+			}
+		}
+		$contact = implode(',',array_filter(array_unique($contact)));
+	}
+	$contact = ','.$contact.',';
+
+	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '')");
+	$ticketid = mysqli_insert_id($dbc);
+
+	foreach(array_filter(array_unique(explode(',', $contact))) as $contact_id) {
+		mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `src_table`, `item_id`) VALUES ('$ticketid', 'Staff', '$contact_id')");
+	}
+	echo $ticketid;
+}
 ?>

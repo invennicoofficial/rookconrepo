@@ -3143,7 +3143,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
     }
     return $recurring_dates;
 }
-function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days) {
+function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $skip_first = '') {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
     $ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3156,6 +3156,9 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
     }
     $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days);
+    if($skip_first == 1) {
+        array_shift($recurring_dates);
+    }
     foreach($recurring_dates as $recurring_date) {
         //Insert into tickets with to_do_date/to_do_end_date as the recurring date
         mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");

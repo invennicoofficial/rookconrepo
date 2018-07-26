@@ -827,20 +827,34 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					var start_date = target.data('date');
 
 					var tickets_have_recurrence = $('#tickets_have_recurrence').val();
+					var data = { clientid: clientid, contact: contact, blocktype: blocktype, start_time: start_time, start_date: start_date };
 					if(tickets_have_recurrence == 1) {
-						$('#dialog_create_recurrence').dialog({
+						$('#dialog_create_recurrence_cal').dialog({
 							resizable: true,
 							height: "auto",
 							width: ($(window).width() <= 800 ? $(window).width() : 800),
 							modal: true,
 							open: function() {
-								destroyInputs('#dialog_create_recurrence');
-								$('#dialog_create_recurrence input,select').val('').prop('checked',false);
+								destroyInputs('#dialog_create_recurrence_cal');
 								$('[name="recurrence_start_date"]').val(start_date);
+								$('[name="recurrence_end_date"]').val('');
+								$('[name="recurrence_repeat_interval"]').val(1);
 								$('[name="recurrence_repeat_type"]').val('week').change();
-								initInputs('#dialog_create_recurrence');
+								$('[name="recurrence_repeat_days[]"]').prop('checked', false);
+								initInputs('#dialog_create_recurrence_cal');
 							},
 							buttons: {
+								"One Time": {
+									class: "left-dialog-button",
+									text: "One Time",
+									click: function() {
+										var create_ticket = bookClientTicket(data);
+										create_ticket.success(function (response) {
+											reload_all_data();
+											$('#dialog_create_recurrence_cal').dialog('close');
+										});
+									}
+								},
 								"Create Recurrence": function() {
 									var recurrence_start_date = $('[name="recurrence_start_date"]').val();
 									var recurrence_end_date = $('[name="recurrence_end_date"]').val();
@@ -861,14 +875,20 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 												alert(response.message);
 											} else if(response.success == true) {
 												if(confirm(response.message)) {
-													$.ajax({
-														url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets',
-														method: 'POST',
-														data: recurrence_data,
-														success: function(response) {
-															reload_all_data();
-															$('#dialog_create_recurrence').dialog('close');
-														}
+													data.start_date = response.first_date;
+													var create_ticket = bookClientTicket(data);
+													create_ticket.success(function (response) {
+														recurrence_data.ticketid = response;
+														recurrence_data.skip_first = 1;
+														$.ajax({
+															url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets',
+															method: 'POST',
+															data: recurrence_data,
+															success: function(response) {
+																reload_all_data();
+																$('#dialog_create_recurrence_cal').dialog('close');
+															}
+														});
 													});
 												}
 											}
@@ -882,7 +902,10 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 							}
 						});
 					} else {
-
+						var create_ticket = bookClientTicket(data);
+						create_ticket.success(function (response) {
+							reload_all_data();
+						});
 					}
 				} else {
 					$('.highlightCell').removeClass('highlightCell');
@@ -897,7 +920,11 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		});
 	}
 	function bookClientTicket(data) {
-
+		return $.ajax({
+			url: '../Calendar/calendar_ajax_all.php?fill=book_client_ticket',
+			data: data,
+			method: 'POST'
+		});
 	}
 }
 

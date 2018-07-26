@@ -221,7 +221,7 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 			<div class="clearfix"></div>
 		</div>
 	</div>
-	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<div id="dialog_create_recurrence_cal" title="Recurrence Details" style="display: none;">
 		<script type="text/javascript">
 		$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
 			var repeat_type = $('[name="recurrence_repeat_type"]').val();

@@ -2882,6 +2882,7 @@ if($_GET['action'] == 'update_fields') {
 	$repeat_type = $_POST['repeat_type'];
 	$repeat_interval = $_POST['repeat_interval'];
 	$repeat_days = $_POST['repeat_days'];
+	$result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
 	if($_GET['validate'] == 1) {
 		//Validate form fields
 		$validated = true;
@@ -2910,13 +2911,15 @@ if($_GET['action'] == 'update_fields') {
 		}
 		if($validated) {
 			//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
+			$ongoing_recurrence = false;
 			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
 				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
 				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
+				$ongoing_recurrence = true;
 			}
 			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days);
-			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date." until ".$end_date.". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
-			$result = [success=>true, message=>$validate_message];
+			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
+			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
 		} else {
 			//If validate fails, return the message
 			$result = [success=>false, message=>'Error: '.implode(', ',$validate_errors).'.'];
@@ -2935,7 +2938,7 @@ if($_GET['action'] == 'update_fields') {
 		    mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 		    mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 
-			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days);
+			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $_POST['skip_first']);
 			sync_recurring_tickets($dbc, $ticketid);
 			echo 'Successfully created Recurring '.TICKET_TILE;
 		}
