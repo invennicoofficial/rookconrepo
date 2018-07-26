@@ -64,13 +64,19 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 
 	return $shifts;
 }
-function getTeamName($dbc, $teamid) {
+function getTeamName($dbc, $teamid, $separator = ", ", $get_contacts = 0) {
 	$team_name = '';
-	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
-	foreach ($contact_list as $contact) {
-		$team_name .= get_contact($dbc, $contact['contactid']).', ';
+	$team = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid'"));
+	if(!empty($team['team_name']) && $get_contacts == 0) {
+		$team_name = $team['team_name'];
+	} else {
+		$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+		$team_staff = [];
+		foreach ($contact_list as $contact) {
+			$team_staff[] = get_contact($dbc, $contact['contactid']);
+		}
+		$team_name = implode($separator, $team_staff);
 	}
-	$team_name = rtrim($team_name, ', ');
 
 	return $team_name;
 }

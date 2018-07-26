@@ -18,6 +18,27 @@ if($today_date == $current_day && !$is_mobile_view) {
 	$background_highlight_today = '; background: #'.$theme_active_color.';';
 }
 
+if($_GET['type'] == 'ticket') {
+	if($_GET['block_type'] == 'team') {
+		$contact_region = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `region` FROM `teams` WHERE `teamid` = '$contact_id'"))['region'];
+	} else {
+		$contact_region = explode(',', mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `region` FROM `contacts` WHERE `contactid` = '$contact_id'"))['region'])[0];
+	}
+	if(!empty($contact_region)) {
+		foreach($region_list as $region_line => $region_name) {
+			if($contact_region == $region_name) {
+				if($today_date == $current_day && !$is_mobile_view) {
+					$bg_color = darken_color(trim($region_colours[$region_line],'#'), 40);
+					$highlight_today = '; border-left: 3px solid #'.$bg_color.'; border-right: 3px solid #'.$bg_color.';';
+					$background_highlight_today = "; background: #".$bg_color.";color: #000;";
+				} else {
+					$column['title'] .= "background: ".$region_colours[$region_line].";color: #000;";
+				}
+			}
+		}
+	}
+}
+
 $calendar_table[0][0] = [];
 $current_row = strtotime($day_start);
 while($current_row <= strtotime($day_end)) {

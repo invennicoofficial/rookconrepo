@@ -8,6 +8,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		unbookedDraggable();
 		dispatchDraggable();
 		teamsDraggable();
+		clientsDraggable();
 		reloadDragResize();
 		$('div.used-block').each(function() {
 			blockFontResize($(this));
@@ -39,6 +40,10 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		$('.team_assign_div').find('.team_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
 			$(this).addClass('sorting-initialize');
 			$('.team_assign_div').sortable('refresh');
+		});
+		$('.client_assign_div').find('.client_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+			$(this).addClass('sorting-initialize');
+			$('.client_assign_div').sortable('refresh');
 		});
 		$('.unbooked, .bookable').find('.block-item:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
 			$(this).addClass('sorting-initialize');
@@ -74,6 +79,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 		unbookedDraggable();
 		dispatchDraggable();
 		teamsDraggable();
+		clientsDraggable();
 	}
 
 	// Resizable shift to allow time ranges
@@ -606,7 +612,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			var retrieve_collapse = $('#retrieve_collapse').val();
 			var retrieve_contact = $('#retrieve_contact').val();
 			// if(new_contact > 0) {
-			// 	var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+			// 	var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
 			// 	retrieve_items(anchor, new_date);
 			// } else {
 			    reload_all_data();
@@ -629,7 +635,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					if(response != '') {
 						all_contacts = JSON.parse(response);
 						$.each(all_contacts, function() {
-							var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
+							var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
 							retrieve_items(anchor);
 						});
 					} else {
@@ -637,12 +643,12 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 						if(!(old_contact > 0) && !(new_contact > 0)) {
 							reload_all_data();
 						} else if(data.move_type == 'resize') {
-							$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+							$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
 								retrieve_items($(this).closest('a'), old_date);
 							});
 						} else {
 							if(old_contact > 0) {
-								var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
+								var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
 								if(old_date != new_date) {
 									retrieve_items(anchor);
 								} else {
@@ -650,7 +656,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 								}
 							}
 							if(new_contact > 0) {
-								var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+								var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
 								if(old_date != new_date) {
 									retrieve_items(anchor);
 								} else {
@@ -711,7 +717,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 								var retrieve_collapse = $('#retrieve_collapse').val();
 								var retrieve_contact = $('#retrieve_contact').val();
 								// if(new_contact > 0) {
-								// 	var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+								// 	var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
 								// 	retrieve_items(anchor, new_date);
 								// } else {
 									reload_equipment_assignment(equipmentid);
@@ -792,6 +798,107 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			}
 		});
 	}
+
+	// Clients draggables
+	function clientsDraggable() {
+		var clone, before, parent;
+		$('.client_assign_div').sortable({
+			connectWith: ".calendar_view table:not(#time_html) td[data-duration]:not([data-contact=0])",
+			items: '.client_assign_draggable.sorting-initialize',
+			handle: '.drag-handle',
+			start: function (e, block) {
+				$(block.item).show();
+				clone = $(block.item).clone();
+				before = $(block.item).prev();
+		        parent = $(block.item).parent();
+			},
+			stop: function(e, td) {
+				if($('.highlightCell').length > 0) {
+					if(before.length) {
+						before.after(clone);	
+					} else {
+						parent.prepend(clone);
+					}
+					var clientid = td.item.data('client');
+					var target = $('.highlightCell').removeClass('highlightCell');
+					var contact = target.data('contact');
+					var blocktype = target.data('blocktype');
+					var start_time = target.closest('tr').find('td').first().text();
+					var start_date = target.data('date');
+
+					var tickets_have_recurrence = $('#tickets_have_recurrence').val();
+					if(tickets_have_recurrence == 1) {
+						$('#dialog_create_recurrence').dialog({
+							resizable: true,
+							height: "auto",
+							width: ($(window).width() <= 800 ? $(window).width() : 800),
+							modal: true,
+							open: function() {
+								destroyInputs('#dialog_create_recurrence');
+								$('#dialog_create_recurrence input,select').val('').prop('checked',false);
+								$('[name="recurrence_start_date"]').val(start_date);
+								$('[name="recurrence_repeat_type"]').val('week').change();
+								initInputs('#dialog_create_recurrence');
+							},
+							buttons: {
+								"Create Recurrence": function() {
+									var recurrence_start_date = $('[name="recurrence_start_date"]').val();
+									var recurrence_end_date = $('[name="recurrence_end_date"]').val();
+									var recurrence_repeat_type = $('[name="recurrence_repeat_type"]').val();
+									var recurrence_repeat_interval = $('[name="recurrence_repeat_interval"]').val();
+									var recurrence_repeat_days = [];
+									$('[name="recurrence_repeat_days[]"]:checked').each(function() {
+										recurrence_repeat_days.push(this.value);
+									});
+									var recurrence_data = { start_date: recurrence_start_date, end_date: recurrence_end_date, repeat_type: recurrence_repeat_type, repeat_interval: recurrence_repeat_interval, repeat_days: recurrence_repeat_days };
+									$.ajax({
+										url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets&validate=1',
+										method: 'POST',
+										data: recurrence_data,
+										success: function(response) {
+											var response = JSON.parse(response);
+											if(response.success == false) {
+												alert(response.message);
+											} else if(response.success == true) {
+												if(confirm(response.message)) {
+													$.ajax({
+														url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets',
+														method: 'POST',
+														data: recurrence_data,
+														success: function(response) {
+															reload_all_data();
+															$('#dialog_create_recurrence').dialog('close');
+														}
+													});
+												}
+											}
+										}
+									});
+								},
+								Cancel: function() {
+									reload_all_data();
+									$(this).dialog('close');
+								}
+							}
+						});
+					} else {
+
+					}
+				} else {
+					$('.highlightCell').removeClass('highlightCell');
+					$(this).sortable('cancel');
+				}
+			},
+			sort: function(e, block) {
+				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('td[data-duration]:not([data-contact=0])').first();
+				$('.highlightCell').removeClass('highlightCell');
+				td.addClass('highlightCell');
+			}
+		});
+	}
+	function bookClientTicket(data) {
+
+	}
 }
 
 // Javascript Common Display Functions
@@ -831,7 +938,7 @@ function resize_calendar_view() {
 		    $('.scalable .block-group').not('.no-resize').outerHeight($('.calendar_view').outerHeight() - $('.scalable .block-group').prev('div').outerHeight());
 	    }
 	    
-	    if($('#calendar_type').val() != 'schedule') {
+	    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket') {
 			var sidebar_headings = 0;
 			$('.sidebar.panel-group .panel:visible').each(function() {
 				sidebar_headings += $(this).outerHeight() - $(this).find('.panel-body')[0].clientHeight;
@@ -1027,7 +1134,7 @@ function removeStaffEquipAssign(link) {
 				var retrieve_collapse = $('#retrieve_collapse').val();
 				var retrieve_contact = $('#retrieve_contact').val();
 				if(new_contact > 0) {
-					var anchor = $('#'+retrieve_collapse).find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+					var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
 					retrieve_items(anchor, new_date);
 				} else {
 				    reload_all_data();

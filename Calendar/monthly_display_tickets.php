@@ -177,7 +177,7 @@ while($row = mysqli_fetch_array( $result )) {
 	if($_GET['block_type'] == 'team') {
     	$row['calendar_color'] = '#3ac4f2';
 
-		$staff = 'Team #'.$row['teamid'].' ('.getTeamName($dbc, $contact_id).')';
+		$staff = (!empty($row['team_name']) ? $row['team_name'] : 'Team #'.$row['teamid']).' ('.getTeamName($dbc, $contact_id, ', ', 1).')';
 
 		$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
 		$contacts_query = [];
@@ -198,7 +198,7 @@ while($row = mysqli_fetch_array( $result )) {
 			$contacts_arr = ',PLACEHOLDER,';
 		}
 
-	    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(`to_do_end_date`,`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND '$new_today_date' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query);
+	    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query);
 	    while($row_tickets = mysqli_fetch_array( $tickets )) {
 			$ticket_contacts = array_filter(array_unique(explode(',',$row_tickets['contactid'])));
 			sort($ticket_contacts);
@@ -217,7 +217,7 @@ while($row = mysqli_fetch_array( $result )) {
 	    	$row['calendar_color'] = '#3ac4f2';
 	    }
 
-	    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(`to_do_end_date`,`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(to_do_end_date,to_do_date)) AND (contactid LIKE '%," . $contactid . ",%' OR internal_qa_contactid LIKE '%," . $contactid . ",%' OR deliverable_contactid LIKE '%," . $contactid . ",%') AND status NOT IN('Archive', 'Done')");
+	    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),to_do_date)) AND (contactid LIKE '%," . $contactid . ",%' OR internal_qa_contactid LIKE '%," . $contactid . ",%' OR deliverable_contactid LIKE '%," . $contactid . ",%') AND status NOT IN('Archive', 'Done')");
 	    while($row_tickets = mysqli_fetch_array( $tickets )) {
 	        if((($row_tickets['status'] == 'Internal QA') && ($new_today_date == $row_tickets['internal_qa_date']) && (strpos($row_tickets['internal_qa_contactid'], ','.$contactid.',') !== FALSE)) || (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($new_today_date == $row_tickets['deliverable_date']) && (strpos($row_tickets['deliverable_contactid'], ','.$contactid.',') !== FALSE)) || (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($new_today_date >= $row_tickets['to_do_date'] && $new_today_date <= $row_tickets['to_do_end_date']) && (strpos($row_tickets['contactid'], ','.$contactid.',') !== FALSE))) {
 	        	$all_tickets[] = $row_tickets;

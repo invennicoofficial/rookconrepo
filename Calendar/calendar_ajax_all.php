@@ -368,7 +368,7 @@ if($_GET['fill'] == 'move_appt') {
 				}
 			}
 			if ($_POST['move_type'] == 'move') {
-				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 				$date_diff = strtotime($start_date) - strtotime($ticket['to_do_date']);
 				$end_date = strtotime($ticket['to_do_end_date']) + $date_diff;
 				$end_date = date('Y-m-d', $end_date);
@@ -588,7 +588,7 @@ if($_GET['fill'] == 'move_appt') {
 					}
 				}
 				if ($_POST['move_type'] == 'move') {
-					$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+					$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 					$date_diff = strtotime($start_date) - strtotime($ticket['to_do_date']);
 					$end_date = strtotime($ticket['to_do_end_date']) + $date_diff;
 					$end_date = date('Y-m-d', $end_date);
@@ -1994,7 +1994,7 @@ if($_GET['fill'] == 'move_appt_month') {
 		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		$add_staff = $_POST['add_staff'];
-		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 		$status = $ticket['status'];
 		if($add_staff == 1 && !empty($contactid)) {
 			$td_blocktype = $new_td_blocktype;
@@ -2112,13 +2112,13 @@ if($_GET['fill'] == 'move_appt_month') {
 		$ticketid = $_POST['ticket'];
 		if($_POST['ticket_table'] == 'ticket_schedule') {
 			$ticket_scheduleid = $_POST['ticket_scheduleid'];
-			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `id` = '$ticket_scheduleid'"));
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `ticket_schedule` WHERE `id` = '$ticket_scheduleid'"));
 			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '".$ticket['ticketid']."'");
 		} else {
-			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
@@ -3138,5 +3138,20 @@ if($_GET['fill'] == 'quick_add_shift') {
 	} else {
 		mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`) VALUES ('$staff', '$client', '$date', '$date', '$starttime', '$endtime')");
 	}
+}
+if($_GET['fill'] == 'get_ticket_client_frequency') {
+	$staff = json_decode($_POST['staff']);
+	$clients = json_decode($_POST['clients']);
+	$client_freq = [];
+
+	foreach($staff as $staffid) {
+		$html = '';
+		foreach($clients as $clientid) {
+			$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) num_rows FROM `tickets` WHERE (CONCAT(',',`clientid`,',') LIKE ',%$clientid,%' OR `businessid` = '$clientid') AND CONCAT(',',`contactid`,',') LIKE '%,$staffid,%'"))['num_rows'];
+			$html .= '<li>'.(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid)).': '.$count.'</li>';
+		}
+		$client_freq[] = ['staffid' => $staffid, 'html' => $html];
+	}
+	echo json_encode($client_freq);
 }
 ?>

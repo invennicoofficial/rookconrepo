@@ -58,6 +58,7 @@ if (!empty($get_field_config)) {
 
 // $contact_position = '';
 // $contactid = '';
+$team_team_name = '';
 $region = '';
 $location = '';
 $classification = '';
@@ -69,6 +70,7 @@ if (!empty($teamid)) {
 
     // $contact_position = explode(',',$get_team['contact_position']);
     // $contactid = explode(',',$get_team['contactid']);
+    $team_team_name = $get_team['team_team_name'];
     $region = $get_team['region'];
     $location = $get_team['location'];
     $classification = $get_team['classification'];
@@ -104,6 +106,11 @@ if($_GET['subtab'] == 'schedule') {
 </select></label>
 
 <hr>
+
+<?php if (strpos($team_fields, ',team_name,') !== FALSE) { ?>
+<label for="team_name" class="super-label">Team Name:
+<input type="text" name="team_name" class="form-control" value="<?= $team_team_name ?>"></label>
+<?php } ?>
 
 <?php
 $assign_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);

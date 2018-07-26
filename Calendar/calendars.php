@@ -141,6 +141,15 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	<input type="hidden" id="calendar_config_type" value="<?= $config_type ?>">
 	<input type="hidden" id="calendar_auto_refresh" value="<?= $calendar_auto_refresh ?>">
 
+	<?php $ticket_config = ','.get_field_config($dbc, 'tickets').',';
+	foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+		$ticket_types[config_safe_str($ticket_type)] = $ticket_type;
+	}
+	foreach($ticket_types as $type_i => $type_label) {
+		$ticket_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
+	} ?>
+	<input type="hidden" id="tickets_have_recurrence" value="<?= strpos($ticket_config, ',Create Recurrence Button,') !== FALSE ? 1 : 0 ?>">
+
 	<div id="active_class_users" class="block-button" style="display: none;"></div>
 	<div id="ticket_assigned_staff" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 	<div id="dialog-universal" title="Select a Type" style="display: none;">
@@ -210,6 +219,59 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 				<input type="text" name="change_to_do_end_time" value="" class="form-control datetimepicker">
 			</div>
 			<div class="clearfix"></div>
+		</div>
+	</div>
+	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+		<script type="text/javascript">
+		$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
+			var repeat_type = $('[name="recurrence_repeat_type"]').val();
+			if(repeat_type == 'week') {
+				$('.recurrence_repeat_days').show();
+			} else {
+				$('.recurrence_repeat_days').hide();
+			}
+		});
+		</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Start Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">End Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="recurrence_end_date" class="form-control datepicker" value="">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Repeats:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_type" class="form-control chosen-select-deselect">
+					<option value="day">Daily</option>
+					<option value="week" selected>Weekly</option>
+					<option value="month">Monthly</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Repeat Interval:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_interval" class="form-control chosen-select-deselect">
+	                <?php for ($repeat_i = 1; $repeat_i <= 30; $repeat_i++) {
+	                    echo '<option value="'.$repeat_i.'">'.$repeat_i.'</option>';
+	                } ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group recurrence_repeat_days">
+			<label class="col-sm-4 control-label">Repeat Days:</label>
+			<div class="col-sm-8">
+	            <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	            foreach ($days_of_week as $day_of_week_label) {
+	                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="recurrence_repeat_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
+	            } ?>
+			</div>
 		</div>
 	</div>
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">

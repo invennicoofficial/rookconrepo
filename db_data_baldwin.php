@@ -280,5 +280,31 @@
     }
     //2018-07-20 - Ticket #8352 - Sales Auto Archive
 
+    //2018-07-25 - Ticket #8413 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `teams` ADD `team_name` varchar(500) AFTER `teamid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_recurrences` (
+        `id` int(11) NOT NULL,
+        `ticketid` int(11) NOT NULL,
+        `start_date` date NOT NULL,
+        `end_date` date NOT NULL,
+        `repeat_type` varchar(500),
+        `repeat_interval` int(11) NOT NULL,
+        `repeat_days` varchar(500),
+        `last_added_date` date NOT NULL,
+        `deleted` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-25 - Ticket #8413 - Cleans Calendar
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
