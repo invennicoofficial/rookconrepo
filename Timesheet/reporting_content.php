@@ -94,20 +94,6 @@ function viewTicket(a) {
     ?>
 
     <?php $search_clearfix = 1; ?>
-        <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
-          <label for="site_name" class="control-label">Search By Staff:</label>
-        </div>
-          <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
-              <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                <option></option>
-				<option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option>
-                <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
-                foreach($query as $staff_row) { ?>
-                    <option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (strpos(','.$search_staff.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
-                } ?>
-            </select>
-          </div>
-
         <?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
           <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
             <label for="site_name" class="control-label">Search By Group:</label>
@@ -132,6 +118,20 @@ function viewTicket(a) {
             </div>
             <?php $search_clearfix++ ?>
         <?php } ?>
+		
+        <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
+          <label for="site_name" class="control-label">Search By Staff:</label>
+        </div>
+          <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
+              <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
+                <option></option>
+				<option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option>
+                <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
+                foreach($query as $staff_row) { ?>
+                    <option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (strpos(','.$search_staff.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
+                } ?>
+            </select>
+          </div>
 
         <?= ($search_clearfix%2) == 0 ? '<div class="clearfix"></div>' : '' ?>
 
