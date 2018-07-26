@@ -11,6 +11,11 @@ $sales_tile = SALES_TILE;
 $sales_noun = SALES_NOUN;
 
 switch($_GET['tab']) {
+    case 'actions':
+        $_GET['tab'] = 'actions';
+        $page_title = "Quick Action Flags";
+        $include_file = '../Ticket/field_config_flags.php';
+		break;
     case 'general':
     default:
         $_GET['tab'] = 'general';
@@ -53,7 +58,8 @@ function resizeScreen() {
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile">
                     <ul>
                         <a href="index.php"><li>Back to Dashboard</li></a>
-                        <a href="field_config.php?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
+                        <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
+                        <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
                     </ul>
                 </div>
 
