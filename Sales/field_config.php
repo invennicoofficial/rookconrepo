@@ -14,6 +14,7 @@ switch($_GET['tab']) {
 	case 'dashboards':
         $page_title = SALES_TILE." Dashboards";
         $include_file = 'field_config_dashboards.php';
+		break;
     case 'actions':
         $_GET['tab'] = 'actions';
         $page_title = "Quick Action Flags";

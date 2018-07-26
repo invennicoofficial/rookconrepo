@@ -163,6 +163,17 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 25, 2018
+		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `sales_history` (
+			`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`created_by` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`created_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+			`history` TEXT,
+			`deleted` TINYINT(1) NOT NULL DEFAULT 0
+		)")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
