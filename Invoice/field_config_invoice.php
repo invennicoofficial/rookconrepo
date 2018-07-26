@@ -11,7 +11,7 @@ if(FOLDER_NAME == 'posadvanced') {
 error_reporting(0);
 $invoice_ux = FOLDER_NAME.'_ux';
 
-$pos_advanced_tile = POS_ADVANCE_TILE;
+$pos_advanced_tile = get_config($dbc, 'pos_advance_tile_name');
 $pos_advanced_noun = POS_ADVANCE_NOUN;
 
 if (isset($_POST['submit'])) {
