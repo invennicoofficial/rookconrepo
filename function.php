@@ -32,7 +32,7 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['JOBS_TILE'] = get_config($dbc, 'jobs_tile_name') ?: 'Jobs';
 
-	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Inventory#*#Inventory');
+	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
 	$_SESSION['POS_ADVANCE_TILE'] = $pos_advance_tile_name[0] ?: 'Point of Sale';
 	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Point of Sale' : $pos_advance_tile_name[0]) ?: 'Point of Sale';
 
