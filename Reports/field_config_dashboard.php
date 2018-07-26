@@ -492,6 +492,18 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Checklist History".',') !== FALSE) { echo " checked"; } ?> value="History Checklist History" name="reports_dashboard[]"> Checklist History</label>
 	</div>
+  <div class="clearfix"></div>
+
+  <h3>Estimates</h3>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Report".',') !== FALSE) { echo " checked"; } ?> value="Estimate Report" name="reports_dashboard[]"> Estimate Report</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Stats".',') !== FALSE) { echo " checked"; } ?> value="Estimate Stats" name="reports_dashboard[]"> Estimate Stats</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Alerts".',') !== FALSE) { echo " checked"; } ?> value="Estimate Alerts" name="reports_dashboard[]"> Estimate Alerts</label>
+	</div>
 
     <div class="form-group pull-right">
         <a href="report_tiles.php" class="btn brand-btn">Back</a>
