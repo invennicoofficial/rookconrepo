@@ -577,6 +577,7 @@ if($_GET['action'] == 'update_fields') {
 				mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `projectid`, `salesorderid`, `piece_work`, `heading`, `project_path`, `milestone_timeline`, `task_available`, `to_do_date`, `to_do_end_date`, `created_date`, `created_by`, `status`, `region`, `classification`, `con_location`)
 					SELECT `ticket_type`, `category`, `businessid`, `clientid`, `siteid`, $projectid, `salesorderid`, `piece_work`, '-".$attach."-".date('Y-m-d')."', `project_path`, `milestone_timeline`, '$available', '".date('Y-m-d')."', '".date('Y-m-d')."', '".date('Y-m-d')."', '".$_SESSION['contactid']."', `status`, `region`, `classification`, `con_location` FROM `tickets` WHERE `ticketid`='$ticketid'");
 				$ticketid = mysqli_insert_id($dbc);
+				$dbc->query("INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','service_extra_billing','".implode(', ',$available)." added.',DATE(NOW()),'".$_SESSION['contactid']."')");
 				if(strpos($config,',Ticket Tasks Ticket Type,') !== FALSE) {
 					$task_group = $_POST['task_group'];
 					mysqli_query($dbc, "UPDATE `tickets` SET `ticket_type` = '".config_safe_str($task_group)."' WHERE `ticketid` = '$ticketid'");
