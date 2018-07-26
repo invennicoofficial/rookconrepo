@@ -18,7 +18,12 @@ if (isset($_POST['submit'])) {
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
     <input type="hidden" name="contactid" value="<?php echo $_GET['contactid'] ?>" />
 
-	<?php $report_fields = explode(',', get_config($dbc, 'report_operation_fields')); ?>
+	<?php $report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
+	if(!in_array('daysheet_tickets',$report_fields) && !in_array('daysheet_tasks',$report_fields) && !in_array('daysheet_checklists',$report_fields)) {
+		$report_fields[] = 'daysheet_tickets';
+		$report_fields[] = 'daysheet_tasks';
+		$report_fields[] = 'daysheet_checklists';
+	} ?>
 	<h4><?= TICKET_NOUN ?> Activity Report per Customer</h4>
     <div class="form-group">
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_site',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_site">Show Site Information</label>
