@@ -876,6 +876,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 											} else if(response.success == true) {
 												if(confirm(response.message)) {
 													data.start_date = response.first_date;
+													data.is_recurring = 1;
 													var create_ticket = bookClientTicket(data);
 													create_ticket.success(function (response) {
 														recurrence_data.ticketid = response;

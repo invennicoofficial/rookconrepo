@@ -260,6 +260,10 @@ while($row = mysqli_fetch_array( $result )) {
 		    	$icon_background = '';
 		    }
             $status_color = 'block/'.$status_array[$status];
+		    $recurring_icon = '';
+		    if($row_tickets['is_recurrence'] == 1) {
+		    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
+		    }
 			$contactide = $_SESSION['contactid'];
 			$get_table_orient = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM user_settings WHERE contactid='$contactide'"));
 			$list_view = $get_table_orient['calendar_list_view'];
@@ -287,7 +291,7 @@ while($row = mysqli_fetch_array( $result )) {
 			if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 				$column .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 			}
-			$column .= TICKET_NOUN.' #'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
+			$column .= $recurring_icon.TICKET_NOUN.' #'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
 			//$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="">&nbsp;<a class="" href="#" style="display:block; padding: 5px;color:black;border-radius: 10px; background-color: '.$row['calendar_color'].';" id="ticket_'.$row_tickets['ticketid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Ticket/add_tickets.php?ticketid='.$row_tickets['ticketid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
 			}
             $j++;

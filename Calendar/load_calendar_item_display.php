@@ -327,13 +327,17 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				        $icon_img = '';
 				    	$icon_background = '';
 				    }
+				    $recurring_icon = '';
+				    if($ticket['is_recurrence'] == 1) {
+				    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
+				    }
 					$row_html .= ($edit_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change ' : '').$calendar_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
 					$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 					$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$row_html .= "<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= $recurring_icon."<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
 				}
 			} else if($calendar_col[$calendar_row][0] == 'shift') {
 				$rows = 1;
@@ -947,6 +951,10 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			        $icon_img = '';
 			    	$icon_background = '';
 			    }
+			    $recurring_icon = '';
+			    if($ticket['is_recurrence'] == 1) {
+			    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
+			    }
 				$row_html .= ($edit_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."'' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
 				$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 				$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
@@ -954,7 +962,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
-				$row_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
+				$row_html .= $recurring_icon.'<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
 					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 					(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').

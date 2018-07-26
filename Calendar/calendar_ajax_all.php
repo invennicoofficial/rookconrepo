@@ -3161,6 +3161,12 @@ if($_GET['fill'] == 'book_client_ticket') {
 	$start_time = $_POST['start_time'];
 	$start_date = $_POST['start_date'];
 	$ticket_type = get_config($dbc, 'default_ticket_type');
+	$is_recurring = $_POST['is_recurring'];
+	if($is_recurring == 1) {
+		$status = get_config($dbc, 'ticket_recurring_status');
+	} else {
+		$status = get_config($dbc, 'ticket_default_status');
+	}
 
 	if($blocktype == 'team') {
 		$team_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '".$contact."' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3174,7 +3180,7 @@ if($_GET['fill'] == 'book_client_ticket') {
 	}
 	$contact = ','.$contact.',';
 
-	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '')");
+	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status')");
 	$ticketid = mysqli_insert_id($dbc);
 
 	foreach(array_filter(array_unique(explode(',', $contact))) as $contact_id) {

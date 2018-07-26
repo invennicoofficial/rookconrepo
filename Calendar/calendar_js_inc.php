@@ -1048,6 +1048,7 @@ function reload_resize_all() {
 	scrollHeader();
 	initTicketHoverStaff();
 	setAutoRefresh();
+	initIconColors();
 }
 function scrollToToday() {
 	clearInterval(clear_today);
@@ -1223,6 +1224,7 @@ function reload_resize_all_month() {
 	if($('#calendar_type').val() == 'shift') {
 		toggle_columns(1);
 	}
+	initIconColors();
 }
 function reload_calendar_month(date) {
 	$.ajax({
