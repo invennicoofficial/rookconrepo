@@ -171,6 +171,23 @@ function reports_tiles($dbc) {
                     </div>
                 </div>
             <?php } ?>
+            <?php if(in_array('history',$report_tabs)) { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading mobile_load">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_staff">
+                                History<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_staff" class="panel-collapse collapse">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
 
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
@@ -198,6 +215,9 @@ function reports_tiles($dbc) {
                 <?php } ?>
                 <?php if(in_array('staff',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=staff"><li <?= $_GET['type']=='staff' ? 'class="active"' : '' ?>>Staff</li></a>
+                <?php } ?>
+                <?php if(in_array('staff',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=history"><li <?= $_GET['type']=='history' ? 'class="active"' : '' ?>>History</li></a>
                 <?php } ?>
             </ul>
     	</div>
@@ -228,6 +248,9 @@ function reports_tiles($dbc) {
                         case 'staff':
                             $title = 'Staff';
                             break;
+                        case 'history':
+                            $title = 'History';
+                            break;
                         case 'operations':
                         default:
                             $title = 'Operations';
@@ -251,7 +274,7 @@ function reports_tiles($dbc) {
 function reports_tiles_content($dbc) {
     include('../Reports/field_list.php');
     $value_config = ','.get_config($dbc, 'reports_dashboard').',';
-    $report_tabs = !empty(get_config($dbc, 'report_tabs')) ? get_config($dbc, 'report_tabs') : 'operations,sales,ar,marketing,compensation,pnl,customer,staff';
+    $report_tabs = !empty(get_config($dbc, 'report_tabs')) ? get_config($dbc, 'report_tabs') : 'operations,sales,ar,marketing,compensation,pnl,customer,staff,history';
     $report_tabs = explode(',', $report_tabs);
     if(empty($_GET['type'])) {
         $_GET['type'] = $report_tabs[0];
@@ -358,6 +381,14 @@ function reports_tiles_content($dbc) {
                     foreach($staff_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'staff'];
+                        }
+                    }
+                }
+                // History
+                else if($_GET['type'] == 'history') {
+                    foreach($history_reports as $key => $report) {
+                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                            $sorted_reports[$report[1]] = [$report[0],$key,'history'];
                         }
                     }
                 }

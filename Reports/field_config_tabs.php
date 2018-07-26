@@ -28,6 +28,7 @@ if (isset($_POST['submit'])) {
         <label class="form-checkbox"><input type="checkbox" name="report_tabs[]" value="pnl" <?= in_array('pnl', $report_tabs) ? 'checked' : '' ?>> Profit &amp; Loss</label>
         <label class="form-checkbox"><input type="checkbox" name="report_tabs[]" value="customer" <?= in_array('customer', $report_tabs) ? 'checked' : '' ?>> Customer</label>
         <label class="form-checkbox"><input type="checkbox" name="report_tabs[]" value="staff" <?= in_array('staff', $report_tabs) ? 'checked' : '' ?>> Staff</label>
+        <label class="form-checkbox"><input type="checkbox" name="report_tabs[]" value="history" <?= in_array('history', $report_tabs) ? 'checked' : '' ?>> History</label>
     </div>
 
     <div class="form-group pull-right">

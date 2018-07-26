@@ -111,7 +111,7 @@ checkAuthorised('pos');
 <div class="container triple-pad-bottom">
     <div class="row">
 		<div class="col-sm-10">
-			<h1>Voided Point of Sale Dashboard</h1>
+			<h1>Voided <?= POS_ADVANCE_TILE ?> Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php

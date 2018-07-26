@@ -195,7 +195,7 @@ include ('../include.php');
                     <ul>
 						<li class="standard-sidebar-searchbox search-box"><input type="text" class="search-text form-control" placeholder="Search <?= SALES_TILE ?> Leads" onkeyup="searchLeads(this.value);"></li>
                         <li class="<?= ( $page=='dashboard' || empty($page) ) ? 'active' : '' ?>"><a href="index.php">Dashboard</a></li>
-                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_status">Status<span class="arrow"></span></a>
+                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_status">Status<span class="arrow"></span></a>
 							<ul id="collapse_status" class="collapse"><?php
 								// Get Lead Statuses added in Settings->Lead Status accordion
 								foreach ( explode(',', $statuses) as $status ) {

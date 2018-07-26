@@ -4,6 +4,10 @@ include_once('../Ticket/field_list.php');
 if(!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
+$hide_blank_fields = false;
+if(get_config($dbc, 'ticket_pdf_hide_blank') == 1 && $_GET['ticketid'] > 0) {
+	$hide_blank_fields = true;
+}
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
@@ -1049,13 +1053,19 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 	$html = '';
 	$html .= '<h1>'.get_ticket_label($dbc, mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"))).'</h1>';
 	$html .= '<table border="1" cellpadding="2">';
-	foreach($pdf_contents as $line) {
+	$htmls = [];
+	foreach($pdf_contents as $key => $line) {
+		$line_html = '';
 		$img = $line[2];
 		$header = $line[0];
 		$line = $line[1];
 		if($header == '**HEADING**') {
-			$html .= '<tr><td class="pdf_header" style="text-align: center; background-color: #'.$pdf_header_color.'; color: #fff; font-weight: bold; width: 100%; border: 1px solid black;">'.$line.'</td></tr>';
-		} else {
+			end($htmls);
+			if($hide_blank_fields && explode('#*#',key($htmls))[0] == '**HEADING**') {
+				array_pop($htmls);
+			}
+			$htmls[$header.'#*#'.$key] = '<tr><td class="pdf_header" style="text-align: center; background-color: #'.$pdf_header_color.'; color: #fff; font-weight: bold; width: 100%; border: 1px solid black;">'.$line.'</td></tr>';
+		} else if (!empty(trim(strip_tags($line[1]))) || !$hide_blank_fields) {
 			if($img != 'img') {
 				$line = preg_replace('/<img((?!>).)*>/','',$line);
 			}
@@ -1074,15 +1084,23 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 			$line = str_replace('class="col-sm-8','style="width:74%;" class="',$line);
 
 			$width = 100;
-			$html .= '<tr>';
+			$line_html .= '<tr>';
 			if(!empty($header)) {
 				$width = 70;
-				$html .= '<td class="pdf_label" style="width: 30%; border: 1px solid black; display: inline;">'.$header.'</td>';
+				$line_html .= '<td class="pdf_label" style="width: 30%; border: 1px solid black; display: inline;">'.$header.'</td>';
 			}
-			$html .= '<td class="pdf_content" style="width: '.$width.'%; border: 1px solid black; display: inline;">'.($ticketid>0 ? $line : '').'</td>';
-			$html .= '</tr>';
+			$line_html .= '<td class="pdf_content" style="width: '.$width.'%; border: 1px solid black; display: inline;">'.($ticketid>0 ? $line : '').'</td>';
+			$line_html .= '</tr>';
+			if(!empty(trim(strip_tags($line))) || !$hide_blank_fields) {
+				$htmls[$header.'#*#'.$key] = $line_html;
+			}
 		}
 	}
+	end($htmls);
+	if($hide_blank_fields && explode('#*#',key($htmls))[0] == '**HEADING**') {
+		array_pop($htmls);
+	}
+	$html .= implode('',$htmls);
 	$html .= '</table>';
 
 	$pdf->writeHTML($html);
