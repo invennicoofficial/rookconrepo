@@ -359,6 +359,7 @@ if (isset($_POST['submit'])) {
               </optgroup>
               <optgroup label="History">
                   <option value="History Staff History" <?= $desktop_landing_subtab_config['value']=='History Staff History' ? 'selected="selected"' : '' ?>>Staff History</option>
+                  <option value="History Checklist History" <?= $desktop_landing_subtab_config['value']=='History Checklist History' ? 'selected="selected"' : '' ?>>Checklist History</option>
               </optgroup>
             </select>
         </div>
