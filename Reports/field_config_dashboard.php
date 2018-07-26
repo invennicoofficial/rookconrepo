@@ -115,7 +115,7 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Scrum Staff Productivity Summary".',') !== FALSE) { echo " checked"; } ?> value="Scrum Staff Productivity Summary" name="reports_dashboard[]"> Scrum Staff Productivity Summary</label>
 	</div>
 	<div class="col-sm-4">
-		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS".',') !== FALSE) { echo " checked"; } ?> value="POS" name="reports_dashboard[]"> Point of Sale (Advanced)</label>
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS".',') !== FALSE) { echo " checked"; } ?> value="POS" name="reports_dashboard[]"> <?= POS_ADVANCE_TILE ?></label>
 	</div>
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Staff Tickets".',') !== FALSE) { echo " checked"; } ?> value="Staff Tickets" name="reports_dashboard[]"> Staff <?= TICKET_TILE ?></label>
