@@ -280,5 +280,11 @@
     }
     //2018-07-20 - Ticket #8352 - Sales Auto Archive
 
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contact_categories` text AFTER `attached_contacts`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

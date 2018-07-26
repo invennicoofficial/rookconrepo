@@ -999,6 +999,11 @@ if($_GET['action'] == 'update_total_estimated_hours') {
 	echo "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'";
 }
 
+if($_GET['action'] == 'archive_contact_form') {
+	$pdf_id = $_GET['pdf_id'];
+	mysqli_query($dbc, "UPDATE `user_form_pdf` SET `deleted` = 1 WHERE `pdf_id` = '$pdf_id'");
+}
+
 function copy_data($dbc, $contactid, $other_contactid) {
 	$contacts_tables = ['contacts','contacts_cost','contacts_dates','contacts_description','contacts_medical','contacts_upload'];
 
