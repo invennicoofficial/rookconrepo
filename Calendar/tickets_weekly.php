@@ -223,13 +223,13 @@ if(!empty($_GET['contactid'])) {
                             </h4>
                         </div>
 
-                        <div id="collapse_clients_<?= config_safe_str($client_type) ?>" class="panel-collapse collapse">
+                        <div id="collapse_clients_<?= config_safe_str($client_type) ?>" class="panel-collapse collapse <?= $client_draggable == 1 ? 'client_assign_div' : '' ?>">
                             <div class="panel-body" style="overflow-y: auto; padding: 0;">
                                 <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
                                 $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
                                 foreach($client_list as $clientid) {
                                     if(get_client($dbc, $clientid) != '' || get_contact($dbc, $clientid) != '-') {
-                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."' data-activevalue='".$clientid."'>".(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
+                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')." ".($client_draggable == 1 ? 'client_assign_draggable' : '' )."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."' data-activevalue='".$clientid."'>".($client_draggable == 1 ? "<img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>" : '' ).(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
                                     }
                                 } ?>
                             </div>
