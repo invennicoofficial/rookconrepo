@@ -371,7 +371,13 @@ if($_GET['action'] == 'add_document') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$filename = file_safe_str($_FILES['file']['name']);
 	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
-	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document`,`created_by`,`created_date`) VALUES ('$id','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
+	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document_type`,`document`,`created_by`,`created_date`) VALUES ('$id','Reference Documents','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
+}
+if($_GET['action'] == 'set_reminder') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$user = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$date = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$user','$date','Sales Lead Reminder','Sales Lead Reminder','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
 }
 if($_GET['action'] == 'send_email') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
@@ -381,6 +387,7 @@ if($_GET['action'] == 'send_email') {
 	$sender = get_email($dbc, $_SESSION['contactid']);
 	$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='$id'"));
 	$subject = "A reminder about a ".SALES_NOUN;
+	print_r($_POST);
 	foreach($_POST['value'] as $user) {
 		$user = get_email($dbc,$user);
 		$body = "This is a reminder about a ".SALES_NOUN.".<br />\n<br />
@@ -388,5 +395,10 @@ if($_GET['action'] == 'send_email') {
 			$item";
 		send_email($sender, $user, '', '', $subject, $body, '');
 	}
+}
+if($_GET['action'] == 'lead_time') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
+	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
 }
 ?>

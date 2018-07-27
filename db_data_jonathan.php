@@ -137,6 +137,9 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `flag_label` TEXT AFTER `flag_colour`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `salesid` INT(11) UNSIGNED NOT NULL AFTER `email_communicationid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 7);
 	}
