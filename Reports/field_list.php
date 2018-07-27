@@ -31,6 +31,7 @@ $operations_reports = [
 	'Drop Off Analysis'=>['report_drop_off_analysis.php','Drop Off Analysis','Drop Off Analysis','dropoff_analysis'],
 	'Discharge Report'=>['report_discharge.php','Discharge Report','Discharge Report','discharge'],
 	'Ticket Report'=>['report_ticket.php',TICKET_NOUN.' Report','Ticket Report','ticket_report'],
+	'Action Item Summary'=>['report_action_item_summary.php','Action Item Summary','Action Item Summary','action_item_summary'],
 	'Site Work Time'=>['report_site_work_time.php','Site Work Order Time on Site','Site Work Time','site_work_time'],
 	'Site Work Driving'=>['report_site_work_driving.php','Site Work Order Driving Logs','Site Work Driving','operations'],
 	'Purchase Orders'=>['reports_purchase_orders.php','Purchase Orders','Purchase Orders','purchase_orders'],
