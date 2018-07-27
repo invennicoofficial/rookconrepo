@@ -293,7 +293,7 @@ if ( $_GET['fill']=='saveNote' ) {
     $note    = filter_var(htmlentities($_GET['note']), FILTER_SANITIZE_STRING);
 		$before_change = '';
     mysqli_query ( $dbc, "INSERT INTO `sales_notes` (`salesid`, `comment`) VALUES('$salesid', '$note')" );
-		$history = "Sales note added.";
+		$history = "Sales note added."
 		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
@@ -304,7 +304,7 @@ if ( $_GET['fill']=='updateSalesMilestone') {
 	$milestone = $_POST['milestone'];
 	$before_change = capture_before_change($dbc, $table, 'sales_milestone', $id_field, $id);
 	mysqli_query($dbc, "UPDATE `$table` SET `sales_milestone` = '$milestone' WHERE `$id_field` = '$id'");
-	$history = "Milestone Updated.";
+	$history = "Milestone Updated."
 	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
@@ -429,7 +429,7 @@ if($_GET['action'] == 'add_document') {
 	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
 	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document`,`created_by`,`created_date`) VALUES ('$id','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
 	$before_change = '';
-	$history = "Sales document added";
+	$history .= "Sales document added";
 	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 if($_GET['action'] == 'send_email') {
