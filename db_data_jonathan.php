@@ -165,6 +165,7 @@
 		)")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
