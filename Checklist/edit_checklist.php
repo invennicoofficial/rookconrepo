@@ -108,6 +108,21 @@ if (isset($_POST['tasklist'])) {
 
         insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', 'Updated Checklist '.$checklist_name, $checklistid);
     }
+    if(!empty($_POST['project_milestone'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+        if(!($projectid > 0)) {
+            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");   
+        }
+    }
+    if(!empty($_POST['sales_milestone'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `sales_milestone` = '".filter_var($_POST['sales_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    }
+    if(!empty($_POST['salesid'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `salesid` = '".filter_var($_POST['salesid'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    }
+    if(!empty($_POST['add_to_taskboard'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `task_milestone_timeline` = '".filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING)."', `task_path` = '".filter_var($_POST['task_path'],FILTER_SANITIZE_STRING)."', `task_board` = '".filter_var($_POST['task_board'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    }
 
     if(!empty($_POST['checklistid'])) {
         for($i = 0; $i < count($_POST['checklist_update']); $i++) {
@@ -288,7 +303,7 @@ function removeNewRow(button) {
 	}
 }
 </script>
-<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal <?= basename($_SERVER['SCRIPT_FILENAME']) == 'edit_checklist.php' ? 'main-screen' : '' ?>" role="form">
     <?php $task_contactid = $_SESSION['contactid'];
 
     if(!empty($_GET['edit'])) {
@@ -327,6 +342,22 @@ function removeNewRow(button) {
         $businessid = $get_project['businessid'];
 
         echo '<input type="hidden" id="from" name="from" value="project" />';
+    }
+    if(!empty($_GET['project_milestone'])) {
+        echo '<input type="hidden" name="project_milestone" value="'.urldecode($_GET['project_milestone']).'">';
+        echo '<input type="hidden" name="projectid_from_path" value="'.$_GET['projectid'].'">';
+    }
+    if(!empty($_GET['salesid'])) {
+        echo '<input type="hidden" name="salesid" value="'.$_GET['salesid'].'">';
+    }
+    if(!empty($_GET['sales_milestone'])) {
+        echo '<input type="hidden" name="sales_milestone" value="'.$_GET['sales_milestone'].'">';
+    }
+    if(!empty($_GET['add_to_taskboard'])) {
+        echo '<input type="hidden" name="add_to_taskboard" value="'.$_GET['add_to_taskboard'].'">';
+        echo '<input type="hidden" name="task_milestone_timeline" value="'.$_GET['task_milestone_timeline'].'">';
+        echo '<input type="hidden" name="task_path" value="'.$_GET['task_path'].'">';
+        echo '<input type="hidden" name="task_board" value="'.$_GET['task_board'].'">';
     }
     if(!empty($_GET['ticketid'])) {
         $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
