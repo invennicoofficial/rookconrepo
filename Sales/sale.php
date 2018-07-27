@@ -26,7 +26,7 @@ if (isset($_POST['add_sales'])) {
 	$new_contact_region = filter_var($_POST['new_contact_region'],FILTER_SANITIZE_STRING);
 	$new_contact_location = filter_var($_POST['new_contact_location'],FILTER_SANITIZE_STRING);
 	$new_contact_classification = filter_var($_POST['new_contact_classification'],FILTER_SANITIZE_STRING);
-	
+
     if ( $_POST['new_business'] != '' ) {
 		$name = encryptIt($_POST['new_business']);
         $b = 1;
@@ -42,10 +42,10 @@ if (isset($_POST['add_sales'])) {
 		$last_name = encryptIt(filter_var($_POST['new_contact_lname'], FILTER_SANITIZE_STRING));
         $m = 1;
 	}
-	
+
     $primary_number = encryptIt(filter_var($_POST['primary_number'], FILTER_SANITIZE_STRING));
 	$email_address = encryptIt(filter_var($_POST['email_address'],FILTER_SANITIZE_EMAIL));
-    
+
     // New Business
     if ( $b==1 ) {
         if ( $_POST['new_number'] != '' ) {
@@ -79,7 +79,7 @@ if (isset($_POST['add_sales'])) {
         if ( $_POST['new_contact_classification'] != '' ) {
             $new_contact_classification = filter_var($_POST['new_contact_classification'], FILTER_SANITIZE_STRING);
         }
-        
+
         $query_insert = "INSERT INTO `contacts` (`category`, `businessid`, `first_name`, `last_name`, `office_phone`, `email_address`, `title`, `region`, `con_locations`, `classification`) VALUES ('Sales Leads', '$businessid', '$first_name', '$last_name', '$new_contact_phone', '$new_contact_email', '$new_contact_title', '$new_contact_region', '$new_contact_location', '$new_contact_classification')";
         $result_insert = mysqli_query($dbc, $query_insert);
         $new_contactid = mysqli_insert_id($dbc);
@@ -88,10 +88,10 @@ if (isset($_POST['add_sales'])) {
         $result_update_inventory = mysqli_query($dbc, $query_update);
         $contactid = $businessid; */
     }
-    
+
     /* $query_update = "UPDATE `contacts` SET `region`='$region', `location`='$location', `classification`='$classification' WHERE `contactid`='$contact'";
     $result_update_inventory = mysqli_query($dbc, $query_update); */
-        
+
     $marketingmaterialid  = implode(',', $_POST['marketingmaterialid']);
     /* $marketing_materials = $_POST['marketingmaterialid'];
     foreach ($marketing_materials as $mm) {
@@ -116,14 +116,14 @@ if (isset($_POST['add_sales'])) {
     $estimated_close_date = filter_var($_POST['estimated_close_date'], FILTER_SANITIZE_STRING);
     $serviceid            = implode(',', $_POST['serviceid']);
     $productid            = implode(',', $_POST['productid']);
-    
+
     // $lead_source_select     = filter_var($_POST['lead_source'], FILTER_SANITIZE_STRING);
     // $lead_source_businessid = filter_var($_POST['lead_source_businessid'], FILTER_SANITIZE_STRING);
     // $lead_source_contactid  = filter_var($_POST['lead_source_contactid'], FILTER_SANITIZE_STRING);
     // $lead_source_other      = filter_var($_POST['lead_source_other'], FILTER_SANITIZE_STRING);
     // $lead_is_contact  = false;
     // $lead_is_business = false;
-    
+
     // if ( !empty($lead_source_other) ) {
     //     $lead_source = $lead_source_other;
     // } elseif ( !empty($lead_source_contactid) ) {
@@ -151,7 +151,7 @@ if (isset($_POST['add_sales'])) {
         $lead_source = array_merge($lead_source, $_POST['lead_source_other']);
     }
     $lead_source = implode('#*#', array_filter(array_unique($lead_source)));
-    
+
     $next_action    = filter_var($_POST['next_action'], FILTER_SANITIZE_STRING);
     $new_reminder   = filter_var($_POST['new_reminder'], FILTER_SANITIZE_STRING);
     $status         = $_POST['status'];
@@ -159,21 +159,39 @@ if (isset($_POST['add_sales'])) {
         $status = explode(',',get_config ( $dbc, 'sales_lead_status' ))[0];
     }
     $status_won     = get_config($dbc, 'lead_status_won');
-    
+
     $contactid = $contactid .','. $new_contactid;
 	$old_details = [];
     if ( empty($_POST['salesid']) ) {
         $query_insert = "INSERT INTO `sales` (`created_date`, `lead_created_by`, `primary_staff`, `share_lead`, `businessid`, `contactid`, `primary_number`, `email_address`, `lead_value`, `estimated_close_date`, `serviceid`, `productid`, `lead_source`, `marketingmaterialid`, `next_action`, `new_reminder`, `status`, `region`, `location`, `classification`) VALUES ('$created_date', '$lead_created_by', '$primary_staff', '$share_lead', '$businessid', '$contactid', '". decryptIt($primary_number) ."', '". decryptIt($email_address) ."', '$lead_value', '$estimated_close_date', '$serviceid', '$productid', '$lead_source', '$marketingmaterialid', '$next_action', '$new_reminder', '$status', '$region', '$location', '$classification')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert);
+				$before_change = '';
         $salesid = mysqli_insert_id($dbc);
-		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Sales Lead Added')");
+				$history = "Sales Lead Added.";
+				add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
         $url = 'Added';
 		$old_action = '';
     } else {
         $salesid = $_POST['salesid'];
+				$before_change = capture_before_change($dbc, 'sales', 'primary_staff', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'share_lead', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'businessid', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'contactid', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'primary_number', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'email_address', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'lead_value', 'salesid', $salesid);
 		$old_details = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
         $query_update = "UPDATE `sales` SET `primary_staff`='$primary_staff', `share_lead`='$share_lead', `businessid`='$businessid', `contactid`='$contactid', `primary_number`='". decryptIt($primary_number) ."', `email_address`='". decryptIt($email_address) ."', `lead_value`='$lead_value', `estimated_close_date`='$estimated_close_date', `serviceid`='$serviceid', `productid`='$productid', `lead_source`='$lead_source', `marketingmaterialid`='$marketingmaterialid', `next_action`='$next_action', `new_reminder`='$new_reminder', `status`='$status', `region`='$region', `location`='$location', `classification`='$classification' WHERE `salesid`='$salesid'";
         $result_update_vendor = mysqli_query($dbc, $query_update);
+				$history = "Sales Updated.";
+				$history .= capture_after_change('primary_staff', $primary_staff);
+				$history .= capture_after_change('share_lead', $share_lead);
+				$history .= capture_after_change('businessid', $businessid);
+				$history .= capture_after_change('contactid', $contactid);
+				$history .= capture_after_change('primary_number', $primary_number);
+				$history .= capture_after_change('email_address', $email_address);
+				$history .= capture_after_change('lead_value', $lead_value);
+				add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
         $url = 'Updated';
 		$old_action = mysqli_fetch_array(mysqli_query($dbc, "SELECT `next_action` FROM `sales` WHERE `salesid`='$salesid'"))['next_action'];
     }
@@ -185,9 +203,9 @@ if (isset($_POST['add_sales'])) {
 		}
 	}
 	if(!empty($changes)) {
-		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Updated: ".implode(', ',$changes)."')");
+		//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Updated: ".implode(', ',$changes)."')");
 	}
-    
+
     //Convert Sales Lead to a Customer
     if ( $status_won==$status ) {
         $lead_convert_to = get_config($dbc, 'lead_convert_to');
@@ -198,14 +216,14 @@ if (isset($_POST['add_sales'])) {
             mysqli_query($dbc, "UPDATE contacts SET category='$lead_convert_to' WHERE contactid='$cid'");
         }
     }
-    
+
     if ( $lead_is_contact ) {
         mysqli_query($dbc, "UPDATE `contacts` SET `referred_contactid`=IF(`referred_contactid` IS NULL, '$businessid', CONCAT(`referred_contactid`, ',$businessid')) WHERE `contactid`='$lead_source_contactid'");
     }
     if ( $lead_is_business ) {
         mysqli_query($dbc, "UPDATE `contacts` SET `referred_contactid`=IF(`referred_contactid` IS NULL, '$businessid', CONCAT(`referred_contactid`, ',$businessid')) WHERE `contactid`='$lead_source_businessid'");
     }
-	
+
 	//Schedule Reminders
 	if ($new_reminder != '' && $new_reminder != '0000-00-00' && $old_action != $next_action ) {
 		$body = filter_var(htmlentities('This is a reminder about a '.SALES_NOUN.' that needs to be followed up with.<br />
@@ -226,8 +244,10 @@ if (isset($_POST['add_sales'])) {
         $email_comment = $_POST['email_comment'];
         $query_insert_ca = "INSERT INTO `sales_notes` (`salesid`, `comment`, `email_comment`, `created_date`, `created_by`) VALUES ('$salesid', '$t_comment', '$email_comment', '$created_date', '$created_by')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
-		mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Note added: $t_comment')");
-
+				//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Note added: $t_comment')");
+				$history = 'Note added: ' . $t_comment;
+				$before_change = '';
+				add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
         if ($_POST['send_email_on_comment'] == 'Yes') {
             $email = get_email($dbc, $email_comment);
             $subject = 'Note Added on '.SALES_TILE;
@@ -242,7 +262,7 @@ if (isset($_POST['add_sales'])) {
     if (!file_exists('download')) {
         mkdir('download', 0777, true);
     }
-    
+
     foreach($_FILES['upload_document']['name'] as $i => $document) {
         move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], "download/".$_FILES["upload_document"]["name"][$i]) ;
 
@@ -250,7 +270,10 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['document_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_client_doc = "INSERT INTO `sales_document` (`salesid`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
-			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Document added: $label')");
+						$history = 'Document added: ' . $label;
+						$before_change = '';
+						add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid, $salesid);
+						//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Document added: $label')");
         }
     }
 
@@ -259,10 +282,13 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['link_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_client_doc = "INSERT INTO `sales_document` (`salesid`, `label`, `link`, `created_date`, `created_by`) VALUES ('$salesid', '$label', '$support_link', '$created_date', '$created_by')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
-			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Link added: $label')");
+						$history = 'Link added: ' . $label;
+						$before_change = '';
+						add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+						//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Link added: $label')");
         }
     }
-    
+
     foreach($_FILES['upload_infodoc']['name'] as $i => $document) {
         move_uploaded_file($_FILES["upload_infodoc"]["tmp_name"][$i], "download/".$_FILES["upload_infodoc"]["name"][$i]) ;
 
@@ -270,10 +296,13 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['infodoc_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_infodoc = "INSERT INTO `sales_document` (`salesid`, `document_type`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', 'Information Gathering', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_infodoc = mysqli_query($dbc, $query_insert_infodoc);
-			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Information Gathering Added: $label')");
+						$history = 'Information Gathering Added: ' . $label;
+						$before_change = '';
+						add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+						//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Information Gathering Added: $label')");
         }
     }
-    
+
     foreach($_FILES['upload_estimate']['name'] as $i => $document) {
         move_uploaded_file($_FILES["upload_estimate"]["tmp_name"][$i], "download/".$_FILES["upload_estimate"]["name"][$i]) ;
 
@@ -281,7 +310,10 @@ if (isset($_POST['add_sales'])) {
 			$label = filter_var($_POST['estimate_label'][$i], FILTER_SANITIZE_STRING);
             $query_insert_estimate = "INSERT INTO `sales_document` (`salesid`, `document_type`, `label`, `document`, `created_date`, `created_by`) VALUES ('$salesid', 'Estimate', '$label', '$document', '$created_date', '$created_by')";
             $result_insert_estimate = mysqli_query($dbc, $query_insert_estimate);
-			mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Estimate added: $label')");
+						$history = 'Estimate added: ' . $label;
+						$before_change = '';
+						add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+						//mysqli_query($dbc, "INSERT INTO `sales_history` (`created_by`,`salesid`,`history`) VALUES (".$_SESSION['contactid'].",$salesid,'Estimate added: $label')");
         }
     }
 
@@ -297,7 +329,7 @@ $(document).ready(function() {
             $('#sales_div .main-screen-white').height(available_height - 6);
 		}
 	}).resize();
-    
+
     $('.main-screen').height($('#sales_div').height());
     $('.tile-sidebar, .tile-content').height($('#sales_div').height() - $('.tile-header').height() + 15);
     //$('.main-screen-white').height($('.tile-content').height() - 96);
@@ -316,7 +348,7 @@ $(document).ready(function() {
             }
         });
     });
-    
+
     $('#nav_salespath').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='salespath' ) {
             echo 'window.location.replace("?p=salespath&id='.$_GET['id'].'");';
@@ -324,7 +356,7 @@ $(document).ready(function() {
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
-    
+
     $('#nav_staffinfo').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=staffinfo");';
@@ -332,7 +364,7 @@ $(document).ready(function() {
         $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
-    
+
     $('#nav_leadinfo').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
@@ -340,7 +372,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_services').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=services");';
@@ -348,7 +380,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_products').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=products");';
@@ -356,7 +388,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_leadsource').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadsource");';
@@ -364,7 +396,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_refdocs').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=refdocs");';
@@ -372,7 +404,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_marketing').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=marketing");';
@@ -380,7 +412,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_infogathering').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=infogathering");';
@@ -388,7 +420,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_estimate').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=estimate");';
@@ -396,7 +428,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_quote').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=quote");';
@@ -404,7 +436,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_nextaction').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=nextaction");';
@@ -412,7 +444,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_leadstatus').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadstatus");';
@@ -420,7 +452,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_leadnotes').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadnotes");';
@@ -428,7 +460,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_tasks').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=tasks");';
@@ -436,7 +468,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_history').removeClass('active');
     });
-    
+
     $('#nav_history').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=history");';
@@ -444,7 +476,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
     });
-    
+
     <?php
         if ( $_GET['p'] == 'details' && (!isset($_GET['a']) || $_GET['a']=='staffinfo') ) { echo "$('#nav_staffinfo').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='leadinfo' ) { echo "$('#nav_leadinfo').trigger('click');"; }
@@ -462,7 +494,7 @@ $(document).ready(function() {
         if ( isset($_GET['a']) && $_GET['a']=='tasks' ) { echo "$('#nav_tasks').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='history' ) { echo "$('#nav_history').trigger('click');"; }
     ?>
-    
+
     $('form').submit(function(e){
         if ($('[name=status]').length==0) {
             e.preventDefault();
@@ -492,16 +524,16 @@ $(document).ready(function() {
 			<iframe src=""></iframe>
 		</div>
 	</div>
-    
+
     <div class="row">
 		<div class="main-screen"><?php
             if($_GET['iframe_slider'] != 1) {
                 include('tile_header.php');
             }
-            
+
             $page      = preg_replace('/\PL/u', '', $_GET['p']);
             $salesid   = preg_replace('/[^0-9]/', '', $_GET['id']); ?>
-            
+
             <!--<div class="tile-bar">
                 <ul>
                     <li class="<?= ( $page=='details' ) ? 'active' : ''; ?>"><a href="?p=details&id=<?=$salesid;?>">Details</a></li>
@@ -510,7 +542,7 @@ $(document).ready(function() {
                     <li class="<?= ( $page=='preview' ) ? 'active' : ''; ?>"><a href="?p=preview&id=<?=$salesid;?>">Preview</a></li>
                 </ul>
             </div> .tile-bar -->
-            
+
             <div class="tile-container">
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 ? 'style="display:none;"' : '' ?>>
@@ -562,7 +594,7 @@ $(document).ready(function() {
                         } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->
-                
+
                 <!-- Main Screen -->
                 <div class="scale-to-fill has-main-screen tile-content set-section-height"><?php
                     if ( $page=='preview' || empty($page) ) {
@@ -575,7 +607,7 @@ $(document).ready(function() {
                         include('details.php');
                     } ?>
                 </div><!-- .tile-content -->
-                
+
                 <div class="clearfix"></div>
             </div><!-- .tile-container -->
 
