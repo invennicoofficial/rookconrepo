@@ -199,3 +199,13 @@ else if($_GET['fill'] == 'checklistreply') {
 	$query = "UPDATE `tasklist` SET `task`=CONCAT(`task`,'$reply') WHERE `tasklistid`='$id'";
 	$result = mysqli_query($dbc_support,$query);
 }
+else if($_GET['action'] == 'comm_settings') {
+	set_config($dbc, 'support_recipients_all', implode(';',$_POST['all_recips']));
+	set_config($dbc, 'support_recipients_default', implode(';',$_POST['default_recips']));
+
+	foreach($_POST['types'] as $i => $type_id) {
+		set_config($dbc, 'support_recipients_'.$type_id, implode(';',$_POST['recipients'][$i]));
+		set_config($dbc, 'support_alert_'.$type_id, $_POST['alerts'][$i]);
+		set_config($dbc, 'support_note_'.$type_id, $_POST['notes'][$i]);
+	}
+}
