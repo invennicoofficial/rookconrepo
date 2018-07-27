@@ -168,5 +168,9 @@ $history_reports = [
 	'History Checklist History'=>['reports_checklist_history.php','Checklist History','History Checklist History','history_checklist_history'],
 	'History Sales History'=>['reports_sales_history.php','Sales History','History Sales History','history_sales_history'],
 ];
-
-$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports);
+$estimates_reports = [
+	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
+	'Estimate Stats'=>['reports_estimate_stats.php','Estimate Stats','Estimate Stats','reports_estimate_stats'],
+	'Estimate Alerts'=>['reports_estimate_alerts.php','Estimate Alerts','Estimate Alerts','reports_estimate_alerts'],
+];
+$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports, $estimates_reports);
