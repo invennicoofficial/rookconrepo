@@ -188,6 +188,23 @@ function reports_tiles($dbc) {
                     </div>
                 </div>
             <?php } ?>
+            <?php if(in_array('estimates',$report_tabs)) { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading mobile_load">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_staff1">
+                                Estimates<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_staff1" class="panel-collapse collapse">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
 
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
@@ -218,6 +235,9 @@ function reports_tiles($dbc) {
                 <?php } ?>
                 <?php if(in_array('staff',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=history"><li <?= $_GET['type']=='history' ? 'class="active"' : '' ?>>History</li></a>
+                <?php } ?>
+                <?php if(in_array('staff',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=estimates"><li <?= $_GET['type']=='estimates' ? 'class="active"' : '' ?>>Estimates</li></a>
                 <?php } ?>
             </ul>
     	</div>
@@ -250,6 +270,9 @@ function reports_tiles($dbc) {
                             break;
                         case 'history':
                             $title = 'History';
+                            break;
+                        case 'estimates':
+                            $title = 'Estimates';
                             break;
                         case 'operations':
                         default:
@@ -389,6 +412,13 @@ function reports_tiles_content($dbc) {
                     foreach($history_reports as $key => $report) {
                         if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'history'];
+                        }
+                    }
+                }
+                else if($_GET['type'] == 'estimates') {
+                    foreach($estimates_reports as $key => $report) {
+                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                            $sorted_reports[$report[1]] = [$report[0],$key,'estimates'];
                         }
                     }
                 }
