@@ -79,7 +79,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 
                 return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
                 break;
-			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>'Point of Sale']; break;
+			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
 			case 'incident_report': return ['link'=>"Incident Report/incident_report.php",'name'=>INC_REP_TILE]; break;

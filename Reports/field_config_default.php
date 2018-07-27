@@ -65,7 +65,7 @@ if (isset($_POST['submit'])) {
                     <option value="Purchase Orders" <?= $mobile_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $mobile_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
                     <option value="Point of Sale" <?= $mobile_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
-                    <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>>Point of Sale (Advanced)</option>
+                    <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $mobile_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $mobile_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
                     <option value="Tasklist Time" <?= $mobile_landing_subtab_config['value']=='Tasklist Time' ? 'selected="selected"' : '' ?>>Task Time Tracking</option>
@@ -227,7 +227,7 @@ if (isset($_POST['submit'])) {
                     <option value="Purchase Orders" <?= $desktop_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $desktop_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
                     <option value="Point of Sale" <?= $desktop_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
-                    <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>>Point of Sale (Advanced)</option>
+                    <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $desktop_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $desktop_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
                     <option value="Tasklist Time" <?= $desktop_landing_subtab_config['value']=='Tasklist Time' ? 'selected="selected"' : '' ?>>Task Time Tracking</option>
@@ -356,6 +356,18 @@ if (isset($_POST['submit'])) {
                     <option value="Staff Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Staff Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
                     <option value="Staff Staff Compensation" <?= $desktop_landing_subtab_config['value']=='Staff Staff Compensation' ? 'selected="selected"' : '' ?>>Staff Compensation</option>
                 </optgroup>
+              </optgroup>
+              <optgroup label="History">
+                  <option value="History Staff History" <?= $desktop_landing_subtab_config['value']=='History Staff History' ? 'selected="selected"' : '' ?>>Staff History</option>
+                  <option value="History Checklist History" <?= $desktop_landing_subtab_config['value']=='History Checklist History' ? 'selected="selected"' : '' ?>>Checklist History</option>
+              </optgroup>
+
+              <optgroup label="Estimates">
+                  <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>
+                  <option value="Estimate Stats" <?= $desktop_landing_subtab_config['value']=='Estimate Stats' ? 'selected="selected"' : '' ?>>Estimate Stats</option>
+                  <option value="Estimate Alerts" <?= $desktop_landing_subtab_config['value']=='Estimate Alerts' ? 'selected="selected"' : '' ?>>Estimate Alerts</option>
+              </optgroup>
+
             </select>
         </div>
     </div>
