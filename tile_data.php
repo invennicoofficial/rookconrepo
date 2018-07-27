@@ -293,6 +293,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'confirm': return ['link'=>"Confirmation/confirmation.php",'name'=>'Confirmation']; break;
 			case 'archiveddata': return ['link'=>"Archived/archived_data.php",'name'=>'Archived Data']; break;
 			case 'ffmsupport': return ['link'=>"Support/support.php",'name'=>'FFM Support']; break;
+			case 'customer_support': return ['link'=>"Support/customer_support.php",'name'=>'Customer Support']; break;
     		case 'interactive_calendar': return ['link'=>"Interactive Calendar/interactive_calendar.php",'name'=>'Interactive Calendar']; break;
     		case 'properties': return ['link'=>"Properties/properties.php",'name'=>'Properties']; break;
     		case 'training_quiz': return ['link'=>"TrainingQuizzes/orientation_training.php",'name'=>'Training & Quizzes']; break;

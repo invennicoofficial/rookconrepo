@@ -309,6 +309,7 @@ function bus_filter(select) {
         </form>
 
 <?php
+
 function report_output($dbc, $starttime, $endtime, $createstart, $createend, $businessid, $siteid, $ticketid, $extra_ticket, $projectid, $hide_staff, $hide_wo, $disable_staff, $table_style, $table_row_style, $grand_total_style, $output_mode) {
 	$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 	$report_pages = [];

@@ -148,7 +148,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Service Extra Billing';
 }
 
-if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
+if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
 	$strict_view = strictview_visible_function($dbc, 'ticket');
 	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
 	if($strict_view > 0) {

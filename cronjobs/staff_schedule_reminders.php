@@ -101,7 +101,7 @@ if($reminder_emails == 1) {
 						$last_sent = date('Y-m-d');
 					}
 				} else {
-					$last_sent = '9999-99-99';
+					$last_sent = date('Y-m-d');
 				}
 				mysqli_query($dbc, "INSERT INTO `staff_schedule_autolock_reminders` (`date`, `sent`) VALUES ('$reminder_date', 1)");
 				$log = '';
