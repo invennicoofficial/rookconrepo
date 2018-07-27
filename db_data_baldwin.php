@@ -315,5 +315,30 @@
     }
     //2018-07-26 - Ticket #8394 - Contact Forms Editable
 
+    //2018-07-27 - Ticket #7552 - Checklists
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `salesid` int(11) NOT NULL AFTER `ticketid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `sales_milestone` varchar(500) NOT NULL AFTER `salesid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_path` int(10) NOT NULL AFTER `sales_milestone`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_board` int(10) NOT NULL AFTER `task_path`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_milestone_timeline` varchar(500) NOT NULL AFTER `task_board`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-27 - Ticket #7552 - Checklists
+
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

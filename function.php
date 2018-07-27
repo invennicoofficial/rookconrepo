@@ -2854,7 +2854,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'];
+                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
                     $reminder_url = '../Calendar/calendars.php';
