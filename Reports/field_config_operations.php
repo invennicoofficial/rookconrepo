@@ -47,6 +47,7 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('filter_materials',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="filter_materials">Materials</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('filter_staff_expenses',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="filter_staff_expenses">Filter by Staff Expenses</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('filter_ticket_notes',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="filter_ticket_notes">Filter by <?= TICKET_TILE ?> with Notes</label>
+
     </div>
 
     <div class="form-group pull-right">
