@@ -158,6 +158,17 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 27, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `details_tile` TEXT AFTER `details_where`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `details_tab` TEXT AFTER `details_tile`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `ticketid` INT(11) UNSIGNED NOT NULL AFTER `projectid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
