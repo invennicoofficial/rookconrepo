@@ -570,6 +570,10 @@ checkAuthorised();
 										<?php echo tile_config_function($dbc, 'archiveddata', 'admin'); ?>
 									</tr>
 									<tr>
+										<td data-title="Comment">Customer Support</td>
+										<?php echo tile_config_function($dbc, 'customer_support', 'admin'); ?>
+									</tr>
+									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport', 'admin'); ?>
 									</tr>

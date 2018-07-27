@@ -366,10 +366,13 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
     } else if($multi) {
         $get_config['value'] = [];
         $separator = filter_var($separator, FILTER_SANITIZE_STRING);
-        $query = mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE '$name'");
+        $query = mysqli_query($dbc, "SELECT `name`,`value` FROM `general_configuration` WHERE `name` LIKE '$name'");
         while($row = mysqli_fetch_assoc($query)) {
-            $get_config['value'][] = $row['value'];
+            $get_config['value'][$row['name']] = $row['value'];
         }
+		if($separator == null) {
+			return $get_config['value'];
+		}
         $get_config['value'] = implode($separator, $get_config['value']);
     } else {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
