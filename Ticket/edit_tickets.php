@@ -872,7 +872,7 @@ var setHeading = function() {
 				<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 			</span>
 			<a href="" onclick="dialogQuickReminder(); return false;
-			"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+			"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 		</div>
 		<div class="clearfix"></div>
 	<?php }
@@ -2388,7 +2388,7 @@ var setHeading = function() {
 								<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 							</span>
 							<a href="" onclick="dialogQuickReminder(); return false;
-							"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+							"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 						</div>
 					<?php } ?>
 				</h3>
@@ -2449,7 +2449,7 @@ var setHeading = function() {
 									<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 								</span>
 								<a href="" onclick="dialogQuickReminder(); return false;
-								"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+								"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 							</div>
 							<div class="clearfix"></div>
 						<?php } ?>
