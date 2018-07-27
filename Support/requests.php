@@ -1,8 +1,8 @@
 <?php include_once('../include.php');
 if(!isset($request_tab)) {
 	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
-	// $dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
-	$dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
+	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+	// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
 	$user = get_config($dbc, 'company_name');
 	$url = WEBSITE_URL;
 	$user_name = $user;
