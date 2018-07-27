@@ -251,7 +251,7 @@ if($siteid == 'recent') {
 		$ticket_sql .= ' LIMIT 0,'.$recent_inventory;
 	} else {
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
-	}echo $ticket_sql;
+	}
 	$ticket_list = $dbc->query($ticket_sql);
 	if(in_array('ticket_search',$manifest_fields)) { ?>
 		<form class="form-horizontal" action="" method="GET">
