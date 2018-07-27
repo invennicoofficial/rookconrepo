@@ -291,6 +291,10 @@ $(document).ready(function() {
 										<?php echo tile_config_function($dbc, 'archiveddata'); ?>
 									</tr>
 									<tr>
+										<td data-title="Comment">Customer Support</td>
+										<?php echo tile_config_function($dbc, 'customer_support'); ?>
+									</tr>
+									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport'); ?>
 									</tr>

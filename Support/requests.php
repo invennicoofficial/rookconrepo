@@ -1,12 +1,3 @@
-<?php $request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'feedback');
-$date = date('Y-m-d',strtotime('-2month'));
-$count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='Feedback' AND `deleted`=0, 1, 0)) `feedback`, SUM(IF(`support_type`='Support Request' AND `deleted`=0, 1, 0)) `requests`, SUM(IF(`support_type`='Critical Incident' AND `deleted`=0, 1, 0)) `critical`, SUM(IF(`deleted`=1 AND `archived_date` > '$date', 1, 0)) `closed` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
-<a href="?tab=requests&type=new"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'new' ? 'active_tab' : ''); ?>">New</button></a>
-<a href="?tab=requests&type=requests"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'requests' ? 'active_tab' : ''); ?>">Support Requests (<?= $count_row['requests'] ?>)</button></a>
-<a href="?tab=requests&type=critical"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'critical' ? 'active_tab' : ''); ?>">Critical Incidents (<?= $count_row['critical'] ?>)</button></a>
-<a href="?tab=requests&type=feedback"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'feedback' ? 'active_tab' : ''); ?>">Feedback & Ideas (<?= $count_row['feedback'] ?>)</button></a>
-<a href="?tab=requests&type=closed"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'closed' ? 'active_tab' : ''); ?>">Closed (<?= $count_row['closed'] ?>)</button></a>
-
 <?php if($request_tab == 'new'): ?>
 	<?php if(!empty($_POST['new_request'])) {
 		$errors = '';
@@ -216,7 +207,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 			<div class="col-sm-8">
 				<?php if(empty($source)) { ?>
 					<select name="type" id="type" class="chosen-select-deselect form-control"><option></option>
-						<option <?= ($new_type == 'Feedback' ? 'selected' : '') ?> value="Feedback">Feedback & Ideas</option>
+						<option <?= ($new_type == 'feedback' ? 'selected' : '') ?> value="feedback">Feedback & Ideas</option>
 						<option <?= ($new_type == 'Support Request' ? 'selected' : '') ?> value="Support Request">Support Request</option>
 						<option <?= ($new_type == 'Critical Incident' ? 'selected' : '') ?> value="Critical Incident">Critical Incident</option>
 					</select>
@@ -721,7 +712,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 				if($user_category == 'Staff') {
-					echo '<label class="col-sm-4 control-label">Assign to Staff:</label><div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>';
+					echo '<label class="col-sm-4 control-label">Staff Responsible:</label><div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>';
 					foreach($staff_list as $id) {
 						echo '<option '.(strpos(','.$row['assigned'].',', ','.$id.',') !== false ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
 					}

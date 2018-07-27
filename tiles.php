@@ -149,6 +149,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			'software_guide',
 			'helpdesk',
 			'archiveddata',
+			'customer_support',
 			'ffmsupport',
 			'appointment_calendar',
 			'booking',

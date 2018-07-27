@@ -319,6 +319,12 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('archiveddata', get_privileges($dbc, 'archiveddata',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
+			<?php if(strpos($on_security, ',customer_support,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('customer_support', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment">Customer Support</td>
+				<?php echo security_tile_config_function('customer_support', get_privileges($dbc, 'customer_support',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
 			<?php if(strpos($on_security, ',ffmsupport,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('ffmsupport', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">FFM Support</td>
