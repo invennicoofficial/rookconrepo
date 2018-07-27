@@ -161,6 +161,21 @@ function send_email(button) {
 				$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 			}
 		});
+	} else if($(button).closest('#approval_submit').length > 0) {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=send_email',
+			method: 'POST',
+			data: {
+				recipient: $(button).closest('#approval_submit').find('[name=email_recipient]').val().split(';'),
+				sender: $(button).closest('#approval_submit').find('.email_sender').val(),
+				sender_name: $(button).closest('#approval_submit').find('.email_sender_name').val(),
+				subject: $(button).closest('#approval_submit').find('.email_subject').val(),
+				body: $(button).closest('#approval_submit').find('.email_body').val()
+			},
+			success: function(response) {
+				$('[data-target=#approval_submit]').first().click();
+			}
+		});
 	} else {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=send_email',
@@ -2340,7 +2355,7 @@ function add_staff_task(checkin) {
 			if(task != task_list[i]) {
 				extra_billing.push(task);
 			}
-			if(checkin != 'checkin') {
+			if(checkin == undefined) {
 				$('#collapse_staff_task,#tab_section_ticket_staff_tasks').find('hr').last().before('<label class="col-sm-6">Staff: '+$('[name=staff_task_contact][value='+staff+']').closest('label').text()+'</label><label class="col-sm-6">Task: '+task+'</label>');
 			}
 			$.ajax({
@@ -2367,7 +2382,7 @@ function add_staff_task(checkin) {
 					if(response.split('|')[1] == 'extra') {
 						extra_id = response.split('|')[2];
 					}
-					if(checkin != 'checkin') {
+					if(checkin == undefined) {
 						reload_checkin();
 						reload_summary();
 					} else {

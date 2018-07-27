@@ -129,7 +129,7 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
 <div class="container triple-pad-bottom">
     <div class="row">
 		<div class="col-sm-10">
-			<h1>Unpaid Point of Sale Dashboard</h1>
+			<h1>Unpaid <?= POS_ADVANCE_TILE ?> Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php

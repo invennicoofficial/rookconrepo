@@ -170,7 +170,7 @@ function approvebutton(sel) {
                             <div class="col-sm-12 col-md-3 gap-md-left-15">
                                 <select data-placeholder="Choose a Heading..." id="<?= 'mheading_'.$id_loop; ?>" name="marketingmaterialid[]" class="chosen-select-deselect form-control">
                                     <option value=""></option><?php
-                                    $query = mysqli_query($dbc,"SELECT `marketing_materialid`, `heading` FROM `marketing_material` WHERE `deleted`=0 ORDER BY `heading`");
+                                    $query = mysqli_query($dbc,"SELECT `marketing_materialid`, IFNULL(NULLIF(`heading`,''),`title`) `heading` FROM `marketing_material` WHERE `deleted`=0 ORDER BY `heading`");
                                     while($row = mysqli_fetch_array($query)) {
                                         $selected = ($marketing_materialid == $row['marketing_materialid']) ? 'selected="selected"' : '';
                                         echo '<option '. $selected .' value="'. $row['marketing_materialid'] .'">'. $row['heading'] .'</option>';
@@ -183,7 +183,7 @@ function approvebutton(sel) {
                         
                         <div class="col-sm-1 pad-5" id="pdfshow_<?= $id_loop; ?>"><?php
                             while($row = mysqli_fetch_array($query)) {
-                                echo '<a href="'. WEBSITE_URL .'/Marketing Material/download/'. $row['document_link'] .'" target="_blank">View</a>';
+                                echo '<a href="'. WEBSITE_URL .'/Documents/download/'. $row['document_link'] .'" title="'.$row['document_link'].'" target="_blank" class="no-toggle"><img class="inline-img" src="../img/icons/eyeball.png"></a>';
                             } ?>
                         </div>
                         
@@ -271,7 +271,7 @@ function approvebutton(sel) {
                     <div class="col-sm-12 col-md-3 gap-md-left-15">
                         <select data-placeholder="Choose a Heading..." id="mheading_0" name="marketingmaterialid[]" class="chosen-select-deselect form-control">
                             <option value=""></option><?php
-                            $query = mysqli_query($dbc, "SELECT `marketing_materialid`, `heading` FROM `marketing_material` WHERE `deleted`=0 ORDER BY `heading`");
+                            $query = mysqli_query($dbc, "SELECT `marketing_materialid`, IFNULL(NULLIF(`heading`,''),`title`) `heading` FROM `marketing_material` WHERE `deleted`=0 ORDER BY `heading`");
                             while($row = mysqli_fetch_array($query)) {
                                 echo '<option value="'. $row['marketing_materialid'] .'">'. $row['heading'] .'</option>';
                             } ?>

@@ -769,14 +769,16 @@ if($_GET['action'] == 'mark_favourite') {
 	$contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
 	$signature = filter_var($_POST['signature'], FILTER_SANITIZE_STRING);
 	$precedence = filter_var($_POST['precedence'], FILTER_SANITIZE_STRING);
+	$status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
 	$action_items = filter_var($_POST['action_items'], FILTER_SANITIZE_STRING);
 	$region = filter_var($_POST['region'], FILTER_SANITIZE_STRING);
 	$location = filter_var($_POST['location'], FILTER_SANITIZE_STRING);
 	$classification = filter_var($_POST['classification'], FILTER_SANITIZE_STRING);
 	$customer = filter_var($_POST['customer'], FILTER_SANITIZE_STRING);
 	$staff = filter_var($_POST['staff'], FILTER_SANITIZE_STRING);
+	$unlocked_fields = filter_var($_POST['fields'], FILTER_SANITIZE_STRING);
 	$deleted = filter_var($_POST['deleted'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `deleted`='$deleted'  WHERE `id`='$id'");
+	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `status`='$status', `unlocked_fields`='$unlocked_fields', `deleted`='$deleted'  WHERE `id`='$id'");
 	echo $id;
 } else if($_GET['action'] == 'approvals') {
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);

@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
-error_reporting(0); ?>
+error_reporting(0);
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields')); ?>
 
             <?php
                 echo driving_logs($dbc);

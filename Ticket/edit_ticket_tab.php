@@ -128,7 +128,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Other List';
 } else if($_GET['tab'] == 'ticket_pressure') {
 	$sort_field = 'Pressure';
-} else if($_GET['tab'] == 'ticket_chemcials') {
+} else if($_GET['tab'] == 'ticket_chemicals') {
 	$sort_field = 'Chemicals';
 } else if($_GET['tab'] == 'ticket_intake') {
 	$sort_field = 'Intake';
@@ -511,6 +511,22 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
 		$query_daily = " AND (`date_stamp`='".date('Y-m-d')."' OR IFNULL(`checked_out`,'') = '')";
 	}
+	
+	// Get Approval Settings
+	$wait_on_approval = false;
+	$admin_group = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE (CONCAT(',',`action_items`,',') LIKE '%,Tickets,%' OR CONCAT(',',`action_items`,',') LIKE '%,ticket_type_".$ticket_type.",%') AND ',".$get_ticket['businessid'].",".$get_ticket['clientid'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`customer`,''),'%'),',%') AND ',".$get_ticket['contactid'].",".$get_ticket['internal_qa_contactid'].",".$get_ticket['deliverable_contactid'].",".$get_ticket['created_by'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`staff`,''),'%'),',%') AND `region` IN ('".$get_ticket['region']."','')  AND `location` IN ('".$get_ticket['con_location']."','')  AND `classification` IN ('".$get_ticket['classification']."','') AND IFNULL(`status`,'') != '' AND `deleted`=0");
+	if($admin_group->num_rows > 0) {
+		$admin_group = $admin_group->fetch_assoc();
+		if($get_ticket['status'] == $admin_group['status']) {
+			$wait_on_approval = true;
+		}
+		$value_config_all = $value_config;
+		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+			$value_config = $admin_group['unlocked_fields'];
+		}
+	} else {
+		$admin_group = [];
+	}	
 
 	//Get Security Permissions
 	$ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
@@ -527,7 +543,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;

@@ -293,7 +293,7 @@ if($advanced_styling != 1) {
     ";
     $pdf_text = $html_css.html_entity_decode($form['contents']);
 }
-if(isset($_GET['performance_review'])) {
+if(isset($_GET['performance_review']) && $advanced_styling != 1 && $page_by_page != 1) {
     $pr_html = '<h1 style="text-align: center;">'.get_contact($dbc, $_POST['pr_staff']).(!empty($_POST['pr_position']) ? ' - '.$_POST['pr_position'] : '').'</h1>';
     $pdf_text = $pr_html.$pdf_text;
 }

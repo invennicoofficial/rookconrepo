@@ -65,7 +65,7 @@ if (isset($_POST['submit'])) {
                     <option value="Purchase Orders" <?= $mobile_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $mobile_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
                     <option value="Point of Sale" <?= $mobile_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
-                    <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>>Point of Sale (Advanced)</option>
+                    <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $mobile_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $mobile_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
                     <option value="Tasklist Time" <?= $mobile_landing_subtab_config['value']=='Tasklist Time' ? 'selected="selected"' : '' ?>>Task Time Tracking</option>
@@ -73,6 +73,7 @@ if (isset($_POST['submit'])) {
                     <option value="Drop Off Analysis" <?= $mobile_landing_subtab_config['value']=='Drop Off Analysis' ? 'selected="selected"' : '' ?>>Drop Off Analysis</option>
                     <option value="Discharge Report" <?= $mobile_landing_subtab_config['value']=='Discharge Report' ? 'selected="selected"' : '' ?>>Discharge Report</option>
                     <option value="Ticket Report" <?= $mobile_landing_subtab_config['value']=='Ticket Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Report</option>
+                    <option value="Action Item Summary" <?= $mobile_landing_subtab_config['value']=='Action Item Summary' ? 'selected="selected"' : '' ?>>Action Item Summary</option>
                     <option value="Site Work Time" <?= $mobile_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
                     <option value="Site Work Driving" <?= $mobile_landing_subtab_config['value']=='Site Work Driving' ? 'selected="selected"' : '' ?>>Site Work Order Driving Logs</option>
                     <option value="Shop Work Order Time" <?= $mobile_landing_subtab_config['value']=='Shop Work Order Time' ? 'selected="selected"' : '' ?>>Shop Work Order Time</option>
@@ -226,7 +227,7 @@ if (isset($_POST['submit'])) {
                     <option value="Purchase Orders" <?= $desktop_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $desktop_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
                     <option value="Point of Sale" <?= $desktop_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
-                    <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>>Point of Sale (Advanced)</option>
+                    <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $desktop_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $desktop_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
                     <option value="Tasklist Time" <?= $desktop_landing_subtab_config['value']=='Tasklist Time' ? 'selected="selected"' : '' ?>>Task Time Tracking</option>
@@ -234,7 +235,8 @@ if (isset($_POST['submit'])) {
                     <option value="Drop Off Analysis" <?= $desktop_landing_subtab_config['value']=='Drop Off Analysis' ? 'selected="selected"' : '' ?>>Drop Off Analysis</option>
                     <option value="Discharge Report" <?= $desktop_landing_subtab_config['value']=='Discharge Report' ? 'selected="selected"' : '' ?>>Discharge Report</option>
                     <option value="Ticket Report" <?= $desktop_landing_subtab_config['value']=='Ticket Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Report</option>
-                    <option value="Site Work Time" <?= $desktop_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
+                    <option value="Action Item Summary" <?= $desktop_landing_subtab_config['value']=='Action Item Summary' ? 'selected="selected"' : '' ?>>Action Item Summary</option>
+                   <option value="Site Work Time" <?= $desktop_landing_subtab_config['value']=='Site Work Time' ? 'selected="selected"' : '' ?>>Site Work Order Time on Site</option>
                     <option value="Site Work Driving" <?= $desktop_landing_subtab_config['value']=='Site Work Driving' ? 'selected="selected"' : '' ?>>Site Work Order Driving Logs</option>
                     <option value="Shop Work Order Time" <?= $desktop_landing_subtab_config['value']=='Shop Work Order Time' ? 'selected="selected"' : '' ?>>Shop Work Order Time</option>
                     <option value="Equipment Transfer" <?= $desktop_landing_subtab_config['value']=='Equipment Transfer' ? 'selected="selected"' : '' ?>>Equipment Transfer History</option>
@@ -354,6 +356,19 @@ if (isset($_POST['submit'])) {
                     <option value="Staff Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Staff Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
                     <option value="Staff Staff Compensation" <?= $desktop_landing_subtab_config['value']=='Staff Staff Compensation' ? 'selected="selected"' : '' ?>>Staff Compensation</option>
                 </optgroup>
+              </optgroup>
+              <optgroup label="History">
+                  <option value="History Staff History" <?= $desktop_landing_subtab_config['value']=='History Staff History' ? 'selected="selected"' : '' ?>>Staff History</option>
+                  <option value="History Checklist History" <?= $desktop_landing_subtab_config['value']=='History Checklist History' ? 'selected="selected"' : '' ?>>Checklist History</option>
+                  <option value="History Sales History" <?= $desktop_landing_subtab_config['value']=='History Sales History' ? 'selected="selected"' : '' ?>>Sales History</option>
+              </optgroup>
+
+              <optgroup label="Estimates">
+                  <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>
+                  <option value="Estimate Stats" <?= $desktop_landing_subtab_config['value']=='Estimate Stats' ? 'selected="selected"' : '' ?>>Estimate Stats</option>
+                  <option value="Estimate Alerts" <?= $desktop_landing_subtab_config['value']=='Estimate Alerts' ? 'selected="selected"' : '' ?>>Estimate Alerts</option>
+              </optgroup>
+
             </select>
         </div>
     </div>

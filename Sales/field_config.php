@@ -11,6 +11,10 @@ $sales_tile = SALES_TILE;
 $sales_noun = SALES_NOUN;
 
 switch($_GET['tab']) {
+	case 'dashboards':
+        $page_title = SALES_TILE." Dashboards";
+        $include_file = 'field_config_dashboards.php';
+		break;
     case 'actions':
         $_GET['tab'] = 'actions';
         $page_title = "Quick Action Flags";
@@ -60,6 +64,7 @@ function resizeScreen() {
                         <a href="index.php"><li>Back to Dashboard</li></a>
                         <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
                         <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
+                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Dashboards</li></a>
                     </ul>
                 </div>
 

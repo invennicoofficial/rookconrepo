@@ -2,6 +2,7 @@
 /*
 Customer Listing
 */
+include_once('../include.php');
 
 if (isset($_POST['add_favicon'])) {
 	if (!file_exists('download')) {

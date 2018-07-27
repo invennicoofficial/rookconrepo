@@ -4,12 +4,21 @@
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
         $subtabid = $_POST['subtabid'];
 
+        $before_change = capture_before_change($dbc, 'checklist_subtab', 'name', 'subtabid', $subtabid);
+        $before_change .= capture_before_change($dbc, 'checklist_subtab', 'shared', 'subtabid', $subtabid);
+
         $query_update_subtab = "UPDATE `checklist_subtab` SET `name` = '$subtab_name', `shared` = '$subtab_shared' WHERE `subtabid` = '$subtabid'";
         $result_update_subtab = mysqli_query($dbc, $query_update_subtab);
 
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Sub Tab <b>'.$subtab_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
     } else {
         $subtab_name = $_POST['new_subtab'];
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
@@ -36,6 +45,12 @@
         $result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'checklist_tabs_" . $_SESSION['contactid'] . "' FROM (SELECT COUNT(*) numrows FROM `general_configuration` WHERE `name`='checklist_tabs_" . $_SESSION['contactid'] . "') current_config WHERE numrows=0");
         $query_tab_config = "UPDATE `general_configuration` SET `value` = CONCAT(`value`, '$update_tab_config') WHERE `name` = 'checklist_tabs_" . $_SESSION['contactid'] . "'";
         $result_tab_config = mysqli_query($dbc, $query_tab_config);
+
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("?"); </script>';
