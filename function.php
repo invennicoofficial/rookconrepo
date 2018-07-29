@@ -3154,8 +3154,17 @@ function add_update_history($dbc, $table, $history, $contactid, $before_change, 
 			mysqli_query($dbc, "UPDATE `$table` SET `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `description`=CONCAT(IFNULL(`description`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
 		}
 }
-function capture_before_change($dbc, $table, $find, $where, $wherevalue) {
-	$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue'"));
+function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2 = '', $wherevalue2 = '', $where3 = '', $wherevalue3 = '') {
+	if($where2 != '' && $where3 != '') {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue' and `$where2` = '$wherevalue2' and `$where3` = '$wherevalue3'"));
+	}
+	else if($where2 != '') {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue' and `$where2` = '$wherevalue2'"));
+	}
+	else {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue'"));
+	}
+
 	$find_index = "'".$find."'";
 	return "$find value was " . $before_change_query[$find] . ".<br />";
 }
