@@ -44,11 +44,7 @@ if($request_tab == 'new'): ?>
 				if (!file_exists('download')) {
 					mkdir('download', 0777, true);
 				}
-				$basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
-				$i = 0;
-				while(file_exists('download/'.$filename)) {
-					$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '('.++$i.')$1', $basefilename);
-				}
+				$filename = file_safe_str($filename);
 				if(!move_uploaded_file($_FILES['documents']['tmp_name'][$row], 'download/'.$filename)) {
 					$errors .= "Error Saving Attachment: ".$filename."\n";
 				}
@@ -611,7 +607,7 @@ if($request_tab == 'new'): ?>
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
@@ -755,7 +751,7 @@ if($request_tab == 'new'): ?>
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
