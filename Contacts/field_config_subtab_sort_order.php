@@ -1887,6 +1887,7 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                     }
                 }
 
+                /*
                 foreach($tab_list as $tab_label => $tab_data) {
                         if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information') {
                             echo $tab_label;
@@ -1894,6 +1895,7 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                             <a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
                         <?php }
 				}
+                */
 
                 ?>
             </div>
