@@ -7,6 +7,10 @@ checkAuthorised('tasks');
 error_reporting(0);
 ?>
 <?php
+if(isset($_POST['task_include_checklists'])) {
+    $task_include_checklists = filter_var($_POST['task_include_checklists'],FILTER_SANITIZE_STRING);
+    set_config($dbc, 'task_include_checklists', $task_include_checklists);
+}
 if(isset($_POST['tasks_slider_layout'])) {
     $tasks_slider_layout = filter_var($_POST['tasks_slider_layout'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'tasks_slider_layout', $tasks_slider_layout);
@@ -120,7 +124,28 @@ if(isset($_POST['tasks_slider_layout'])) {
                             </div>
                         </div>
                     </div>
-				</div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields">
+                               Task Settings<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-4">Include Checklists:</label>
+                                <div class="col-sm-8">
+                                    <?php $task_include_checklists = get_config($dbc, 'task_include_checklists'); ?>
+                                    <label class="form-checkbox"><input type="checkbox" name="task_include_checklists" value="1" <?= $task_include_checklists == 1 ? 'checked' : '' ?>> Enable</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 				<div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">

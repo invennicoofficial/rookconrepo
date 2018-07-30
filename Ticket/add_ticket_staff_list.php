@@ -104,12 +104,27 @@ if($projectid > 0) {
 		$rate_card_name = get_field_value('rate_card_name','company_rate_card','companyrcid',$rate[1]);
 	}
 }
+if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+	$contactid = [];
+	if(!empty($_GET['calendar_contactid'])) {
+		foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+			$contactid[] = $calendar_contactid;
+		}
+	}
+	$contactid = array_filter(array_unique($contactid));
+	$contact_query = '';
+	foreach($contactid as $contact_id) {
+		$contact_query[] = "SELECT '$contact_id' `item_id`";
+	}
+	$query = mysqli_query($dbc, implode(" UNION ", $contact_query));
+	$staff = mysqli_fetch_assoc($query);
+}
 do {
 	$positions_allowed = [];
 	$position_rate = 0; ?>
 	<div class="multi-block">
 		<?php if(($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) && !($strict_view > 0)) {
-        if($staff['item_id'] == '' && !($ticketid > 0)) { $staff['item_id'] = $_SESSION['contactid']; }
+        if($staff['item_id'] == '' && !($ticketid > 0) && get_config($dbc, 'ticket_default_session_user') != 'no_user') { $staff['item_id'] = $_SESSION['contactid']; }
         ?>
 			<div class="col-sm-4">
 				<label class="show-on-mob control-label">Staff:</label>

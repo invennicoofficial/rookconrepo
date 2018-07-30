@@ -280,6 +280,64 @@
     }
     //2018-07-20 - Ticket #8352 - Sales Auto Archive
 
+    //2018-07-25 - Ticket #8413 - Cleans Calendar
+    if(!mysqli_query($dbc, "ALTER TABLE `teams` ADD `team_name` varchar(500) AFTER `teamid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_recurrences` (
+        `id` int(11) NOT NULL,
+        `ticketid` int(11) NOT NULL,
+        `start_date` date NOT NULL,
+        `end_date` date NOT NULL,
+        `repeat_type` varchar(500),
+        `repeat_interval` int(11) NOT NULL,
+        `repeat_days` varchar(500),
+        `last_added_date` date NOT NULL,
+        `deleted` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-25 - Ticket #8413 - Cleans Calendar
+
+    //2018-07-30 - Ticket #8467 - Cleans Recurring Monthly
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences` ADD `repeat_monthly` varchar(500) AFTER `repeat_type`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-30 - Ticket #8467 - Cleans Recurring Monthly
+
+    //2018-07-30 - Ticket #8444 - Teams
+    $updated_already = get_config($dbc, 'updated_ticket8444_teams');
+    if(empty($updated_already)) {
+        $estimate_groups = explode('#*#',mysqli_fetch_array(mysqli_query($dbc, "SELECT `estimate_groups` FROM field_config_estimate"))[0]);
+        $ticket_groups = explode('#*#',get_config($dbc,'ticket_groups'));
+        $so_groups = explode('*#*',get_config($dbc, 'sales_order_staff_groups'));
+        $groups = array_merge($estimate_groups, $ticket_groups, $so_groups);
+        foreach($groups as $group) {
+            $group = explode(',', $group);
+            $group_name = '';
+            if(count($group) > 1 && !($group[0] > 0)) {
+                $group_name = $group[0];
+                unset($group[0]);
+            }
+            mysqli_query($dbc, "INSERT INTO `teams` (`team_name`, `start_date`, `end_date`) VALUES ('$group_name', '', '')");
+            $teamid = mysqli_insert_id($dbc);
+            foreach($group as $staff) {
+                if($staff > 0) {
+                    mysqli_query($dbc, "INSERT INTO `teams_staff` (`teamid`, `contactid`) VALUES ('$teamid', '$staff')");
+                }
+            }
+        }
+        set_config($dbc, 'updated_ticket8444_teams', 1);
+    }
+    //2018-07-30 - Ticket #8444 - Teams
+
     //2018-07-24 - Ticket #6075 - Performance Improvement Plan
     if(!mysqli_query($dbc, "CREATE TABLE `field_config_performance_reviews` (
         `fieldconfigid` int(11) NOT NULL,
@@ -314,6 +372,30 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-07-26 - Ticket #8394 - Contact Forms Editable
+
+    //2018-07-27 - Ticket #7552 - Checklists
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `salesid` int(11) NOT NULL AFTER `ticketid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `sales_milestone` varchar(500) NOT NULL AFTER `salesid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_path` int(10) NOT NULL AFTER `sales_milestone`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_board` int(10) NOT NULL AFTER `task_path`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_milestone_timeline` varchar(500) NOT NULL AFTER `task_board`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-27 - Ticket #7552 - Checklists
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

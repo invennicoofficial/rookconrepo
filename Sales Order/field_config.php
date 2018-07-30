@@ -73,6 +73,12 @@ checkAuthorised('sales_order');
 ?>
 
 <div id="sales_order_div" class="container">
+    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe name="sales_order_iframe" src=""></iframe>
+        </div>
+    </div>
     
     <div class="row hide_on_iframe">
 		<div class="main-screen"><?php

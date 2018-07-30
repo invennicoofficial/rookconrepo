@@ -4,6 +4,7 @@ $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $show_tasks = tile_enabled($dbc, 'tasks');
 $show_tickets = tile_enabled($dbc, 'ticket');
 $show_forms = tile_enabled($dbc, 'intake');
+$show_checklists = tile_enabled($dbc, 'checklist');
 $sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
 <script>
 $(document).ready(function() {
@@ -407,137 +408,237 @@ function task_mark_done(sel) {
     });
 }
 
-	function intake_flag(intake) {
-		intakeid = $(intake).closest('span').data('intake');
+//Intake functions
+function intake_flag(intake) {
+	intakeid = $(intake).closest('span').data('intake');
+	$.ajax({
+		method: "POST",
+		url: "sales_ajax_all.php?fill=intakeFlagItem",
+		data: { id: intakeid },
+		complete: function(result) {
+			$(intake).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+		}
+	});
+}
+
+function intake_manual_flag(intake) {
+	var item = $(intake).closest('li');
+	item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+	item.find('[name=flag_cancel]').off('click').click(function() {
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		return false;
+	});
+	item.find('[name=flag_off]').off('click').click(function() {
+		item.find('[name=colour]').val('FFFFFF');
+		item.find('[name=label]').val('');
+		item.find('[name=flag_start]').val('');
+		item.find('[name=flag_end]').val('');
+		item.find('[name=flag_it]').click();
+		return false;
+	});
+	item.find('[name=flag_it]').off('click').click(function() {
 		$.ajax({
-			method: "POST",
-			url: "sales_ajax_all.php?fill=intakeFlagItem",
-			data: { id: intakeid },
-			complete: function(result) {
-				$(intake).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+			url: '../Intake/intake_ajax_all.php?fill=intakeflagmanual',
+			method: 'POST',
+			data: {
+				value: item.find('[name=colour]').val(),
+				label: item.find('[name=label]').val(),
+				start: item.find('[name=flag_start]').val(),
+				end: item.find('[name=flag_end]').val(),
+				id: item.find('[data-intake]').data('intake')
+			}
+		});
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+		item.data('colour',item.find('[name=colour]').val());
+		item.css('background-color','#'+item.find('[name=colour]').val());
+		item.find('.flag-label').text(item.find('[name=label]').val());
+		return false;
+	});
+}
+
+function intake_email(intake) {
+	salesid = '<?= $_GET['id'] ?>';
+	intakeid = $(intake).closest('span').data('intake');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales_intake&intakeid='+intakeid+'&salesid='+salesid, 'auto', false, true);
+}
+
+function intake_reminder(intake) {
+	salesid = '<?= $_GET['id'] ?>';
+	intakeid = $(intake).closest('span').data('intake');
+	var item = $(intake).closest('li');
+	item.find('[name=reminder]').change(function() {
+		var reminder = $(this).val();
+		var select = item.find('.select_users');
+		select.find('.cancel_button').off('click').click(function() {
+			select.find('select option:selected').removeAttr('selected');
+			select.find('select').trigger('change.select2');
+			select.hide();
+			return false;
+		});
+		select.find('.submit_button').off('click').click(function() {
+			if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+				var users = [];
+				select.find('select option:selected').each(function() {
+					users.push(this.value);
+					$(this).removeAttr('selected');
+				});
+				$.ajax({
+					method: 'POST',
+					url: 'sales_ajax_all.php?fill=intakeReminder',
+					data: {
+						salesid: salesid,
+						id: intakeid,
+						value: reminder,
+						users: users,
+					},
+					success: function(result) {
+						select.hide();
+						select.find('select').trigger('change.select2');
+					}
+				});
+			}
+			return false;
+		});
+		select.show();
+	}).focus();
+}
+
+function intake_archive(intake) {
+	intakeid = $(intake).closest('span').data('intake');
+	if(confirm('Are you sure you want to archive this Intake Form?')) {
+		$.ajax({
+			method: 'POST',
+			url: 'sales_ajax_all.php?fill=intakeArchive',
+			data: {
+				id: intakeid
+			},
+			success: function(result) {
+				console.log(result);
+				$(intake).closest('li').remove();
 			}
 		});
 	}
+}
 
-	function intake_manual_flag(intake) {
-		var item = $(intake).closest('li');
-		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
-		item.find('[name=flag_cancel]').off('click').click(function() {
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			return false;
-		});
-		item.find('[name=flag_off]').off('click').click(function() {
-			item.find('[name=colour]').val('FFFFFF');
-			item.find('[name=label]').val('');
-			item.find('[name=flag_start]').val('');
-			item.find('[name=flag_end]').val('');
-			item.find('[name=flag_it]').click();
-			return false;
-		});
-		item.find('[name=flag_it]').off('click').click(function() {
-			$.ajax({
-				url: '../Intake/intake_ajax_all.php?fill=intakeflagmanual',
-				method: 'POST',
-				data: {
-					value: item.find('[name=colour]').val(),
-					label: item.find('[name=label]').val(),
-					start: item.find('[name=flag_start]').val(),
-					end: item.find('[name=flag_end]').val(),
-					id: item.find('[data-intake]').data('intake')
-				}
-			});
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			item.data('colour',item.find('[name=colour]').val());
-			item.css('background-color','#'+item.find('[name=colour]').val());
-			item.find('.flag-label').text(item.find('[name=label]').val());
-			return false;
-		});
-	}
+function addIntakeForm(btn) {
+	$('.dialog_addintake').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 600 ? $(window).width() : 600),
+		modal: true,
+		buttons: {
+			'Add': function() {
+				var formid = $('[name="add_intakeform"]').val();
+				var salesid = '<?= $_GET['id'] ?>';
+				var sales_milestone = $(btn).data('milestone');
+				window.location.href = '<?= WEBSITE_URL ?>/Intake/add_form.php?formid='+formid+'&salesid='+salesid+'&sales_milestone='+sales_milestone;
+				$(this).dialog('close');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+	    }
+	});
+}
 
-	function intake_email(intake) {
-		salesid = '<?= $_GET['id'] ?>';
-		intakeid = $(intake).closest('span').data('intake');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales_intake&intakeid='+intakeid+'&salesid='+salesid, 'auto', false, true);
-	}
-
-	function intake_reminder(intake) {
-		salesid = '<?= $_GET['id'] ?>';
-		intakeid = $(intake).closest('span').data('intake');
-		var item = $(intake).closest('li');
-		item.find('[name=reminder]').change(function() {
-			var reminder = $(this).val();
-			var select = item.find('.select_users');
-			select.find('.cancel_button').off('click').click(function() {
-				select.find('select option:selected').removeAttr('selected');
-				select.find('select').trigger('change.select2');
-				select.hide();
-				return false;
-			});
-			select.find('.submit_button').off('click').click(function() {
-				if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
-					var users = [];
-					select.find('select option:selected').each(function() {
-						users.push(this.value);
-						$(this).removeAttr('selected');
-					});
-					$.ajax({
-						method: 'POST',
-						url: 'sales_ajax_all.php?fill=intakeReminder',
-						data: {
-							salesid: salesid,
-							id: intakeid,
-							value: reminder,
-							users: users,
-						},
-						success: function(result) {
-							select.hide();
-							select.find('select').trigger('change.select2');
-						}
-					});
-				}
-				return false;
-			});
-			select.show();
-		}).focus();
-	}
-
-	function intake_archive(intake) {
-		intakeid = $(intake).closest('span').data('intake');
-		if(confirm('Are you sure you want to archive this Intake Form?')) {
-			$.ajax({
-				method: 'POST',
-				url: 'sales_ajax_all.php?fill=intakeArchive',
-				data: {
-					id: intakeid
-				},
-				success: function(result) {
-					console.log(result);
-					$(intake).closest('li').remove();
-				}
-			});
+//Checklist functions
+function checklist_flag(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	$.ajax({
+		method: "POST",
+		url: "sales_ajax_all.php?fill=checklistFlagItem",
+		data: { id: checklistid },
+		complete: function(result) {
+			$(checklist).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 		}
-	}
+	});
+}
 
-	function addIntakeForm(btn) {
-		$('.dialog_addintake').dialog({
-			resizable: true,
-			height: "auto",
-			width: ($(window).width() <= 600 ? $(window).width() : 600),
-			modal: true,
-			buttons: {
-				'Add': function() {
-					var formid = $('[name="add_intakeform"]').val();
-					var salesid = '<?= $_GET['id'] ?>';
-					var sales_milestone = $(btn).data('milestone');
-					window.location.href = '<?= WEBSITE_URL ?>/Intake/add_form.php?formid='+formid+'&salesid='+salesid+'&sales_milestone='+sales_milestone;
-					$(this).dialog('close');
-				},
-		        Cancel: function() {
-		        	$(this).dialog('close');
-		        }
-		    }
+function checklist_email(checklist) {
+	salesid = '<?= $_GET['id'] ?>';
+	checklistid = $(checklist).closest('span').data('checklist');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales_checklist&checklistid='+checklistid+'&salesid='+salesid, 'auto', false, true);
+}
+
+function checklist_reminder(checklist) {
+	salesid = '<?= $_GET['id'] ?>';
+	checklistid = $(checklist).closest('span').data('checklist');
+	var item = $(checklist).closest('li');
+	item.find('[name=reminder]').change(function() {
+		var reminder = $(this).val();
+		var select = item.find('.select_users');
+		select.find('.cancel_button').off('click').click(function() {
+			select.find('select option:selected').removeAttr('selected');
+			select.find('select').trigger('change.select2');
+			select.hide();
+			return false;
+		});
+		select.find('.submit_button').off('click').click(function() {
+			if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+				var users = [];
+				select.find('select option:selected').each(function() {
+					users.push(this.value);
+					$(this).removeAttr('selected');
+				});
+				$.ajax({
+					method: 'POST',
+					url: 'sales_ajax_all.php?fill=checklistReminder',
+					data: {
+						salesid: salesid,
+						id: checklistid,
+						value: reminder,
+						users: users,
+					},
+					success: function(result) {
+						select.hide();
+						select.find('select').trigger('change.select2');
+					}
+				});
+			}
+			return false;
+		});
+		select.show();
+	}).focus();
+}
+
+function checklist_archive(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	if(confirm('Are you sure you want to archive this Checklist?')) {
+		$.ajax({
+			method: 'POST',
+			url: 'sales_ajax_all.php?fill=checklistArchive',
+			data: {
+				id: checklistid
+			},
+			success: function(result) {
+				console.log(result);
+				$(checklist).closest('li').remove();
+			}
 		});
 	}
+}
+
+function checklist_attach_file(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	var type = 'checklist_board';
+	var file_id = 'attach_checklist_board_'+checklistid;
+	$('[name='+file_id+']').change(function() {
+		var fileData = new FormData();
+		fileData.append('file',$('[name='+file_id+']')[0].files[0]);
+		$.ajax({
+			contentType: false,
+			processData: false,
+			type: "POST",
+			url: "../Checklist/checklist_ajax.php?fill=checklist_upload&type="+type+"&id="+checklistid,
+			data: fileData,
+			complete: function(result) {
+				//console.log(result.responseText);
+				reloadChecklistScreen($(checklist).closest('li').find('.checklist_screen'));
+			}
+		});
+	});
+	$('[name='+file_id+']').click();
+}
 </script>
 	<?php 
 	$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0"));
@@ -588,6 +689,8 @@ function task_mark_done(sel) {
 						$ticket_count = mysqli_num_rows($ticket_result) ?: 0;
 						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
 						$form_count = mysqli_num_rows($form_result) ?: 0;
+						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
+						$checklist_count = mysqli_num_rows($checklist_result) ?: 0;
 						
 						$status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
 
@@ -601,10 +704,9 @@ function task_mark_done(sel) {
 								<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 								<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
 								<input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
-								
-								<?php if($show_tasks) { ?><div class="small">TASKS: <?= $task_count ?></div><?php } ?>
-								<?php if($show_tickets) { ?><div class="small"><?= strtoupper(TICKET_TILE) ?>: <?= $ticket_count ?></div><?php } ?>
-									<?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?><div class="small">INTAKE FORMS: <?= $form_count ?></div><?php } ?>
+								<div class="small">
+									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_tickets) { ?><?= ' '.strtoupper(TICKET_TILE) ?>: <?= $ticket_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
+								</div>
 								<div class="clearfix"></div>
 							<div class="clearfix"></div>
 						</div><?php
@@ -795,7 +897,7 @@ function task_mark_done(sel) {
 							<?php echo '</span></h4></span></div>';
 							echo '</li>';
 						}
-						if(strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) {
+						if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) {
 							while($row = mysqli_fetch_array( $form_result )) {
 									$intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$row['intakeformid']."'"));
 									$colour = $row['flag_colour'];
@@ -866,10 +968,76 @@ function task_mark_done(sel) {
 									</div><?php
 							echo '</li>';
 							}
+						}
+						if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) {
+							while($row = mysqli_fetch_array( $checklist_result )) {
+								$colour = $row['flag_colour'];
+								if($colour == 'FFFFFF' || $colour == '') {
+									$colour = '';
+								}
+								echo '<li style="background-color: #'.$colour.'" data-id-field="checklistid" id="'.$row['checklistid'].'" data-table="checklist" class="ui-state-default">';
+								echo '<input type="file" name="attach_checklist_board_'.$row['checklistid'].'" style="display:none;" />';
+								echo '<span class="pull-right action-icons" style="width: 100%;" data-checklist="'.$row['checklistid'].'">'.
+									'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$row['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
+									(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" onclick="checklist_flag(this); return false;" class="inline-img flag-icon" title="Flag This!">' : '').
+									(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" onclick="checklist_email(this); return false;" class="inline-img email-icon" title="Send Email">' : '').
+									(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" onclick="checklist_reminder(this); return false;" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
+									(in_array('attach', $quick_actions) ? '<img src="../img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" onclick="checklist_attach_file(this); return false;" title="Attach File(s)">' : '').
+									(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" onclick="checklist_archive(this); return false;" class="inline-img archive-icon" title="Archive">' : '');
+								echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
+								echo '</span>';
+								if(in_array('flag_manual',$quick_actions)) { ?>
+									<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+									<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+									<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+											<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+											<?php foreach($flag_colours as $flag_colour) { ?>
+												<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+											<?php } ?>
+										</select></div>
+									<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+									<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+									<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+									<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+									<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+								<?php }
+								echo '<div class="clearfix"></div>'; ?>
+
+								<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect"><option value="unassign">Unassigned</option>
+									<?php foreach($external_path as $external_milestone) { ?>
+										<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+									<?php } ?></select></div>
+								<div class="select_users" style="display:none;">
+									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+									<?php foreach($staff_list as $staff) { ?>
+										<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
+									<?php } ?>
+									</select>
+									<button class="submit_button btn brand-btn pull-right">Submit</button>
+									<button class="cancel_button btn brand-btn pull-right">Cancel</button>
+								</div><?php
+								echo '<div class="row"><h4><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$row['checklistid'].'&iframe_slider=1\'); return false;">'.$row['checklist_name'].'</a></h4></div><div class="clearfix"></div>';
+								echo '<input type="text" name="reminder" value="" class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;float:right;">';
+
+								$checklistid = $row['checklistid'];
+								$_GET['view'] = $checklistid;
+								$_GET['override_block'] = 'true';
+								$_GET['hide_header'] = 'true';
+								$_GET['different_function_name'] = 'true';
+						        echo '<div class="checklist_screen" data-querystring="view='.$checklistid.'&override_block=true&hide_header=true&different_function_name=true">';
+								include('../Checklist/view_checklist.php');
+								echo '</div>';
+
+								echo '<div class="clearfix"></div>';
+							echo '</li>';
+							}
 						} ?>
 						
 							<li class="no-sort">
-								<?php if(strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?>
+								<?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?>
+									<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&salesid=<?= $_GET['id'] ?>&sales_milestone=<?= $status ?>'); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Checklist</a>
+								<?php } ?>
+								<?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?>
 									<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
 								<?php } ?>
 								<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=sales&sales_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&salesid=<?=$_GET['id']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php

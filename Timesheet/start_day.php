@@ -132,16 +132,17 @@ if($_POST['submit'] == 'start_day') {
 }
 include('../navigation.php');
 $group_list = explode('#*#',get_config($dbc, 'ticket_groups'));
+$teams = get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'");
 $timesheet_hide_others = get_config($dbc, 'timesheet_hide_others');
 $timesheet_add_day_comment = get_config($dbc, 'timesheet_add_day_comment');
 if($timesheet_hide_others == '1') {
 	$hide_others_query = " AND `contactid` = '".$_SESSION['contactid']."'";
 } else if($timesheet_hide_others == '2') {
 	$group_ids = [];
-	foreach($group_list as $group) {
-		$group = array_filter(explode(',',$group),'is_id');
-		if(in_array($_SESSION['contactid'],$group)) {
-			$group_ids = array_merge($group_ids, $group);
+	foreach($teams as $team) {
+		$team_staff = get_team_contactids($dbc, $team['teamid']);
+		if(in_array($_SESSION['contactid'],$team_staff)) {
+			$group_ids = array_merge($group_ids, $team_staff);
 		}
 	}
 	if(count($group_ids) > 0) {
@@ -198,14 +199,14 @@ function disableClient(chk) {
 						<h1><?= get_config($dbc, 'timesheet_start_tile') ?></h1>
 						<?php if($timesheet_hide_others == 0 && $timesheet_hide_groups != 1) { ?>
 							<div class="form-group">
-								<?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
-									$group = explode(',',$group);
-									if(count($group) > 1) { ?>
-										<button class="btn brand-btn" onclick="<?php foreach($group as $i => $staff) {
+								<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+									$team_staff = get_team_contactids($dbc, $team['teamid']);
+									if(count($team_staff) > 1) { ?>
+										<button class="btn brand-btn" onclick="<?php foreach($team_staff as $i => $staff) {
 											if($staff > 0) {
 												echo "$('[name^=staff_start][value=".$staff."]').prop('checked',true).change();";
 											}
-										} ?>return false;"><?= $group[0] ?></button>
+										} ?>return false;"><?= get_team_name($dbc, $team['teamid']) ?></button>
 									<?php }
 								} ?>
 							</div>
