@@ -1,5 +1,15 @@
 <?php include_once('../include.php'); ?>
-
+<script type="text/javascript">
+function archiveTeam(a, teamid) {
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=archive_team&teamid='+teamid,
+		method: 'GET',
+		success: function(response) {
+			$(a).closest('tr').remove();
+		}
+	});
+}
+</script>
 <a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/teams.php?teamid=NEW'); return false;" class="btn brand-btn pull-right gap-bottom">Add Team</a>
 <?php
 $teams = get_teams($dbc);
@@ -56,7 +66,7 @@ if(!empty($teams)) { ?>
 					<?php if(strpos($team_fields, ',notes,') !== FALSE) { ?>
 						<td data-title="Notes"><?= html_entity_decode($team['notes']) ?></td>
 					<?php } ?>
-					<td data-title="Function"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/teams.php?teamid=<?= $team['teamid'] ?>'); return false;">Edit</a> | <a href="" onclick="archiveTeam('<?= $team['teamid'] ?>'); return false;">Delete</a></td>
+					<td data-title="Function"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/teams.php?teamid=<?= $team['teamid'] ?>'); return false;">Edit</a> | <a href="" onclick="archiveTeam(this, '<?= $team['teamid'] ?>'); return false;">Delete</a></td>
 				</tr>
 			<?php } ?>
 		</table>
