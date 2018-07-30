@@ -951,17 +951,7 @@ function removeContactForm(a, pdf_id) {
 						<?php foreach($field_config as $field_name) {
 							if(substr($field_name, 0, 4) == 'acc_' && $edit_access > 0) {
 								foreach($tab_list as $tab_label => $tab_data) {
-									if($field_name == 'acc_'.$tab_data[0] && $tab_label != 'Checklist' && !in_array($tab_data[0], $subtabs_hidden) && (in_array($tab_data[0], $contact_subtabs) || empty($contact_subtabs))) {
-                                        $tab_label = ($tab_label=='Payment Information') ? 'Payment &amp; Billing Information' : $tab_label; ?>
-										<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
-										<?php if($tab_data[0] == 'business_address') { ?>
-											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['business_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
-										<?php } else if($tab_data[0] == 'mailing_address') { ?>
-											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['mailing_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
-										<?php } else if($tab_data[0] == 'address') { ?>
-											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['address_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
-										<?php }
-									}
+
 								}
 							}
 						} ?>
