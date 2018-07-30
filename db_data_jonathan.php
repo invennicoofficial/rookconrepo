@@ -161,6 +161,21 @@
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
+	if(get_config($dbc, 'db_version_jonathan') < 10) {
+		// July 30, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_userid` INT(11) UNSIGNED NOT NULL AFTER `software_url`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_user_name` TEXT AFTER `software_userid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_role` TEXT AFTER `software_user_name`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 8);
+	}
+	
 	if(get_config($dbc, 'update_timesheet_config') < 1) {
 		// July 9, 2018
 		if(!mysqli_query($dbc, "UPDATE `field_config` SET `time_cards`=CONCAT(`time_cards`,',comment_box,')")) {

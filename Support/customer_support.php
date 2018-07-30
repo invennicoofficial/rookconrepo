@@ -1,7 +1,6 @@
 <?php include('../include.php');
-error_reporting(0);
-$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
-// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
+// $dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+$dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
 $user = get_config($dbc, 'company_name');
 $url = WEBSITE_URL;
 $user_name = $user;
@@ -130,7 +129,7 @@ function loadPanel() {
 							<div class="clearfix"></div>
 							<!--ERROR: #<?= mysqli_connect_errno() ?> - <?= mysqli_connect_error() ?>-->
 						</div>
-					<?php } else if($current_tab == 'requests' && $request_tab == 'new') { ?>
+					<?php } else if($current_tab == 'requests' && $request_tab == 'new' && empty($_POST['new_request'])) { ?>
 						<div id="no-more-tables">
 							<div class="form-horizontal col-sm-12"><?php include($current_tab.'.php'); ?></div>
 						</div>
