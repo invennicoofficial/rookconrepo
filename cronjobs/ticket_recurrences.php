@@ -7,7 +7,7 @@ $ticket_recurrences = mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHE
 while($row = mysqli_fetch_assoc($ticket_recurrences)) {
 	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$row['ticketid']."' AND `deleted` = 0 AND `is_recurrence` = 1"));
 	if(!empty($ticket)) {
-		create_recurring_tickets($dbc, $ticket['main_ticketid'], date('Y-m-d', strtotime($row['last_added_date'].' + 1 day')), '', $row['repeat_type'], $row['repeat_interval'], array_filter(explode(',', $row['repeat_days'])));
+		create_recurring_tickets($dbc, $ticket['main_ticketid'], date('Y-m-d', strtotime($row['last_added_date'].' + 1 day')), '', $row['repeat_type'], $row['repeat_interval'], array_filter(explode(',', $row['repeat_days'])), $row['repeat_monthly']);
 		sync_recurring_tickets($dbc, $ticket['ticketid']);
 	}
 }

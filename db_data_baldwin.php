@@ -306,5 +306,11 @@
     }
     //2018-07-25 - Ticket #8413 - Cleans Calendar
 
+    //2018-07-30 - Ticket #8467 - Cleans Recurring Monthly
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_recurrences` ADD `repeat_monthly` varchar(500) AFTER `repeat_type`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-30 - Ticket #8467 - Cleans Recurring Monthly
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

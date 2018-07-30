@@ -223,11 +223,21 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	</div>
 	<div id="dialog_create_recurrence_cal" title="Recurrence Details" style="display: none;">
 		<script type="text/javascript">
-		$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
+		$(document).on('change', 'select[name="recurrence_repeat_type"],select[name="recurrence_repeat_monthly_type"]', function() {
 			var repeat_type = $('[name="recurrence_repeat_type"]').val();
+			var month_type = $('[name="recurrence_repeat_monthly_type"]').val();
 			if(repeat_type == 'week') {
+				$('.recurrence_monthly_settings').hide();
 				$('.recurrence_repeat_days').show();
+			} else if(repeat_type == 'month') {
+				$('.recurrence_monthly_settings').show();
+				if(month_type != 'day') {
+					$('.recurrence_repeat_days').show();
+				} else {
+					$('.recurrence_repeat_days').hide();
+				}
 			} else {
+				$('.recurrence_monthly_settings').hide();
 				$('.recurrence_repeat_days').hide();
 			}
 		});
@@ -251,6 +261,19 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 					<option value="day">Daily</option>
 					<option value="week" selected>Weekly</option>
 					<option value="month">Monthly</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group recurrence_monthly_settings" style="display:none;">
+			<label class="col-sm-4 control-label">Repeat Type:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_monthly_type" class="form-control  chosen-select-deselect">
+					<option value="day" selected>By Day</option>
+					<option value="first">First Week of Month</option>
+					<option value="second">Second Week of Month</option>
+					<option value="third">Third Week of Month</option>
+					<option value="fourth">Fourth Week of Month</option>
+					<option value="last">Last Week of Month</option>
 				</select>
 			</div>
 		</div>

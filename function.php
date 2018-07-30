@@ -3115,7 +3115,7 @@ function convert_timestamp_mysql($dbc, $timestamp) {
 
     return $new_timestamp;
 }
-function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days) {
+function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly) {
     $recurring_dates = [];
     $reached_limit = 0;
     if(date('l', strtotime($start_date)) != 'Sunday') {
@@ -3136,6 +3136,15 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
                     $reached_limit++;
                 }
             }
+        } else if($repeat_type == 'month' && in_array($repeat_monthly,['first','second','third','fourth','last'])) {
+            $year_month = date('Y-m', strtotime($cur));
+            foreach($repeat_days as $repeat_day) {
+                $recurring_date = date('Y-m-d', strtotime($repeat_monthly.' '.$repeat_day.' of '.$year_month));
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                    $recurring_dates[] = $recurring_date;
+                    $reached_limit++;
+                }
+            }
         } else {
             $recurring_dates[] = $cur;
             $reached_limit++;
@@ -3143,7 +3152,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
     }
     return $recurring_dates;
 }
-function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $skip_first = '') {
+function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '') {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
     $ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3155,7 +3164,7 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
         $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
     }
-    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days);
+    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
     if($skip_first == 1) {
         array_shift($recurring_dates);
     }

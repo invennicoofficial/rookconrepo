@@ -2880,6 +2880,7 @@ if($_GET['action'] == 'update_fields') {
 	$start_date = $_POST['start_date'];
 	$end_date = $_POST['end_date'];
 	$repeat_type = $_POST['repeat_type'];
+	$repeat_monthly = $_POST['repeat_monthly'];
 	$repeat_interval = $_POST['repeat_interval'];
 	$repeat_days = $_POST['repeat_days'];
 	$result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
@@ -2905,7 +2906,7 @@ if($_GET['action'] == 'update_fields') {
 			$validated = false;
 			$validate_errors[] = "Invalid Repeat Interval";
 		}
-		if($repeat_type == 'week' && empty($repeat_days)) {
+		if(($repeat_type == 'week' && empty($repeat_days)) || ($repeat_type == 'month' && $repeat_monthly != 'day' && empty($repeat_days))) {
 			$validated = false;
 			$validate_errors[] = "No repeat days selected";
 		}
@@ -2917,7 +2918,7 @@ if($_GET['action'] == 'update_fields') {
 				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
 				$ongoing_recurrence = true;
 			}
-			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days);
+			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
 			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
 			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
 		} else {
@@ -2930,7 +2931,7 @@ if($_GET['action'] == 'update_fields') {
 
 		if($ticketid > 0) {
 			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
-			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_interval', '".implode(',',$repeat_days)."')");
+			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
 
 		    //Set main_ticketid and main_ids for records so they can be synced together
 		    mysqli_query($dbc, "UPDATE `tickets` SET `main_ticketid` = '$ticketid', `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
@@ -2938,7 +2939,7 @@ if($_GET['action'] == 'update_fields') {
 		    mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 		    mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 
-			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $_POST['skip_first']);
+			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first']);
 			sync_recurring_tickets($dbc, $ticketid);
 			echo 'Successfully created Recurring '.TICKET_TILE;
 		}

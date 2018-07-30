@@ -2837,12 +2837,13 @@ function dialogCreateRecurrence(a) {
 					var recurrence_start_date = $('[name="recurrence_start_date"]').val();
 					var recurrence_end_date = $('[name="recurrence_end_date"]').val();
 					var recurrence_repeat_type = $('[name="recurrence_repeat_type"]').val();
+					var recurrence_repeat_monthly = $('[name="recurrence_repeat_monthly_type"]').val();
 					var recurrence_repeat_interval = $('[name="recurrence_repeat_interval"]').val();
 					var recurrence_repeat_days = [];
 					$('[name="recurrence_repeat_days[]"]:checked').each(function() {
 						recurrence_repeat_days.push(this.value);
 					});
-					var recurrence_data = { ticketid: ticket, start_date: recurrence_start_date, end_date: recurrence_end_date, repeat_type: recurrence_repeat_type, repeat_interval: recurrence_repeat_interval, repeat_days: recurrence_repeat_days };
+					var recurrence_data = { ticketid: ticket, start_date: recurrence_start_date, end_date: recurrence_end_date, repeat_type: recurrence_repeat_type, repeat_monthly: recurrence_repeat_monthly, repeat_interval: recurrence_repeat_interval, repeat_days: recurrence_repeat_days };
 					$.ajax({
 						url: '../Ticket/ticket_ajax_all.php?action=create_recurrence_tickets&validate=1',
 						method: 'POST',
