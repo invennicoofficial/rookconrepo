@@ -3139,4 +3139,8 @@ if($_GET['fill'] == 'quick_add_shift') {
 		mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`) VALUES ('$staff', '$client', '$date', '$date', '$starttime', '$endtime')");
 	}
 }
+if($_GET['fill'] == 'archive_team') {
+	$teamid = $_GET['teamid'];
+	mysqli_query($dbc, "UPDATE `teams` SET `deleted` = 1 WHERE `teamid` = '$teamid'");
+}
 ?>
