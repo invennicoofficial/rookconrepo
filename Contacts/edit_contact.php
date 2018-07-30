@@ -967,6 +967,7 @@ function removeContactForm(a, pdf_id) {
 						} ?>
 						<?php foreach($tab_list as $tab_label => $tab_data) {
 							if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information' && $tab_label != 'Checklist' && $edit_access > 0 && !in_array($tab_data[0], $subtabs_hidden) && (in_array($tab_data[0], $contact_subtabs) || empty($contact_subtabs))) { ?>
+								<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
 							<?php }
 						} ?>
 						<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
