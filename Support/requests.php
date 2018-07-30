@@ -1,8 +1,8 @@
 <?php include_once('../include.php');
 if(!isset($request_tab)) {
 	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
-	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
-	// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
+	// $dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+	$dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
 	$user = get_config($dbc, 'company_name');
 	$url = WEBSITE_URL;
 	$user_name = $user;
@@ -21,6 +21,9 @@ if($request_tab == 'new'): ?>
 		$reported_date = date('Y-m-d h:i:s');
 		$business = filter_var($_POST['business'],FILTER_SANITIZE_STRING);
 		$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+		$software_user = filter_var($_POST['src_user'],FILTER_SANITIZE_STRING);
+		$software_userid = filter_var($_POST['src_contactid'],FILTER_SANITIZE_STRING);
+		$software_role = filter_var($_POST['src_security'],FILTER_SANITIZE_STRING);
 		$software_url = filter_var($_POST['software'],FILTER_SANITIZE_STRING);
 		$email = filter_var($_POST['email'],FILTER_SANITIZE_STRING);
 		$cc = filter_var(implode(';',$_POST['ccemail']),FILTER_SANITIZE_STRING);
@@ -31,8 +34,8 @@ if($request_tab == 'new'): ?>
 		$action = filter_var(htmlentities($_POST['action']),FILTER_SANITIZE_STRING);
 		$check = filter_var(htmlentities($_POST['check']),FILTER_SANITIZE_STRING);
 		$adjustments = filter_var(htmlentities($_POST['adjustments']),FILTER_SANITIZE_STRING);
-		$support_insert = "INSERT INTO `support` (`name`, `contactid`, `company_name`, `businessid`, `software_url`, `current_date`, `critical_incident`, `email`, `cc_email`, `heading`, `message`, `critical_plan`, `critical_discovery`, `critical_action`, `critical_check`, `critical_adjustments`, `support_type`)
-			VALUES ('$customer', '$contactid', '$business', '$businessid', '$software_url', '$date', '$incident_date', '$email', '$cc', '$heading', '$details', '$plan', '$discovery', '$action', '$check', '$adjustments', '$type')";
+		$support_insert = "INSERT INTO `support` (`name`, `contactid`, `company_name`, `businessid`, `software_url`, `software_userid`, `software_user_name`, `software_role`, `current_date`, `critical_incident`, `email`, `cc_email`, `heading`, `message`, `critical_plan`, `critical_discovery`, `critical_action`, `critical_check`, `critical_adjustments`, `support_type`)
+			VALUES ('$customer', '$contactid', '$business', '$businessid', '$software_url', '$software_userid', '$software_user', '$software_role', '$date', '$incident_date', '$email', '$cc', '$heading', '$details', '$plan', '$discovery', '$action', '$check', '$adjustments', '$type')";
 		if(!mysqli_query($dbc_support, $support_insert)) {
 			$errors .= "Error Saving Support Request: ".mysqli_error($dbc_support)."\n";
 		}
@@ -44,11 +47,7 @@ if($request_tab == 'new'): ?>
 				if (!file_exists('download')) {
 					mkdir('download', 0777, true);
 				}
-				$basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
-				$i = 0;
-				while(file_exists('download/'.$filename)) {
-					$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '('.++$i.')$1', $basefilename);
-				}
+				$filename = file_safe_str($filename);
 				if(!move_uploaded_file($_FILES['documents']['tmp_name'][$row], 'download/'.$filename)) {
 					$errors .= "Error Saving Attachment: ".$filename."\n";
 				}
@@ -73,6 +72,8 @@ if($request_tab == 'new'): ?>
 					Name: $customer<br />
 					Company: $business<br />
 					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
 					Email: $email<br />
 					CC: $cc<br />
 					Heading: $heading<br />
@@ -95,6 +96,8 @@ if($request_tab == 'new'): ?>
 					Who initiated the report: $customer<br />
 					Company: $business<br />
 					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
 					Date of Emergency: $incident_date<br />
 					Issue<hr>\n".html_entity_decode($details)."\n
 					Please review it as soon as possible. It can be found <a href='https://ffm.rookconnect.com/Support/customer_support.php?tab=requests&type=last_minute_priority#$supportid'>here</a>.";
@@ -113,9 +116,12 @@ if($request_tab == 'new'): ?>
 				$subject = "Support Request from $business";
 				$body = "A support request has been sent.<br />
 					<h3>Date of Request: $date</h3>
+					Type: $type<br />
 					Name: $customer<br />
 					Company: $business<br />
 					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
 					Email: $email<br />
 					CC: $cc<br />
 					Heading: $heading<br />
@@ -137,24 +143,21 @@ if($request_tab == 'new'): ?>
 			// Email to FFM staff.
 			$default = get_config($dbc_support, 'support_recipients_default');
 			$all = get_config($dbc_support, 'support_recipients_all');
-			$to = get_config($dbc_support, 'support_recipients_'.$type);
-			if(empty($to)) {
-				$to = $default;
+			$address = get_config($dbc_support, 'support_recipients_'.$type);
+			if(empty($address)) {
+				$address = $default;
 			}
-			$to .= ';'.$all;
-			foreach(array_filter(array_unique(explode(';',$to))) as $address) {
-				try {
-					send_email('info@rookconnect',$address,'','',$subject,$body,$email_attachments);
-				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
-			}
+			$address .= ';'.$all;
+			try {
+				send_email('info@rookconnect',explode(';',$address),'','',$subject,$body,$email_attachments);
+			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			
 			// Thank you Email to sender and CC email.
-			$to = array_filter(array_unique(explode(';',$to.';'.$cc)));
-			foreach($to as $address) {
-				try {
-					send_email('info@rookconnect',$address,'','',$cust_subject,$cust_body,$email_attachments);
-				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
-			}
+			$to = array_filter(array_unique(explode(';',$to)));
+			$cc = array_filter(array_unique(explode(';',$cc)));
+			try {
+				send_email('info@rookconnect',$to,$cc,'',$cust_subject,$cust_body,$email_attachments);
+			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 		}
 		
 		if($errors != '') {
@@ -163,11 +166,12 @@ if($request_tab == 'new'): ?>
 		echo "<script> window.location.replace('customer_support.php?tab=requests&type=$type'); </script>";
 	}
 	$new_type = (!empty($_GET['new_type']) ? $_GET['new_type'] : '');
-	$source = (!empty($_GET['source']) ? $_GET['source'] : '');
-	?>
+	$source = (!empty($_GET['source']) ? $_GET['source'] : ''); ?>
 	<script>
-	$(document).on('change', 'select[name="type"]', function() { selectType(this.value); });
-	$(document).on('change', 'select[name="set_staff[]"]', function() { assign_staff(this); });
+	$(document).ready(function() {
+		$('select[name=type]').off('change',selectType).change(selectType);
+		$('select[name="set_staff[]"]').off('change',assign_staff).change(assign_staff);
+	});
 	function add_uploader(button) {
 		var block = $('[name="documents[]"]:visible').last().closest('.form-group');
 		var clone = block.clone();
@@ -202,7 +206,8 @@ if($request_tab == 'new'): ?>
 		}
 		$('.container form').hide().after('<h1>Submitting Request...</h1>');
 	}
-	function selectType(type) {
+	function selectType() {
+		type = this.value;
 		<?php foreach(get_config($dbc_support, 'support_alert_%', true, null) as $name => $alert_value) {
 			if($alert_value != '') {
 				$type = substr($name,14); ?>
@@ -244,8 +249,8 @@ if($request_tab == 'new'): ?>
 		</div>
 		<input type="hidden" name="src_user" value="<?= $_SESSION['user_name'] ?>">
 		<input type="hidden" name="src_contactid" value="<?= $_SESSION['contactid'] ?>">
-		<input type="hidden" name="src_url" value="<?= $_SESSION['contactid'] ?>">
-		<input type="hidden" name="src_security" value="<?= $_SESSION['contactid'] ?>">
+		<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
+		<input type="hidden" name="src_security" value="<?= ROLE ?>">
 		
 		<?php if($new_type == 'last_minute_priority'): ?>
 			<input type="hidden" name="heading" value="Critical Incident">
@@ -254,7 +259,6 @@ if($request_tab == 'new'): ?>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 				</div>
 			</div>
 			
@@ -343,7 +347,6 @@ if($request_tab == 'new'): ?>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 				</div>
 			</div>
 			
@@ -428,7 +431,6 @@ if($request_tab == 'new'): ?>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 				</div>
 			</div>
 			
@@ -607,11 +609,11 @@ if($request_tab == 'new'): ?>
 				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
 				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
@@ -751,11 +753,11 @@ if($request_tab == 'new'): ?>
 				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
 				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
@@ -765,7 +767,8 @@ if($request_tab == 'new'): ?>
 	} ?>
 <?php endif; ?>
 <script>
-function assign_staff(support) {
+function assign_staff() {
+	support = this;
 	support_id = $(support).parents('span').data('support');
 	staff_id = $(support).val();
 	$.ajax({
