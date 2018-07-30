@@ -86,7 +86,9 @@
 	'Estimates List' => ['estimates_tile', ['Estimates Addition']],
 	'Sales Orders' => ['sales_order_tile', ['Sales Order Addition']],
 	'Appointments' => ['appointments_addition', ['Appointments Addition']],
+
 	'Upcoming Appointments' => ['upcoming_appointments_addition', ['Upcoming Appointments Addition']],
+
 	'Point of Sale (Basic)' => ['pos_addition', ['Point of Sale Addition']],
 	POS_ADVANCE_TILE => ['posadvanced_addition', ['POSAdvanced Addition']],
 	'Purchase Orders' => ['purchase_order_addition', ['Purchase Orders Addition']],
