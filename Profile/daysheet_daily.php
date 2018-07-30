@@ -120,6 +120,10 @@ $tasks_result = mysqli_fetch_all(mysqli_query($dbc, $tasks_query),MYSQLI_ASSOC);
 // $checklists_result = mysqli_fetch_all(mysqli_query($dbc, $checklists_query),MYSQLI_ASSOC);
 $checklists_query = "SELECT * FROM `checklist_actions` WHERE `contactid` = '".$contactid."' AND `action_date` = '".$daily_date."' AND `deleted` = 0";
 $checklists_result = mysqli_fetch_all(mysqli_query($dbc, $checklists_query),MYSQLI_ASSOC);
+
+//Support Requests
+$support_query = "SELECT * FROM `support` WHERE (`assigned`='' OR CONCAT(',',`assigned`,',') LIKE ',".$contactid.",') AND `deleted` = 0";
+$support_result = mysqli_fetch_all(mysqli_query($dbc, $support_query),MYSQLI_ASSOC);
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
@@ -297,7 +301,7 @@ $(document).ready(function () {
                     echo '<li>';
                 }
 
-                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status);
+                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status, $daily_date);
                 $status_icon = get_ticket_status_icon($dbc, $ticket['status']);
                 if(!empty($status_icon)) {
                     if($status_icon == 'initials') {
@@ -376,6 +380,38 @@ $(document).ready(function () {
             $checklist_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist_name` AS `cn` LEFT JOIN `checklist` AS `c`ON `c`.`checklistid` = `cn`.`checklistid` WHERE `checklistnameid` = '".$checklist_action['checklistnameid']."'"));
             $label = ($checklist_name['businessid'] > 0 ? get_contact($dbc, $checklist_name['businessid'], 'name').', ' : '').($checklist_name['projectid'] > 0 ? PROJECT_NOUN.' #'.$checklist_name['projectid'].' '.get_project($dbc,$checklist_name['projectid'],'project_name') : '');
             echo '<a href="../Checklist/checklist.php?view='.$checklist_name['checklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;'.($checklist_action['done'] == 1 ? 'text-decoration: line-through;' : '').'">'.($label != '' ? $label.'<br />' : '').'Checklist: '.$checklist_name['checklist_name'].' - Item: '.explode('&lt;p&gt;', $checklist_name['checklist'])[0].'</a>';
+            if($daysheet_styling == 'card') {
+                echo '</div>';
+            } else {
+                echo '</li>';
+            }
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="checklists_daily">';
+        echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Support', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Support</h4>
+    <?php
+    if (!empty($support_result)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="support_daily">';
+        }
+        foreach ($support_result as $row) {
+            if($daysheet_styling == 'card') {
+                echo '<div class="block-group-daysheet">';
+            } else {
+                echo '<li>';
+            }
+			echo '<span class="display-field"><b><a href="'.WEBSITE_URL.'/Support/customer_support.php?tab=requests&type='.$row['support_type'].'#'.$row['supportid'].'">Date of Request: '.$row['current_date']."</a></b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+
             if($daysheet_styling == 'card') {
                 echo '</div>';
             } else {

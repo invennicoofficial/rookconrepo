@@ -619,7 +619,7 @@ checkAuthorised();
             <?php } ?>
             <?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Point of Sale</td>
+                <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                 <?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>

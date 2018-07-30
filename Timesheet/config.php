@@ -131,13 +131,19 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
 			array('Approve All Checkbox', 'hidden', 'approve_all'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
-			array('Editable Dates', 'hidden', 'editable_dates')
+			array('Editable Dates', 'hidden', 'editable_dates'),
+			array('Combine Staff on Report', 'tab', 'staff_combine')
 		)
 );
 
 $config['settings']['Choose Fields for Time Sheets Dashboard']['config_field'] = 'time_cards_dashboard';
 $config['settings']['Choose Fields for Time Sheets Dashboard']['data'] = array(
 	'General' => array(
+			array('Select User Groups', 'dropdown', 'search_by_groups'),
+			array('Select Security Levels', 'dropdown', 'search_by_security'),
+			array('Select Positions', 'dropdown', 'search_by_position'),
+			array('Search by '.PROJECT_NOUN, 'dropdown', 'search_by_project'),
+			array('Search by '.TICKET_NOUN, 'dropdown', 'search_by_ticket'),
 			array('Business', 'dropdown', 'business'),
 			array('Staff', 'dropdown', 'staff'),
 			array('Date', 'date', 'date'),

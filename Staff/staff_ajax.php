@@ -85,6 +85,13 @@ if($_GET['action'] == 'field_config') {
 	set_config($dbc, 'staff_schedule_reminder_subject', $staff_schedule_reminder_subject);
 	$staff_schedule_reminder_body = filter_var(htmlentities($_POST['staff_schedule_reminder_body']),FILTER_SANITIZE_STRING);
 	set_config($dbc, 'staff_schedule_reminder_body', $staff_schedule_reminder_body);
+	//Limit Staff
+	$staff_schedule_limit_staff = filter_var($_POST['staff_schedule_limit_staff'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'staff_schedule_limit_staff', $staff_schedule_limit_staff);
+	$staff_schedule_limit_by_staff = filter_var($_POST['staff_schedule_limit_by_staff'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'staff_schedule_limit_by_staff', $staff_schedule_limit_by_staff);
+	$staff_schedule_limit_by_security = filter_var($_POST['staff_schedule_limit_by_security'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'staff_schedule_limit_by_security', $staff_schedule_limit_by_security);
 
 
 	//Lock Alerts

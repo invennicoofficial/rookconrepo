@@ -167,20 +167,26 @@ function saveFieldMethod(field) {
 	} else {
 		value = field.value;
 	}
-	$.ajax({
-		url: 'ticket_ajax_all.php?action=update_fields',
-		method: 'POST',
-		data: {
-			table: $(field).data('table'),
-			field: field.name,
-			value: value,
-			id: $(field).data('id'),
-			id_field: $(field).data('id-field'),
-			ticketid: $(field).data('id')
-		},
-		success: function(response) {
-			doneSaving();
-		}
+	var id_list = [$(field).data('id')];
+	if(field.name == 'notes') {
+		id_list = $(field).data('multi-id').toString().split(',');
+	}
+	id_list.forEach(function(id) {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=update_fields',
+			method: 'POST',
+			data: {
+				table: $(field).data('table'),
+				field: field.name,
+				value: value,
+				id: id,
+				id_field: $(field).data('id-field'),
+				ticketid: $(field).data('id')
+			},
+			success: function(response) {
+				doneSaving();
+			}
+		});
 	});
 }
 </script>
@@ -216,7 +222,7 @@ $col_count = 2; ?>
 			<?php if(!in_array('group pieces',$manifest_fields)) { ?><th>Include</th><?php } ?>
 		</tr>
 		<?php foreach($line_item as $i => $item) {
-			$ticket = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, `ticket_attached`.`po_num`, `ticket_attached`.`po_line`, `ticket_schedule`.`vendor` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `ticket_attached`.`id`='$item'")->fetch_assoc();?>
+			$ticket = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, `ticket_attached`.`po_num`, `ticket_attached`.`po_line`, `ticket_schedule`.`vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_line_id` SEPARATOR ',') `piece_id_num`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN (SELECT `ticket_attached`.*, COUNT(`piece_count`.`id`) `piece_line_id` FROM `ticket_attached` LEFT JOIN `ticket_attached` `piece_count` ON `ticket_attached`.`ticketid`=`piece_count`.`ticketid` AND `piece_count`.`id` != `ticket_attached`.`id` WHERE `piece_count`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table`='inventory_general' AND `piece_count`.`src_table`='inventory_general' AND ((`piece_count`.`po_line` > 0 AND (`piece_count`.`po_line` < `ticket_attached`.`po_line` OR `ticket_attached`.`po_line`=0 OR (`ticket_attached`.`po_line`=`piece_count`.`po_line` AND `ticket_attached`.`id` < `piece_count`.`id`))) OR (`piece_count`.`po_line` = 0 AND `piece_count`.`id` < `ticket_attached`.`id`)) GROUP BY `ticket_attached`.`id`) `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `ticket_attached`.`id`='$item'")->fetch_assoc();?>
 			<tr>
 				<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
 				<td data-title="<?= SITES_CAT ?>"><?= $manifest_label ?></td>
@@ -228,11 +234,11 @@ $col_count = 2; ?>
 						<div style="display:inline-block;max-width:5em;"><input type="number" min="0" value="0" class="form-control" readonly></div>
 						<div style="display:none;">
 							<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) { ?>
-								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $i+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
+								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= explode(',',$ticket['piece_id_num'])[$i]+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
 							<?php } ?>
 						</div>
 					</td><?php } ?>
-				<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
+				<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-multi-id="<?= $ticket['piece_id'] ?>" data-id-field="id" class="form-control" value="<?= html_entity_decode($ticket['notes']) ?>"></td><?php } ?>
 				<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 					<label class="form-checkbox any-width"><input type="checkbox" name="include[]" checked value="<?= $ticket['id'] ?>">Include</label>
 					<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">
@@ -242,7 +248,7 @@ $col_count = 2; ?>
 		<?php }
 		$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
 		$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".filter_var($type,FILTER_SANITIZE_STRING)."')" : '';
-		$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`, `ticket_attached`.`po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,$siteid,%' AND `ticket_attached`.`id` NOT IN ('".implode("','",$line_item)."') $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`")." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
+		$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`, `ticket_attached`.`po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_line_id` SEPARATOR ',') `piece_id_num`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN (SELECT `ticket_attached`.*, COUNT(`piece_count`.`id`) `piece_line_id` FROM `ticket_attached` LEFT JOIN `ticket_attached` `piece_count` ON `ticket_attached`.`ticketid`=`piece_count`.`ticketid` AND `piece_count`.`id` != `ticket_attached`.`id` WHERE `piece_count`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table`='inventory_general' AND `piece_count`.`src_table`='inventory_general' AND ((`piece_count`.`po_line` > 0 AND (`piece_count`.`po_line` < `ticket_attached`.`po_line` OR `ticket_attached`.`po_line`=0 OR (`ticket_attached`.`po_line`=`piece_count`.`po_line` AND `ticket_attached`.`id` < `piece_count`.`id`))) OR (`piece_count`.`po_line` = 0 AND `piece_count`.`id` < `ticket_attached`.`id`)) GROUP BY `ticket_attached`.`id`) `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,$siteid,%' AND `ticket_attached`.`id` NOT IN ('".implode("','",$line_item)."') $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`")." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
 		$new_lines = $dbc->query($ticket_sql);
 		if($new_lines->num_rows > 0) { ?>
 			<tr>
@@ -260,11 +266,11 @@ $col_count = 2; ?>
 							<div style="display:inline-block;max-width:5em;"><input type="number" min="0" value="0" class="form-control" readonly></div>
 							<div style="display:none;">
 								<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) { ?>
-									<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $i+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
+									<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= explode(',',$ticket['piece_id_num'])[$i]+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
 								<?php } ?>
 							</div>
 						</td><?php } ?>
-					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>
+					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-multi-id="<?= $ticket['piece_id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>
 					<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 						<label class="form-checkbox any-width"><input type="checkbox" name="include[]" checked value="<?= $ticket['id'] ?>">Include</label>
 						<input type="hidden" name="line_rows[]" value="<?= $ticket['id'] ?>">

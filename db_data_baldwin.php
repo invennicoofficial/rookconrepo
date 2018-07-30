@@ -338,5 +338,64 @@
     }
     //2018-07-30 - Ticket #8444 - Teams
 
+    //2018-07-24 - Ticket #6075 - Performance Improvement Plan
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_performance_reviews` (
+        `fieldconfigid` int(11) NOT NULL,
+        `user_form_id` int(11) NOT NULL,
+        `enabled` int(1) NOT NULL,
+        `limit_staff` text)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_performance_reviews`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_performance_reviews`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    $updated_already = get_config($dbc, 'updated_ticket6075_pr');
+    if(empty($updated_already)) {
+        $pr_forms = array_filter(explode(',',get_config($dbc, 'performance_review_forms')));
+        foreach($pr_forms as $pr_form) {
+            if($pr_form > 0) {
+                mysqli_query($dbc, "INSERT INTO `field_config_performance_reviews` (`user_form_id`,`enabled`) VALUES ('$pr_form', '1')");
+            }
+        }
+        set_config($dbc, 'updated_ticket6075_pr', 1);
+    }
+    //2018-07-24 - Ticket #6075 - Performance Improvement Plan
+
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contact_categories` text AFTER `attached_contacts`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+
+    //2018-07-27 - Ticket #7552 - Checklists
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `project_milestone` varchar(500) NOT NULL AFTER `projectid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `salesid` int(11) NOT NULL AFTER `ticketid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `sales_milestone` varchar(500) NOT NULL AFTER `salesid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_path` int(10) NOT NULL AFTER `sales_milestone`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_board` int(10) NOT NULL AFTER `task_path`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_milestone_timeline` varchar(500) NOT NULL AFTER `task_board`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-27 - Ticket #7552 - Checklists
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

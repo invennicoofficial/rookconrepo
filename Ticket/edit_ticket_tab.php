@@ -128,7 +128,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Other List';
 } else if($_GET['tab'] == 'ticket_pressure') {
 	$sort_field = 'Pressure';
-} else if($_GET['tab'] == 'ticket_chemcials') {
+} else if($_GET['tab'] == 'ticket_chemicals') {
 	$sort_field = 'Chemicals';
 } else if($_GET['tab'] == 'ticket_intake') {
 	$sort_field = 'Intake';
@@ -148,7 +148,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Service Extra Billing';
 }
 
-if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
+if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
 	$strict_view = strictview_visible_function($dbc, 'ticket');
 	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
 	if($strict_view > 0) {
@@ -221,7 +221,9 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 		$milestone_timeline = str_replace(['FFMSPACE','FFMEND','FFMHASH'], [' ','&','#'], urldecode($_GET['milestone_timeline']));
 	}
 
-	$contactid = $_SESSION['contactid'];
+	if(get_config($dbc, 'ticket_default_session_user') != 'no_user') {
+		$contactid = $_SESSION['contactid'];
+	}
 	if(!empty($_GET['contactid'])) {
 		$contactid = ','.$_GET['contactid'].',';
 	}

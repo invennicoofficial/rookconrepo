@@ -78,10 +78,12 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	$contactid = $_GET['contactid'];
     $date_of_archival = date('Y-m-d');
 	mysqli_query($dbc, "UPDATE `contacts` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `contactid`='$contactid'");
-	add_history($dbc, "This contact has been archived.", $contactid);
+	$before_change = "The contact was Active.";
+	add_history($dbc, "This contact has been archived.", $contactid, $before_change);
 } else if($_GET['action'] == 'status_change') {
 	$contactid = $_GET['contactid'];
 	$status = $_GET['new_status'];
+	//$before_change = "$name is ". get_contact($dbc, $contactid, 'status') ."\n";
 	mysqli_query($dbc, "UPDATE `contacts` SET `status`='$status' WHERE `contactid`='$contactid'");
 	add_history($dbc, "Contact status set to ".($status > 0 ? 'Active' : 'Inactive'), $contactid);
 } else if($_GET['action'] == 'contact_values') {
@@ -281,7 +283,8 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$history_value = '********';
 	}
 	$history .= $_POST['label']." set to '$history_value' for contact record [$contactid] by $user_name. $row_history<br />\n";
-	add_history($dbc, $history, $contactid);
+	$before_change = $_POST['label'] . " is " . get_contact($dbc, $contactid, $field_name) ."<br \>\n";
+	add_history($dbc, $history, $contactid, $before_change);
 
 	// Create or Sync Site if selected
 	if(in_array($field_name, ['business_address','business_street','business_city','business_state','business_zip','business_country','business_site_sync'])) {
@@ -421,11 +424,11 @@ if($_GET['action'] == 'send_alert') {
     }
 }
 
-function add_history($dbc, $history, $contactid) {
+function add_history($dbc, $history, $contactid, $before_change='') {
 	$user_name = get_contact($dbc, $_SESSION['contactid']);
 	$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `contacts_history` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `contacts_history` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
-	mysqli_query($dbc, "UPDATE `contacts_history` SET `description`=CONCAT(IFNULL(`description`,''),'$history') WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00'");
+	mysqli_query($dbc, "UPDATE `contacts_history` SET `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `description`=CONCAT(IFNULL(`description`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00'");
 }
 
 if($_GET['action'] == 'save_guardian_tabs') {
@@ -997,6 +1000,11 @@ if($_GET['action'] == 'update_total_estimated_hours') {
 	$hours = time_time2decimal($hours);
 	mysqli_query($dbc, "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'");
 	echo "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'";
+}
+
+if($_GET['action'] == 'archive_contact_form') {
+	$pdf_id = $_GET['pdf_id'];
+	mysqli_query($dbc, "UPDATE `user_form_pdf` SET `deleted` = 1 WHERE `pdf_id` = '$pdf_id'");
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {

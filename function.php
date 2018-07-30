@@ -32,6 +32,10 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['JOBS_TILE'] = get_config($dbc, 'jobs_tile_name') ?: 'Jobs';
 
+	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
+	$_SESSION['POS_ADVANCE_TILE'] = $pos_advance_tile_name[0] ?: 'Point of Sale';
+	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Point of Sale' : $pos_advance_tile_name[0]) ?: 'Point of Sale';
+
 	$ticket_tile_name = explode('#*#',get_config($dbc, 'ticket_tile_name') ?: 'Tickets#*#Ticket');
 	$_SESSION['TICKET_TILE'] = $ticket_tile_name[0] ?: 'Tickets';
 	$_SESSION['TICKET_NOUN'] = $ticket_tile_name[1] ?: ($_SESSION['TICKET_TILE'] == 'Work Orders' ? 'Work Order' : ($_SESSION['TICKET_TILE'] == 'Tickets' ? 'Ticket' : $_SESSION['TICKET_TILE']));
@@ -82,6 +86,7 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 }
 // Pull from SESSION instead of Database
 DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
+DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
 DEFINE('CONTACTS_NOUN', $_SESSION['CONTACTS_NOUN']);
@@ -118,7 +123,7 @@ $_SERVER['page_load_info'] .= 'Constants Defined: '.number_format(microtime(true
 // List all function here
 function get_tile_title($dbc) {
     $get_tile_title =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `value` FROM `general_configuration` WHERE	`name`='pos_tile_titler' UNION SELECT 'Point of Sale' `value`"));
-    return (empty($get_tile_title['value']) ? 'Point of Sale' : $get_tile_title['value']);
+    return (empty($get_tile_title['value']) ? POS_ADVANCE_TILE : $get_tile_title['value']);
 }
 
 function get_tile_title_vpl($dbc) {
@@ -366,10 +371,13 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
     } else if($multi) {
         $get_config['value'] = [];
         $separator = filter_var($separator, FILTER_SANITIZE_STRING);
-        $query = mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE '$name'");
+        $query = mysqli_query($dbc, "SELECT `name`,`value` FROM `general_configuration` WHERE `name` LIKE '$name'");
         while($row = mysqli_fetch_assoc($query)) {
-            $get_config['value'][] = $row['value'];
+            $get_config['value'][$row['name']] = $row['value'];
         }
+		if($separator == null) {
+			return $get_config['value'];
+		}
         $get_config['value'] = implode($separator, $get_config['value']);
     } else {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
@@ -1482,7 +1490,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Invoicing';
 				break;
 			case 'pos':
-				$tiles[] = 'Point of Sale';
+				$tiles[] = POS_ADVANCE_TILE;
 				break;
 			case 'incident_report':
 				$tiles[] = INC_REP_TILE;
@@ -1869,7 +1877,7 @@ function get_subtabs($tile_name) {
             $subtabs = array('Sites', 'Jobs', 'Foreman Sheet', 'PO', 'Work Ticket', 'Outstanding Invoices', 'Paid Invoices', 'Payroll');
             break;
         case 'report':
-            $subtabs = array('% Breakdown of Services Sold', 'Appointment Summary', 'Archived Ticket Notes', 'Assessment Follow Ups', 'Assessment Tally Board', 'Attached to Tickets', 'Block Booking', 'Block Booking vs Not Block Booking', 'Checklist Time Tracking', 'Credit Card on File', 'Day Sheet Report', 'Detailed Import Report', 'Discharge Report', 'Dispatch Ticket Travel Time', 'Download Tracker', 'Drop Off Analysis', 'Equipment List', 'Equipment Transfer History', 'Field Jobs', 'Import Summary Report', 'Injury Type', 'Inventory Log', 'Manifest Daily Summary ', 'Point of Sale (Advanced)', 'Purchase Orders', 'Rate Cards Report', 'Scrum Business Productivity Summary', 'Scrum Staff Productivity Summary', 'Scrum Status Report', 'Shop Work Order Task Time', 'Shop Work Order Time', 'Shop Work Orders', 'Site Work Order Driving Logs', 'Site Work Order Time on Site', 'Site Work Orders', 'Staff Tickets', 'Task Time Tracking', 'Therapist Day Sheet', 'Therapist Stats', 'Ticket Activity Report per Customer', 'Ticket Report', 'Ticket Time Summary', 'Ticket Transport of Inventory', 'Ticket by Task', 'Time Sheets Report', 'Treatment Report', 'Work Order', '*#*', 'Customer History', 'Customer Invoices', 'Daily Deposit Report', 'Deposit Detail', 'Estimate Item Closing % By Quantity ', 'Expense Summary Report', 'Gross Revenue by Staff', 'Inventory Analysis', 'Invoice Sales Summary', 'Monthly Sales by Injury Type', 'POS (Advanced) Sales Summary', 'POS (Advanced) Validation', 'Payment Method List', 'Phone Communication', 'Profit-Loss', 'Receipts Summary Report', 'Sales Estimates', 'Sales History by Customer', 'Sales Summary by Injury Type', 'Sales by Customer Summary', 'Sales by Inventory Summary', 'Sales by Inventory/Service Detail', 'Sales by Service Category', 'Sales by Service Summary', 'Staff Revenue Report', 'Transaction List by Customer', 'Unassigned/Error Invoices', 'Unbilled Invoices', 'Validation by Therapist', '*#*', 'A/R Aging Summary', 'By Invoice# ', 'Collections Report by Customer', 'Customer Aging Receivable Summary', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Insurer Aging Receivable Summary', 'Invoice List', 'POS Receivables', 'UI Invoice Report', '*#*', 'Costs', 'Dollars By Service ', 'Expenses', 'Labour Report', 'Revenue & Receivables', 'Staff & Compensation', 'Summary', '*#*', 'CRM Recommendations - By Customer', 'CRM Recommendations - By Date', 'Cart Abandonment', 'Contact Postal Code', 'Contact Report by Status ', 'Customer Contact List', 'Customer Stats', 'Demographics', 'Driver Report', 'Net Promoter Score', 'POS Coupons', 'Postal Code', 'Pro-Bono', 'Referrals', 'Web Referrals Report', 'Website Visitors', '*#*', 'Adjustment Compensation', 'Compensation: Print Appt. Reports Button', 'Hourly Compensation', 'Statutory Holiday Pay Breakdown', 'Therapist Compensation', 'Time Sheet Payroll', '*#*', 'CRM Recommendations - By Customer', 'Collections Report by Customer', 'Contact Postal Code', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Customer Contact List', 'Customer Invoices', 'Customer Stats', 'Patient Aging Receivable Summary', 'Patient History', 'Sales History by Customer', 'Sales by Customer Summary', 'Service Rates & Hours ', 'Transaction List by Customer', '*#*', 'Day Sheet Report', 'Gross Revenue by Staff', 'Scrum Staff Productivity Summary', 'Staff Compensation ', 'Staff Revenue Report', 'Staff Tickets', 'Therapist Day Sheet', 'Therapist Stats', 'Validation by Therapist');
+            $subtabs = array('% Breakdown of Services Sold', 'Appointment Summary', 'Archived Ticket Notes', 'Assessment Follow Ups', 'Assessment Tally Board', 'Attached to Tickets', 'Block Booking', 'Block Booking vs Not Block Booking', 'Checklist Time Tracking', 'Credit Card on File', 'Day Sheet Report', 'Detailed Import Report', 'Discharge Report', 'Dispatch Ticket Travel Time', 'Download Tracker', 'Drop Off Analysis', 'Equipment List', 'Equipment Transfer History', 'Field Jobs', 'Import Summary Report', 'Injury Type', 'Inventory Log', 'Manifest Daily Summary ', POS_ADVANCE_TILE, 'Purchase Orders', 'Rate Cards Report', 'Scrum Business Productivity Summary', 'Scrum Staff Productivity Summary', 'Scrum Status Report', 'Shop Work Order Task Time', 'Shop Work Order Time', 'Shop Work Orders', 'Site Work Order Driving Logs', 'Site Work Order Time on Site', 'Site Work Orders', 'Staff Tickets', 'Task Time Tracking', 'Therapist Day Sheet', 'Therapist Stats', 'Ticket Activity Report per Customer', 'Ticket Report', 'Ticket Time Summary', 'Ticket Transport of Inventory', 'Ticket by Task', 'Time Sheets Report', 'Treatment Report', 'Work Order', '*#*', 'Customer History', 'Customer Invoices', 'Daily Deposit Report', 'Deposit Detail', 'Estimate Item Closing % By Quantity ', 'Expense Summary Report', 'Gross Revenue by Staff', 'Inventory Analysis', 'Invoice Sales Summary', 'Monthly Sales by Injury Type', 'POS (Advanced) Sales Summary', 'POS (Advanced) Validation', 'Payment Method List', 'Phone Communication', 'Profit-Loss', 'Receipts Summary Report', 'Sales Estimates', 'Sales History by Customer', 'Sales Summary by Injury Type', 'Sales by Customer Summary', 'Sales by Inventory Summary', 'Sales by Inventory/Service Detail', 'Sales by Service Category', 'Sales by Service Summary', 'Staff Revenue Report', 'Transaction List by Customer', 'Unassigned/Error Invoices', 'Unbilled Invoices', 'Validation by Therapist', '*#*', 'A/R Aging Summary', 'By Invoice# ', 'Collections Report by Customer', 'Customer Aging Receivable Summary', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Insurer Aging Receivable Summary', 'Invoice List', 'POS Receivables', 'UI Invoice Report', '*#*', 'Costs', 'Dollars By Service ', 'Expenses', 'Labour Report', 'Revenue & Receivables', 'Staff & Compensation', 'Summary', '*#*', 'CRM Recommendations - By Customer', 'CRM Recommendations - By Date', 'Cart Abandonment', 'Contact Postal Code', 'Contact Report by Status ', 'Customer Contact List', 'Customer Stats', 'Demographics', 'Driver Report', 'Net Promoter Score', 'POS Coupons', 'Postal Code', 'Pro-Bono', 'Referrals', 'Web Referrals Report', 'Website Visitors', '*#*', 'Adjustment Compensation', 'Compensation: Print Appt. Reports Button', 'Hourly Compensation', 'Statutory Holiday Pay Breakdown', 'Therapist Compensation', 'Time Sheet Payroll', '*#*', 'CRM Recommendations - By Customer', 'Collections Report by Customer', 'Contact Postal Code', 'Customer Balance Summary', 'Customer Balance by Invoice', 'Customer Contact List', 'Customer Invoices', 'Customer Stats', 'Patient Aging Receivable Summary', 'Patient History', 'Sales History by Customer', 'Sales by Customer Summary', 'Service Rates & Hours ', 'Transaction List by Customer', '*#*', 'Day Sheet Report', 'Gross Revenue by Staff', 'Scrum Staff Productivity Summary', 'Staff Compensation ', 'Staff Revenue Report', 'Staff Tickets', 'Therapist Day Sheet', 'Therapist Stats', 'Validation by Therapist');
             break;
         case 'field_ticket_estimates':
             $subtabs = array('Bid', 'Cost Estimate');
@@ -2846,7 +2854,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'];
+                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
                     $reminder_url = '../Calendar/calendars.php';
@@ -3316,4 +3324,33 @@ function get_team_name($dbc, $teamid, $separator = ", ", $get_contacts = 0) {
 }
 function get_contact_teams($dbc, $contactid) {
     return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
+}
+function add_update_history($dbc, $table, $history, $contactid, $before_change, $salesid = '') {
+		$user_name = get_contact($dbc, $_SESSION['contactid']);
+		$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
+		if($table == 'sales_history') {
+			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`) SELECT '$user_name' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
+			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$salesid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+		}
+		else {
+			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
+			mysqli_query($dbc, "UPDATE `$table` SET `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `description`=CONCAT(IFNULL(`description`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+		}
+}
+function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2 = '', $wherevalue2 = '', $where3 = '', $wherevalue3 = '') {
+	if($where2 != '' && $where3 != '') {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue' and `$where2` = '$wherevalue2' and `$where3` = '$wherevalue3'"));
+	}
+	else if($where2 != '') {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue' and `$where2` = '$wherevalue2'"));
+	}
+	else {
+			$before_change_query = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT $find FROM `$table` WHERE `$where` = '$wherevalue'"));
+	}
+
+	$find_index = "'".$find."'";
+	return "$find value was " . $before_change_query[$find] . ".<br />";
+}
+function capture_after_change($find, $value) {
+	return "$find is set to " . $value . ".<br />";
 }

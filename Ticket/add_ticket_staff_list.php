@@ -124,7 +124,7 @@ do {
 	$position_rate = 0; ?>
 	<div class="multi-block">
 		<?php if(($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) && !($strict_view > 0)) {
-        if($staff['item_id'] == '' && !($ticketid > 0)) { $staff['item_id'] = $_SESSION['contactid']; }
+        if($staff['item_id'] == '' && !($ticketid > 0) && get_config($dbc, 'ticket_default_session_user') != 'no_user') { $staff['item_id'] = $_SESSION['contactid']; }
         ?>
 			<div class="col-sm-4">
 				<label class="show-on-mob control-label">Staff:</label>

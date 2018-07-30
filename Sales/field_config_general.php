@@ -269,6 +269,11 @@ $(document).ready(function(){
                             <input type="checkbox" <?php if (strpos($value_config, ','."Tasks".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Tasks" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Tasks
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."History".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="History" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;History
+                        </td>
+                    </tr>
 
                 </table>
     	    </div>
@@ -293,9 +298,10 @@ $(document).ready(function(){
 
         <hr>
 
-        <h4>Sales Lead Path Accordion</h4>
+        <h4><?= SALES_TILE ?> Path Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Intake".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Intake" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Intake Forms&nbsp;&nbsp;
+            <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Checklists".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Checklists" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Checklists&nbsp;&nbsp;
         </div>
         
         <hr>

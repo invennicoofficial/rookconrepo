@@ -340,6 +340,22 @@ if($type == 'Ticket') {
 		<label class="col-sm-4">Last Updated Date:</label>
 		<div class="col-sm-8">'.$item['received_date'].'</div>
 	</div>';
+} else if($item[0] == 'Checklist') {
+	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '".$item[1]."'"));
+	$data = 'data-id="'.$item['checklistid'].'" data-table="checklist" data-name="project_milestone" data-id-field="checklistid"';
+	$colour = $item['flag_colour'];
+	$flag_label = $ticket_flag_names[$colour];
+	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
+	$actions = '<a target="_parent" href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$item['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
+		'<input type="file" name="attach_checklist_board_'.$item['checklistid'].'" style="display:none;" />'.
+		(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!': '').
+		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Activate Alerts &amp; Get Notified">' : '').
+		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
+		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
+		(in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img" data-checklist="'.$item['checklistid'].'" onclick="checklist_attach_file(this); return false;" title="Attach File">' : '').
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+	$label = '<a target="_blank" href="../Checklist/checklist.php?view='.$item['checklistid'].'" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$item['checklistid'].'&iframe_slider=1\'); return false;">'.$item['checklist_name'].'</a>';
+    $contents = 'INCLUDE_CHECKLIST#*#'.$item['checklistid'];
 } ?>
 <li class="dashboard-item <?= $li_class ?>" <?= $data ?> data-colour="<?= $colour ?>" style="<?= $colour != '' ? 'background-color: #'.$colour.';' : '' ?><?= $border_colour ?>"><span class="flag-label"><?= $flag_label ?></span>
 	<h4><?= $label ?><?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="pull-right milestone-handle cursor-hand" src="../img/icons/drag_handle.png" style="height:1em;">' : '') ?><div class="clearfix"></div></h4>
@@ -347,7 +363,18 @@ if($type == 'Ticket') {
 		<div class="action-icons pad-bottom"><?= $actions ?></div>
 	<?php } ?>
 
-	<?= $contents ?>
+	<?php if(explode('#*#', $contents)[0] == 'INCLUDE_CHECKLIST') {
+		$checklistid = explode('#*#', $contents)[1];
+		$_GET['view']  = $checklistid;
+		$_GET['override_block'] = 'true';
+		$_GET['hide_header'] = 'true';
+		$_GET['different_function_name'] = 'true';
+        echo '<div class="checklist_screen" data-querystring="view='.$checklistid.'&override_block=true&hide_header=true&different_function_name=true">';
+		include('../Checklist/view_checklist.php');
+		echo '</div>';
+	} else {
+		echo $contents;
+	} ?>
 	<?php if(in_array('flag_manual',$quick_actions)) { ?>
 		<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
 		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_text ?>' class="form-control" style="display:none;"></div>

@@ -1109,7 +1109,7 @@
     <div id="collapse_inclusion" class="panel-collapse collapse">
         <div class="panel-body">
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in P.O.S.,') !== false) {
-                echo " checked"; } ?> value="Include in P.O.S." name="dashboard[]">&nbsp;&nbsp;Include in Point of Sale</div>
+                echo " checked"; } ?> value="Include in P.O.S." name="dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?></div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in Purchase Orders,') !== false) {
                 echo " checked"; } ?> value="Include in Purchase Orders" name="dashboard[]">&nbsp;&nbsp;Include in Purchase Orders</div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in Sales Orders,') !== false) {

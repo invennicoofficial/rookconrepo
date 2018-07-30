@@ -577,6 +577,7 @@ if($_GET['action'] == 'update_fields') {
 				mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `projectid`, `salesorderid`, `piece_work`, `heading`, `project_path`, `milestone_timeline`, `task_available`, `to_do_date`, `to_do_end_date`, `created_date`, `created_by`, `status`, `region`, `classification`, `con_location`)
 					SELECT `ticket_type`, `category`, `businessid`, `clientid`, `siteid`, $projectid, `salesorderid`, `piece_work`, '-".$attach."-".date('Y-m-d')."', `project_path`, `milestone_timeline`, '$available', '".date('Y-m-d')."', '".date('Y-m-d')."', '".date('Y-m-d')."', '".$_SESSION['contactid']."', `status`, `region`, `classification`, `con_location` FROM `tickets` WHERE `ticketid`='$ticketid'");
 				$ticketid = mysqli_insert_id($dbc);
+				$dbc->query("INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','service_extra_billing','".implode(', ',$available)." added.',DATE(NOW()),'".$_SESSION['contactid']."')");
 				if(strpos($config,',Ticket Tasks Ticket Type,') !== FALSE) {
 					$task_group = $_POST['task_group'];
 					mysqli_query($dbc, "UPDATE `tickets` SET `ticket_type` = '".config_safe_str($task_group)."' WHERE `ticketid` = '$ticketid'");
@@ -2574,7 +2575,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'template_file') {
 	$filename = file_safe_str($_FILES['file']['name'],'pdf_contents/');
 	if(!file_exists('pdf_contents')) {
-		mkdir('pdf_content', 0777, true);
+		mkdir('pdf_contents', 0777, true);
 	}
 	move_uploaded_file($_FILES['file']['tmp_name'],'pdf_contents/'.$filename);
 	if($_POST['id'] > 0) {
@@ -2944,5 +2945,11 @@ if($_GET['action'] == 'update_fields') {
 			echo 'Successfully created Recurring '.TICKET_TILE;
 		}
 	}
+} else if($_GET['action'] == 'removePdfForm') {
+	$form = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
+	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
+	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
+	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
+	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
 }
 ?>
