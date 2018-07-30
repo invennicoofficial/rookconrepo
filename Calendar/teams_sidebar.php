@@ -48,7 +48,7 @@ if($_GET['reload_sidebar'] == 1 && $_GET['teamid'] > 0) {
 }
 foreach($teams as $row) {
     $team_contactids = [];
-    $team_name = getTeamName($dbc, $row['teamid'], '<br />');
+    $team_name = get_team_name($dbc, $row['teamid'], '<br />');
     $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$row['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
     if(!empty($team_contacts)) {
         foreach ($team_contacts as $team_contact) {

@@ -64,25 +64,6 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 
 	return $shifts;
 }
-function getTeamName($dbc, $teamid, $separator = ", ", $get_contacts = 0) {
-	$team_name = '';
-	$team = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid'"));
-	if(!empty($team['team_name']) && $get_contacts == 0) {
-		$team_name = $team['team_name'];
-	} else {
-		$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
-		$team_staff = [];
-		foreach ($contact_list as $contact) {
-			$team_staff[] = get_contact($dbc, $contact['contactid']);
-		}
-		$team_name = implode($separator, $team_staff);
-	}
-
-	return $team_name;
-}
-function getContactTeams($dbc, $contactid) {
-	return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
-}
 function getClassificationLogo($dbc, $classification, $logo_url) {
 	if(!empty($logo_url)) {
 		$logo_img = '<img data-classification="'.$classification.'" class="id-circle" src="'.$logo_url.'">';

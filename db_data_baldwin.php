@@ -312,5 +312,31 @@
     }
     //2018-07-30 - Ticket #8467 - Cleans Recurring Monthly
 
+    //2018-07-30 - Ticket #8444 - Teams
+    $updated_already = get_config($dbc, 'updated_ticket8444_teams');
+    if(empty($updated_already)) {
+        $estimate_groups = explode('#*#',mysqli_fetch_array(mysqli_query($dbc, "SELECT `estimate_groups` FROM field_config_estimate"))[0]);
+        $ticket_groups = explode('#*#',get_config($dbc,'ticket_groups'));
+        $so_groups = explode('*#*',get_config($dbc, 'sales_order_staff_groups'));
+        $groups = array_merge($estimate_groups, $ticket_groups, $so_groups);
+        foreach($groups as $group) {
+            $group = explode(',', $group);
+            $group_name = '';
+            if(count($group) > 1 && !($group[0] > 0)) {
+                $group_name = $group[0];
+                unset($group[0]);
+            }
+            mysqli_query($dbc, "INSERT INTO `teams` (`team_name`, `start_date`, `end_date`) VALUES ('$group_name', '', '')");
+            $teamid = mysqli_insert_id($dbc);
+            foreach($group as $staff) {
+                if($staff > 0) {
+                    mysqli_query($dbc, "INSERT INTO `teams_staff` (`teamid`, `contactid`) VALUES ('$teamid', '$staff')");
+                }
+            }
+        }
+        set_config($dbc, 'updated_ticket8444_teams', 1);
+    }
+    //2018-07-30 - Ticket #8444 - Teams
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

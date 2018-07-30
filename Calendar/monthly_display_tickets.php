@@ -177,7 +177,7 @@ while($row = mysqli_fetch_array( $result )) {
 	if($_GET['block_type'] == 'team') {
     	$row['calendar_color'] = '#3ac4f2';
 
-		$staff = (!empty($row['team_name']) ? $row['team_name'] : 'Team #'.$row['teamid']).' ('.getTeamName($dbc, $contact_id, ', ', 1).')';
+		$staff = (!empty($row['team_name']) ? $row['team_name'] : 'Team #'.$row['teamid']).' ('.get_team_name($dbc, $contact_id, ', ', 1).')';
 
 		$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
 		$contacts_query = [];

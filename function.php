@@ -3289,3 +3289,31 @@ function sync_recurring_tickets($dbc, $ticketid) {
         }
     }
 }
+function get_teams($dbc, $limits = '') {
+    $today_date = date('Y-m-d');
+    $teams = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `deleted` = 0 AND (IF(`start_date` = `end_date` AND `start_date` != '0000-00-00',1,0) = 0 OR (DATE(`start_date`) <= '$today_date' AND (`start_date` != `end_date` OR `start_date` = '0000-00-00')))".$limits),MYSQLI_ASSOC);
+    return $teams;
+}
+function get_team_contactids($dbc, $teamid) {
+    $team_contactids = array_filter(array_unique(array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC),'contactid')));
+    return $team_contactids;
+}
+function get_team_name($dbc, $teamid, $separator = ", ", $get_contacts = 0) {
+    $team_name = '';
+    $team = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid'"));
+    if(!empty($team['team_name']) && $get_contacts == 0) {
+        $team_name = $team['team_name'];
+    } else {
+        $contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+        $team_staff = [];
+        foreach ($contact_list as $contact) {
+            $team_staff[] = get_contact($dbc, $contact['contactid']);
+        }
+        $team_name = implode($separator, $team_staff);
+    }
+
+    return $team_name;
+}
+function get_contact_teams($dbc, $contactid) {
+    return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
+}
