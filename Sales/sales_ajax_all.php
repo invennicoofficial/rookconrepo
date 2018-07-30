@@ -455,6 +455,47 @@ if($_GET['action'] == 'send_email') {
 		send_email($sender, $user, '', '', $subject, $body, '');
 	}
 }
+//Checklist quick action
+if ( $_GET['fill']=='checklistFlagItem' ) {
+	$checklistid = $_POST['id'];
+
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+
+	$value = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour` FROM `checklist` WHERE `checklistid` = '$checklistid'"))['flag_colour'];
+
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : ''));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour;
+	mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$new_colour' WHERE `checklistid`='$checklistid'");
+}
+if ( $_GET['fill']=='checklistReminder') {
+	$salesid = $_POST['salesid'];
+	$checklistid = $_POST['id'];
+	$value = $_POST['value'];
+
+	$sender = get_email($dbc, $_SESSION['contactid']);
+	$result = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
+	$id = $result['checklistid'];
+	$milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
+    $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone";
+	foreach($_POST['users'] as $i => $user) {
+		$user = filter_var($user,FILTER_SANITIZE_STRING);
+		$contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$user'");
+		$body = filter_var(htmlentities("This is a reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone<br />\n<br />
+			<a href='".WEBSITE_URL."/Sales/sales.php?p=preview&id=$salesid'>Click here</a> to see the Sales.<br />\n"), FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$user' AND `src_table` = 'sales' AND `src_tableid` = '$salesid' AND `src_table` != '' AND `src_table` IS NOT NULL");
+		$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
+			VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'sales', '$salesid')");
+	}
+}
+if ( $_GET['fill']=='checklistArchive' ) {
+	$checklistid = $_POST['id'];
+        $date_of_archival = date('Y-m-d');
+	echo "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'";
+	mysqli_query($dbc, "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'");
+}
 if($_GET['action'] == 'lead_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
