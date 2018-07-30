@@ -1,0 +1,47 @@
+<?php
+/*
+Database Connection
+*/
+/*Define constant to connect to database */
+DEFINE('DATABASE_USER', 'root');
+//DEFINE('DATABASE_USER', 'ffm_rook_user');
+//DEFINE('DATABASE_PASSWORD', 'mIghtyLion!542');
+DEFINE('DATABASE_PASSWORD', '');
+//DEFINE('DATABASE_HOST', 'ec2-35-182-22-11.ca-central-1.compute.amazonaws.com');
+DEFINE('DATABASE_HOST', 'localhost');
+//DEFINE('DATABASE_NAME', 'ffm_rook');
+//DEFINE('DATABASE_NAME', 'demo_rookconnect_db');
+DEFINE('DATABASE_NAME', 'fm_rook_live');
+
+/*Default time zone ,to be able to send mail */
+//date_default_timezone_set('UTC');
+
+/*You might not need this */
+//ini_set('SMTP', "mail.myt.mu"); // Overide The Default Php.ini settings for sending mail
+
+//This is the address that will appear coming from ( Sender )
+//define('EMAIL', 'dayanapatel@poshmedia.ca');
+
+/*Define the root url where the script will be found such as http://website.com or http://website.com/Folder/ */
+
+// Make the connection:
+$dbc = @mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME);
+print_r($dbc);
+if (!$dbc) {
+    trigger_error('Could not connect to MySQL: ' . mysqli_connect_error());
+}
+
+
+//print_r($dbc);
+//exit;
+/*DEFINE('DB_NAME_1', 'demo2_rook_db');
+ Make the connection:
+$dbc_cross_1 = @mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DB_NAME_1);
+if (!$dbc_cross_1) {
+    trigger_error('Could not connect to MySQL: ' . mysqli_connect_error());
+}
+$software_url_1 = 'http://demo2.rookconnect.com';
+$name_of_the_software_1 = 'Second Demo Database';
+$number_of_connections = 1;
+*/
+?>

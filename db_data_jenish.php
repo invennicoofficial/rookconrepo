@@ -74,5 +74,7 @@ if(!mysqli_query($dbc, "ALTER TABLE `pos_history` CHANGE `history_id` `history_i
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD INDEX `scrum_query` (`deleted`,`status`,`category`)");
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>
