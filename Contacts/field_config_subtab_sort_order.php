@@ -143,7 +143,9 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                             }
                             echo "<option ".($current_type == $type_name ? 'selected' : '')." value='$type_name'>$type_name</option>";
                         }
-                        $field_config = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab`='**no_subtab**'"))[0]); ?>
+
+	                    $field_config = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab` = '**no_subtab**'"))[0] . ',' . mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab` = 'additions'"))[0]);
+                        ?>
                     </select>
                 </div>
             </div>
@@ -1886,7 +1888,9 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                 }
 
                 foreach($tab_list as $tab_label => $tab_data) {
-                        if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information') { ?>
+                        if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information') {
+                            echo $tab_label;
+                            ?>
                             <a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
                         <?php }
 				}
