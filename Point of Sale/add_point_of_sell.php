@@ -21,8 +21,14 @@ $num_rows = mysqli_num_rows($get_invoice);
 if($num_rows > 0) {
     while($row = mysqli_fetch_array( $get_invoice )) {
         $posid = $row['posid'];
+
+    $before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 		$query_update_project = "UPDATE `point_of_sell` SET status = 'Posted Past Due' WHERE `posid` = '$posid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+    $history = capture_after_change('status', 'Posted Past Due');
+    add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 }
 
@@ -160,11 +166,19 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			VALUES ('".date('Y-m-d')."', '".$row['contactid']."', '".$row['productpricing']."', '$return_sub_total', '".$row['discount_type']."', '$return_gst', '$return_pst', '$return_before_tax', '".$row['client_tax_exemption']."', '".$row['tax_exemption_number']."', '$return_total', '$payment_type', '".$_SESSION['contactid']."', 'Returns')");
 		$return_invoice = mysqli_insert_id($dbc);
 
+    $before_change = '';
+    $history = "Point of Sale entry Added. <br />";
+    add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 		// Return items
 		$posid = trim ( $_GET['posid'] );
 		$comment = htmlentities("<br /><br />Return<br />").$comment;
 		$update_invoice_query = "UPDATE `point_of_sell` LEFT JOIN `contacts` ON `point_of_sell`.`contactid`=`contacts`.`contactid` SET `returned_amt`='$return_sum', `contacts`.amount_credit=IF(IFNULL(`amount_owing`,0) > 0, IF(`amount_owing` > (`total_price` - '$total_price'), `amount_credit`, `total_price` - '$total_price' - `amount_owing` + `amount_credit`), `amount_credit` + `total_price` - '$total_price'), `amount_owing`=IF(IFNULL(`amount_owing`,0) > 0, IF(`amount_owing` > (`total_price` - '$total_price'), `amount_owing` - `total_price` + '$total_price', 0), 0), `comment`=CONCAT(`comment`,'$comment'), `gst`='$gst_total', `pst`='$pst_total', `edit_id`=(`edit_id`+1), `return_ids`=CONCAT(IF(`return_ids`='','',CONCAT(`return_ids`,',')),'$return_invoice') WHERE `posid`='$posid'";
 		$update_invoice_results = mysqli_query ( $dbc, $update_invoice_query );
+
+    $before_change = '';
+    $history = "Point of Sell Upadted. <br />";
+    add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 		// Update Inventory items
 		for ($i=0; $i<count($_POST['inventoryid']); $i++) {
@@ -175,8 +189,13 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			$return_diff = intval(mysqli_fetch_array(mysqli_query($dbc, "SELECT `returned_qty` FROM `point_of_sell_product` WHERE `posid`='$posid' AND `inventoryid`='$inventoryid' AND `type_category`='inventory'"))['returned_qty']) - $returned;
 
 			if ( $inventoryid != '' ) {
+        $before_change = capture_before_change($dbc, 'point_of_sell_product', 'returned_qty', 'posid', $posid, 'inventoryid', $inventoryid, 'type_category', 'inventory');
+
 				$update_product_query = "UPDATE `point_of_sell_product` SET `returned_qty`='$returned' WHERE `posid`='$posid' AND `inventoryid`='$inventoryid' AND `type_category`='inventory'";
 				$update_product_results = mysqli_query ( $dbc, $update_product_query );
+
+        $history = capture_after_change('returned_qty', $returned);
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 				//Update Inventory table to adjust the quantity
 				$update_inventory_query = "UPDATE `inventory` SET `quantity`=(`quantity` + $returned) WHERE `inventoryid`='$inventoryid'";
@@ -204,6 +223,9 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 				//Add Return Invoice Line Items
 				if($return_diff != 0) {
 					mysqli_query($dbc, "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$return_invoice', '$inventoryid', '$return_diff', '$price', 'inventory')");
+          $before_change = '';
+          $history = "Point of Sale Product Added. <br />";
+          add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
 			}
 		}
@@ -215,13 +237,21 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			$returned		= $_POST['prodreturned'][$i];
 
 			if ( $inventoryid != '' ) {
+        $before_change = capture_before_change($dbc, 'point_of_sell_product', 'returned_qty', 'posid', $posid, 'inventoryid', $inventoryid, 'type_category', 'product');
+
 				$query_insert_invoice = "UPDATE `point_of_sell_product` SET `returned_qty`='$returned' WHERE `posid`='$posid' AND `inventoryid`='$inventoryid' AND `type_category`='product'";
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+        $history = capture_after_change('returned_qty', $returned);
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 				//Add Return Invoice Line Items
 				if($returned != 0) {
 					$returned = $returned * (-1);
 					mysqli_query($dbc, "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$return_invoice', '$inventoryid', '$returned', '$price', 'product')");
+          $before_change = '';
+          $history = "Point of Sale Product Added. <br />";
+          add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
 			}
 		}
@@ -233,12 +263,19 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			$returned		= $_POST['servreturned'][$i];
 
 			if ( $inventoryid != '' ) {
-				$update_service_results = mysqli_query ( $dbc, "UPDATE `point_of_sell_product` SET `returned`='$returned' WHERE `posid`='$posid' AND `inventoryid`='$inventoryid' AND `type_category`='service'" );
+        $before_change = capture_before_change($dbc, 'point_of_sell_product', 'returned', 'posid', $posid, 'inventoryid', $inventoryid, 'type_category', 'service');
 
+        $update_service_results = mysqli_query ( $dbc, "UPDATE `point_of_sell_product` SET `returned`='$returned' WHERE `posid`='$posid' AND `inventoryid`='$inventoryid' AND `type_category`='service'" );
+
+        $history = capture_after_change('returned', $returned);
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				//Add Return Invoice Line Items
 				if($returned != 0) {
 					$returned = $returned * (-1);
 					mysqli_query($dbc, "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$return_invoice', '$inventoryid', '$returned', '$price', 'service')");
+          $before_change = '';
+          $history = "Point of Sale Product Added. <br />";
+          add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
 			}
 		}
@@ -250,12 +287,20 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			$returned	= $_POST['misc_returned'][$i];
 
 			if ($misc_product != '' AND $returned != '0') {
+        $before_change = capture_before_change($dbc, 'point_of_sell_product', 'returned_qty', 'posid', $posid, 'misc_product', $misc_product, 'type_category', 'misc product');
+
 				$update_misc_results = mysqli_query ( $dbc, "UPDATE `point_of_sell_product` SET `returned_qty`='$returned' WHERE `posid`='$posid' AND `misc_product`='$misc_product' AND `type_category`='misc product'" );
+
+        $history = capture_after_change('returned_qty', $returned);
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 				//Add Return Invoice Line Items
 				if($returned != 0) {
 					$returned = $returned * (-1);
 					mysqli_query($dbc, "INSERT INTO `point_of_sell_product` (`posid`, `misc_product`, `quantity`, `price`, `type_category`) VALUES ('$return_invoice', '$misc_product', '$returned', '$misc_price', 'misc product')");
+          $before_change = '';
+          $history = "Point of Sale Product Added. <br />";
+          add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
 			}
 		}
@@ -265,6 +310,10 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 		$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 
 		$posid = mysqli_insert_id($dbc);
+
+    $before_change = '';
+    $history = "Point of Sale entry Added. <br />";
+    add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 		// ADD Column in Table for PDF //
 		$col = "SELECT `type_category` FROM point_of_sell_product";
@@ -284,6 +333,10 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			if($inventoryid != '') {
 				$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$inventoryid', '$quantity', '$price', 'inventory')";
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+        $before_change = '';
+        $history = "Point of Sale Product Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 				//Update Inventory table to reduce the quantity
 				$query_update_inventory = "UPDATE `inventory` SET `quantity`=(`quantity`-'$quantity') WHERE `inventoryid`='$inventoryid'";
@@ -319,6 +372,10 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			if($inventoryid != '') {
 				$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$inventoryid', '$quantity', '$price', 'product')";
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+        $before_change = '';
+        $history = "Point of Sale Product Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 			}
 		}
 
@@ -331,6 +388,10 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			if($inventoryid != '') {
 				$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$inventoryid', '$quantity', '$price', 'service')";
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+        $before_change = '';
+        $history = "Point of Sale Product Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 			}
 		}
 
@@ -343,6 +404,10 @@ if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE)
 			if($misc_product != '') {
 				$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `misc_product`, `price`, `quantity`, `type_category`) VALUES ('$posid', '$misc_product', '$misc_price', '$misc_quantity', 'misc product')";
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+        $before_change = '';
+        $history = "Point of Product Coupon Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 			}
 		}
 	}

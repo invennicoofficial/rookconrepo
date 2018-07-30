@@ -498,6 +498,9 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History HR History".',') !== FALSE) { echo " checked"; } ?> value="History HR History" name="reports_dashboard[]"> HR History</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Point of Sale History".',') !== FALSE) { echo " checked"; } ?> value="History Point of Sale History" name="reports_dashboard[]"> Point of Sale History</label>
+	</div>
   <div class="clearfix"></div>
 
   <h3>Estimates</h3>

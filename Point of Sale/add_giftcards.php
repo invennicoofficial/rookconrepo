@@ -19,6 +19,9 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
         $result_insert = mysqli_query($dbc, $query_insert);
         $couponid = mysqli_insert_id($dbc);
 
+        $before_change = '';
+        $history = "Point of Sale Gift Card Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 	} else {
         $couponid = $_POST['giftcardid'];
         echo $query_update = "UPDATE `pos_giftcards` SET `created_by`='$created_by', `description`='$description', `value`='$value', `issue_date`='$issue_date', `giftcard_number`='$giftcard_number', `expiry_date`='$expiry_date'";
