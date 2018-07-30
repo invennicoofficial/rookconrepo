@@ -12,7 +12,13 @@ $num_rows = mysqli_num_rows($get_invoice);
 if($num_rows > 0) {
     while($row = mysqli_fetch_array( $get_invoice )) {
         $posid = $row['posid'];
+    $before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 		$query_update_project = "UPDATE `point_of_sell` SET status = 'Posted Past Due' WHERE `posid` = '$posid'";
+
+    $history = capture_after_change('status', 'Posted Past Due');
+    add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 		$result_update_project = mysqli_query($dbc, $query_update_project);
     }
 }
@@ -86,6 +92,9 @@ if (isset($_POST['submit_pos'])) {
 		$query_insert_invoice = "INSERT INTO `point_of_sell` (`contactid`, `inventoryid`, `quantity`, `price`, `sub_total`, `gst`, `total_price`, `payment_type`, `invoice_date`, `created_by`, `comment`, `status`) VALUES ('$contactid', '$inventoryid', '$quantity', '$price', '$sub_total', '$gst','$total_price', '$payment_type', '$invoice_date', '$created_by', '$comment', '$status')";
  		$results_are_in = mysqli_query($dbc, $query_insert_invoice);
         $posid = mysqli_insert_id($dbc);
+        $before_change = '';
+        $history = "Point of Sale entry Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
         $customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT customer, first_name, last_name, phone, email, office_street, office_city, office_state, office_country, office_zip FROM customer WHERE contactid='$contactid'"));
 
