@@ -104,6 +104,21 @@ if($projectid > 0) {
 		$rate_card_name = get_field_value('rate_card_name','company_rate_card','companyrcid',$rate[1]);
 	}
 }
+if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+	$contactid = [];
+	if(!empty($_GET['calendar_contactid'])) {
+		foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+			$contactid[] = $calendar_contactid;
+		}
+	}
+	$contactid = array_filter(array_unique($contactid));
+	$contact_query = '';
+	foreach($contactid as $contact_id) {
+		$contact_query[] = "SELECT '$contact_id' `item_id`";
+	}
+	$query = mysqli_query($dbc, implode(" UNION ", $contact_query));
+	$staff = mysqli_fetch_assoc($query);
+}
 do {
 	$positions_allowed = [];
 	$position_rate = 0; ?>
