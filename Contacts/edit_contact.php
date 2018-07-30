@@ -951,19 +951,27 @@ function removeContactForm(a, pdf_id) {
 						<?php foreach($field_config as $field_name) {
 							if(substr($field_name, 0, 4) == 'acc_' && $edit_access > 0) {
 								foreach($tab_list as $tab_label => $tab_data) {
-
+									if($field_name == 'acc_'.$tab_data[0] && $tab_label != 'Checklist' && !in_array($tab_data[0], $subtabs_hidden) && (in_array($tab_data[0], $contact_subtabs) || empty($contact_subtabs))) {
+                                        $tab_label = ($tab_label=='Payment Information') ? 'Payment &amp; Billing Information' : $tab_label; ?>
+										<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
+										<?php if($tab_data[0] == 'business_address') { ?>
+											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['business_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
+										<?php } else if($tab_data[0] == 'mailing_address') { ?>
+											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['mailing_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
+										<?php } else if($tab_data[0] == 'address') { ?>
+											<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>_site" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>', ' .site_address'); return false;" style="<?= $contact['address_site_sync'] > 0 ? '' : 'display:none;' ?>"><li class="">Site Address</li></a>
+										<?php }
+									}
 								}
 							}
 						} ?>
 						<?php foreach($tab_list as $tab_label => $tab_data) {
 							if(in_array_any($tab_data[1],$field_config) && !in_array('acc_'.$tab_data[0],$field_config) && $tab_data[0] != 'sibling_information' && $tab_label != 'Checklist' && $edit_access > 0 && !in_array($tab_data[0], $subtabs_hidden) && (in_array($tab_data[0], $contact_subtabs) || empty($contact_subtabs))) { ?>
-								<a id="nav_<?= strtolower(str_replace(' ', '_', $tab_label)); ?>" href="#<?= $tab_data[0] ?>" onclick="jumpTab('<?= $tab_data[0] ?>'); return false;"><li class=""><?= $tab_label ?></li></a>
 							<?php }
 						} ?>
 						<?php if(in_array('Attached Contact Forms as Subtabs',$field_config)) {
 							$contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%' AND `deleted` = 0 AND (CONCAT(',',`attached_contacts`,',') LIKE '%,$contactid,%' OR (CONCAT(',',`attached_contacts`,',') LIKE '%,ALL_CONTACTS%,' AND (CONCAT(',',`attached_contact_categories`,',') LIKE '%,$current_type,%' OR IFNULL(`attached_contact_categories`,'') = ''))) AND `is_template` = 0 ORDER BY `name`");
 							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
-								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
 						} ?>
 					</ul>
