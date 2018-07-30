@@ -15,14 +15,16 @@ $msg_table = '';
 if($ticketid > 0 && $msg_count > 0) {
 	while($row = mysqli_fetch_array($msgs)) {
 		$msg_table .= '<div class="note_block">';
-		$individuals = [];
 		if($row['businessid'] > 0) {
-			$individuals[] = get_contact($dbc, $row['businessid'], 'name_company');
+			$msg_table .= BUSINESS_CAT.': <a href="../Contacts/contacts_inbox.php?edit='.$row['businessid'].'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row['businessid'], 'name_company').'</a><br />';
 		}
+		$individuals = [];
 		foreach(array_filter(explode(',',$row['contactid'])) as $row_contactid) {
-			$individuals[] = get_contact($dbc, $row_contactid, 'name_company');
+			$individuals[] = '<a href="../Contacts/contacts_inbox.php?edit='.$row_contactid.'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row_contactid, 'name_company').'</a>';
 		}
-		$msg_table .= 'Individuals: '.implode(', ',$individuals);
+		if(count($individuals) > 0) {
+			$msg_table .= 'Individuals: '.implode(', ',$individuals).'<br />';
+		}
 		$msg_table .= profile_id($dbc, $row['created_by'],false);
 		$msg_table .= '<div class="pull-right" style="width: calc(100% - 3.5em);">';
 		$msg_table .= '<p><b>From: '.$row['from_name'].' &lt;'.$row['from_email'].'&gt;</b><br />';
