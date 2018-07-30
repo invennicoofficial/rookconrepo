@@ -221,7 +221,9 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 		$milestone_timeline = str_replace(['FFMSPACE','FFMEND','FFMHASH'], [' ','&','#'], urldecode($_GET['milestone_timeline']));
 	}
 
-	$contactid = $_SESSION['contactid'];
+	if(get_config($dbc, 'ticket_default_session_user') != 'no_user') {
+		$contactid = $_SESSION['contactid'];
+	}
 	if(!empty($_GET['contactid'])) {
 		$contactid = ','.$_GET['contactid'].',';
 	}
