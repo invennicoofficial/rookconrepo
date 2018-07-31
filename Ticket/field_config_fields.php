@@ -201,6 +201,7 @@ function saveFields() {
 	var ticket_recurring_status = $('[name="ticket_recurring_status"]').val();
 	var ticket_material_increment = $('[name="ticket_material_increment"]').val();
 	var ticket_notes_alert_role = $('[name="ticket_notes_alert_role"]').val();
+	var ticket_recurrence_sync_upto = $('[name="ticket_recurrence_sync_upto"]').val();
 	$.post('ticket_ajax_all.php?action=ticket_fields', {
 		fields: ticket_fields,
 		field_name: '<?= empty($tab) ? 'tickets' : 'ticket_fields_'.$tab ?>',
@@ -269,6 +270,7 @@ function saveFields() {
 		ticket_approval_status: $('[name="ticket_approval_status"]').val(),
 		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
 		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
+		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto
 	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();

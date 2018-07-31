@@ -44,6 +44,20 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
 		<div class="form-group">
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This setting will dictate how far ahead the software will create Recurring <?= TICKET_TILE ?> (eg. visible in the software) that are ongoing, and will continue creating <?= TICKET_TILE ?> on an ongoing basis up to the selected amount here. This is required as the software cannot create an infinite number of <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Ongoing Recurring <?= TICKET_TILE ?> Sync Up To:</label>
+			<div class="col-sm-8">
+				<?php $ticket_recurrence_sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years'; ?>
+				<select name="ticket_recurrence_sync_upto" class="chosen-select-deselect form-control">
+					<?php for($i = 1; $i <= 11; $i++) {
+						echo '<option value="'.$i.' months" '.($ticket_recurrence_sync_upto == $i.' months' ? 'selected' : '').'>'.$i.' Month'.($i > 1 ? 's' : '').'</option>';
+					}
+					for($i = 1; $i <= 5; $i++) {
+						echo '<option value="'.$i.' years" '.($ticket_recurrence_sync_upto == $i.' years' ? 'selected' : '').'>'.$i.' Year'.($i > 1 ? 's' : '').'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-sm-4 control-label">Labels for Multiple <?= TICKET_TILE ?>:<br /><em>Separate labels with a comma. Each successive <?= TICKET_NOUN ?> will use the next label.</em></label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="ticket_multiple_labels" value="<?= get_config($dbc, "ticket_multiple_labels") ?>">
@@ -1431,6 +1445,12 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Service Description') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Description", $all_config) ? 'checked disabled' : (in_array("Service Description", $value_config) ? "checked" : '') ?> value="Service Description" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify general details for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Description</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Details Tile') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tile", $all_config) ? 'checked disabled' : (in_array("Details Tile", $value_config) ? "checked" : '') ?> value="Details Tile" name="tickets[]"> Tile Name</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Details Tab') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tab", $all_config) ? 'checked disabled' : (in_array("Details Tab", $value_config) ? "checked" : '') ?> value="Details Tab" name="tickets[]"> Tab / Sub Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details Where') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Where", $all_config) ? 'checked disabled' : (in_array("Details Where", $value_config) ? "checked" : '') ?> value="Details Where" name="tickets[]"> Where</label>
@@ -3329,6 +3349,40 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 						</div>
 					<?php } ?>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'Internal Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Internal Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></span>:<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('internal_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('internal_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="internal_communication" data-toggle="<?= in_array('internal_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('internal_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('internal_communication_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Internal Communication", $all_config) ? 'checked disabled' : (in_array("Internal Communication", $value_config) ? "checked" : '') ?> value="Internal Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add Internal Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'External Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="External Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></span>:<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('external_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('external_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="external_communication" data-toggle="<?= in_array('external_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("External Communication", $all_config) ? 'checked disabled' : (in_array("External Communication", $value_config) ? "checked" : '') ?> value="External Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add External Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 				</div>
 			</div>
 		<?php }
