@@ -333,6 +333,7 @@ if($_GET['fill'] == 'task_quick_time') {
 	$current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `work_time` FROM `tasklist` WHERE `tasklistid`='$taskid'"))['work_time']);
 	$total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
 	$query_time = "UPDATE `tasklist` SET `work_time` = '$total_time' WHERE tasklistid='$taskid'";
+    mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '".$_POST['time']."', 'M', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
 	mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Task #$taskid')");
 	$result = mysqli_query($dbc, $query_time);
 	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : ".$_POST['time']);
@@ -420,6 +421,9 @@ if($_GET['fill'] == 'stop_timer') {
 
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$timer_value') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
+        
+        $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
+        $result_add_time = mysqli_query($dbc, $query_add_time);
     }
 } else if($_GET['action'] == 'milestone_edit') {
 	if($_POST['id'] > 0) {
