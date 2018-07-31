@@ -107,6 +107,9 @@
             }
             if (strpos($value_config, ',Tasks,') !== false) { 
                 include('details_tasks.php');
+            }
+            if (strpos($value_config, ',History,') !== false) { 
+                include('details_history.php');
             } ?>
             
             <div class="pull-right gap-top gap-right gap-bottom">

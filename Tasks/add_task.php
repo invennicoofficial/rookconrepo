@@ -267,9 +267,13 @@ $(document).ready(function () {
                 created_by: <?= $_SESSION['contactid']; ?>,
             },
             success: function(response) {
-                if (response) {
+                if (response > 0) {
                     $('[name=tasklistid]').val(response);
                     $('h3').text('Edit Task #'+response);
+					<?php if($_GET['tab'] == 'sales') { ?>
+						$('[name=task_salesid]').change();
+						$('[name=sales_milestone]').change();
+					<?php } ?>
                 }
             }
         });
@@ -647,9 +651,8 @@ checkAuthorised('tasks');
 
             } else if ($_GET['tab'] == 'sales') {
 				$task_salesid = $_GET['salesid'];
-				$sales_milestone = $_GET['sales_milestone'];
-
-            } else if ( !empty($_GET['category']) ) {
+				$sales_milestone = $_GET['sales_milestone_timeline'];
+			} else if ( !empty($_GET['category']) ) {
                 $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);
                 $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
                 $get_task_board = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT taskboardid, board_name, board_security, task_path, businessid, contactid FROM task_board WHERE taskboardid='$url_cat'"));
@@ -1002,14 +1005,14 @@ checkAuthorised('tasks');
 						<?= $slider_layout != 'accordion' ? '<h4>'.SALES_TILE.'</h4>' : '' ?>
 						<label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
 						<div class="col-sm-8">
-							<select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="task_salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
+							<select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
 								<option></option><?php foreach(sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` WHERE `sales`.`deleted`=0")) as $lead) {
 									echo "<option ".($lead['salesid'] == $task_salesid ? 'selected' : '')." value='".$lead['salesid']."'>".$lead['name'].($lead['name'] != '' && $lead['first_name'].$lead['last_name'] != '' ? ': ' : '').$lead['first_name'].' '.$lead['last_name']."</option>";
 								} ?>
 							</select>
 						</div>
 					</div>
-					<input type="hidden" name="sales_milestone" value="<?= $sales_milestone ?>">
+					<input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
 
                     <?php if($slider_layout != 'accordion') { ?>
                         <hr />
@@ -1073,7 +1076,7 @@ checkAuthorised('tasks');
                 <div class="col-sm-8">
 					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
 					if($groups->num_rows > 0) { ?>
-						<select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value); }" class="chosen-select-deselect"><option />
+						<select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="chosen-select-deselect"><option />
 							<?php while($task_group = $groups->fetch_assoc()) { ?>
 								<optgroup label="<?= $task_group['category'] ?>">
 									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");

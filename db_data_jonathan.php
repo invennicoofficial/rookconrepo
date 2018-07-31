@@ -120,10 +120,23 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 7);
+		// July 23, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `status` TEXT AFTER `staff`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `unlocked_fields` TEXT AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
 	if($db_version_jonathan < 9) {
+		// July 25, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf_field_values` ADD `deleted` TINYINT(1) NOT NULL DEFAULT 0")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		// July 23, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `flag_colour` VARCHAR(7) AFTER `contactid`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -141,7 +154,19 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 7);
+		// July 25, 2018
+		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `sales_history` (
+			`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`created_by` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`created_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+			`history` TEXT,
+			`deleted` TINYINT(1) NOT NULL DEFAULT 0
+		)")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
 	if(get_config($dbc, 'update_timesheet_config') < 1) {

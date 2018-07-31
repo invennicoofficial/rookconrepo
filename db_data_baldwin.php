@@ -280,5 +280,40 @@
     }
     //2018-07-20 - Ticket #8352 - Sales Auto Archive
 
+    //2018-07-24 - Ticket #6075 - Performance Improvement Plan
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_performance_reviews` (
+        `fieldconfigid` int(11) NOT NULL,
+        `user_form_id` int(11) NOT NULL,
+        `enabled` int(1) NOT NULL,
+        `limit_staff` text)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_performance_reviews`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_performance_reviews`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    $updated_already = get_config($dbc, 'updated_ticket6075_pr');
+    if(empty($updated_already)) {
+        $pr_forms = array_filter(explode(',',get_config($dbc, 'performance_review_forms')));
+        foreach($pr_forms as $pr_form) {
+            if($pr_form > 0) {
+                mysqli_query($dbc, "INSERT INTO `field_config_performance_reviews` (`user_form_id`,`enabled`) VALUES ('$pr_form', '1')");
+            }
+        }
+        set_config($dbc, 'updated_ticket6075_pr', 1);
+    }
+    //2018-07-24 - Ticket #6075 - Performance Improvement Plan
+
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contact_categories` text AFTER `attached_contacts`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-26 - Ticket #8394 - Contact Forms Editable
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

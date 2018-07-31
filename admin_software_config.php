@@ -570,6 +570,10 @@ checkAuthorised();
 										<?php echo tile_config_function($dbc, 'archiveddata', 'admin'); ?>
 									</tr>
 									<tr>
+										<td data-title="Comment">Customer Support</td>
+										<?php echo tile_config_function($dbc, 'customer_support', 'admin'); ?>
+									</tr>
+									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport', 'admin'); ?>
 									</tr>
@@ -1477,7 +1481,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'package', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale</td>
+                                        <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced', 'admin'); ?>
                                     </tr>
                                     <tr>
@@ -1719,7 +1723,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'bgw') { echo "selected"; } ?> value="bgw">Clinic Ace</option>
 							<option <?php if($get_style_file == 'ffm') { echo "selected"; } ?> value="ffm">Fresh Focus Media</option>
 							<option <?php if($get_style_file == 'flowers') { echo "selected"; } ?> value="flowers">Flowers</option>
-							<option  <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
+							<option <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
 							<option <?php if($get_style_file == 'garden') { echo "selected"; } ?>  value="garden">Garden</option>
 							<option <?php if($get_style_file == 'green') { echo "selected"; } ?>  value="green">Green</option>
 							<option <?php if($get_style_file == 'leo') { echo "selected"; } ?> value="polka">Leopard Print</option>
@@ -1728,6 +1732,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'polka') { echo "selected"; } ?> value="">Polka Dots</option>
 							<option <?php if($get_style_file == 'swr') { echo "selected"; } ?> value="swr">Precision Workflow (White)</option>
 							<option <?php if($get_style_file == 'bwr') { echo "selected"; } ?> value="bwr">Precision Workflow (Black)</option>
+							<option <?php if($get_style_file == 'redsilver') { echo "selected"; } ?> value="redsilver">Red &amp; Silver</option>
 							<option <?php if($get_style_file == 'blw') { echo "selected"; } ?> value="blw">ROOK Connect</option>
 							<option <?php if($get_style_file == 'happy') { echo "selected"; } ?> value="happy">Smiley Faces</option>
 							<option <?php if($get_style_file == 'transport') { echo "selected"; } ?> value="transport">Transport</option>
