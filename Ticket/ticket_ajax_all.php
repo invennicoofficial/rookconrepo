@@ -339,6 +339,7 @@ if($_GET['fill'] == 'stoptickettimer') {
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
         $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `ticketid` = '$ticketid' AND created_by='$created_by' AND `start_timer_time` > 0";
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+        mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$created_by','$created_date','Regular Hrs.','".((strtotime($timer) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 		echo insert_day_overview($dbc, $created_by, 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Added Time : $timer");
     }
 	$ticket = $dbc->query("SELECT `pickup_address`, `pickup_city`, `pickup_postal_code`, `to_do_date`, `to_do_start_time` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
@@ -466,6 +467,9 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
+    
+    //Insert into Time Sheet tile
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
 	$value_config = get_field_config($dbc, 'tickets');
 	if($ticketid > 0) {
@@ -740,6 +744,8 @@ if($_GET['action'] == 'update_fields') {
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
+            $ticket_heading = mysqli_fetch_array(mysqli_query($dbc, "SELECT `heading` FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'"))['heading'];
+            insert_day_overview($dbc, $attached['item_id'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$attached['ticketid'].(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $attached['ticketid']);
 			echo $hours;
 		}
 	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1))) {
@@ -971,6 +977,7 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 	}
+    
 } else if($_GET['action'] == 'validate_address') {
 	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';
@@ -2951,103 +2958,5 @@ if($_GET['action'] == 'update_fields') {
 	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
 	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
 	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
-}
-
-function sync_recurring_data($dbc, $ticketid) {
-	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
-	if($ticket['main_ticketid'] > 0 && $ticket['is_recurrence'] == 1) {
-		//Set main_id and is_recurrence for any new records
-		mysqli_query($dbc, "UPDATE `ticket_attached` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0 AND `main_id` = 0");
-		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0 AND `main_id` = 0");
-		mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0 AND `main_id` = 0");
-
-		//Get all ticket rows from ticket_attached, ticket_schedule, and ticket_comment
-		$ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `main_id` > 0 AND `is_recurrence` = 1"),MYSQLI_ASSOC);
-		$ticket_schedules = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '$ticketid' AND `main_id` > 0 AND `is_recurrence` = 1"),MYSQLI_ASSOC);
-		$ticket_comments = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '$ticketid' AND `main_id` > 0 AND `is_recurrence` = 1"),MYSQLI_ASSOC);
-
-		//Get all fields from tickets table except ticketid, to_do_date, and to_do_end_date, and then create the query for it
-		$ticket_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `tickets` WHERE `Field` NOT IN ('ticketid','to_do_date','to_do_end_date')"),MYSQLI_ASSOC);
-		$ticket_query = [];
-		foreach($ticket_columns as $ticket_column) {
-			$ticket_query[] = "`".$ticket_column['Field']."` = '".$ticket[$ticket_column['Field']]."'";
-		}
-		$ticket_query = implode(', ', $ticket_query);
-
-		//Get all fields from ticket_attached table except id, ticketid and then create the queries for it
-		$ticket_attached_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `ticket_attached` WHERE `Field` NOT IN ('id','ticketid')"),MYSQLI_ASSOC);
-		$ticket_attached_queries = [];
-		foreach($ticket_attacheds as $ticket_attached) {
-			$ticket_attached_query = [];
-			foreach($ticket_attached_columns as $ticket_column) {
-				$ticket_attached_query[] = "`".$ticket_column['Field']."` = '".$ticket_attached[$ticket_column['Field']]."'";
-			}
-			$ticket_attached_queries[$ticket_attached['main_id']] = implode(', ', $ticket_attached_query);
-		}
-
-		//Get all fields from ticket_schedule table except id, ticketid and then create the queries for it
-		$ticket_schedule_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `ticket_schedule` WHERE `Field` NOT IN ('id','ticketid')"),MYSQLI_ASSOC);
-		$ticket_schedule_queries = [];
-		foreach($ticket_schedules as $ticket_schedule) {
-			$ticket_schedule_query = [];
-			foreach($ticket_schedule_columns as $ticket_column) {
-				$ticket_schedule_query[] = "`".$ticket_column['Field']."` = '".$ticket_schedule[$ticket_column['Field']]."'";
-			}
-			$ticket_schedule_queries[$ticket_schedule['main_id']] = implode(', ', $ticket_schedule_query);
-		}
-
-		//Get all fields from ticket_comment table except ticketcommid, ticketid and then create the queries for it
-		$ticket_comment_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `ticket_comment` WHERE `Field` NOT IN ('ticketcommid','ticketid')"),MYSQLI_ASSOC);
-		$ticket_comment_queries = [];
-		foreach($ticket_comments as $ticket_comment) {
-			$ticket_comment_query = [];
-			foreach($ticket_comment_columns as $ticket_column) {
-				$ticket_comment_query[] = "`".$ticket_column['Field']."` = '".$ticket_comment[$ticket_column['Field']]."'";
-			}
-			$ticket_comment_queries[$ticket_comment['main_id']] = implode(', ', $ticket_comment_query);
-		}
-
-		//Update all rows with recurring date
-		$recurring_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$ticket['main_ticketid']."' AND `is_recurrence` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
-		foreach($recurring_tickets as $recurring_ticket) {
-			mysqli_query($dbc, "UPDATE `tickets` SET $ticket_query WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
-
-			//Insert all ticket_attached records with the new ticketid
-			foreach($ticket_attached_queries as $id => $ticket_attached_query) {
-				$existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
-				if(empty($existing)) {
-					mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");	
-					$existing_id = mysqli_insert_id($dbc);
-				} else {
-					$existing_id = $existing['id'];
-				}
-				mysqli_query($dbc, "UPDATE `ticket_attached` SET $ticket_attached_query WHERE `id` = '$existing_id'");
-			}
-
-			//Insert all ticket_schedule records with the new ticketid
-			foreach($ticket_schedule_queries as $id => $ticket_schedule_query) {
-				$existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
-				if(empty($existing)) {
-					mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");	
-					$existing_id = mysqli_insert_id($dbc);
-				} else {
-					$existing_id = $existing['id'];
-				}
-				mysqli_query($dbc, "UPDATE `ticket_schedule` SET $ticket_schedule_query WHERE `id` = '$existing_id'");
-			}
-
-			//Insert all ticket_comment records with the new ticketid
-			foreach($ticket_comment_queries as $id => $ticket_comment_query) {
-				$existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
-				if(empty($existing)) {
-					mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");	
-					$existing_id = mysqli_insert_id($dbc);
-				} else {
-					$existing_id = $existing['ticketcommid'];
-				}
-				mysqli_query($dbc, "UPDATE `ticket_comment` SET $ticket_comment_query WHERE `ticketcommid` = '$existing_id'");
-			}
-		}
-	}
 }
 ?>

@@ -274,7 +274,7 @@
 					$planned_hrs = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 					$tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 					$total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $timecardid);
-					$report_block .= '<tr style="'.$hl_colour.'">'.
+          $report_block .= '<tr style="'.$hl_colour.'" bgcolor="'.( date('d', strtotime($date))%2==1 ? 'white' : '#eee' ).'">'.
 						'<td data-title="Date">'.$date.'</td>
 						'.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
 						'.(in_array('show_hours',$value_config) ? '<td data-title="Hours">'.$hours.'</td>' : '').'
@@ -749,6 +749,7 @@
                 $result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
                 $date = $search_start_date;
                 $i = 0;
+                $bgcolor = 'white';
                 while(strtotime($date) <= strtotime($search_end_date)) {
                 	$milage = 0;
                 	$mileage_rate = 0;
@@ -845,7 +846,8 @@
 
 	                $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
                     if($row['hours'] > 0 || ($expenses_owed > 0 && strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE)) {
-                    	$view_ticket = [];
+                        $show_row = true;
+                        $view_ticket = [];
                     	foreach($ticketids as $ticketid) {
 	                    	if($ticketid > 0) {
 	                    		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$ticketid}'"));
@@ -868,8 +870,8 @@
 	                    $mileage_rate_html = implode('<br>',$mileage_rate_html);
 	                    $mileage_cost_html = implode('<br>',$mileage_cost_html);
 	                    $view_ticket = implode('<br>',$view_ticket);
-                        $report .= '<tr>
-                            <td  style=" border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Date">'.$date.'</td>'.
+                        $report .= '<tr bgcolor="'.$bgcolor.'">
+                            <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Date">'.$date.'</td>'.
                             (in_array('view_ticket',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="'.TICKET_NOUN.'">'.$view_ticket.'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage">'.$mileage_html.'</td>' : '').
@@ -890,6 +892,14 @@
                     }
                     if($date != $row['date']) {
                         $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
+                        if($show_row) {
+                            if ($bgcolor == 'white') {
+                                $bgcolor = '#eee';
+                            } else {
+                                $bgcolor = 'white';
+                            }
+                            $show_row = false;
+                        }
                     }
 
                 }
