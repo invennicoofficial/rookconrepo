@@ -434,8 +434,8 @@ if($_GET['action'] == 'add_document') {
 }
 if($_GET['action'] == 'set_reminder') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
-	$user = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
-	$date = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$user = filter_var($_POST['user'],FILTER_SANITIZE_STRING);
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$user','$date','Sales Lead Reminder','Sales Lead Reminder','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
 }
 if($_GET['action'] == 'send_email') {
