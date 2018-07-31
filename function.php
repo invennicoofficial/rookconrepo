@@ -1505,7 +1505,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Employee Handbook';
 				break;
 			case 'how_to_guide':
-				$tiles[] = 'How To Guide';
+				$tiles[] = 'All Software Guide';
 				break;
 			case 'software_guide':
 				$tiles[] = 'Software Guide';
