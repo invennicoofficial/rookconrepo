@@ -181,13 +181,14 @@ function setReminder(sel) {
 	item.find('.reminders').show();
 	item.find('.send').click(function() {
 		$.post('sales_ajax_all.php?action=set_reminder', {
-				user: item.find('.reminders select').val(),
-				date: item.find('.reminders input').val(),
+				user: item.find('.reminders select').val().join(','),
+				date: item.find('.reminders input.datepicker').val(),
 				id: item.data('id')
 			});
 		item.find('.reminders').hide();
-		item.find('.reminders input').val('');
-		item.find('.reminders select').val('').trigger('change.select2');
+		item.find('.reminders input.datepicker').val('');
+		item.find('.reminders option').removeAttr('selected');
+		item.find('.reminders select').trigger('change.select2');
 	});
 	item.find('.cancel').click(function() {
 		item.find('.reminders').hide();
