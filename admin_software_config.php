@@ -625,6 +625,10 @@ checkAuthorised();
                                         <th>Function Status</th>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment">All Software Guide</td>
+                                        <?php echo tile_config_function($dbc, 'how_to_guide', 'admin'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Certificates</td>
                                         <?php echo tile_config_function($dbc, 'certificate', 'admin'); ?>
                                     </tr>
@@ -639,10 +643,6 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Comment">How To Checklist</td>
                                         <?php echo tile_config_function($dbc, 'how_to_checklist', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">How to Guide</td>
-                                        <?php echo tile_config_function($dbc, 'how_to_guide', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">HR</td>
