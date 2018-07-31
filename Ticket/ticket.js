@@ -1698,6 +1698,15 @@ function clearNote(type, block) {
 	block.find('select').data('id','').find('option').removeAttr('selected').trigger('change.select2');
 	reload_notes(type, $('.ticket_comments[data-type="'+type+'"]'));
 }
+function reloadCommunications() {
+	$('.ticket_communication.reload').each(function() {
+		$(this).removeClass('reload');
+		reload_communication($(this).data('type'),$(this).data('method'),this);
+	});
+}
+function reload_communication(type, method, target) {
+	$(target).load('../Ticket/add_ticket_view_communication.php?ticketid='+ticketid+'&comm_type='+type+'&comm_mode='+method);
+}
 function reload_needed_notes() {
 	$('.ticket_comments.reload').each(function() {
 		$(this).removeClass('reload');
@@ -1766,6 +1775,7 @@ function startTicketStaff() {
 
     block.after(clone);
     initInputs('.start-ticket-staff');
+	setSave();
 }
 function deletestartTicketStaff(button) {
     if($('div.start-ticket-staff').length <= 1) {
@@ -1784,6 +1794,7 @@ function internalTicketStaff() {
 
     block.after(clone);
     initInputs('.internal-ticket-staff');
+	setSave();
 }
 function deleteinternalTicketStaff(button) {
     if($('div.internal-ticket-staff').length <= 1) {
@@ -1801,6 +1812,7 @@ function customerTicketStaff() {
 
     block.after(clone);
     initInputs('.customer-ticket-staff');
+	setSave();
 }
 function deletecustomerTicketStaff(button) {
     if($('div.customer-ticket-staff').length <= 1) {
@@ -2765,6 +2777,14 @@ function addNote(type, btn, force_allow = 0) {
 		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&comment='+type+'&action_mode='+$('#action_mode').val()+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please create the '+ticket_name+' before adding notes.');
+	}
+}
+function addCommunication(type, method) {
+	if(ticketid > 0) {
+		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
+		overlayIFrameSlider('../Email Communication/add_communication.php?type='+type+'&ticketid='+ticketid,'auto',false,true);
+	} else {
+		alert('Please create the '+ticket_name+' before adding communications.');
 	}
 }
 function addContactNote(btn, clientid = '', force_allow = 0) {

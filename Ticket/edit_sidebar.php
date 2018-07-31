@@ -356,6 +356,14 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="custom_view_ticket_comment"><li class="<?= $_GET['tab'] == 'custom_view_ticket_comment' ? 'active blue' : '' ?>"><?= get_config($dbc, 'ticket_custom_notes_heading') ?></li></a>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') { ?>
+		<a href="" data-tab-target="internal_communication"><li class="<?= $_GET['tab'] == 'internal_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') { ?>
+		<a href="" data-tab-target="external_communication"><li class="<?= $_GET['tab'] == 'external_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></li></a>
+	<?php } ?>
+
 	<?php if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') { ?>
 		<a href="" data-tab-target="notes_view_ticket_comment"><li class="<?= $_GET['tab'] == 'notes_view_ticket_comment' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Notes' ?></li></a>
 	<?php } ?>
