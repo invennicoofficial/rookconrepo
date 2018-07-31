@@ -348,7 +348,7 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order #:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $inventory['po_num'] ?>">
+							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $general_inventory['po_num'] ?>">
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
