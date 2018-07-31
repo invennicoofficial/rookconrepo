@@ -222,7 +222,7 @@ for ($equip_i = 0; $equip_i < count($assign_contacts) || $equip_i < 2; $equip_i+
         $query = "SELECT * FROM `teams` WHERE `deleted` = 0 AND (DATE(`start_date`) <= DATE(CURDATE()) OR `start_date` IS NULL OR `start_date` = '' OR `start_date` = '0000-00-00') AND (DATE(`end_date`) >= DATE(CURDATE()) OR `end_date` IS NULL OR `end_date` = '' OR `end_date` = '0000-00-00')".$region_query;
         $result = mysqli_query($dbc, $query);
         while ($row = mysqli_fetch_array($result)) {
-            $team_name = getTeamName($dbc, $row['teamid']);
+            $team_name = get_team_name($dbc, $row['teamid']);
             echo '<option value="'.$row['teamid'].'"'.($row['teamid'] == $teamid ? ' selected' : '').'>'.$team_name.'</option>';
         }
     ?>

@@ -76,7 +76,7 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 		    	} else {
 					$equipassignid_data = "";
 		    	}
-		    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'" '.$equipassignid_data.'>';
+		    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'" '.$equipassignid_data.'>';
 		        $column .= '<h4>'.$staff_name.'</h4>';
 		        foreach($warehouse_tickets as $warehouse => $start_times) {
 		        	foreach($start_times as $start_time => $tickets) {
@@ -277,7 +277,7 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 		    	} else {
 					$equipassignid_data = "";
 		    	}
-		    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$row['equipmentid'].'" data-date="'.$new_today_date.'" '.$equipassignid_data.'>';
+		    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$row['equipmentid'].'" data-date="'.$new_today_date.'" '.$equipassignid_data.'>';
 		        $column .= '<h4>'.$team_name.'</h4>';
 		        foreach($warehouse_tickets as $warehouse => $start_times) {
 		        	foreach($start_times as $start_time => $ticketids) {

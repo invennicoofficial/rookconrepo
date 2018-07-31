@@ -195,6 +195,8 @@ if ( !empty($note) ) { ?>
                         <h1 class="no-margin">Checklists</h1>
                     <?php } else if ($side_content == 'my_tasks') { ?>
                         <h1 class="no-margin">Tasks</h1>
+                    <?php } else if ($side_content == 'my_timesheets') { ?>
+                        <h1 class="no-margin">Time Sheets</h1>
                     <?php } else if ($side_content == 'past_due' && $_GET['tab'] == 'alerts') { ?>
                         <h1 class="no-margin">Alerts</h1>
                     <?php } else if ($side_content == 'past_due') { ?>
@@ -208,7 +210,9 @@ if ( !empty($note) ) { ?>
                         <h4><?= date('F 1', strtotime($weekly_date)) ?> - <?= date('F t, Y', strtotime($weekly_date)) ?>
     					<a href="?daily_date=<?= $daily_date ?>&side_content=monthly&weekly_date=<?= date('Y-m-d', strtotime($weekly_date.' - 1 month')) ?>" class="mobile-anchor"><img style="height: 0.7em;" src="<?= WEBSITE_URL ?>/img/icons/back-arrow.png"></a> |
     					<a href="?daily_date=<?= $daily_date ?>&side_content=monthly&weekly_date=<?= date('Y-m-d', strtotime($weekly_date.' + 1 month')) ?>" class="mobile-anchor"><img style="height: 0.7em;" src="<?= WEBSITE_URL ?>/img/icons/next-arrow.png"></a></h4>
-                    <?php } else {
+                    <?php } else if($side_content == 'my_support') {
+						echo '<h1>Support Requests</h1>';
+					} else {
                         $weekly_date = date('Y-m-d',strtotime($daily_date));
                         if (!empty($_GET['weekly_date'])) {
                             $weekly_date = $_GET['weekly_date'];
@@ -242,6 +246,10 @@ if ( !empty($note) ) { ?>
                     include('daysheet_tasks.php');
                 } else if ($side_content == 'my_checklists') {
                     include('daysheet_checklists.php');
+                } else if ($side_content == 'my_timesheets') {
+                    include('daysheet_timesheets.php');
+                } else if ($side_content == 'my_support') {
+                    include('daysheet_support.php');
                 } else if ($side_content == 'past_due') {
                     include('daysheet_pastdue.php');
                 } else {

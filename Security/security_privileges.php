@@ -391,7 +391,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',how_to_guide,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('how_to_guide', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">How to Guide</td>
+				<td data-title="Comment">All Software Guide</td>
 				<?php echo security_tile_config_function('how_to_guide', get_privileges($dbc, 'how_to_guide',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>

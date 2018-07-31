@@ -22,7 +22,7 @@ while($row = mysqli_fetch_array( $result )) {
             $shift_conflicts = array_merge(explode('*#*',$conflict), $shift_conflicts);
         }
 
-    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
+    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
         foreach ($shifts as $row_shifts) {
             if(in_array($row_shifts['shiftid'], $shift_conflicts)) {

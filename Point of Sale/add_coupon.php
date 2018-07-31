@@ -18,10 +18,20 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
         $result_insert = mysqli_query($dbc, $query_insert);
         $couponid = mysqli_insert_id($dbc);
 
+        $before_change = '';
+        $history = "Point of Sale Coupon Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 	} else {
         $couponid = $_POST['couponid'];
+
+        $before_change = '';
+
         $query_update = "UPDATE `pos_touch_coupons` SET `title`='$title', `description`='$description', `discount_type`='$discount_type', `discount`='$discount', `start_date`='$start_date', `expiry_date`='$expiry_date'";
         $result_update = mysqli_query($dbc, $query_update);
+
+        $history = "Point of Sale Coupon entries updated. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript">window.location.replace("coupons.php");</script>';

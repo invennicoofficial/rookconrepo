@@ -4,7 +4,7 @@ include('../Calendar/calendar_functions_inc.php'); ?>
 <script type="text/javascript" src="timesheet.js"></script>
 <script type="text/javascript">
 $(document).on('change', 'select[name="search_staff[]"]', function() { filterStaff(this); });
-//$(document).on('change', 'select[name="search_group"]', function() { filterStaff(this); });
+$(document).on('change', 'select[name="search_group"]', function() { filterStaff(this); });
 //$(document).on('change', 'select[name="search_security"]', function() { filterStaff(this); });
 function filterStaff(sel) {
   var staff_sel = $('select[name="search_staff[]"');
@@ -67,7 +67,8 @@ function unapproveTimeSheet(a) {
 include_once ('../navigation.php');
 checkAuthorised('timesheet');
 include 'config.php';
-$value = $config['settings']['Choose Fields for Time Sheets Dashboard']; ?>
+$value = $config['settings']['Choose Fields for Time Sheets Dashboard'];
+$field_config = get_field_config($dbc, 'time_cards_dashboard'); ?>
 
 <script type="text/javascript">
 function viewTicket(a) {
@@ -146,17 +147,41 @@ function viewTicket(a) {
                 }
                 ?>
 
+			<?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
+			  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
+				<label for="site_name" class="control-label">Search By Group:</label>
+			  </div>
+				<div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
+				  <select data-placeholder="Select a Group" name="search_group" class="chosen-select-deselect form-control">
+					<option></option>
+					<?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
+					  $group = explode(',',$group);
+					  $group_name = $group[0];
+					  $group_staff = [];
+					  foreach ($group as $staff) {
+						if ($staff > 0) {
+						  $group_staff[] = $staff;
+						}
+					  }
+					  if(count($group) > 1) { ?>
+						<option data-staff='<?= json_encode($group_staff) ?>' value="<?= $group_name ?>"><?= $group_name ?></option>
+					  <?php }
+					} ?>
+				  </select>
+				</div>
+				<?php $search_clearfix++ ?>
+			<?php } ?>
             <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                 <label class="control-label">Search By Staff:</label>
             </div>
-            <div class="col-lg-10 col-md-9 col-sm-8 col-xs-8">
+            <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
                 <?php if($timesheet_payroll_styling == 'EGS') { ?>
                     <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
                         <option></option>
                         <option <?= 'ALL' == $search_staff_list ? 'selected' : '' ?> value="ALL">All Staff</option>
 						<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
 						foreach($query as $staff_row) { ?>
-							<option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (strpos(','.$search_staff.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
+							<option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (strpos(','.$search_staff_list.',', ','.$staff_row['contactid'].',') !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
 						} ?>
                     </select>
                     
@@ -237,11 +262,9 @@ function viewTicket(a) {
             </div>
             
             <div class="form-group gap-top">
-                <div class="text-right"><?php
-                    if(count($_GET['search_staff']) == 1 && $_GET['search_staff'][0] != 'ALL_STAFF') { ?>
-                        <a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
-                        <a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a><?php
-                    } ?>
+                <div class="text-right">
+					<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
+					<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
                     
@@ -355,7 +378,7 @@ function viewTicket(a) {
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
                         <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
-                        <td colspan="<?in_array('comment_box',$value_config) ? 2 : 1 ?>"></td>
+                        <td colspan="<?= in_array('comment_box',$value_config) ? 2 : 1 ?>"></td>
                     </tr>
                     <tr class='hidden-xs hidden-sm'>
                         <th style='text-align:center; vertical-align:bottom; width:8em;'><div>Date</div></th>
@@ -551,7 +574,7 @@ function viewTicket(a) {
                             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
                             '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
-                            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Comments"><input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control"></td>' : '').'
+                            '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><input type="text" name="comments_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.$comments.'" class="form-control"></td>' : '').'
                             <td data-title="Select to Mark Paid"><label '.($approv == 'P' ? 'class="readonly-block"' : '').'>';
                             if($layout == 'multi_line') {
                                 echo '<input type="checkbox" name="approvedateid[]" value="'.$timecardid.'" '.($approv == 'P' ? 'checked readonly' : '').' /></td>';
