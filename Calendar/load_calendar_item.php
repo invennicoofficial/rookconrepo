@@ -31,7 +31,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 
 	if(strpos(','.$calendar_type.',', ',ticket,') !== FALSE) {
 		//Pull all tickets for the current contact from the ticket table
-		$all_tickets_sql = "SELECT *, IFNULL(`to_do_end_date`,`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`)) AND (`contactid` LIKE '%,".$contact_id.",%' OR `internal_qa_contactid` LIKE '%,".$contact_id.",%' OR `deliverable_contactid` LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
+		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (`contactid` LIKE '%,".$contact_id.",%' OR `internal_qa_contactid` LIKE '%,".$contact_id.",%' OR `deliverable_contactid` LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
 		$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 		$tickets_time = [];
 		$tickets_notime = [];
@@ -799,7 +799,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 
 	//Populate the text for the column header
 	$team =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$contact_id'"));
-	$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/teams.php?teamid='.$contact_id.'\'); return false;">Team #'.$team['teamid'].'</a><br />';
+	$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/teams.php?teamid='.$contact_id.'\'); return false;">'.(!empty($team['team_name']) ? $team['team_name'] : 'Team #'.$team['teamid']).'</a><br />';
 
 	$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
 	$contacts_query = [];
@@ -826,7 +826,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$calendar_table[$calendar_date][$contact_id]['calendar_type'] = $calendar_type;
 
 	//Pull all tickets for the current contact from the ticket table
-	$all_tickets_sql = "SELECT *, IFNULL(`to_do_end_date`,`to_do_date`) `to_do_end_date` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query;
+	$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query;
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
 	$tickets_notime = [];
@@ -905,7 +905,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 			}
 		}
 		if (empty($shifts) && $current_ticket == '') {
-			$current_ticket = ['ticket', 'SHIFT', $current_row, $calendar_date, $contact_id];
+			$current_ticket = ['ticket', 'SHIFT', $current_row, $calendar_date, ($contacts_arr != ',PLACEHOLDER,') ? $contacts_arr : ''];
 		}
 		$calendar_table[$calendar_date][$contact_id][] = $current_ticket;
 		$current_row = date('H:i:s', strtotime('+'.$day_period.' minutes', strtotime($current_row)));
@@ -995,7 +995,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$calendar_table[$calendar_date][$contact_id]['calendar_type'] = $calendar_type;
 
 	//Pull all tickets for the current contact from the ticket table
-	$all_tickets_sql = "SELECT *, IFNULL(`to_do_end_date`,`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`)) AND (`contactid` LIKE '%,".$contact_id.",%' OR `internal_qa_contactid` LIKE '%,".$contact_id.",%' OR `deliverable_contactid` LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
+	$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (`contactid` LIKE '%,".$contact_id.",%' OR `internal_qa_contactid` LIKE '%,".$contact_id.",%' OR `deliverable_contactid` LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
 	$tickets_notime = [];

@@ -665,6 +665,27 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_use_all_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_use_all_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_use_all_tickets."' WHERE `name`='ticket_use_all_tickets'");
+	if (!empty($_POST['ticket_staff_split_security'])) {
+		$ticket_staff_split_security = $_POST['ticket_staff_split_security'];
+	} else {
+		$ticket_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_staff_split_security."' WHERE `name`='ticket_staff_split_security'");
+	if (!empty($_POST['ticket_client_staff_freq'])) {
+		$ticket_client_staff_freq = $_POST['ticket_client_staff_freq'];
+	} else {
+		$ticket_client_staff_freq = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_staff_freq' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_staff_freq') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_staff_freq."' WHERE `name`='ticket_client_staff_freq'");
+	if (!empty($_POST['ticket_client_draggable'])) {
+		$ticket_client_draggable = $_POST['ticket_client_draggable'];
+	} else {
+		$ticket_client_draggable = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_draggable' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_draggable') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_draggable."' WHERE `name`='ticket_client_draggable'");
 
 	// Shift Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_day_start') num WHERE num.rows=0");
@@ -2325,6 +2346,27 @@ function showDefaultView(chk) {
 									<?php $ticket_availability_indication = get_config($dbc, 'ticket_availability_indication'); ?>
 									<label class="form-checkbox"><input type="radio" name="ticket_availability_indication" <?= empty($ticket_availability_indication) ? 'checked' : '' ?> value=""> All Day Availability</label>
 									<label class="form-checkbox"><input type="radio" name="ticket_availability_indication" <?= $ticket_availability_indication == 1 ? 'checked' : '' ?> value="1"> No Availability</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $ticket_staff_split_security = get_config($dbc, 'ticket_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_staff_split_security" <?= $ticket_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Active Client Frequency Per Staff:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_staff_freq = get_config($dbc, 'ticket_client_staff_freq'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_staff_freq" <?= $ticket_client_staff_freq != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Clients Draggable To Book:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_draggable = get_config($dbc, 'ticket_client_draggable'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_draggable" <?= $ticket_client_draggable != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

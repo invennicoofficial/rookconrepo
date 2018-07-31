@@ -85,6 +85,7 @@ if(!empty($_GET['tile_name'])) {
 
 			<div class="clearfix"></div>
 			<?php if(isset($_GET['edit'])) {
+				echo '<input type="hidden" name="global_ticket_noun" value="'.TICKET_NOUN.'">';
 				include('edit_tickets.php');
 				if(empty($ticketid) && $calendar_ticket_slider == 'accordion') {
 					$include_hidden = 'true'; ?>
