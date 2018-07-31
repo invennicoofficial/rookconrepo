@@ -214,10 +214,7 @@ $(document).ready(function() {
 		$.ajax({
 			type: "GET",
 			url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
-			dataType: "html",
-			success: function(response){
-				console.log(response);
-			}
+			dataType: "html"
 		});
         $(window).resize();
     });
@@ -401,7 +398,7 @@ function initInputs(container) {
 			try {
 				if($(initSelector+':not(.no_tools)').length > 0) {
 					tinymce.init({
-						setup: function(editor) {console.log(this);
+						setup: function(editor) {
 							editor.on('blur', function(e) {
 								this.save();
 								$(this.getElement()).change();
