@@ -94,7 +94,7 @@ function toggle_columns() {
             $(this).prevAll('.quick_actions:first').hide();
             $(this).hide();
         } else {
-            $(this).prevAll('.quick_actions:first_name').show();
+            $(this).prevAll('.quick_actions:first').show();
             $(this).show();
         }
     });

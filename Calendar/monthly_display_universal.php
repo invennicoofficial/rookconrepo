@@ -211,7 +211,7 @@ while($row = mysqli_fetch_array( $result )) {
     }
 
     if($num_rows > 0 || $num_rows1 > 0 || $num_rows2 > 0) {
-    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
+    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
     }
     while($row_tickets = mysqli_fetch_array( $tickets )) {

@@ -16,7 +16,7 @@ while($row = mysqli_fetch_array( $result )) {
 
     $j = 0;
     if(!empty($appointments)) {
-    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
+    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
         foreach ($appointments as $row_appt) {
 			$status_class = 'unconfirmed';
