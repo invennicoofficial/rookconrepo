@@ -2895,7 +2895,7 @@ if($_GET['fill'] == 'get_calendar_dates') {
 	//If next or previous is clicked, find
 	if($_POST['type'] == 'next') {
 		if($_POST['view'] == 'monthly') {
-			$calendar_start = date('Y-m-d', strtotime($calendar_start.'+ 1 month'));
+			$calendar_start = date('Y-m-d', strtotime(date('Y-m-01',strtotime($calendar_start)).'+ 1 month'));
 		} else if($_POST['view'] == 'weekly') {
 			$calendar_start = date('Y-m-d', strtotime($calendar_start.'+ 1 week'));
 		} else {
@@ -2903,7 +2903,7 @@ if($_GET['fill'] == 'get_calendar_dates') {
 		}
 	} else if($_POST['type'] == 'prev') {
 		if($_POST['view'] == 'monthly') {
-			$calendar_start = date('Y-m-d', strtotime($calendar_start.'- 1 month'));
+			$calendar_start = date('Y-m-d', strtotime(date('Y-m-01',strtotime($calendar_start)).'- 1 month'));
 		} else if($_POST['view'] == 'weekly') {
 			$calendar_start = date('Y-m-d', strtotime($calendar_start.'- 1 week'));
 		} else {
