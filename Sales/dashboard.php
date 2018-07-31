@@ -12,7 +12,7 @@ $(document).ready(function() {
 			});
 		}
 	});
-	
+
     $('.track_time .start').on('click', function() {
         $(this).closest('.track_time').find('.timer').timer({
             editable: true
@@ -20,7 +20,7 @@ $(document).ready(function() {
         $(this).hide();
         $(this).next('.stop').show();
     });
-	
+
     $('.track_time .stop').on('click', function() {
 		var item = $(this).closest('.info-block-detail');
 		item.find('.timer').timer('stop');
@@ -304,7 +304,7 @@ function openProjectDialog(sel) {
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-12"><?php
                                         $contacts = '';
@@ -317,7 +317,7 @@ function openProjectDialog(sel) {
 										<img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
                                     </div>
                                 </div></a>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Status:</div>
                                     <div class="col-sm-7">
@@ -334,7 +334,7 @@ function openProjectDialog(sel) {
 										} ?>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Next Action:</div>
                                     <div class="col-sm-7">
@@ -347,12 +347,12 @@ function openProjectDialog(sel) {
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Follow Up:</div>
                                     <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
-                                
+
                                 <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="sales_notes" data-salesid="<?= $row['salesid']; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
 								<?php if(in_array('flag_manual',$quick_actions)) {
 									$colours = $flag_colours; ?>
