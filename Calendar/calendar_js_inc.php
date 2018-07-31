@@ -296,11 +296,14 @@ function changeDate(date, type = '') {
 			if(summary_view == 1) {
 				retrieve_whole_month();
 			} else if(view == 'monthly') {
-				reload_calendar_month(response_arr[0]);
-				if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
-					reload_teams();
-				}
-				reload_all_data_month();
+				clear_all_data_month();
+				var reload_calendar = reload_calendar_month(response_arr[0]);
+				reload_calendar.success(function() {
+					if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+						reload_teams();
+					}
+					reload_all_data_month();
+				});
 			} else {
 				still_loading = 0;
 				clear_all_data();
@@ -1092,7 +1095,6 @@ function scrollToToday() {
 
 //RETRIEVE DATA AND LOAD ITEMS MONTH VIEW
 function reload_all_data_month() {
-	clear_all_data_month();
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var retrieve_summary = $('#retrieve_summary').val();
 	if(retrieve_summary == 1) {
@@ -1227,7 +1229,7 @@ function reload_resize_all_month() {
 	}
 }
 function reload_calendar_month(date) {
-	$.ajax({
+	return $.ajax({
 		url: '../Calendar/monthly_display.php?<?= http_build_query($_GET) ?>&date='+date+'&view=monthly',
 		success: function(response) {
 			$('.calendar_table').replaceWith(response);
