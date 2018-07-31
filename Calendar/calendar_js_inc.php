@@ -1092,6 +1092,7 @@ function scrollToToday() {
 
 //RETRIEVE DATA AND LOAD ITEMS MONTH VIEW
 function reload_all_data_month() {
+	clear_all_data_month();
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var retrieve_summary = $('#retrieve_summary').val();
 	if(retrieve_summary == 1) {
