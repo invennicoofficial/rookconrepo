@@ -8,7 +8,7 @@ if(isset($_GET['date'])) {
 	$search_month = date('F', strtotime($_GET['date']));
 	$search_year = date('Y', strtotime($_GET['date']));
 }
-$calendar_month = date("n", strtotime($search_month));
+$calendar_month = date("n", strtotime($search_month.' '.$search_year));
 $calendar_year = $search_year;
 $quick_add = get_config($dbc, 'shift_calendar_quick_add');
 $edit_access = vuaed_visible_function($dbc, 'calendar_rook');
