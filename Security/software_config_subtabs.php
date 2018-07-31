@@ -1143,6 +1143,7 @@ checkAuthorised('security');
 						<tr><td>Font Settings</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'font' ); ?></tr>
 						<tr><td>Data Usage</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'data_use' ); ?></tr>
 						<tr><td>Notes</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notes' ); ?></tr>
+						<tr><td>Notifications: Software Default</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notifications_software' ); ?></tr>
 					<?php }
 					// include ('../Settings/settings_subtab_settings.php');
 					/* End of Settings tile subtab settings */

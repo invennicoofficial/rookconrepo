@@ -1,5 +1,6 @@
-<?php include('../Notification/get_notifications.php');
-$noti_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`id`) as `num_rows` FROM `journal_notifications` WHERE `seen` = 0 AND `deleted` = 0 AND `contactid` = '$search_user'"))['num_rows'];
+<?php
+$search_user = $_SESSION['contactid'];    
+include('../Notification/get_notifications.php');
 
 if($num_rows_past > 0) {
     $alert_url = WEBSITE_URL.'/Daysheet/daysheet.php?side_content=past_due';

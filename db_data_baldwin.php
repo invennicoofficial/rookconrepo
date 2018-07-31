@@ -345,7 +345,10 @@
         `software_default` int(1) NOT NULL DEFAULT 0,
         `contactid` int(11) NOT NULL,
         `enabled` int(1) NOT NULL DEFAULT 0,
-        `alerts` text)")) {
+        `alerts` text,
+        `frequency` varchar(500),
+        `alert_hour` varchar(500) NOT NULL,
+        `alert_days` varchar(500) NOT NULL)")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
@@ -354,6 +357,9 @@
     }
     if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
         MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `journal_notifications` ADD `email_sent` int(1) NOT NULL DEFAULT 0")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-07-31 - Ticket #7497 - Email Alerts
