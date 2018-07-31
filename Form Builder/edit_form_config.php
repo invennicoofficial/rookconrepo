@@ -1,5 +1,6 @@
 <?php //Form Builder Configuration
 $assigned_tiles = ','.(!empty($form['assigned_tile']) ? $form['assigned_tile'] : '').',';
+$attached_contact_categories = ','.$form['attached_contact_categories'].',';
 $attached_contacts = ','.$form['attached_contacts'].',';
 $subtab = !empty($form['subtab']) ? $form['subtab'] : '';
 $subtab_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_user_forms`"))['subtabs'];
@@ -9,8 +10,10 @@ $form_layout = !empty($form['form_layout']) ? $form['form_layout'] : 'Accordions
 <script type="text/javascript">
 $(document).ready(function() {
 	$('.form-content input,select,textarea').on('change', function() { saveConfig(this); });
+	filterAttachedContacts();
 });
 $(document).on('change', 'select[name="assigned_tile[]"]', function() { changeAssignedTile(); });
+$(document).on('change', 'select[name="attached_contact_categories[]"]', function() { filterAttachedContacts(); });
 function saveConfig(field) {
 	var formid = $('[name="formid"]').val();
 	var assigned_tiles = [];
@@ -23,11 +26,16 @@ function saveConfig(field) {
 		attached_contacts.push($(this).val());
 	});
 	attached_contacts = JSON.stringify(attached_contacts);
+	var attached_contact_categories = [];
+	$('[name="attached_contact_categories[]"]').find('option:selected').each(function() {
+		attached_contact_categories.push($(this).val());
+	});
+	attached_contact_categories = JSON.stringify(attached_contact_categories);
 	var intake_field = $('[name="intake_field"]').val();
 	var subtab = $('[name="subtab"]').val();
 	var form_layout = $('[name="form_layout"]:checked').val();
 
-	var field_data = { formid: formid, assigned_tiles: assigned_tiles, attached_contacts: attached_contacts, intake_field: intake_field, subtab: subtab, form_layout: form_layout };
+	var field_data = { formid: formid, assigned_tiles: assigned_tiles, attached_contacts: attached_contacts, attached_contact_categories: attached_contact_categories, intake_field: intake_field, subtab: subtab, form_layout: form_layout };
 	$.ajax({
 		url: '../Form Builder/form_ajax.php?fill=update_config',
 		type: 'POST',
@@ -48,6 +56,19 @@ function changeAssignedTile() {
 			$('.attached_contacts').show();
 		}
 	});
+}
+function filterAttachedContacts() {
+	if($('[name="attached_contact_categories[]"] option:selected').length == 0) {
+		$('[name="attached_contacts[]"] option').show();
+	} else {
+		$('[name="attached_contacts[]"] option').hide();
+		$('[name="attached_contact_categories[]"] option:selected').each(function() {
+			var contact_cat = this.value;
+			$('[name="attached_contacts[]"] option[data-category="'+contact_cat+'"]').show();
+		});
+	}
+	$('[name="attached_contacts[]"] option[value="ALL_CONTACTS"]').show();
+	$('[name="attached_contacts[]"]').trigger('change.select2');
 }
 </script>
 <div class="standard-collapsible tile-sidebar" style="height: 100%;">
@@ -92,14 +113,27 @@ function changeAssignedTile() {
 				</div>
 			</div>
 			<div class="form-group attached_contacts" <?= strpos($assigned_tiles, ',attach_contact,') !== FALSE ? '' : 'style="display:none;"' ?>>
+				<label class="col-sm-4 control-label">Attached Contact Categories:</label>
+				<div class="col-sm-8">
+					<select name="attached_contact_categories[]" multiple data-placeholder="Select a Category" class="form-control chosen-select-deselect">
+						<option></option>
+						<?php $contact_cats = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND IFNULL(`category`,'') != '' ORDER BY `category`"),MYSQLI_ASSOC);
+						foreach($contact_cats as $contact_cat) {
+							echo '<option value="'.$contact_cat['category'].'" '.(strpos($attached_contact_categories, ','.$contact_cat['category'].',') !== FALSE ? 'selected' : '').'>'.$contact_cat['category'].'</option>';
+						} ?>
+					</select>
+				</div>
+			</div>
+			<div class="form-group attached_contacts" <?= strpos($assigned_tiles, ',attach_contact,') !== FALSE ? '' : 'style="display:none;"' ?>>
 				<label class="col-sm-4 control-label">Attached Contacts:</label>
 				<div class="col-sm-8">
 					<select name="attached_contacts[]" multiple data-placeholder="Select a Contact" class="form-control chosen-select-deselect">
 						<option></option>
+						<option value="ALL_CONTACTS">ALL CONTACTS</option>
 						<?php $contacts_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0"));
 						foreach($contacts_list as $attached_contact) {
 							if(!empty($attached_contact['full_name']) && $attached_contact['full_name'] != '-') {
-								echo '<option value="'.$attached_contact['contactid'].'" '.(strpos($attached_contacts, ','.$attached_contact['contactid'].',') !== FALSE ? 'selected' : '').'>'.$attached_contact['full_name'].'</option>';
+								echo '<option data-category="'.$attached_contact['category'].'" value="'.$attached_contact['contactid'].'" '.(strpos($attached_contacts, ','.$attached_contact['contactid'].',') !== FALSE ? 'selected' : '').'>'.$attached_contact['full_name'].'</option>';
 							}
 						} ?>
 					</select>

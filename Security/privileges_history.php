@@ -101,7 +101,7 @@ error_reporting(0);
 			case 'time_tracking': $tile_name = 'Time Tracking'; break;
 			case 'work_order': $tile_name = 'Work Order'; break;
 			case 'expense': $tile_name = 'Expense'; break;
-			case 'pos': $tile_name = 'Point of Sale'; break;
+			case 'pos': $tile_name = POS_ADVANCE_TILE; break;
 			case 'purchase_order': $tile_name = 'Purchase Order'; break;
 			case 'vpl': $tile_name = 'Vendor Price List'; break;
 			case 'gantt_chart': $tile_name = 'Gantt Chart'; break;

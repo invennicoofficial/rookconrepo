@@ -79,7 +79,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 
                 return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
                 break;
-			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>'Point of Sale']; break;
+			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
 			case 'incident_report': return ['link'=>"Incident Report/incident_report.php",'name'=>INC_REP_TILE]; break;
@@ -270,7 +270,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'day_program': return ['link'=>"Day Program/day_program.php",'name'=>'Day Program']; break;
 			case 'match': return ['link'=>"Match/index.php",'name'=>'Match']; break;
 			case 'fund_development': return ['link'=>"Fund Development/funders.php",'name'=>'Fund Development']; break;
-			case 'how_to_guide': return ['link'=>"How To Guide/guides_dashboard.php",'name'=>'How To Guide']; break;
+			case 'how_to_guide': return ['link'=>"How To Guide/guides_dashboard.php",'name'=>'All Software Guide']; break;
 			case 'software_guide': return ['link'=>"Software Guide/index.php",'name'=>'Software Guide']; break;
 			case 'charts': return ['link'=>"Medical Charts/index.php",'name'=>'Charts']; break;
 			case 'daily_log_notes': return ['link'=>"Daily Log Notes/index.php",'name'=>'Daily Log Notes']; break;

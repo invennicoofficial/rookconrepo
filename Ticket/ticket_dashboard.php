@@ -311,7 +311,7 @@ function showResults(result_list, target, search_id) {
 		} else if(ticket != undefined && ticket.id > 0) {
 			target.append('<div class="dashboard-item form-horizontal">'+
 					'<h3><a href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+<?php if($tile_security['edit'] > 0) { ?>
-						'<a href="?custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small">Edit</a><div class="clearfix"></div>'+
+						'<?= ($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\'+$(\'.active.blue\').closest(\'[data-type]\').data(\'type\').substr(5)+\',\'+ticket.id+\',\'+ticket.revision+\',this); return false;" class="pull-right small pad-10">Archive</a>' : '') ?><a href="?custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small pad-10">Edit</a><div class="clearfix"></div>'+
 					<?php } else { ?>
 						''+
 					<?php } ?>'</div>');
@@ -319,6 +319,12 @@ function showResults(result_list, target, search_id) {
 		}
 	} else if(result_list.length > 0) {
 		continue_loading = setTimeout(function() { showResults(result_list, target, search_id); }, 1000);
+	}
+}
+function remForm(form, ticket, rev, div) {
+	if(confirm('Are you sure you want to remove this form?')) {
+		$(div).remove();
+		$.post('ticket_ajax_all.php?action=removePdfForm',{formid:form,ticket:ticket,revision:rev});
 	}
 }
 function setActions() {
@@ -636,8 +642,8 @@ IF(!IFRAME_PAGE) { ?>
 					$formid = substr($type, 5);
 					$pdf_info = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='$formid'")->fetch_assoc();
 					$file_name = config_safe_str($pdf_info['pdf_name']);
-					$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid')";
-					$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
+					$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid' AND `deleted`=0)";
+					$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
 				} else if($type == 'ticket' && $_GET['tile_name'] != '') {
 					$row_type = $_GET['tile_name'];
 					$filter = " AND `tickets`.`ticket_type`='{$_GET['tile_name']}'";
@@ -930,7 +936,7 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if($_GET['tab'] == 'export') {
 				include('ticket_import.php');
 			} else if($_GET['form_list'] > 0) {
-				$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['form_list'],FILTER_SANITIZE_STRING)."') ");
+				$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['form_list'],FILTER_SANITIZE_STRING)."' AND `deleted`=0) ");
 				while($ticket = $tickets->fetch_assoc()) { ?>
 					<div class="dashboard-item form-horizontal">
 						<h3><a href="../Ticket/download/<?= $form['file_name'] ?>_<?= $ticket['ticketid'] ?>.pdf"><?= get_ticket_label($dbc, $ticket).': '.$form['pdf_name'] ?></a>
@@ -1001,8 +1007,8 @@ IF(!IFRAME_PAGE) { ?>
 							$formid = substr($type, 5);
 							$pdf_info = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='$formid'")->fetch_assoc();
 							$file_name = config_safe_str($pdf_info['pdf_name']);
-							$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid')";
-							$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
+							$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid' AND `deleted`=0)";
+							$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
 						} else if($type == 'ticket' && $_GET['tile_name'] != '') {
 							$row_type = $_GET['tile_name'];
 							$filter = " AND `tickets`.`ticket_type`='{$_GET['tile_name']}'";
@@ -1426,7 +1432,7 @@ IF(!IFRAME_PAGE) { ?>
 			$block_length = 68;
 			$block = '<div class="overview-block">
 				<h4>Last 25 Forms</h4>';
-				$tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
+				$tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
 				while($ticket = $tickets->fetch_assoc()) {
 					$block .= '<p><a href="../Ticket/download/'.config_safe_str($ticket['pdf_name']).'_'.$ticket['ticketid'].'.pdf">'.get_ticket_label($dbc, $ticket).' - '.$ticket['pdf_name'].'</a>';
 					if($tile_security['edit'] > 0) {
@@ -1449,7 +1455,7 @@ IF(!IFRAME_PAGE) { ?>
 				$block_length = 68;
 				$block = '<div class="overview-block">
 					<h4>Last 25 '.$form['pdf_name'].(in_array('ALL',$db_sort) ? '<a class="pull-right small" href="" onclick="$(\'[data-type=form_'.$form['id'].'] [data-status=ALL_STATUS]\').click().closest(\'[data-type]\').find(\'[data-toggle=collapse]\').first().filter(\'.collapsed\').click(); return false;">View All</a>' : '').'</h4>';
-					$tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
+					$tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
 					while($ticket = $tickets->fetch_assoc()) {
 						$link = '../Ticket/download/'.config_safe_str($form['pdf_name']).'_'.$ticket['revision'].'_'.$ticket['ticketid'].'.pdf';
 						if(!file_exists($link)) {

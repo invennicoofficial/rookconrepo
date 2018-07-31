@@ -44,6 +44,20 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
 		<div class="form-group">
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This setting will dictate how far ahead the software will create Recurring <?= TICKET_TILE ?> (eg. visible in the software) that are ongoing, and will continue creating <?= TICKET_TILE ?> on an ongoing basis up to the selected amount here. This is required as the software cannot create an infinite number of <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Ongoing Recurring <?= TICKET_TILE ?> Sync Up To:</label>
+			<div class="col-sm-8">
+				<?php $ticket_recurrence_sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years'; ?>
+				<select name="ticket_recurrence_sync_upto" class="chosen-select-deselect form-control">
+					<?php for($i = 1; $i <= 11; $i++) {
+						echo '<option value="'.$i.' months" '.($ticket_recurrence_sync_upto == $i.' months' ? 'selected' : '').'>'.$i.' Month'.($i > 1 ? 's' : '').'</option>';
+					}
+					for($i = 1; $i <= 5; $i++) {
+						echo '<option value="'.$i.' years" '.($ticket_recurrence_sync_upto == $i.' years' ? 'selected' : '').'>'.$i.' Year'.($i > 1 ? 's' : '').'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-sm-4 control-label">Labels for Multiple <?= TICKET_TILE ?>:<br /><em>Separate labels with a comma. Each successive <?= TICKET_NOUN ?> will use the next label.</em></label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="ticket_multiple_labels" value="<?= get_config($dbc, "ticket_multiple_labels") ?>">
@@ -928,6 +942,7 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 						<div class="block-group">
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Add Button", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Add Button", $value_config) ? "checked" : '') ?> value="Ticket Tasks Add Button" name="tickets[]"> Add Manually Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Check In", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Check In", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Check In" name="tickets[]"> Add and Check In Button</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Load New", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Load New", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Load New" name="tickets[]"> Load to New <?= TICKET_NOUN ?> for Extra Billing</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Projects", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Projects", $value_config) ? "checked" : '') ?> onchange="set_task_groups(this.checked);" value="Ticket Tasks Projects" name="tickets[]"> <?= PROJECT_NOUN ?> Types as Task Groups</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Ticket Type", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Ticket Type", $value_config) ? "checked" : '') ?> onchange="set_task_groups_tickettype(this.checked);" value="Ticket Tasks Ticket Type" name="tickets[]"> <?= TICKET_NOUN ?> Types as Task Groups</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Groups", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Groups", $value_config) ? "checked" : '') ?> value="Ticket Tasks Groups" name="tickets[]"> New <?= PROJECT_NOUN ?> for Extra Billing</label>

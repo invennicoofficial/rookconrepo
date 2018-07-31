@@ -296,11 +296,14 @@ function changeDate(date, type = '') {
 			if(summary_view == 1) {
 				retrieve_whole_month();
 			} else if(view == 'monthly') {
-				reload_calendar_month(response_arr[0]);
-				if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
-					reload_teams();
-				}
-				reload_all_data_month();
+				clear_all_data_month();
+				var reload_calendar = reload_calendar_month(response_arr[0]);
+				reload_calendar.success(function() {
+					if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+						reload_teams();
+					}
+					reload_all_data_month();
+				});
 			} else {
 				still_loading = 0;
 				clear_all_data();
@@ -632,7 +635,7 @@ function reload_teams(teamid = '') {
 		dataType: 'html',
 		success: function(response) {
 			$('#collapse_teams .panel-body').html(response);
-			toggle_columns();
+			toggle_columns('', 1);
 		}
 	});
 }
@@ -700,7 +703,7 @@ function reload_all_data() {
 	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
 		reload_teams();
 	} else {
-		$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
 			retrieve_items($(this).closest('a'));
 		});
 	}
@@ -994,7 +997,7 @@ function destroy_items(contact, block_type) {
 	calendar_dates.forEach(function(calendar_date) {
 		if(item_list[calendar_date] != undefined) {
 			item_list[calendar_date] = $.grep(item_list[calendar_date], function(row) {
-				return (row.contactid != contact && row.block_type != block_type);
+				return (row.contactid != contact || row.block_type != block_type);
 			});
 		}
 	});
@@ -1048,6 +1051,7 @@ function reload_resize_all() {
 	scrollHeader();
 	initTicketHoverStaff();
 	setAutoRefresh();
+	initIconColors();
 }
 function scrollToToday() {
 	clearInterval(clear_today);
@@ -1097,7 +1101,7 @@ function reload_all_data_month() {
 	if(retrieve_summary == 1) {
 		retrieve_whole_month();
 	} else {
-		$('#'+retrieve_collapse).find('.block-item.active').each(function() {
+		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
 			retrieve_items_month($(this).closest('a'));
 		});
 	}
@@ -1107,6 +1111,7 @@ function clear_all_data_month() {
 	$('.calendar_view .calendar_block').remove();
 	still_loading_item_month = false;
 	result_list_month = [];
+	item_list = [];
 }
 function retrieve_whole_month() {
 	var calendar_date = $('#calendar_start').val();
@@ -1223,9 +1228,10 @@ function reload_resize_all_month() {
 	if($('#calendar_type').val() == 'shift') {
 		toggle_columns(1);
 	}
+	initIconColors();
 }
 function reload_calendar_month(date) {
-	$.ajax({
+	return $.ajax({
 		url: '../Calendar/monthly_display.php?<?= http_build_query($_GET) ?>&date='+date+'&view=monthly',
 		success: function(response) {
 			$('.calendar_table').replaceWith(response);
@@ -1299,9 +1305,9 @@ function dialogScheduledTime() {
 function quickAddShift(a) {
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var date = $(a).data('date');
-	var staff = $('#'+retrieve_collapse).find('.block-item.active').first().data('contact');
+	var staff = $('[id^='+retrieve_collapse+']').find('.block-item.active').first().data('contact');
 	if(!(staff > 0)) {
-		staff = $('#'+retrieve_collapse).find('.block-item.active').first().data('staff');
+		staff = $('[id^='+retrieve_collapse+']').find('.block-item.active').first().data('staff');
 	}
 	var client = $('#collapse_booking').find('.block-item.active').first().data('contact');
 	var block = $('#dialog-quick-add-shift');
@@ -1330,7 +1336,7 @@ function quickAddShift(a) {
 					method: 'POST',
 					data: { date: date, staff: staff, client: client, time: time },
 					success: function(response) {
-						var anchor = $('#'+retrieve_collapse).find('.block-item[data-contact="'+staff+'"],.block-item[data-staff="'+staff+'"]').closest('a');
+						var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-contact="'+staff+'"],.block-item[data-staff="'+staff+'"]').closest('a');
 						retrieve_items_month(anchor);
 					}
 				});
@@ -1343,5 +1349,49 @@ function quickAddShift(a) {
 	        }
 		}
 	});
+}
+function displayActiveBlocksAuto() {
+	$('.active_blocks .block-item,.active_blocks').hide();
+	$('.active_blocks').each(function() {
+		var accordion = $(this).data('accordion');
+		$(this).find('.block-item').each(function() {
+			var active_value = $(this).data('activevalue');
+			if($('#'+accordion+' .block-item[data-activevalue="'+active_value+'"]').hasClass('active')) {
+				$(this).show();
+			} else {
+				$(this).hide();
+			}
+		});
+
+		if($('#'+accordion).hasClass('in')) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+}
+function displayClientFrequency(clients) {
+	if(clients.length > 0) {
+		var staff_list = [];
+		$('[id^=collapse_staff] .block-item').each(function() {
+			if(staff_list.indexOf($(this).data('staff')) == -1) {
+				staff_list.push($(this).data('staff'));
+			}
+		});
+		$.ajax({
+			url: '../Calendar/calendar_ajax_all.php?fill=get_ticket_client_frequency',
+			method: 'POST',
+			data: { clients: JSON.stringify(clients), staff: JSON.stringify(staff_list) },
+			success: function(response) {
+				var client_freqs = JSON.parse(response);
+				client_freqs.forEach(function(client_freq) {
+					$('[id^=collapse_staff] .block-item[data-staff='+client_freq.staffid+'] ul.client_freq').html(client_freq.html);
+				});
+			}
+		});
+		$('ul.client_freq').html('').show();
+	} else {
+		$('ul.client_freq').html('').hide();
+	}
 }
 </script>

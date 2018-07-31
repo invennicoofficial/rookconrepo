@@ -143,7 +143,7 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
     <th width="15%">Business</th>
     <th width="15%">Staff</th>
     <th width="10%">Scheduled Date</th>
-    <th width="7%">Estimate Dev Time</th>
+    <th width="7%">Estimated Dev. Time</th>
     <th width="6%">QA Time</th>
     <th width="6%">Actual Time</th>
     <th width="5%">Budget</th>

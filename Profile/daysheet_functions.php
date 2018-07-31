@@ -1,5 +1,6 @@
 <?php //Daysheet functions
-function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_complete) {
+function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_complete, $daily_date) {
+    $contactid = $_SESSION['contactid'];
     //Label stuff
     $label = '';
     if($ticket['businessid'] > 0 && in_array('Business', $daysheet_ticket_fields)) {
@@ -85,10 +86,14 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 
     //Status stuff
     $user_status = $ticket['status'];
-    if (($ticket['status'] == 'Internal QA') && ($daily_date == $ticket['internal_qa_date']) && (strpos($ticket['internal_qa_contactid'], ','.$contactid.',') === FALSE)) {
+    if(strpos(','.$ticket['internal_qa_contactid'].',', ','.$contactid.',') !== FALSE && $ticket['status'] != 'Internal QA') {
+        $user_status = 'Internal QA';
+    } else if(strpos(','.$ticket['internal_qa_contactid'].',', ','.$contactid.',') === FALSE && $ticket['status'] == 'Internal QA') {
         $user_status = 'To Do';
     }
-    if (($ticket['status'] == 'Customer QA' || $ticket['status'] == 'Waiting On Customer') && ($daily_date == $ticket['deliverable_date']) && (strpos($ticket['deliverable_contactid'], ','.$contactid.',') === FALSE)) {
+    if(strpos(','.$ticket['deliverable_contactid'].',', ','.$contactid.',') !== FALSE && $ticket['status'] != 'Customer QA' && $ticket['status'] != 'Waiting On Customer') {
+        $user_status = 'Customer QA';
+    } else if(strpos(','.$ticket['deliverable_contactid'].',', ','.$contactid.',') === FALSE && ($ticket['status'] == 'Customer QA' || $ticket['status'] == 'Waiting On Customer')) {
         $user_status = 'To Do';
     }
     // if (($ticket['status'] != 'Customer QA' && $ticket['status'] != 'Internal QA') && ($daily_date >= $ticket['to_do_date'] && $daily_date <= $ticket['to_do_end_date']) && (strpos($ticket['contactid'], ','.$contactid.',') !== FALSE)) {
@@ -107,7 +112,7 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 
     $opacity_styling = '';
     if ($user_status != $ticket['status']) {
-        echo '<i>';
+        echo '<i class="status_opacity">';
         $opacity_styling = 'style="opacity: 0.5;"';
     }
 

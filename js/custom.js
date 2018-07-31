@@ -214,10 +214,7 @@ $(document).ready(function() {
 		$.ajax({
 			type: "GET",
 			url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
-			dataType: "html",
-			success: function(response){
-				console.log(response);
-			}
+			dataType: "html"
 		});
         $(window).resize();
     });
@@ -326,7 +323,8 @@ function initIconColors() {
 	            src.match('/icons/eyeball.png') ||
 	            src.match('/icons/clock-button.png') ||
 	            src.match('/icons/save.png') ||
-                src.match('/clear-checklist.png') ) {
+                src.match('/clear-checklist.png') ||
+                src.match('/icons/recurring.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }
@@ -401,7 +399,7 @@ function initInputs(container) {
 			try {
 				if($(initSelector+':not(.no_tools)').length > 0) {
 					tinymce.init({
-						setup: function(editor) {console.log(this);
+						setup: function(editor) {
 							editor.on('blur', function(e) {
 								this.save();
 								$(this.getElement()).change();

@@ -375,13 +375,14 @@ function quick_add_time(task) {
 				method: 'POST',
 				url: 'task_ajax_all.php?fill=task_quick_time',
 				data: { id: task_id, time: time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
-			});
-            $.ajax({
-				method: 'POST',
-				url: 'task_ajax_all.php?fill=taskreply',
-				data: { taskid: task_id, reply: 'Time added '+time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
 			});
 		}
 	});
@@ -552,6 +553,105 @@ function clearCompleted(task) {
 }
 function savePathName(name) {
 	$.post('task_ajax_all.php?action=set_path_name', {name:name,taskboard:<?= $taskboardid > 0 ? $taskboardid : 0 ?>});
+}
+
+//Checklist functions
+function checklist_flag(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	$.ajax({
+		method: "POST",
+		url: "tasks_ajax.php?fill=checklistFlagItem",
+		data: { id: checklistid },
+		complete: function(result) {
+			$(checklist).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+		}
+	});
+}
+
+function checklist_email(checklist) {
+	task_board = $(checklist).closest('span').data('taskboard');
+	checklistid = $(checklist).closest('span').data('checklist');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=task_checklist&checklistid='+checklistid+'&task_board='+task_board, 'auto', false, true);
+}
+
+function checklist_reminder(checklist) {
+	task_board = $(checklist).closest('span').data('taskboard');
+	checklistid = $(checklist).closest('span').data('checklist');
+	var item = $(checklist).closest('li');
+	item.find('[name=reminder]').change(function() {
+		var reminder = $(this).val();
+		var select = item.find('.select_users');
+		select.find('.cancel_button').off('click').click(function() {
+			select.find('select option:selected').removeAttr('selected');
+			select.find('select').trigger('change.select2');
+			select.hide();
+			return false;
+		});
+		select.find('.submit_button').off('click').click(function() {
+			if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+				var users = [];
+				select.find('select option:selected').each(function() {
+					users.push(this.value);
+					$(this).removeAttr('selected');
+				});
+				$.ajax({
+					method: 'POST',
+					url: 'task_ajax_all.php?fill=checklistReminder',
+					data: {
+						taskboardid: task_board,
+						id: checklistid,
+						value: reminder,
+						users: users,
+					},
+					success: function(result) {
+						select.hide();
+						select.find('select').trigger('change.select2');
+					}
+				});
+			}
+			return false;
+		});
+		select.show();
+	}).focus();
+}
+
+function checklist_archive(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	if(confirm('Are you sure you want to archive this Checklist?')) {
+		$.ajax({
+			method: 'POST',
+			url: '../Sales/sales_ajax_all.php?fill=checklistArchive',
+			data: {
+				id: checklistid
+			},
+			success: function(result) {
+				console.log(result);
+				$(checklist).closest('li').remove();
+			}
+		});
+	}
+}
+
+function checklist_attach_file(checklist) {
+	checklistid = $(checklist).closest('span').data('checklist');
+	var type = 'checklist_board';
+	var file_id = 'attach_checklist_board_'+checklistid;
+	$('[name='+file_id+']').change(function() {
+		var fileData = new FormData();
+		fileData.append('file',$('[name='+file_id+']')[0].files[0]);
+		$.ajax({
+			contentType: false,
+			processData: false,
+			type: "POST",
+			url: "../Checklist/checklist_ajax.php?fill=checklist_upload&type="+type+"&id="+checklistid,
+			data: fileData,
+			complete: function(result) {
+				//console.log(result.responseText);
+				reloadChecklistScreen($(checklist).closest('li').find('.checklist_screen'));
+			}
+		});
+	});
+	$('[name='+file_id+']').click();
 }
 </script>
 
@@ -742,6 +842,8 @@ function savePathName(name) {
 								$result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE task_path='$task_path' AND task_board='$taskboardid' AND task_milestone_timeline='$cat_tab' AND clientid <> '' AND contactid IN (". $_SESSION['contactid'] .") AND (archived_date IS NULL OR archived_date='0000-00-00') AND deleted=0 ORDER BY task_tododate");
 							}
 
+							$checklist_result = mysqli_query($dbc, "SELECT * FROm `checklist` WHERE `task_path` = '$task_path' AND `task_board` = '$taskboardid' AND `task_milestone_timeline` = '$cat_tab' AND `deleted` = 0");
+
 							$task_count = mysqli_num_rows($result);
 
 							$status = $cat_tab;
@@ -804,7 +906,7 @@ function savePathName(name) {
 								}
 
                                 if ( $row['task_milestone_timeline']==$cat_tab ) {
-                                    echo '<li id="'.$row['tasklistid'].'" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; '.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                                    echo '<li id="'.$row['tasklistid'].'" data-table="tasklist" data-id-field="tasklistid" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; '.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
                                     $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                                     $clientid = $url_tab=='Client' ? $row['clientid'] : '';
@@ -963,6 +1065,69 @@ function savePathName(name) {
                                 $task_path = $row['task_path'];
                                 $task_board = $row['task_board'];
 							}
+							if(get_config($dbc, 'task_include_checklists') == 1) {
+								while($row = mysqli_fetch_array( $checklist_result )) {
+									$colour = $row['flag_colour'];
+									if($colour == 'FFFFFF' || $colour == '') {
+										$colour = '';
+									}
+									echo '<li style="margin-top: 4px;  '.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'" data-id-field="checklistid" id="'.$row['checklistid'].'" data-table="checklist" class="ui-state-default">';
+									echo '<input type="file" name="attach_checklist_board_'.$row['checklistid'].'" style="display:none;" />';
+									echo '<div class="row pull-left"><h4><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$row['checklistid'].'&iframe_slider=1\'); return false;">'.$row['checklist_name'].'</a></h4></div><span class="pull-right action-icons offset-top-5" data-checklist="'.$row['checklistid'].'"><img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" /></span><div class="clearfix"></div>';
+									echo '<span class="pull-right action-icons" style="width: 100%;" data-checklist="'.$row['checklistid'].'" data-taskboard="'.$task_board.'">'.
+										'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$row['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
+										(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" onclick="checklist_flag(this); return false;" class="inline-img flag-icon" title="Flag This!">' : '').
+										(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" onclick="checklist_email(this); return false;" class="inline-img email-icon" title="Send Email">' : '').
+										(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" onclick="checklist_reminder(this); return false;" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
+										(in_array('attach', $quick_actions) ? '<img src="../img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" onclick="checklist_attach_file(this); return false;" title="Attach File(s)">' : '').
+										(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" onclick="checklist_archive(this); return false;" class="inline-img archive-icon" title="Archive">' : '');
+									echo '</span>';
+									if(in_array('flag_manual',$quick_actions)) { ?>
+										<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+										<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+										<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+												<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+												<?php foreach($flag_colours as $flag_colour) { ?>
+													<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+												<?php } ?>
+											</select></div>
+										<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+										<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+										<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+										<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+									<?php }
+									echo '<div class="clearfix"></div>'; ?>
+
+									<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect"><option value="unassign">Unassigned</option>
+										<?php foreach($external_path as $external_milestone) { ?>
+											<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+										<?php } ?></select></div>
+									<div class="select_users" style="display:none;">
+										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+										<?php foreach($staff_list as $staff_id) { ?>
+											<option value="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></option>
+										<?php } ?>
+										</select>
+										<button class="submit_button btn brand-btn pull-right">Submit</button>
+										<button class="cancel_button btn brand-btn pull-right">Cancel</button>
+									</div><?php
+									echo '<input type="text" name="reminder" value="" class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;float:right;">';
+
+									$checklistid = $row['checklistid'];
+									$_GET['view'] = $checklistid;
+									$_GET['override_block'] = 'true';
+									$_GET['hide_header'] = 'true';
+									$_GET['different_function_name'] = 'true';
+							        echo '<div class="checklist_screen" data-querystring="view='.$checklistid.'&override_block=true&hide_header=true&different_function_name=true">';
+									include('../Checklist/view_checklist.php');
+									echo '</div>';
+
+									echo '<div class="clearfix"></div>';
+								echo '</li>';
+								}
+							}
+
 							if(is_array($task_board)) {
 								$task_board = $task_board['taskboardid'];
 							}
@@ -972,7 +1137,7 @@ function savePathName(name) {
 
                             ?>
 
-							<li class="no-sort"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php
+							<li class="no-sort"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a><?php if(get_config($dbc, 'task_include_checklists') == 1) { ?><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Checklist</a><?php } ?></li><?php
 
 							echo '</ul>';
 							$i++;

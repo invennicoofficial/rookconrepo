@@ -4,7 +4,7 @@
 </style>
 <?php
 $contactide = $_SESSION['contactid'];
-$get_table_orient = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM contacts WHERE contactid='$contactide'"));
+$get_table_orient = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT horizontal_communication FROM contacts WHERE contactid='$contactide'"));
 $check_table_orient = $get_table_orient['horizontal_communication'];
 
 $link = '?';
@@ -130,6 +130,7 @@ function send_reply(ticket) {
 }
 function add_time(ticket) {
 	ticket_id = $(ticket).parents('span').data('ticket');
+    ticket_class = $(ticket).parents('span').data('class');
 	$('[name=ticket_time_'+ticket_id+']').show();
 	$('[name=ticket_time_'+ticket_id+']').timepicker('option', 'onClose', function(time) {
 		var time = $(this).val();
@@ -139,7 +140,7 @@ function add_time(ticket) {
 			$.ajax({
 				method: 'POST',
 				url: 'scrum_ajax_all.php?fill=quicktime',
-				data: { id: ticket_id, time: time+':00' },
+				data: { id: ticket_id, time: time+':00', tile: ticket_class },
 				complete: function(result) { console.log(result.responseText); }
 			})
 		}
@@ -267,7 +268,7 @@ function archive(ticket) {
 							<select data-placeholder="Select a Customer" name="search_customer" class="chosen-select-deselect form-control" width="380">
 								<option value=""></option>
 								<?php
-								$query = mysqli_query($dbc,"SELECT * FROM `contacts` WHERE `contactid` IN (SELECT `contacts`.`contactid` FROM `tickets` LEFT JOIN `contacts` ON CONCAT(',',IFNULL(`tickets`.`clientid`,0),',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `tickets`.`deleted`=0)");
+								$query = mysqli_query($dbc,"SELECT contactid, businessid, name FROM `contacts` WHERE `contactid` IN (SELECT `contacts`.`contactid` FROM `tickets` LEFT JOIN `contacts` ON CONCAT(',',IFNULL(`tickets`.`clientid`,0),',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `tickets`.`deleted`=0)");
 								while($row = mysqli_fetch_array($query)) {
 									?><option <?php if ($row['contactid'] == $search_customer) { echo " selected"; } ?> value='<?php echo  $row['businessid']; ?>' ><?php echo decryptIt($row['name']); ?></option>
 							<?php	} ?>
@@ -303,7 +304,7 @@ function archive(ticket) {
 		</form>
 		<div class="clearfix"></div>
     <?php }
-	
+
 	switch($scrum_tab) {
 		case 'search': include('scrum_search.php'); break;
 		case 'notes': include('scrum_notes.php'); break;

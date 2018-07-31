@@ -128,7 +128,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Other List';
 } else if($_GET['tab'] == 'ticket_pressure') {
 	$sort_field = 'Pressure';
-} else if($_GET['tab'] == 'ticket_chemcials') {
+} else if($_GET['tab'] == 'ticket_chemicals') {
 	$sort_field = 'Chemicals';
 } else if($_GET['tab'] == 'ticket_intake') {
 	$sort_field = 'Intake';
@@ -225,7 +225,9 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 		$milestone_timeline = str_replace(['FFMSPACE','FFMEND','FFMHASH'], [' ','&','#'], urldecode($_GET['milestone_timeline']));
 	}
 
-	$contactid = $_SESSION['contactid'];
+	if(get_config($dbc, 'ticket_default_session_user') != 'no_user') {
+		$contactid = $_SESSION['contactid'];
+	}
 	if(!empty($_GET['contactid'])) {
 		$contactid = ','.$_GET['contactid'].',';
 	}
@@ -240,6 +242,52 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 	}
 	if(!empty($_GET['endtime'])) {
 		$to_do_end_time = $_GET['endtime'];
+	}
+
+	//New ticket from calendar
+	if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+		$get_ticket['to_do_date'] = $to_do_date = $_GET['current_date'];
+		$get_ticket['to_do_end_date'] = $to_do_end_date = $_GET['current_date'];
+		$get_ticket['to_do_start_time'] = $to_do_start_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+		$get_ticket['to_do_end_time'] = $to_do_end_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+		if(!empty($_GET['end_time'])) {
+			$get_ticket['to_do_end_time'] = $to_do_end_time = $_GET['end_time'];
+		}
+		$equipmentid = $_GET['equipmentid'];
+		$equipment_assignmentid = $_GET['equipment_assignmentid'];
+
+		$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+		$equip_assign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"));
+		$teamid = $equip_assign['teamid'];
+		$contactid = [];
+		$team_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+		foreach ($team_staff as $staff) {
+			$contactid[] = $staff['contactid'];
+		}
+		$equip_assign_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid' AND `deleted` = 0"),MYSQLI_ASSOC);
+		foreach ($equip_assign_staff as $staff) {
+			$contactid[] = $staff['contactid'];
+		}
+		if(!empty($_GET['calendar_contactid'])) {
+			foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+				$contactid[] = $calendar_contactid;
+			}
+		}
+		$contactid = array_filter(array_unique($contactid));
+		$calendar_contactid = ','.implode(',', $contactid).',';
+		$contactid = $calendar_contactid;
+		$get_ticket['region'] = !empty($equip_assign['region']) ? $equip_assign['region'] : explode('*#*', $equipment['region'])[0];
+		if(empty($get_ticket['region'])) {
+			$get_ticket['region'] = $_GET['calendar_region'];
+		}
+		$get_ticket['con_location'] = !empty($equip_assign['location']) ? $equip_assign['location'] : explode('*#*', $equipment['location'])[0];
+		if(empty($get_ticket['con_location'])) {
+			$get_ticket['con_location'] = $_GET['calendar_location'];
+		}
+		$get_ticket['classification'] = !empty($equip_assign['classification']) ? $equip_assign['classification'] : explode('*#*', $equipment['classification'])[0];
+		if(empty($get_ticket['classification'])) {
+			$get_ticket['classification'] = $_GET['calendar_classification'];
+		}
 	}
 
 	if(!empty($_GET['edit']) || $_GET['ticketid'] > 0) {

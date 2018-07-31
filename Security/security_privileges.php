@@ -391,7 +391,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',how_to_guide,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('how_to_guide', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">How to Guide</td>
+				<td data-title="Comment">All Software Guide</td>
 				<?php echo security_tile_config_function('how_to_guide', get_privileges($dbc, 'how_to_guide',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -1143,7 +1143,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',point_of_sale,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Point of Sale:</div></th></tr>
+			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= POS_ADVANCE_TILE ?>:</div></th></tr>
 
 			<?php if(strpos($on_security, ',check_in,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('check_in', $dashboard_list) ? 'current' : '') ?>'>
@@ -1189,7 +1189,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('posadvanced', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale</td>
+				<td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
 				<?php echo security_tile_config_function('posadvanced', get_privileges($dbc, 'posadvanced',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>

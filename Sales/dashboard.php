@@ -12,6 +12,31 @@ $(document).ready(function() {
 			});
 		}
 	});
+
+    $('.track_time .start').on('click', function() {
+        $(this).closest('.track_time').find('.timer').timer({
+            editable: true
+        });
+        $(this).hide();
+        $(this).next('.stop').show();
+    });
+
+    $('.track_time .stop').on('click', function() {
+		var item = $(this).closest('.info-block-detail');
+		item.find('.timer').timer('stop');
+		$(this).hide();
+		$(this).prev('.start').show();
+        var timer_value = item.find('.timer').val();
+		item.find('.timer').timer('remove');
+        item.find('.track_time').toggle();
+		if ( timer_value != '' ) {
+			$.ajax({
+				method: 'POST',
+				url: 'sales_ajax_all.php?action=lead_time',
+				data: { id: item.data('id'), time: timer_value }
+			});
+        }
+	});
 });
 $(document).on('change', 'select[name="status"]', function() { changeLeadStatus(this); });
 $(document).on('change', 'select[name="next_action"]', function() { changeLeadNextAction(this); });
@@ -119,19 +144,25 @@ function addDocument(sel) {
 
 function sendEmail(sel) {
 	var item = $(sel).closest('.info-block-detail');
-	item.find('.select_users').show().find('select').off('change').change(function() {
+	item.find('.select_users').show();
+	item.find('.send').click(email_action);
+	item.find('.cancel').click(function() {
 		item.find('.select_users').hide();
-		$.ajax({
-			url: 'sales_ajax_all.php?action=send_email',
-			method: 'POST',
-			data: {
-				value: this.value,
-				id: item.data('id')
-			},
-			success: function(response) {
-			}
-		});
+		item.find('.select_users select').val('').trigger('change.select2');
 	});
+}
+function email_action() {
+	var item = $(this).closest('.info-block-detail');
+	$.ajax({
+		url: 'sales_ajax_all.php?action=send_email',
+		method: 'POST',
+		data: {
+			value: item.find('.select_users select').val(),
+			id: item.data('id')
+		}
+	});
+	item.find('.select_users').hide();
+	item.find('.select_users select').val('').trigger('change.select2');
 }
 
 function createProject(sel) {
@@ -143,6 +174,48 @@ function createProject(sel) {
             location.replace('../Project/projects.php?edit=0&type=favourite&salesid='+salesid);
         }
     });
+}
+
+function setReminder(sel) {
+	var item = $(sel).closest('.info-block-detail');
+	item.find('.reminders').show();
+	item.find('.send').click(function() {
+		$.post('sales_ajax_all.php?action=set_reminder', {
+				user: item.find('.reminders select').val().join(','),
+				date: item.find('.reminders input.datepicker').val(),
+				id: item.data('id')
+			});
+		item.find('.reminders').hide();
+		item.find('.reminders input.datepicker').val('');
+		item.find('.reminders option').removeAttr('selected');
+		item.find('.reminders select').trigger('change.select2');
+	});
+	item.find('.cancel').click(function() {
+		item.find('.reminders').hide();
+		item.find('.reminders input').val('');
+		item.find('.reminders select').val('').trigger('change.select2');
+	});
+}
+
+function addTime(sel) {
+	var item = $(sel).closest('.info-block-detail');
+	item.find('[name=time_add]').timepicker('option', 'onClose', function(time) {
+		var time = $(this).val();
+		$(this).val('00:00');
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'sales_ajax_all.php?action=lead_time',
+				data: { id: item.data('id'), time: time+':00' }
+			});
+		}
+	});
+	item.find('[name=time_add]').timepicker('show');
+}
+
+function trackTime(sel) {
+	var item = $(sel).closest('.info-block-detail');
+	item.find('.track_time').toggle();
 }
 
 function openProjectDialog(sel) {
@@ -232,7 +305,7 @@ function openProjectDialog(sel) {
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-12"><?php
                                         $contacts = '';
@@ -245,7 +318,7 @@ function openProjectDialog(sel) {
 										<img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
                                     </div>
                                 </div></a>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Status:</div>
                                     <div class="col-sm-7">
@@ -262,7 +335,7 @@ function openProjectDialog(sel) {
 										} ?>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Next Action:</div>
                                     <div class="col-sm-7">
@@ -275,12 +348,12 @@ function openProjectDialog(sel) {
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row set-row-height">
                                     <div class="col-sm-5">Follow Up:</div>
                                     <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
-                                
+
                                 <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="sales_notes" data-salesid="<?= $row['salesid']; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
 								<?php if(in_array('flag_manual',$quick_actions)) {
 									$colours = $flag_colours; ?>
@@ -306,10 +379,29 @@ function openProjectDialog(sel) {
 										<option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
 									<?php } ?>
 									</select>
-									<button class="submit_button btn brand-btn pull-right">Submit</button>
-									<button class="cancel_button btn brand-btn pull-right">Cancel</button>
+									<button class="btn brand-btn pull-right send">Submit</button>
+									<button class="btn brand-btn pull-right cancel">Cancel</button>
 									<div class="clearfix"></div>
 								</div>
+								<div class="reminders" style="display:none;">
+									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+									<?php foreach($staff_list as $staff) { ?>
+										<option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
+									<?php } ?>
+									</select>
+									<input type="text" class="datepicker form-control">
+									<button class="btn brand-btn pull-right send">Submit</button>
+									<button class="btn brand-btn pull-right cancel">Cancel</button>
+									<div class="clearfix"></div>
+								</div>
+								<div class="track_time" style="display:none;">
+									<input type="text" name="timer" style="float:left;" class="form-control timer" placeholder="0 sec" />
+									<button class="btn brand-btn pull-right start">Start</button>
+									<button class="btn brand-btn pull-right stop" style="display:none;">Stop</button>
+									<div class="clearfix"></div>
+								</div>
+								<input type="text" name="time_add" style="display:none; margin-top: 2em;" class="form-control timepicker">
+								<input type="text" name="time_track" class="datetimepicker form-control" style="display:none;">
                                 <div class="double-gap-top action-icons">
 									<?php if($project_security['edit'] > 0) { ?>
                                         <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="cursor-hand inline-img" title="Assign To A <?= PROJECT_NOUN ?>" id="<?=$row['salesid']?>" onclick="openProjectDialog(this); return false;" /><?php

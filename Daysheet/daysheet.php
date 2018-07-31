@@ -10,7 +10,7 @@ if(empty($_GET['tab'])) {
 
 //Insert config settings if none exist
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_fields_config', 'Reminders,Tickets,Tasks,Checklists' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_fields_config') num WHERE num.rows = 0");
-mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_button_config', 'My Projects,My Tickets,My Checklists,My Tasks' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_button_config') num WHERE num.rows = 0");
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_button_config', 'My Projects,My Tickets,My Checklists,My Tasks,My Time Sheets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_button_config') num WHERE num.rows = 0");
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_weekly_config', '1,2,3,4,5,6,7' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_weekly_config') num WHERE num.rows = 0");
 
 //Configs

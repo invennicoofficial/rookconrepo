@@ -172,20 +172,39 @@ if($_GET['fill'] == 'm_cat_config') {
 if($_GET['fill'] == 'sales_status') {
 	$salesid = $_GET['salesid'];
 	$status = $_GET['status'];
+
+	$before_change = capture_before_change($dbc, 'sales', 'status', 'salesid', $salesid);
 	$query_update_project = "UPDATE `sales` SET  status='$status' WHERE `salesid` = '$salesid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
+
+	$history = capture_after_change('status', $status);
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+
 }
 
 if($_GET['fill'] == 'sales_action') {
 	$salesid = $_GET['salesid'];
 	$action = $_GET['action'];
+
+	$before_change = capture_before_change($dbc, 'sales', 'next_action', 'salesid', $salesid);
+
 	$query_update_project = "UPDATE `sales` SET  next_action='$action' WHERE `salesid` = '$salesid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
+
+	$history = capture_after_change('next_action', $action);
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 if($_GET['fill'] == 'sales_reminder') {
 	$salesid = $_GET['salesid'];
 	$reminder = $_GET['reminder'];
+
+	$before_change = capture_before_change($dbc, 'sales', 'new_reminder', 'salesid', $salesid);
+
 	$query_update_project = "UPDATE `sales` SET  new_reminder='$reminder' WHERE `salesid` = '$salesid'";
+
+	$history = capture_after_change('new_reminder', $reminder);
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+
 	$result_update_project = mysqli_query($dbc, $query_update_project);
 	$sales = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='$salesid'"));
 
@@ -203,7 +222,11 @@ if($_GET['fill'] == 'sales_reminder') {
 if ( $_GET['fill']=='changeLeadStatus' ) {
     $salesid = $_GET['salesid'];
     $status  = $_GET['status'];
+
+		$before_change = capture_before_change($dbc, 'sales', 'status', 'salesid', $salesid);
     $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `status`='{$status}' WHERE `salesid`='{$salesid}'" );
+		$history = capture_after_change('status', $status);
+		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 
     //Convert Sales Lead to a Customer
     $status_won = get_config($dbc, 'lead_status_won');
@@ -239,25 +262,39 @@ if ( $_GET['fill']=='changeCustCat' ) {
 if ( $_GET['fill']=='changeLeadNextAction' ) {
     $salesid       = $_GET['salesid'];
     $nextaction    = $_GET['nextaction'];
+		$before_change = capture_before_change($dbc, 'sales', 'next_action', 'salesid', $salesid);
     $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `next_action`='{$nextaction}' WHERE `salesid`='{$salesid}'" );
+		$history = capture_after_change('next_action', $nextaction);
+		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
 if ( $_GET['fill']=='changeLeadFollowUpDate' ) {
     $salesid       = $_GET['salesid'];
     $followupdate  = $_GET['followupdate'];
+		$before_change = capture_before_change($dbc, 'sales', 'new_reminder', 'salesid', $salesid);
     $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `new_reminder`='{$followupdate}' WHERE `salesid`='{$salesid}'" );
+		$history = capture_after_change('new_reminder', $followupdate);
+		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
 if ( $_GET['fill']=='archive_sales_lead' ) {
     $date_of_archival = date('Y-m-d');
     $salesid       = $_GET['salesid'];
+		$before_change = capture_before_change($dbc, 'sales', 'deleted', 'salesid', $salesid);
+		$before_change .= capture_before_change($dbc, 'sales', 'date_of_archival', 'salesid', $salesid);
     $result_update = mysqli_query ( $dbc, "UPDATE `sales` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `salesid`='{$salesid}'" );
+		$history = capture_after_change('deleted', '1');
+		$history .= capture_after_change('date_of_archival', $date_of_archival);
+		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
 if ( $_GET['fill']=='saveNote' ) {
     $salesid = $_GET['salesid'];
     $note    = filter_var(htmlentities($_GET['note']), FILTER_SANITIZE_STRING);
+		$before_change = '';
     mysqli_query ( $dbc, "INSERT INTO `sales_notes` (`salesid`, `comment`) VALUES('$salesid', '$note')" );
+		$history = "Sales note added.";
+		add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
 if ( $_GET['fill']=='updateSalesMilestone') {
@@ -265,7 +302,10 @@ if ( $_GET['fill']=='updateSalesMilestone') {
 	$id_field = $_POST['id_field'];
 	$table = $_POST['table'];
 	$milestone = $_POST['milestone'];
+	$before_change = capture_before_change($dbc, $table, 'sales_milestone', $id_field, $id);
 	mysqli_query($dbc, "UPDATE `$table` SET `sales_milestone` = '$milestone' WHERE `$id_field` = '$id'");
+	$history = "Milestone Updated.";
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 
 if ( $_GET['action']=='milestone_edit') {
@@ -348,39 +388,65 @@ if($_GET['action'] == 'flag_colour') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-	
+
 	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
 	$colour_key = array_search($value, $colours);
 	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
 	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 	echo $new_colour.html_entity_decode($label);
+	$before_change = capture_before_change($dbc, 'sales', 'flag_colour', 'salesid', $id);
+	$before_change .= capture_before_change($dbc, 'sales', 'flag_start', 'salesid', $id);
+	$before_change .= capture_before_change($dbc, 'sales', 'flag_end', 'salesid', $id);
 	mysqli_query($dbc, "UPDATE `sales` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `salesid`='$id'");
+	$history = capture_after_change('flag_colour', $new_colour);
+	$history .= capture_after_change('flag_start', '0000-00-00');
+	$history .= capture_after_change('flag_end', '9999-12-31');
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 if($_GET['action'] == 'manual_flag_colour') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-	
+
 	$flag_label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
 	$flag_start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
 	$flag_end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	$before_change = capture_before_change($dbc, 'sales', 'flag_colour', 'salesid', $id);
+	$before_change .= capture_before_change($dbc, 'sales', 'flag_start', 'salesid', $id);
+	$before_change .= capture_before_change($dbc, 'sales', 'flag_end', 'salesid', $id);
+	$before_change .= capture_before_change($dbc, 'sales', 'flag_label', 'salesid', $id);
 	mysqli_query($dbc, "UPDATE `sales` SET `flag_colour`='$value', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `salesid`='$id'");
+	$history = capture_after_change('flag_colour', $value);
+	$history .= capture_after_change('flag_start', $flag_start);
+	$history .= capture_after_change('flag_end', $flag_end);
+	$history .= capture_after_change('flag_label', $flag_label);
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
 }
 if($_GET['action'] == 'add_document') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$filename = file_safe_str($_FILES['file']['name']);
 	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
-	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document`,`created_by`,`created_date`) VALUES ('$id','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
+	mysqli_query($dbc, "INSERT INTO `sales_document` (`salesid`,`document_type`,`document`,`created_by`,`created_date`) VALUES ('$id','Reference Documents','$filename','".$_SESSION['contactid']."',DATE(NOW()))");
+	$before_change = '';
+	$history = "Sales document added";
+	add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
+}
+if($_GET['action'] == 'set_reminder') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$user = filter_var($_POST['user'],FILTER_SANITIZE_STRING);
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$user','$date','Sales Lead Reminder','Sales Lead Reminder','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
 }
 if($_GET['action'] == 'send_email') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-	
+
 	$sender = get_email($dbc, $_SESSION['contactid']);
 	$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='$id'"));
 	$subject = "A reminder about a ".SALES_NOUN;
+	print_r($_POST);
 	foreach($_POST['value'] as $user) {
 		$user = get_email($dbc,$user);
 		$body = "This is a reminder about a ".SALES_NOUN.".<br />\n<br />
@@ -388,5 +454,51 @@ if($_GET['action'] == 'send_email') {
 			$item";
 		send_email($sender, $user, '', '', $subject, $body, '');
 	}
+}
+//Checklist quick action
+if ( $_GET['fill']=='checklistFlagItem' ) {
+	$checklistid = $_POST['id'];
+
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+
+	$value = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour` FROM `checklist` WHERE `checklistid` = '$checklistid'"))['flag_colour'];
+
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : ''));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour;
+	mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$new_colour' WHERE `checklistid`='$checklistid'");
+}
+if ( $_GET['fill']=='checklistReminder') {
+	$salesid = $_POST['salesid'];
+	$checklistid = $_POST['id'];
+	$value = $_POST['value'];
+
+	$sender = get_email($dbc, $_SESSION['contactid']);
+	$result = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
+	$id = $result['checklistid'];
+	$milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
+    $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone";
+	foreach($_POST['users'] as $i => $user) {
+		$user = filter_var($user,FILTER_SANITIZE_STRING);
+		$contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$user'");
+		$body = filter_var(htmlentities("This is a reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone<br />\n<br />
+			<a href='".WEBSITE_URL."/Sales/sales.php?p=preview&id=$salesid'>Click here</a> to see the Sales.<br />\n"), FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$user' AND `src_table` = 'sales' AND `src_tableid` = '$salesid' AND `src_table` != '' AND `src_table` IS NOT NULL");
+		$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
+			VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'sales', '$salesid')");
+	}
+}
+if ( $_GET['fill']=='checklistArchive' ) {
+	$checklistid = $_POST['id'];
+        $date_of_archival = date('Y-m-d');
+	echo "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'";
+	mysqli_query($dbc, "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'");
+}
+if($_GET['action'] == 'lead_time') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
+	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
 }
 ?>
