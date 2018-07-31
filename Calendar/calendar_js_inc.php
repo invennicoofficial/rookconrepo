@@ -1108,6 +1108,7 @@ function clear_all_data_month() {
 	$('.calendar_view .calendar_block').remove();
 	still_loading_item_month = false;
 	result_list_month = [];
+	item_list = [];
 }
 function retrieve_whole_month() {
 	var calendar_date = $('#calendar_start').val();
