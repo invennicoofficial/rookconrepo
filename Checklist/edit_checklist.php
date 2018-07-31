@@ -37,6 +37,12 @@ if (isset($_POST['tasklist'])) {
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
+				$before_change = '';
+				$start_word = strpos($report, "Updated");
+				$end_word = strpos($report, " on");
+				$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+				add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
         $update_tab_config = ",".$subtabid."_ongoing,".$subtabid."_daily,".$subtabid."_weekly,".$subtabid."_monthly";
         foreach ($_POST['subtab_shared'] as $tabs_config_row) {
             $result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'checklist_tabs_" . $tabs_config_row . "' FROM (SELECT COUNT(*) numrows FROM `general_configuration` WHERE `name`='checklist_tabs_" . $tabs_config_row . "') current_config WHERE numrows=0");
@@ -95,10 +101,28 @@ if (isset($_POST['tasklist'])) {
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '$subtab_name', '$checklist_type', '$checklistid', '$subtabid'";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
+				$before_change = '';
+				$start_word = strpos($report, "Updated");
+				$end_word = strpos($report, " on");
+				$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+				add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
         insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', 'Created Checklist '.$checklist_name, $checklistid);
 
     } else {
         $checklistid = $_POST['checklistid'];
+
+				$before_change = capture_before_change($dbc, 'checklist', 'assign_staff', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'checklist_type', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'reset_day', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'reset_time', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'checklist_name', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'created_by', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'projectid', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'ticketid', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'client_projectid', 'checklistid', $checklistid);
+				$before_change .= capture_before_change($dbc, 'checklist', 'businessid', 'checklistid', $checklistid);
+
         $query_update_vendor = "UPDATE `checklist` SET `subtabid` = '$subtabid', `assign_staff` = '$assign_staff', `checklist_type` = '$checklist_type', `reset_day` = '$reset_day', `reset_time` = '$reset_time', `checklist_name` = '$checklist_name', `created_by` = '$created_by', `projectid` = '$projectid', `ticketid`='$ticketid', `client_projectid` = '$client_projectid', `businessid` = '$businessid' WHERE `checklistid` = '$checklistid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
@@ -106,10 +130,32 @@ if (isset($_POST['tasklist'])) {
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '$subtab_name', '$checklist_type', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
+				$start_word = strpos($report, "Updated");
+				$end_word = strpos($report, " on");
+				$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+				add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
         insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', 'Updated Checklist '.$checklist_name, $checklistid);
+    }
+    if(!empty($_POST['project_milestone'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+        if(!($projectid > 0)) {
+            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");   
+        }
+    }
+    if(!empty($_POST['sales_milestone'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `sales_milestone` = '".filter_var($_POST['sales_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    }
+    if(!empty($_POST['salesid'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `salesid` = '".filter_var($_POST['salesid'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    }
+    if(!empty($_POST['add_to_taskboard'])) {
+        mysqli_query($dbc, "UPDATE `checklist` SET `task_milestone_timeline` = '".filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING)."', `task_path` = '".filter_var($_POST['task_path'],FILTER_SANITIZE_STRING)."', `task_board` = '".filter_var($_POST['task_board'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
     }
 
     if(!empty($_POST['checklistid'])) {
+			$before_change = capture_before_change($dbc, 'checklist', 'checklist', 'checklistnameid', $checklistnameid);
+
         for($i = 0; $i < count($_POST['checklist_update']); $i++) {
             $checklist = filter_var($_POST['checklist_update'][$i],FILTER_SANITIZE_STRING);
             $checklistnameid = $_POST['checklistid_update'][$i];
@@ -120,6 +166,11 @@ if (isset($_POST['tasklist'])) {
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Items in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+				$start_word = strpos($report, "Updated");
+				$end_word = strpos($report, " on");
+				$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+				add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
     $item = 0;
@@ -141,6 +192,12 @@ if (isset($_POST['tasklist'])) {
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added Checklist Items in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+				$before_change = '';
+				$start_word = strpos($report, "Updated");
+				$end_word = strpos($report, " on");
+				$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+				add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
     for($i = 0; $i < count($_FILES['upload_document']['name']); $i++) {
@@ -288,7 +345,7 @@ function removeNewRow(button) {
 	}
 }
 </script>
-<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal <?= basename($_SERVER['SCRIPT_FILENAME']) == 'edit_checklist.php' ? 'main-screen' : '' ?>" role="form">
     <?php $task_contactid = $_SESSION['contactid'];
 
     if(!empty($_GET['edit'])) {
@@ -327,6 +384,22 @@ function removeNewRow(button) {
         $businessid = $get_project['businessid'];
 
         echo '<input type="hidden" id="from" name="from" value="project" />';
+    }
+    if(!empty($_GET['project_milestone'])) {
+        echo '<input type="hidden" name="project_milestone" value="'.urldecode($_GET['project_milestone']).'">';
+        echo '<input type="hidden" name="projectid_from_path" value="'.$_GET['projectid'].'">';
+    }
+    if(!empty($_GET['salesid'])) {
+        echo '<input type="hidden" name="salesid" value="'.$_GET['salesid'].'">';
+    }
+    if(!empty($_GET['sales_milestone'])) {
+        echo '<input type="hidden" name="sales_milestone" value="'.$_GET['sales_milestone'].'">';
+    }
+    if(!empty($_GET['add_to_taskboard'])) {
+        echo '<input type="hidden" name="add_to_taskboard" value="'.$_GET['add_to_taskboard'].'">';
+        echo '<input type="hidden" name="task_milestone_timeline" value="'.$_GET['task_milestone_timeline'].'">';
+        echo '<input type="hidden" name="task_path" value="'.$_GET['task_path'].'">';
+        echo '<input type="hidden" name="task_board" value="'.$_GET['task_board'].'">';
     }
     if(!empty($_GET['ticketid'])) {
         $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);

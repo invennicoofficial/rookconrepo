@@ -1,5 +1,24 @@
 <?php
 require_once('../phpsign/signature-to-image.php');
+$default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
+$_GET['tab'] = !empty($_GET['tab']) ? $_GET['tab'] : $default_tab;
+switch($_GET['tab']) {
+	case 'Daily':
+		$pay_period_label = 'Day';
+		break;
+	case 'Weekly':
+		$pay_period_label = 'Week';
+		break;
+	case 'Bi-Weekly':
+		$pay_period_label = 'Two Weeks';
+		break;
+	case 'Monthly':
+		$pay_period_label = 'Month';
+		break;
+	case 'Custom':
+		$pay_period_label = 'Pay Period';
+		break;
+}
 
 //Fix bugged out Time Cards where staff is 0 from a Ticket
 $empty_time_cards = mysqli_query($dbc, "SELECT `time_cards`.*, `ticket_attached`.`item_id` FROM `time_cards` LEFT JOIN `ticket_attached` ON `time_cards`.`ticket_attached_id` = `ticket_attached`.`id` WHERE `time_cards`.`staff` = 0 AND `time_cards`.`ticket_attached_id` > 0 AND `ticket_attached`.`item_id` > 0 AND `ticket_attached`.`src_table` LIKE 'Staff%'");
@@ -25,13 +44,15 @@ function vuaed_visible_function_custom($dbc)
 	return true;
 }
 
-$config['tabs'] = [ 'Time Sheets' => array('Weekly' => 'time_cards_weekly.php', 'Bi-Weekly' => 'time_cards_bi_weekly.php', 'Monthly' => 'time_cards_monthly.php', 'Custom' => 'time_cards.php'),
+$config['tabs'] = [ 'Time Sheets' => array('Daily' => 'time_cards.php?tab=Daily', 'Weekly' => 'time_cards.php?tab=Weekly', 'Bi-Weekly' => 'time_cards.php?tab=Bi-Weekly', 'Monthly' => 'time_cards.php?tab=Monthly', 'Custom' => 'time_cards.php?tab=Custom'),
 	'Pay Period' => array('Custom' => 'pay_period.php', 'Last Month' => 'pay_period_last_month.php', 'Current Month' => 'pay_period_current_month.php'),
 	'Holidays' => 'holidays.php',
-	'Coordinator Approvals' => 'time_card_approvals_coordinator.php',
-	'Manager Approvals' => 'time_card_approvals_manager.php',
-	'Reporting' => 'reporting.php',
-	'Payroll' => 'payroll.php' ];
+	'Coordinator Approvals' => array('Daily' => 'time_card_approvals_coordinator.php?tab=Daily', 'Weekly' => 'time_card_approvals_coordinator.php?tab=Weekly', 'Bi-Weekly' => 'time_card_approvals_coordinator.php?tab=Bi-Weekly', 'Monthly' => 'time_card_approvals_coordinator.php?tab=Monthly', 'Custom' => 'time_card_approvals_coordinator.php?tab=Custom'),
+	'Manager Approvals' => array('Daily' => 'time_card_approvals_manager.php?tab=Daily', 'Weekly' => 'time_card_approvals_manager.php?tab=Weekly', 'Bi-Weekly' => 'time_card_approvals_manager.php?tab=Bi-Weekly', 'Monthly' => 'time_card_approvals_manager.php?tab=Monthly', 'Custom' => 'time_card_approvals_manager.php?tab=Custom'),
+	'Reporting' => array('Daily' => 'reporting.php?tab=Daily', 'Weekly' => 'reporting.php?tab=Weekly', 'Bi-Weekly' => 'reporting.php?tab=Bi-Weekly', 'Monthly' => 'reporting.php?tab=Monthly', 'Custom' => 'reporting.php?tab=Custom'),
+	'Payroll' => array('Daily' => 'payroll.php?tab=Daily', 'Weekly' => 'payroll.php?tab=Weekly', 'Bi-Weekly' => 'payroll.php?tab=Bi-Weekly', 'Monthly' => 'payroll.php?tab=Monthly', 'Custom' => 'payroll.php?tab=Custom') ];
+
+$config['time_tabs'] = ['Daily','Weekly','Bi-Weekly','Monthly','Custom'];
 
 $timesheet_tabs = explode(',',get_config($dbc, 'timesheet_tabs'));
 $ordered_tabs = [];
@@ -110,13 +131,19 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
 			array('Approve All Checkbox', 'hidden', 'approve_all'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
-			array('Editable Dates', 'hidden', 'editable_dates')
+			array('Editable Dates', 'hidden', 'editable_dates'),
+			array('Combine Staff on Report', 'tab', 'staff_combine')
 		)
 );
 
 $config['settings']['Choose Fields for Time Sheets Dashboard']['config_field'] = 'time_cards_dashboard';
 $config['settings']['Choose Fields for Time Sheets Dashboard']['data'] = array(
 	'General' => array(
+			array('Select User Groups', 'dropdown', 'search_by_groups'),
+			array('Select Security Levels', 'dropdown', 'search_by_security'),
+			array('Select Positions', 'dropdown', 'search_by_position'),
+			array('Search by '.PROJECT_NOUN, 'dropdown', 'search_by_project'),
+			array('Search by '.TICKET_NOUN, 'dropdown', 'search_by_ticket'),
 			array('Business', 'dropdown', 'business'),
 			array('Staff', 'dropdown', 'staff'),
 			array('Date', 'date', 'date'),
@@ -124,10 +151,11 @@ $config['settings']['Choose Fields for Time Sheets Dashboard']['data'] = array(
 			array('End Time', 'time', 'end_time'),
 			array('Type of Time', 'dropdown', 'type_of_time'),
 			array('Total Hrs', 'hours', 'total_hrs'),
-			array('Weekly Tab', 'tab', 'time_cards_weekly.php'),
-			array('Bi-Weekly Tab', 'tab', 'time_cards_bi_weekly.php'),
-			array('Monthly Tab', 'tab', 'time_cards_monthly.php'),
-			array('Custom Tab', 'tab', 'time_cards.php'),
+			array('Daily Tab', 'tab', 'Daily'),
+			array('Weekly Tab', 'tab', 'Weekly'),
+			array('Bi-Weekly Tab', 'tab', 'Bi-Weekly'),
+			array('Monthly Tab', 'tab', 'Monthly'),
+			array('Custom Tab', 'tab', 'Custom'),
 		)
 );
 
@@ -246,6 +274,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 {
 	global $config;
 	global $dbc;
+	$default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
 	$approvals = approval_visible_function($dbc, 'timesheet');
 	$timesheet_manager_approvals = !empty(get_config($dbc, 'timesheet_manager_approvals')) ? get_config($dbc, 'timesheet_manager_approvals') : 'Manager Approvals';
 
@@ -260,7 +289,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
-				$url = $contents['Custom'];
+				$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
 				
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
                     $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : $title)."</button></a>";
@@ -278,7 +307,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 						$get_field_config = mysqli_fetch_assoc(mysqli_query($custom['db'],"SELECT ".$custom['field']." FROM field_config"));
 						$value_config = ','.$get_field_config[$custom['field']].',';
 
-						if (strpos($value_config, ','.$content.',') !== FALSE) {
+						if (strpos($value_config, ','.$content.',') !== FALSE || strpos($value_config, ','.$subtitle.',') !== FALSE) {
 							$subhtml .= "<a href='".$content."'><button type='button' class='btn brand-btn mobile-block ".$subactive."' >".$subtitle."</button></a>";
 						}
 					}
@@ -689,7 +718,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	$timesheet_min_hours = get_config($_SERVER['DBC'], 'timesheet_min_hours');
 	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
-	if($timesheet = $_SERVER['DBC']->query("SELECT MAX(`time_cards_id`) `id`, `date`, `staff`, `type_of_time`, SUM(`total_hrs`) `hours`, SUM(`timer_tracked`) `timer`, GROUP_CONCAT(`comment_box` SEPARATOR '&lt;br /&gt;') COMMENTS, SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS, GROUP_CONCAT(`business`) BUSINESS, `ticketid`, `start_time`, `end_time`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name` FROM `time_cards` WHERE `deleted`=0 AND `date` BETWEEN '$start_date' AND '$end_date' $limits GROUP BY `type_of_time` $group ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC")) {
+	if($timesheet = $_SERVER['DBC']->query("SELECT MAX(`time_cards_id`) `id`, `date`, `staff`, `type_of_time`, SUM(`total_hrs`) `hours`, SUM(`timer_tracked`) `timer`, GROUP_CONCAT(`comment_box` SEPARATOR '&lt;br /&gt;') COMMENTS, SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS, GROUP_CONCAT(`business`) BUSINESS, `ticketid`, `start_time`, `end_time`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name` FROM `time_cards` WHERE `deleted`=0 AND `date` BETWEEN '$start_date' AND '$end_date' $limits GROUP BY `type_of_time` $group ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC")) {
 		$time = [];
 		while($time_card = $timesheet->fetch_assoc()) {
 			if($time_card['hours'] < $timesheet_min_hours) {

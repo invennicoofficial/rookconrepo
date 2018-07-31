@@ -32,6 +32,9 @@
         <?php if (in_array('My Checklists', $daysheet_button_config)) { ?>
             <a href="?tab=checklists&daily_date=<?= date('Y-m-d') ?>&side_content=my_checklists&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Checklists</li></a>
         <?php } ?>
+        <?php if (in_array('My Support', $daysheet_button_config)) { ?>
+            <a href="?tab=support&daily_date=<?= date('Y-m-d') ?>&side_content=my_support&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Support Requests</li></a>
+        <?php } ?>
         <?php if (in_array('My Shifts', $daysheet_button_config)) { ?>
             <a href="?tab=shifts&daily_date=<?= date('Y-m-d') ?>&side_content=my_shifts&date_display=daily"><li class="<?= $_GET['tab'] == 'shifts' ? 'active' : '' ?>">My Shifts</li></a>
         <?php } ?>
@@ -45,7 +48,8 @@
                 $match_contacts = array_filter(array_merge($match_contacts, explode(',',$match_result['support_contact'])));
             }
             foreach($match_contacts as $match_contact) {
-                $contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%' AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$match_contact,%' AND `is_template` = 0 ORDER BY `name`");
+                $contact_cat = get_contact($dbc, $match_contact, 'category');
+                $contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%' AND `deleted` = 0 AND (CONCAT(',',`attached_contacts`,',') LIKE '%,$match_contact,%' OR (CONCAT(',',`attached_contacts`,',') LIKE '%,ALL_CONTACTS%,' AND (CONCAT(',',`attached_contact_categories`,',') LIKE '%,$contact_cat,%' OR IFNULL(`attached_contact_categories`,'') = ''))) AND `is_template` = 0 ORDER BY `name`");
                 while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
                     <a href="?tab=contact_form&side_content=contact_form&attached_contactid=<?= $match_contact ?>&form_id=<?= $contact_form['form_id'] ?>"><li class="<?= $_GET['tab'] == 'contact_form' && $_GET['form_id'] == $contact_form['form_id'] && $_GET['attached_contactid'] == $match_contact ? 'active' : '' ?>"><?= $contact_form['name'] ?> - <?= !empty(get_client($dbc, $match_contact)) ? get_client($dbc, $match_contact) : get_contact($dbc, $match_contact) ?></li></a>
                 <?php }

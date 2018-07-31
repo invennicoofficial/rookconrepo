@@ -103,7 +103,9 @@ if(!empty($_GET['milestone_timeline'])) {
 	$milestone_timeline = str_replace(['FFMSPACE','FFMEND','FFMHASH'], [' ','&','#'], urldecode($_GET['milestone_timeline']));
 }
 
-$contactid = $_SESSION['contactid'];
+if(get_config($dbc, 'ticket_default_session_user') != 'no_user') {
+	$contactid = $_SESSION['contactid'];
+}
 if(!empty($_GET['contactid'])) {
 	$contactid = ','.$_GET['contactid'].',';
 }
@@ -326,12 +328,12 @@ if(strpos($value_config,',Documents,') !== FALSE && strpos($value_config,',Docum
 
 //New ticket from calendar
 if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
-	$to_do_date = $_GET['current_date'];
-	$to_do_end_date = $_GET['current_date'];
-	$to_do_start_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
-	$to_do_end_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+	$get_ticket['to_do_date'] = $to_do_date = $_GET['current_date'];
+	$get_ticket['to_do_end_date'] = $to_do_end_date = $_GET['current_date'];
+	$get_ticket['to_do_start_time'] = $to_do_start_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+	$get_ticket['to_do_end_time'] = $to_do_end_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
 	if(!empty($_GET['end_time'])) {
-		$to_do_end_time = $_GET['end_time'];
+		$get_ticket['to_do_end_time'] = $to_do_end_time = $_GET['end_time'];
 	}
 	$equipmentid = $_GET['equipmentid'];
 	$equipment_assignmentid = $_GET['equipment_assignmentid'];
@@ -349,10 +351,13 @@ if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 		$contactid[] = $staff['contactid'];
 	}
 	if(!empty($_GET['calendar_contactid'])) {
-		$contactid[] = $_GET['calendar_contactid'];
+		foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+			$contactid[] = $calendar_contactid;
+		}
 	}
 	$contactid = array_filter(array_unique($contactid));
 	$calendar_contactid = ','.implode(',', $contactid).',';
+	$contactid = $calendar_contactid;
 	$get_ticket['region'] = !empty($equip_assign['region']) ? $equip_assign['region'] : explode('*#*', $equipment['region'])[0];
 	if(empty($get_ticket['region'])) {
 		$get_ticket['region'] = $_GET['calendar_region'];
@@ -380,6 +385,22 @@ if(isset($_GET['min_view'])) {
 	$value_config = $min_view;
 }
 
+// Get Approval Settings
+$wait_on_approval = false;
+$admin_group = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE (CONCAT(',',`action_items`,',') LIKE '%,Tickets,%' OR CONCAT(',',`action_items`,',') LIKE '%,ticket_type_".$ticket_type.",%') AND ',".$get_ticket['businessid'].",".$get_ticket['clientid'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`customer`,''),'%'),',%') AND ',".$get_ticket['contactid'].",".$get_ticket['internal_qa_contactid'].",".$get_ticket['deliverable_contactid'].",".$get_ticket['created_by'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`staff`,''),'%'),',%') AND `region` IN ('".$get_ticket['region']."','')  AND `location` IN ('".$get_ticket['con_location']."','')  AND `classification` IN ('".$get_ticket['classification']."','') AND IFNULL(`status`,'') != '' AND `deleted`=0");
+if($admin_group->num_rows > 0) {
+	$admin_group = $admin_group->fetch_assoc();
+	if($get_ticket['status'] == $admin_group['status']) {
+		$wait_on_approval = true;
+	}
+	$value_config_all = $value_config;
+	if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+		$value_config = $admin_group['unlocked_fields'];
+	}
+} else {
+	$admin_group = [];
+}		
+
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
 $ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted` = 0 $query_daily");
@@ -395,7 +416,7 @@ $uneditable_statuses = ','.get_config($dbc, 'ticket_uneditable_status').',';
 if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 	$strict_view = 1;
 }
-if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
+if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
 	$access_project = false;
 	$access_staff = false;
 	$access_contacts = false;
@@ -718,93 +739,118 @@ var setHeading = function() {
 	} else { setTimeout(setHeading, 250); }
 }
 </script>
-<div id="dialog_quick_reminder" title="Add Reminder" style="display: none;">
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Staff:</label>
-		<div class="col-sm-8">
-			<select name="quick_reminder_staff[]" multiple data-placeholder="Select a Staff" class="chosen-select-deselect">
-				<option></option>
-				<?php $quick_reminder_staffs = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
-				foreach ($quick_reminder_staffs as $quick_reminder_staff) {
-					echo '<option value="'.$quick_reminder_staff.'" '.($quick_reminder_staff == $_SESSION['contactid'] ? 'selected' : '').'>'.get_contact($dbc, $quick_reminder_staff).'</option>';
-				} ?>
-			</select>
+<?php if($include_hidden != 'true') { ?>
+	<div id="dialog_quick_reminder" title="Add Reminder" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Staff:</label>
+			<div class="col-sm-8">
+				<select name="quick_reminder_staff[]" multiple data-placeholder="Select a Staff" class="chosen-select-deselect">
+					<option></option>
+					<?php $quick_reminder_staffs = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
+					foreach ($quick_reminder_staffs as $quick_reminder_staff) {
+						echo '<option value="'.$quick_reminder_staff.'" '.($quick_reminder_staff == $_SESSION['contactid'] ? 'selected' : '').'>'.get_contact($dbc, $quick_reminder_staff).'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Reminder:</label>
+			<div class="col-sm-8">
+				<input type="text" name="quick_reminder_text" value="" class="form-control">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Reminder Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="quick_reminder_date" value="<?= date('Y-m-d') ?>" class="datepicker form-control">
+			</div>
 		</div>
 	</div>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Reminder:</label>
-		<div class="col-sm-8">
-			<input type="text" name="quick_reminder_text" value="" class="form-control">
+	<div id="dialog_delete_note" title="Please enter a deletion Note" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Note:</label>
+			<div class="col-sm-8">
+				<textarea type="text" name="delete_note" class="form-control"></textarea>
+			</div>
 		</div>
 	</div>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Reminder Date:</label>
-		<div class="col-sm-8">
-			<input type="text" name="quick_reminder_date" value="<?= date('Y-m-d') ?>" class="datepicker form-control">
+	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+		<script type="text/javascript">
+		$(document).on('change', 'select[name="recurrence_repeat_type"],select[name="recurrence_repeat_monthly_type"]', function() {
+			var repeat_type = $('[name="recurrence_repeat_type"]').val();
+			var month_type = $('[name="recurrence_repeat_monthly_type"]').val();
+			if(repeat_type == 'week') {
+				$('.recurrence_monthly_settings').hide();
+				$('.recurrence_repeat_days').show();
+			} else if(repeat_type == 'month') {
+				$('.recurrence_monthly_settings').show();
+				if(month_type != 'day') {
+					$('.recurrence_repeat_days').show();
+				} else {
+					$('.recurrence_repeat_days').hide();
+				}
+			} else {
+				$('.recurrence_monthly_settings').hide();
+				$('.recurrence_repeat_days').hide();
+			}
+		});
+		</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Start Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">End Date:</label>
+			<div class="col-sm-8">
+				<input type="text" name="recurrence_end_date" class="form-control datepicker" value="">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Repeats:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_type" class="form-control chosen-select-deselect">
+					<option value="day">Daily</option>
+					<option value="week" selected>Weekly</option>
+					<option value="month">Monthly</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group recurrence_monthly_settings" style="display:none;">
+			<label class="col-sm-4 control-label">Repeat Type:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_monthly_type" class="form-control  chosen-select-deselect">
+					<option value="day" selected>By Day</option>
+					<option value="first">First Week of Month</option>
+					<option value="second">Second Week of Month</option>
+					<option value="third">Third Week of Month</option>
+					<option value="fourth">Fourth Week of Month</option>
+					<option value="last">Last Week of Month</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Repeat Interval:</label>
+			<div class="col-sm-8">
+				<select name="recurrence_repeat_interval" class="form-control chosen-select-deselect">
+	                <?php for ($repeat_i = 1; $repeat_i <= 30; $repeat_i++) {
+	                    echo '<option value="'.$repeat_i.'">'.$repeat_i.'</option>';
+	                } ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group recurrence_repeat_days">
+			<label class="col-sm-4 control-label">Repeat Days:</label>
+			<div class="col-sm-8">
+	            <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	            foreach ($days_of_week as $day_of_week_label) {
+	                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="recurrence_repeat_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
+	            } ?>
+			</div>
 		</div>
 	</div>
-</div>
-<div id="dialog_delete_note" title="Please enter a deletion Note" style="display: none;">
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Note:</label>
-		<div class="col-sm-8">
-			<textarea type="text" name="delete_note" class="form-control"></textarea>
-		</div>
-	</div>
-</div>
-<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
-	<script type="text/javascript">
-	$(document).on('change', 'select[name="recurrence_repeat_type"]', function() {
-		var repeat_type = $('[name="recurrence_repeat_type"]').val();
-		if(repeat_type == 'weekly') {
-			$('.recurrence_repeat_days').show();
-		} else {
-			$('.recurrence_repeat_days').hide();
-		}
-	});
-	</script><span class="ui-helper-hidden-accessible"><input type="text"/></span>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Start Date:</label>
-		<div class="col-sm-8">
-			<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">End Date:</label>
-		<div class="col-sm-8">
-			<input type="text" name="recurrence_end_date" class="form-control datepicker" value="">
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Repeats:</label>
-		<div class="col-sm-8">
-			<select name="recurrence_repeat_type" class="form-control chosen-select-deselect">
-				<option value="day">Daily</option>
-				<option value="week" selected>Weekly</option>
-				<option value="month">Monthly</option>
-			</select>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="col-sm-4 control-label">Repeat Interval:</label>
-		<div class="col-sm-8">
-			<select name="recurrence_repeat_interval" class="form-control chosen-select-deselect">
-                <?php for ($repeat_i = 1; $repeat_i <= 30; $repeat_i++) {
-                    echo '<option value="'.$repeat_i.'">'.$repeat_i.'</option>';
-                } ?>
-			</select>
-		</div>
-	</div>
-	<div class="form-group recurrence_repeat_days">
-		<label class="col-sm-4 control-label">Repeat Days:</label>
-		<div class="col-sm-8">
-            <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            foreach ($days_of_week as $day_of_week_label) {
-                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="recurrence_repeat_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
-            } ?>
-		</div>
-	</div>
-</div>
+<?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
@@ -842,12 +888,20 @@ var setHeading = function() {
 		</div>
 	<?php }
 	if(strpos($value_config,',Customer History,') !== FALSE && !($strict_view > 0)) { ?>
-        <div class="pull-right gap-left gap-top <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
+        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 			<span class="popover-examples list-inline">
 				<a data-toggle="tooltip" data-placement="top" title="Click here to view Customer History."><img src="../img/info.png" width="20"></a>
 			</span>
 			<a href="" onclick="displayCustomerHistory(); return false;
 			"><img style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" /></a>
+		</div>
+	<?php }
+	if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
+        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
+			<span class="popover-examples list-inline">
+				<a data-toggle="tooltip" data-placement="top" title="Click here to create Recurring <?= TICKET_TILE ?>."><img src="../img/info.png" width="20"></a>
+			</span>
+			<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img style="width: 1.5em;" src="../img/month-overview-blue.png"></a>
 		</div>
 	<?php }
 	if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
@@ -856,7 +910,7 @@ var setHeading = function() {
 				<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 			</span>
 			<a href="" onclick="dialogQuickReminder(); return false;
-			"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+			"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 		</div>
 		<div class="clearfix"></div>
 	<?php }
@@ -900,6 +954,9 @@ var setHeading = function() {
 		<span class="sync_recurrences_note" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
+		<?php if($wait_on_approval) {
+			echo '<h4>Awaiting Admin Approval</h4>';
+		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;
 		$indent_accordion_text = '';
@@ -1407,6 +1464,78 @@ var setHeading = function() {
 
 					<div id="collapse_ticket_equipment" class="panel-collapse collapse">
 						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_equipment">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory".',') !== FALSE && $sort_field == 'Inventory') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_general">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory General".',') !== FALSE && $sort_field == 'Inventory General') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory Detail".',') !== FALSE && $sort_field == 'Inventory Detail') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Detailed Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Inventory Return".',') !== FALSE && $sort_field == 'Inventory Return') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_return">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Return Information' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_inventory_return" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_return">
 							Loading...
 						</div>
 					</div>
@@ -2007,6 +2136,60 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
+			<?php if (strpos($value_config, ','."Residue".',') !== FALSE && $sort_field == 'Residue') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_residues">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Residue' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_residues" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_residues">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_readings">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Reading' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_readings" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_readings">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Other List".',') !== FALSE && $sort_field == 'Other List') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_other_list">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Other List' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_other_list" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_other_list">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if (strpos($value_config, ','."Pressure".',') !== FALSE && $sort_field == 'Pressure') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -2182,10 +2365,7 @@ var setHeading = function() {
 			<?php } ?>
 			<?php if($access_any) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
-				<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
-					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
-				<?php } ?>
+				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/trash-icon-red.png" alt="Delete" width="36" /></a><?php } ?>
 				<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 				<?php } ?>
@@ -2237,19 +2417,27 @@ var setHeading = function() {
 							"><img style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" /></a>
 						</div>
 					<?php } ?>
+					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
+				        <div class="pull-right gap-left">
+							<span class="popover-examples list-inline">
+								<a data-toggle="tooltip" data-placement="top" title="Click here to create Recurring <?= TICKET_TILE ?>."><img src="../img/info.png" width="20"></a>
+							</span>
+							<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img style="width: 1em;" src="../img/month-overview-blue.png"></a>
+						</div>
+					<?php } ?>
 					<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
 				        <div class="pull-right">
 							<span class="popover-examples list-inline">
 								<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 							</span>
 							<a href="" onclick="dialogQuickReminder(); return false;
-							"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+							"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 						</div>
 					<?php } ?>
 				</h3>
 			</div>
 <?php } ?>
-<?php if($calendar_ticket_slider != 'accordion') { ?>
+<?php if($calendar_ticket_slider != 'accordion' || $include_hidden == 'true') { ?>
 		<div class="standard-body-content pad-top <?= $ticket_layout == 'Accordions' ? 'standard-body-accordions' : '' ?>">
 			<?php if(empty($_GET['calendar_view']) && ($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $ticket_layout == 'accordion') {
 				$get_query = $_GET;
@@ -2261,7 +2449,7 @@ var setHeading = function() {
 			<?php } ?>
 			<?php if($_GET['calendar_view'] == 'true') { ?>
 				<div class="col-sm-12">
-					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <?= get_ticket_label($dbc, $get_ticket) ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
+					<h3 style="margin-top: 5px;"><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?> <span class="ticketid_span"><?= get_ticket_label($dbc, $get_ticket) ?></span><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 						<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
 							$get_ticket['flag_colour'] = '';
 						}
@@ -2304,7 +2492,7 @@ var setHeading = function() {
 									<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
 								</span>
 								<a href="" onclick="dialogQuickReminder(); return false;
-								"><img class="" src="../img/alert-grey.png" border="0" alt="" /></a>
+								"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
 							</div>
 							<div class="clearfix"></div>
 						<?php } ?>
@@ -2317,6 +2505,9 @@ var setHeading = function() {
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid ?>" target="_blank" class="pull-right btn brand-btn gap-top gap-bottom">Export <?= TICKET_NOUN ?> Log</a>
 				<div class="clearfix"></div>
 			<?php } ?>
+			<?php if($wait_on_approval) {
+				echo '<h4>Awaiting Admin Approval</h4>';
+			} ?>
 			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
@@ -2734,16 +2925,62 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 			<div class="clearfix"></div>
+			<?php if(!empty($admin_group)) {
+				$recipients = [];
+				foreach(explode(',',$admin_group['contactid']) as $admin_recipient) {
+					$recipients[] = get_email($dbc,$admin_recipient);
+				}
+				$body = 'A '.TICKET_NOUN.' has been submitted for approval. Please log in and review it.<br/><br/>
+					<b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?tab=administration_'.$admin_group['id'].'_pending__">Approvals</a></b><br/>
+					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit="></a>'; ?>
+				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" onclick="updateApprovalIDLabel()">Submit for Approval</a>
+				<script>
+				function updateApprovalIDLabel() {
+					$('#approval_submit [name=approval_subject]').val($('.ticketid_span').text()+' has been submitted for approval');
+					$('#approval_submit [name=approval_body]').val($('#approval_submit [name=approval_body]').val().replace(/\?edit=.*/,'?edit='+ticketid+'">'+$('.ticketid_span').text()+'</a>'));
+					tinyMCE.get('approval_body').setContent($('#approval_submit [name=approval_body]').val());
+				}
+				</script>
+				<div class="collapse" id="approval_submit">
+					<div class="clearfix"></div>
+					<h3>Submit for Approval</h3>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Submitter's Name:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_name" class="form-control email_sender_name" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Submitter's Address:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_email" class="form-control email_sender" value="<?= get_email($dbc, $_SESSION['contactid']) ?>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Email Subject:</label>
+						<div class="col-sm-8">
+							<input type="text" name="approval_subject" class="form-control email_subject" value="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Email Body:</label>
+						<div class="col-sm-12">
+							<textarea name="approval_body" class="form-control email_body"><?php echo $body; ?></textarea>
+						</div>
+					</div>
+					<input type="hidden" name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid">
+					<input type="hidden" name="email_recipient" value="<?= implode(';',array_filter($recipients)) ?>">
+					<button class="btn brand-btn pull-right" onclick="send_email(this); $('[name=status]').first().val('<?= $admin_group['status'] ?>').change(); return false;">Send Email</button>
+					<div class="clearfix"></div>
+				</div>
+			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
 					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-right gap-right" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
-					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
-						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
-					<?php } ?>
+					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/trash-icon-red.png" alt="Delete" width="36" /></a><?php } ?>
 					<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
 					<?php } ?>

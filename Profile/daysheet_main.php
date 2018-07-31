@@ -72,6 +72,9 @@ if($ticket_mode == 'action') {
 // $past_due_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` < '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `deleted` = 0 AND `done` = 0");
 ?>
 <script type="text/javascript">
+$(document).ready(function() {
+    $('.status_opacity').find('a:first').css('opacity', '0.5');
+});
 function changeDailyDate(input) {
     var url = '?daily_date='+$(input).val()+'&side_content=<?= $_GET['side_content'] ?>&weekly_date=<?= $_GET['weekly_date'] ?>';
     window.location.href = url;
@@ -207,7 +210,9 @@ if ( !empty($note) ) { ?>
                         <h4><?= date('F 1', strtotime($weekly_date)) ?> - <?= date('F t, Y', strtotime($weekly_date)) ?>
     					<a href="?daily_date=<?= $daily_date ?>&side_content=monthly&weekly_date=<?= date('Y-m-d', strtotime($weekly_date.' - 1 month')) ?>" class="mobile-anchor"><img style="height: 0.7em;" src="<?= WEBSITE_URL ?>/img/icons/back-arrow.png"></a> |
     					<a href="?daily_date=<?= $daily_date ?>&side_content=monthly&weekly_date=<?= date('Y-m-d', strtotime($weekly_date.' + 1 month')) ?>" class="mobile-anchor"><img style="height: 0.7em;" src="<?= WEBSITE_URL ?>/img/icons/next-arrow.png"></a></h4>
-                    <?php } else {
+                    <?php } else if($side_content == 'my_support') {
+						echo '<h1>Support Requests</h1>';
+					} else {
                         $weekly_date = date('Y-m-d',strtotime($daily_date));
                         if (!empty($_GET['weekly_date'])) {
                             $weekly_date = $_GET['weekly_date'];
@@ -243,6 +248,8 @@ if ( !empty($note) ) { ?>
                     include('daysheet_checklists.php');
                 } else if ($side_content == 'my_timesheets') {
                     include('daysheet_timesheets.php');
+                } else if ($side_content == 'my_support') {
+                    include('daysheet_support.php');
                 } else if ($side_content == 'past_due') {
                     include('daysheet_pastdue.php');
                 } else {

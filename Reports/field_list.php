@@ -31,12 +31,13 @@ $operations_reports = [
 	'Drop Off Analysis'=>['report_drop_off_analysis.php','Drop Off Analysis','Drop Off Analysis','dropoff_analysis'],
 	'Discharge Report'=>['report_discharge.php','Discharge Report','Discharge Report','discharge'],
 	'Ticket Report'=>['report_ticket.php',TICKET_NOUN.' Report','Ticket Report','ticket_report'],
+	'Action Item Summary'=>['report_action_item_summary.php','Action Item Summary','Action Item Summary','action_item_summary'],
 	'Site Work Time'=>['report_site_work_time.php','Site Work Order Time on Site','Site Work Time','site_work_time'],
 	'Site Work Driving'=>['report_site_work_driving.php','Site Work Order Driving Logs','Site Work Driving','operations'],
 	'Purchase Orders'=>['reports_purchase_orders.php','Purchase Orders','Purchase Orders','purchase_orders'],
 	'Inventory Log'=>['report_inventory_log.php','Inventory Log','Inventory Log','inventory_log'],
 	'Point of Sale'=>['reports_pos.php',(!empty(get_tile_title($dbc)) ? get_tile_title($dbc) : 'Point of Sale'),'Point of Sale','point_of_sale'],
-	'POS'=>['report_pos_advanced.php',(!empty(get_tile_title($dbc)) ? get_tile_title($dbc) : 'Point of Sale (Advanced)'),'POS','point_of_sale_advanced'],
+	'POS'=>['report_pos_advanced.php',(!empty(get_tile_title($dbc)) ? get_tile_title($dbc) : POS_ADVANCE_TILE),'POS','point_of_sale_advanced'],
 	'Credit Card on File'=>['report_cc_on_file.php','Credit Card on File','Credit Card on File','credit_card_on_file'],
 	'Checklist Time'=>['report_checklist_time.php','Checklist Time Tracking','Checklist Time','checklist_time'],
 	'Ticket Time Summary'=>['report_ticket_time_summary.php',TICKET_NOUN.' Time Summary','Ticket Time Summary','ticket_time_summary'],
@@ -162,5 +163,16 @@ $staff_reports = [
 	'Staff Validation by Therapist'=>['report_daily_validation.php','Validation by Therapist','Staff Validation by Therapist','staff_pt_validation'],
 	'Staff Staff Compensation'=>['report_pnl_staff_compensation.php','Staff Compensation','Staff Staff Compensation','staff_staff_compensation'],
 ];
-
-$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports);
+$history_reports = [
+	'History Staff History'=>['reports_staff_history.php','Staff History','History Staff History','history_staff_history'],
+	'History Checklist History'=>['reports_checklist_history.php','Checklist History','History Checklist History','history_checklist_history'],
+	'History Sales History'=>['reports_sales_history.php','Sales History','History Sales History','history_sales_history'],
+	'History HR History'=>['reports_hr_history.php','HR History','History HR History','history_hr_history'],
+	'History Point of Sale History'=>['reports_pos_history.php','Point of Sale History','History Point of Sale History','history_pos_history'],
+];
+$estimates_reports = [
+	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
+	'Estimate Stats'=>['reports_estimate_stats.php','Estimate Stats','Estimate Stats','reports_estimate_stats'],
+	'Estimate Alerts'=>['reports_estimate_alerts.php','Estimate Alerts','Estimate Alerts','reports_estimate_alerts'],
+];
+$report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports, $estimates_reports);

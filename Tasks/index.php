@@ -160,23 +160,6 @@ checkAuthorised('tasks');
                         </div>
                     </div>
                 </div><?php //$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(tl.tasklistid) `task_count`, SUM(IF(IFNULL(`updated_date`,`created_date`) > IFNULL(`ts`.`seen_date`,'0000-00-00'),1,0)) `unseen` FROM tasklist tl JOIN task_board tb ON (tb.taskboardid=tl.task_board) LEFT JOIN taskboard_seen ts ON ts.`contactid`='{$_SESSION['contactid']}' AND ts.`taskboardid`=0 WHERE (tl.contactid IN ({$_SESSION['contactid']}) OR (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,{$_SESSION['contactid']},%')) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate")); ?>
-                <!--
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordions" href="#collapse_my_tasks">
-                                My Tasks<span class="pull-right"><?echo //$get_count['task_count'].($_GET['category']!=$row_mytasks['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '') ?></span><span class="glyphicon glyphicon-plus"></span>
-                            </a>
-                        </h4>
-                    </div>
-
-                    <div id="collapse_my_tasks" class="panel-collapse collapse">
-                        <div class="panel-body" data-file="tasks_dashboard.php?category=My&tab=My">
-                            Loading...
-                        </div>
-                    </div>
-                </div>
-                -->
                 <?php
                 if (check_subtab_persmission($dbc, 'tasks', ROLE, 'my') === true) {
                     $result_mytasks = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' WHERE `board_security`='Private' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");

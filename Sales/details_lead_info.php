@@ -118,6 +118,7 @@ $(document).ready(function() {
                 } ?>
             </select>
         </div>
+		<div class="col-xs-12 col-sm-1"><a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $businessid ?>" class="no-toggle" title="<?= get_contact($dbc, $businessid, 'name_company') ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#task_businessid').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a></div>
         <div class="clearfix"></div>
     </div>
     
@@ -154,6 +155,9 @@ $(document).ready(function() {
                 } */ ?>
             </select>
         </div>
+		<div class="col-xs-12 col-sm-1"><?php foreach(array_filter(explode(',',$contactid)) as $contact) { ?>
+			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contact ?>" class="no-toggle" title="<?= get_contact($dbc, $contact) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+		<?php } ?></div>
         <div class="clearfix"></div>
     </div>
     

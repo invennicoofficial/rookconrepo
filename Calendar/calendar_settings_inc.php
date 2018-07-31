@@ -423,6 +423,9 @@ switch($_GET['type']) {
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
+        $staff_split_security = get_config($dbc, 'ticket_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
+        $client_draggable = get_config($dbc, 'ticket_client_draggable');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';

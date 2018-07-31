@@ -128,7 +128,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Other List';
 } else if($_GET['tab'] == 'ticket_pressure') {
 	$sort_field = 'Pressure';
-} else if($_GET['tab'] == 'ticket_chemcials') {
+} else if($_GET['tab'] == 'ticket_chemicals') {
 	$sort_field = 'Chemicals';
 } else if($_GET['tab'] == 'ticket_intake') {
 	$sort_field = 'Intake';
@@ -148,7 +148,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Service Extra Billing';
 }
 
-if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
+if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
 	$strict_view = strictview_visible_function($dbc, 'ticket');
 	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
 	if($strict_view > 0) {
@@ -221,7 +221,9 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 		$milestone_timeline = str_replace(['FFMSPACE','FFMEND','FFMHASH'], [' ','&','#'], urldecode($_GET['milestone_timeline']));
 	}
 
-	$contactid = $_SESSION['contactid'];
+	if(get_config($dbc, 'ticket_default_session_user') != 'no_user') {
+		$contactid = $_SESSION['contactid'];
+	}
 	if(!empty($_GET['contactid'])) {
 		$contactid = ','.$_GET['contactid'].',';
 	}
@@ -236,6 +238,52 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	}
 	if(!empty($_GET['endtime'])) {
 		$to_do_end_time = $_GET['endtime'];
+	}
+
+	//New ticket from calendar
+	if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+		$get_ticket['to_do_date'] = $to_do_date = $_GET['current_date'];
+		$get_ticket['to_do_end_date'] = $to_do_end_date = $_GET['current_date'];
+		$get_ticket['to_do_start_time'] = $to_do_start_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+		$get_ticket['to_do_end_time'] = $to_do_end_time = !empty($_GET['current_time']) ? date('h:i a', strtotime($_GET['current_time'])) : '';
+		if(!empty($_GET['end_time'])) {
+			$get_ticket['to_do_end_time'] = $to_do_end_time = $_GET['end_time'];
+		}
+		$equipmentid = $_GET['equipmentid'];
+		$equipment_assignmentid = $_GET['equipment_assignmentid'];
+
+		$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+		$equip_assign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipment_assignmentid` = '$equipment_assignmentid'"));
+		$teamid = $equip_assign['teamid'];
+		$contactid = [];
+		$team_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+		foreach ($team_staff as $staff) {
+			$contactid[] = $staff['contactid'];
+		}
+		$equip_assign_staff = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid' AND `deleted` = 0"),MYSQLI_ASSOC);
+		foreach ($equip_assign_staff as $staff) {
+			$contactid[] = $staff['contactid'];
+		}
+		if(!empty($_GET['calendar_contactid'])) {
+			foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+				$contactid[] = $calendar_contactid;
+			}
+		}
+		$contactid = array_filter(array_unique($contactid));
+		$calendar_contactid = ','.implode(',', $contactid).',';
+		$contactid = $calendar_contactid;
+		$get_ticket['region'] = !empty($equip_assign['region']) ? $equip_assign['region'] : explode('*#*', $equipment['region'])[0];
+		if(empty($get_ticket['region'])) {
+			$get_ticket['region'] = $_GET['calendar_region'];
+		}
+		$get_ticket['con_location'] = !empty($equip_assign['location']) ? $equip_assign['location'] : explode('*#*', $equipment['location'])[0];
+		if(empty($get_ticket['con_location'])) {
+			$get_ticket['con_location'] = $_GET['calendar_location'];
+		}
+		$get_ticket['classification'] = !empty($equip_assign['classification']) ? $equip_assign['classification'] : explode('*#*', $equipment['classification'])[0];
+		if(empty($get_ticket['classification'])) {
+			$get_ticket['classification'] = $_GET['calendar_classification'];
+		}
 	}
 
 	if(!empty($_GET['edit']) || $_GET['ticketid'] > 0) {
@@ -511,6 +559,22 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	if(strpos($value_config,',Time Tracking Current,') !== FALSE) {
 		$query_daily = " AND (`date_stamp`='".date('Y-m-d')."' OR IFNULL(`checked_out`,'') = '')";
 	}
+	
+	// Get Approval Settings
+	$wait_on_approval = false;
+	$admin_group = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE (CONCAT(',',`action_items`,',') LIKE '%,Tickets,%' OR CONCAT(',',`action_items`,',') LIKE '%,ticket_type_".$ticket_type.",%') AND ',".$get_ticket['businessid'].",".$get_ticket['clientid'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`customer`,''),'%'),',%') AND ',".$get_ticket['contactid'].",".$get_ticket['internal_qa_contactid'].",".$get_ticket['deliverable_contactid'].",".$get_ticket['created_by'].",' LIKE CONCAT('%,',IFNULL(NULLIF(`staff`,''),'%'),',%') AND `region` IN ('".$get_ticket['region']."','')  AND `location` IN ('".$get_ticket['con_location']."','')  AND `classification` IN ('".$get_ticket['classification']."','') AND IFNULL(`status`,'') != '' AND `deleted`=0");
+	if($admin_group->num_rows > 0) {
+		$admin_group = $admin_group->fetch_assoc();
+		if($get_ticket['status'] == $admin_group['status']) {
+			$wait_on_approval = true;
+		}
+		$value_config_all = $value_config;
+		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+			$value_config = $admin_group['unlocked_fields'];
+		}
+	} else {
+		$admin_group = [];
+	}	
 
 	//Get Security Permissions
 	$ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
@@ -527,7 +591,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab']))) {
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;

@@ -842,7 +842,7 @@ $category = $_GET['category'];
 
 					  <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { ?>
 					  <div class="form-group">
-						<label for="company_name" class="col-sm-4 control-label">Include in Point of Sale:</label>
+						<label for="company_name" class="col-sm-4 control-label">Include in <?= POS_ADVANCE_TILE ?>:</label>
 						<div class="col-sm-8">
 						  <input type='checkbox' style='width:20px; height:20px;' <?php if($include_in_pos !== '' && $include_in_pos !== NULL) { echo "checked"; } ?> name='include_in_pos' class='' value='1'>
 						</div>
@@ -1396,7 +1396,7 @@ $category = $_GET['category'];
 			</div>
 		  </div>
 
-        
+
 
 		</form>
 

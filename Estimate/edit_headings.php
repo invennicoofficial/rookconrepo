@@ -71,6 +71,16 @@ $col_spanned = $columns; ?>
 			if(value == undefined) {
 				value = 1;
 			}
+			if(src.name.substr(-2) == '[]') {
+				field = src.name.split('[]')[0];
+				if(src.type == 'select-one' || src.type == 'select-multiple') {
+					value = [];
+					$('[name="'+src.name+'"] option:selected').each(function() {
+						value.push(this.value);
+					});
+					value = value.join(',');
+				}
+			}
 			$.ajax({
 				url: 'estimates_ajax.php?action=estimate_fields',
 				method: 'POST',

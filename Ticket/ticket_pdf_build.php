@@ -3,7 +3,7 @@ $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $form = filter_var($_POST['custom_form'], FILTER_SANITIZE_STRING);
 if(isset($_POST['custom_form'])) {
 	$ticketid = filter_var($_GET['ticketid'], FILTER_SANITIZE_STRING);
-	$revision = 1 + mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `ticketid`='$ticketid' AND `pdf_type`='$form'"))['revision'];
+	$revision = 1 + mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `ticketid`='$ticketid' AND `pdf_type`='$form' AND `deleted`=0"))['revision'];
 	foreach($_POST as $field => $value) {
 		if($field != 'custom_form') {
 			$field = filter_var($field, FILTER_SANITIZE_STRING);
@@ -71,8 +71,8 @@ if(isset($_POST['custom_form'])) {
 		echo "<h2 class='pad-5'>".$form['pdf_name'].": $ticket</h2>";
 		while($page = $pdf_pages->fetch_assoc()['page']) {
 			echo "<h3 class='pad-10'>Page ".$page."</h3>";
-			echo "<!--SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`";
-			$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`");
+			echo "<!--SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision AND `older`.`deleted`=0 WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`";
+			$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision AND `older`.`deleted`=0 WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`");
 			echo ' Origin: '.print_r($origin,true).' Destination: '.print_r($dest,true).' General: '.print_r($general,true).' Shipment: '.print_r($shipment,true)."-->";
 			while($field = $fields->fetch_assoc()) {
 				$options = explode(':',$field['options']);
@@ -281,7 +281,7 @@ if(isset($_POST['custom_form'])) {
 									}
 									$i = 0;
 									if(in_array('confirm',$options)) {
-										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999')")->fetch_assoc());
+										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($list_options as $i => $option) {
 											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
 										}
@@ -291,7 +291,7 @@ if(isset($_POST['custom_form'])) {
 										$value = implode("\n",$list_options)."\n".$require_value;
 									}
 									if(count($po_list) > 0) {
-										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999')")->fetch_assoc());
+										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($po_list as $po_i => $option) {
 											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
 										}
@@ -415,7 +415,7 @@ if(isset($_POST['custom_form'])) {
 						}
 						if(in_array('sync',$options)) {
 							$i = array_search('sync',$options) + 1;
-							$onchange = 'onchange="$(\'[name='.$options[$i].']\').val(this.value);"';
+							$onchange = 'onchange="$(\'[name='.$options[$i].']\').val(this.value).change();"';
 						}
 						if(in_array('UPPER',$options)) {
 							$value = strtoupper($value);

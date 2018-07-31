@@ -68,8 +68,9 @@ function viewTicket(a) {
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
 
         <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal" role="form">
+    	<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 
-        <?php echo get_tabs('Coordinator Approvals', 'Custom', array('db' => $dbc, 'field' => $value['config_field'])); ?>
+        <?php echo get_tabs('Coordinator Approvals', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
         <?php
 			$highlight = get_config($dbc, 'timesheet_highlight');
@@ -190,8 +191,8 @@ function viewTicket(a) {
                   <label for="site_name" class="col-sm-4 control-label"></label>
                   <div class="col-sm-8">
 					<?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
-						<a href="?pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next Pay Period</a>
-						<a href="?pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior Pay Period</a>
+						<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
+						<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $search_staff_list[0] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
 					<?php } ?>
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL_STAFF]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
@@ -211,7 +212,7 @@ function viewTicket(a) {
 			</form>
 			<?php } ?>
 
-             <form id="form1" name="form1" action="add_time_card_approvals.php?pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
+             <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
 
             <div id="no-more-tables">
             <?php $value_config = explode(',',get_field_config($dbc, 'time_cards'));
@@ -390,7 +391,7 @@ function viewTicket(a) {
 							$sql .= ", `time_cards_id`";
 							$post_i = 0;
 						}
-						$sql .= " ORDER BY `date`, IFNULL(STR_TO_DATE(`start_time`, '%l:%i %p'),STR_TO_DATE(`start_time`, '%H:%i')) ASC, IFNULL(STR_TO_DATE(`end_time`, '%l:%i %p'),STR_TO_DATE(`end_time`, '%H:%i')) ASC";
+						$sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 						$result = mysqli_query($dbc, $sql);
 						$date = $search_start_date;
 						$row = mysqli_fetch_array($result);
@@ -433,8 +434,8 @@ function viewTicket(a) {
 								$timecardid = $row['time_cards_id'];
 								$ticket_attached_id = $row['ticket_attached_id'];
 								$attached_ticketid = $row['ticketid'];
-								$start_time = $row['start_time'];
-								$end_time = $row['end_time'];
+								$start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
+								$end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
 
 								if(in_array('training_hrs',$value_config) && $timecardid > 0) {
 									if(is_training_hrs($dbc, $timecardid)) {

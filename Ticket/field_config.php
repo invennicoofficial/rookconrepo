@@ -232,6 +232,21 @@ function loadPanel() {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_quick_action">
+						Administration<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_quick_action" class="panel-collapse collapse">
+				<div class="panel-body" data-file="../Project/field_config_administration.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_quick_action">
 						Quick Action Icons<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>

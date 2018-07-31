@@ -22,6 +22,17 @@ $(document).ready(function() {
 		var email = $('[name=staff_schedule_lock_alert_from]').val();
 		var subject = $('[name=staff_schedule_lock_alert_subject]').val();
 		var body = $('[name=staff_schedule_lock_alert_body]').val();
+
+		var limit_staff = $('[name=staff_schedule_limit_staff]').prop('checked') ? '1' : '';
+		var limit_by_staff = [];
+		$('[name="staff_schedule_limit_by_staff[]"] option:selected').each(function() {
+			limit_by_staff.push(this.value);
+		});
+		var limit_by_security = [];
+		$('[name="staff_schedule_limit_by_security[]"] option:selected').each(function() {
+			limit_by_security.push(this.value);
+		});
+
 		$.ajax({
 			url: 'staff_ajax.php?action=staff_schedule_lock_fields',
 			method: 'POST',
@@ -39,7 +50,10 @@ $(document).ready(function() {
 				staff_schedule_lock_alert_send: send,
 				staff_schedule_lock_alert_from: email,
 				staff_schedule_lock_alert_subject: subject,
-				staff_schedule_lock_alert_body: body
+				staff_schedule_lock_alert_body: body,
+				staff_schedule_limit_staff: limit_staff,
+				staff_schedule_limit_by_staff: limit_by_staff.join(','),
+				staff_schedule_limit_by_security: limit_by_security.join(',')
 			}
 		});
 	});
@@ -177,6 +191,38 @@ function displayLockAlerts() {
 		<div class="col-sm-8">
 			<?php $staff_schedule_reminder_body = html_entity_decode(get_config($dbc, 'staff_schedule_reminder_body')); ?>
 			<textarea name="staff_schedule_reminder_body"><?= $staff_schedule_reminder_body ?></textarea>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Staff Schedule Reminder Limit Staff:<br><em>This will limit the Staff that receive the Reminder Emails based on the selected Staff or Security Levels.</em></label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_staff = get_config($dbc, 'staff_schedule_limit_staff'); ?>
+			<label class="form-checkbox"><input type="checkbox" name="staff_schedule_limit_staff" value="1" <?= $staff_schedule_limit_staff == 1 ? 'checked' : '' ?> onchange="if($(this).is(':checked')) { $('.limit_staff').show(); } else { $('.limit_staff').hide(); }"></label>
+		</div>
+	</div>
+	<div class="form-group limit_staff" <?= $staff_schedule_limit_staff != 1 ? 'style="display:none;"' : '' ?>>
+		<label class="col-sm-4 contorl-label">Limit by Staff:</label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_by_staff = ','.get_config($dbc, 'staff_schedule_limit_by_staff').','; ?>
+			<select name="staff_schedule_limit_by_staff[]" multiple class="chosen-select-deselect form-control">
+				<option></option>
+				<?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"));
+				foreach($staff_list as $staff) {
+					echo '<option value="'.$staff['contactid'].'" '.(strpos($staff_schedule_limit_by_staff,','.$staff['contactid'].',') !== FALSE ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+				} ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group limit_staff" <?= $staff_schedule_limit_staff != 1 ? 'style="display:none;"' : '' ?>>
+		<label class="col-sm-4 contorl-label">Limit by Security Level:</label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_by_security = ','.get_config($dbc, 'staff_schedule_limit_by_security').','; ?>
+			<select name="staff_schedule_limit_by_security[]" multiple class="chosen-select-deselect form-control">
+				<option></option>
+				<?php foreach(get_security_levels($dbc) as $security_name => $security_level) {
+					echo '<option value="'.$security_level.'" '.(strpos($staff_schedule_limit_by_security, ','.$security_level.',') !== FALSE ? 'selected' : '').'>'.$security_name.'</option>';
+				} ?>
+			</select>
 		</div>
 	</div>
 </div>

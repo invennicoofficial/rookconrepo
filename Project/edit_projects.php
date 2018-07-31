@@ -6,6 +6,7 @@ $(document).ready(function() {
 });
 var today_date = '<?= date('Y-m-d') ?>';
 var current_user = '<?= get_contact($dbc, $_SESSION['contactid']) ?>';
+var salesid = '<?= $_GET['salesid'] ?>';
 function search_project() {
 	var key = $('.search_list').val();
 	if(key == '') {
@@ -1277,7 +1278,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Custom PDF',$tab_config)) {
 					$pdfs = $dbc->query("SELECT `id`, `pdf_name` FROM `ticket_pdf` WHERE `deleted`=0");
 					while($pdf = $pdfs->fetch_assoc()) {
-						$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".$pdf['id']."')"))['num_rows'];
+						$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".$pdf['id']."' AND `deleted`=0)"))['num_rows'];
 						$_GET['tab'] = ($_GET['tab'] == '' ? 'custom_pdf' : $_GET['tab']); $next_tab = (!$next_set ? 'custom_pdf' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'custom_pdf' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'custom_pdf'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=custom_pdf&id=<?= $pdf['id'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'custom_pdf' && $_GET['id'] == $pdf['id'] ? 'active blue' : '' ?>"><?= $pdf['pdf_name'] ?><span class="pull-right"><?= $count ?></span></li></a><?php
 					}
 				} ?>

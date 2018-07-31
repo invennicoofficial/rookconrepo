@@ -397,6 +397,21 @@ function setActions() {
     
 	initDragging();
 }
+function checklistChange(input) {
+	var checklistnameid = $(input).val();
+    if($(input).is(':checked')){
+        var checked = 1;
+    } else {
+        var checked = 0;
+    }
+    $.ajax({
+        type: "GET",
+        url: "../Checklist/checklist_ajax.php?fill=checklist&checklistid="+checklistnameid+"&checked="+checked,
+        dataType: "html",
+        success: function(response){
+        }
+    });
+}
 </script>
 <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $task_statuses = explode(',',get_config($dbc, 'task_status'));
@@ -638,6 +653,27 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		    }
 		});
 	}
+	function checklist_attach_file(checklist) {
+		checklistid = $(checklist).data('checklist');
+		var type = 'checklist_board';
+		var file_id = 'attach_checklist_board_'+checklistid;
+		$('[name='+file_id+']').change(function() {
+			var fileData = new FormData();
+			fileData.append('file',$('[name='+file_id+']')[0].files[0]);
+			$.ajax({
+				contentType: false,
+				processData: false,
+				type: "POST",
+				url: "../Checklist/checklist_ajax.php?fill=checklist_upload&type="+type+"&id="+checklistid,
+				data: fileData,
+				complete: function(result) {
+					//console.log(result.responseText);
+					reloadChecklistScreen($(checklist).closest('li').find('.checklist_screen'));
+				}
+			});
+		});
+		$('[name='+file_id+']').click();
+	}
 	</script>
 	<?php $external_path = [];
 	if(substr($_GET['tab'],0,18) != 'path_external_path') {
@@ -765,11 +801,13 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 					$sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone') UNION
 						SELECT 'Work Order', `workorderid` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone') UNION
 						SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND `status` != '".$status_complete."' AND project_milestone IN ('$milestone','$html_milestone') UNION
-						SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone')";
+						SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone') UNION
+						SELECT 'Checklist', `checklistid` FROM `checklist` WHERE `projectid` = '$projectid' AND `projectid` > 0 AND `deleted` = 0 AND `project_milestone` IN ('$milestone','$html_milestone')";
 					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM (SELECT COUNT(*) `tickets` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone')) tickets LEFT JOIN
 						(SELECT COUNT(*) `workorders` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone')) workorders ON 1=1 LEFT JOIN
 						(SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone')) tasks ON 1=1 LEFT JOIN
-						(SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1"));
+						(SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1 LEFT JOIN
+						(SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone') checklist ON 1=1"));
 				}
 				$milestone_items = mysqli_query($dbc, $sql); ?>
 				<div class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : '' ?> item_list" style="margin-bottom: -10px;">
@@ -780,7 +818,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 							<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'">' : '' ?></h4>
 						<input type="text" name="milestone_name" data-milestone="<?= $milestone ?>" data-id="<?= $milestone_row['id'] ?>" value="<?= $milestone_row['label'] ?>" style="display:none;" class="form-control">
-					<a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>><div class="small"><?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASK: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ') ?><span class="pull-right"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span></div><div class="clearfix"></div></a></div>
+					<a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>><div class="small"><?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASK: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ').($count['checklist'] > 0 ? ' CHECKLIST: '.$count['checklist'] : ' ') ?><span class="pull-right"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span></div><div class="clearfix"></div></a></div>
 					<ul class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : 'connectedChecklist no-margin full-width' ?>" data-milestone="<?= $milestone ?>">
 						<?php while($item = mysqli_fetch_array($milestone_items)) {
 							include('scrum_card_load.php');
@@ -789,8 +827,9 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 							<li class="dashboard-item add_block">
 								<?php if($tab_id != 'path' && $_GET['tab'] != 'path_external_path') { ?>
 									<?php if(in_array('Intake',$tab_config)) { ?><a target="_parent" href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone ?>" class="btn brand-btn pull-right">New Intake</a><?php } ?>
-									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto',true); return false;" class="btn brand-btn pull-right">New <?= TICKET_NOUN ?></a><?php } ?>
+									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto'); return false;" class="btn brand-btn pull-right">New <?= TICKET_NOUN ?></a><?php } ?>
 									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><a target="_parent" href="../Tasks/add_task.php?projectid=<?= $projectid ?>&contactid=<?= $_SESSION['contactid'] ?>&project_milestone=<?= urlencode($milestone) ?>" onclick="overlayIFrameSlider(this.href,'75%',true); return false;" class="btn brand-btn pull-right">New Task</a><?php } ?>
+									<?php if(in_array('Checklists In Path',$tab_config)) { ?><a target="_parent" href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&projectid=<?= $projectid ?>&project_milestone=<?= urlencode($milestone) ?>'); return false;" class="btn brand-btn pull-right">New Checklist</a><?php } ?>
 									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><?php } ?>
 								<?php } ?>
 								<div class="clearfix"></div>

@@ -215,7 +215,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Google Maps Link:</label>
+						<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
+								<a data-toggle="tooltip" data-placement="top" title="" data-original-title="The address must match Google maps format or the link will not populate properly."><img src="../img/info.png" width="20"></a>
+							</span>Google Maps Link:</label>
 						<div class="col-sm-8">
 							<input type="text" name="pickup_link" class="form-control" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['pickup_link'] ?>">
 							<?php if(!empty($get_ticket['pickup_link'])) {
@@ -463,7 +465,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="col-sm-4 control-label">Google Maps Link:</label>
+										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
+												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="The address must match Google maps format or the link will not populate properly."><img src="../img/info.png" width="20"></a>
+											</span>Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
 											<?php if(!empty($stop['map_link'])) {
@@ -492,7 +496,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="col-sm-4 control-label">Google Maps Link:</label>
+										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
+												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="The address must match Google maps format or the link will not populate properly."><img src="../img/info.png" width="20"></a>
+											</span>Google Maps Link:</label>
 										<div class="col-sm-8">
 											<input type="text" name="map_link" class="form-control" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
 											<?php if(!empty($stop['map_link'])) {
