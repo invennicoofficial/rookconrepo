@@ -339,6 +339,25 @@
     }
     //2018-07-27 - Ticket #7552 - Checklists
 
+    //2018-07-31 - Ticket #7497 - Email Alerts
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_email_alerts` (
+        `fieldconfigid` int(11) NOT NULL,
+        `software_default` int(1) NOT NULL DEFAULT 0,
+        `contactid` int(11) NOT NULL,
+        `enabled` int(1) NOT NULL DEFAULT 0,
+        `alerts` text)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-31 - Ticket #7497 - Email Alerts
+
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
