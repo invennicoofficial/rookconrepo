@@ -3145,7 +3145,10 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Property Damage", $all_config) ? 'checked disabled' : (in_array("Customer Property Damage", $value_config) ? "checked" : '') ?> value="Customer Property Damage" name="tickets[]"> Property Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Product Damage') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" name="tickets[]"> Product Damage Notes</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" onclick="$('[value^=Customer][value*=Product][value*=Damage][value$=Package]').removeAttr('checked').change();" name="tickets[]"> Product Damage Notes</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Product Damage Package') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage Package", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage Package", $value_config) ? "checked" : '') ?> value="Customer Product Damage Package" onclick="$('[value^=Customer][value*=Product][value$=Damage]').removeAttr('checked').change();" name="tickets[]"> Product or Package Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Rate') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Rate", $all_config) ? 'checked disabled' : (in_array("Customer Rate", $value_config) ? "checked" : '') ?> value="Customer Rate" name="tickets[]"> Rating by Customer</label>
