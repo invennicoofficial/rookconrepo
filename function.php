@@ -3206,7 +3206,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $ticket_comments = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '$ticketid' AND `main_id` > 0 AND `is_recurrence` = 1"),MYSQLI_ASSOC);
 
         //Get all fields from tickets table except ticketid, to_do_date, and to_do_end_date, and then create the query for it
-        $ticket_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `tickets` WHERE `Field` NOT IN ('ticketid','to_do_date','to_do_end_date')"),MYSQLI_ASSOC);
+        $ticket_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `tickets` WHERE `Field` NOT IN ('ticketid','to_do_date','to_do_end_date','ticket_label','ticket_label_date')"),MYSQLI_ASSOC);
         $ticket_query = [];
         foreach($ticket_columns as $ticket_column) {
             $ticket_query[] = "`".$ticket_column['Field']."` = '".$ticket[$ticket_column['Field']]."'";
