@@ -149,7 +149,7 @@ function bus_filter(select) {
             if($createend == 0000-00-00 && (isset($_GET['createend']) || !isset($_GET['search_email_submit']))) {
                 $createend = date('Y-m-d');
             } else if($createend == 0000-00-00) {
-				$createend = '9999-12-31';
+				$createend = '9999-12-30';
 			}
             if(!($businessid > 0)) {
                 $businessid = '%';
