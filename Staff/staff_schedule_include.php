@@ -29,37 +29,37 @@ function set_config() {
 		}
 	});
 }
-function overlayIFrameSlider(url) {
-	$('.iframe_overlay .iframe').css('position', 'relative');
-	$('.iframe_overlay .iframe').css('left', '100%');
-	$('.iframe_overlay .iframe').css('float', 'right');
-	$('.iframe_overlay .iframe').css('width', '50%');
-	$('.iframe_overlay .iframe iframe').height(0);
-	$('.iframe_overlay .iframe .iframe_loading').show();
-	$('.iframe_overlay .iframe iframe').prop('src',url);
-	$('.iframe_overlay .iframe').height($('.tile-header').height() + $('.tile-container').height());
-	$('.iframe_overlay').show();
-	$('.iframe_overlay .iframe iframe').load(function() {
-		$(this).contents().find('html').css('padding-left', '1em');
-		$('.iframe_overlay').click(function() {
-			if(confirm('Closing out of this window will discard your changes. Are you sure you want to close the window?')) {
-				$('.iframe_overlay').hide();
-				$('.iframe_overlay .iframe iframe').off('load').attr('src', '');
-				$('html').prop('onclick',null).off('click');
-				window.location.reload();
-			}
-		});
-		$('.iframe_overlay iframe').height($('.main-screen').height());
-		$('.iframe_overlay').height($('.tile-header').height() + $('.tile-container').height());
-		$('.iframe_overlay .iframe .iframe_loading').hide();
-		$(this).off('load').load(function() {
-			$('.iframe_overlay').hide();
-			$(this).off('load').attr('src', '');
-			window.location.reload();
-		});
-	});
-	$('.iframe_overlay .iframe').animate({left: 0},500);
-}
+// function overlayIFrameSlider(url) {
+// 	$('.iframe_overlay .iframe').css('position', 'relative');
+// 	$('.iframe_overlay .iframe').css('left', '100%');
+// 	$('.iframe_overlay .iframe').css('float', 'right');
+// 	$('.iframe_overlay .iframe').css('width', '50%');
+// 	$('.iframe_overlay .iframe iframe').height(0);
+// 	$('.iframe_overlay .iframe .iframe_loading').show();
+// 	$('.iframe_overlay .iframe iframe').prop('src',url);
+// 	$('.iframe_overlay .iframe').height($('.tile-header').height() + $('.tile-container').height());
+// 	$('.iframe_overlay').show();
+// 	$('.iframe_overlay .iframe iframe').load(function() {
+// 		$(this).contents().find('html').css('padding-left', '1em');
+// 		$('.iframe_overlay').click(function() {
+// 			if(confirm('Closing out of this window will discard your changes. Are you sure you want to close the window?')) {
+// 				$('.iframe_overlay').hide();
+// 				$('.iframe_overlay .iframe iframe').off('load').attr('src', '');
+// 				$('html').prop('onclick',null).off('click');
+// 				window.location.reload();
+// 			}
+// 		});
+// 		$('.iframe_overlay iframe').height($('.main-screen').height());
+// 		$('.iframe_overlay').height($('.tile-header').height() + $('.tile-container').height());
+// 		$('.iframe_overlay .iframe .iframe_loading').hide();
+// 		$(this).off('load').load(function() {
+// 			$('.iframe_overlay').hide();
+// 			$(this).off('load').attr('src', '');
+// 			window.location.reload();
+// 		});
+// 	});
+// 	$('.iframe_overlay .iframe').animate({left: 0},500);
+// }
 function exportShifts(contactid) {
     $.ajax({
         type: 'GET',
@@ -71,6 +71,7 @@ function exportShifts(contactid) {
     });
 }
 </script>
+<script type="text/javascript" src="../Staff/staff.js"></script>
 <body>
 <?php if(!isset($_GET['mobile_view'])) { include_once ('../navigation.php'); }
 

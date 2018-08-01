@@ -3160,6 +3160,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
     }
     return $recurring_dates;
 }
+
 function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '') {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
@@ -3214,7 +3215,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $ticket_comments = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '$ticketid' AND `main_id` > 0 AND `is_recurrence` = 1"),MYSQLI_ASSOC);
 
         //Get all fields from tickets table except ticketid, to_do_date, and to_do_end_date, and then create the query for it
-        $ticket_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `tickets` WHERE `Field` NOT IN ('ticketid','to_do_date','to_do_end_date')"),MYSQLI_ASSOC);
+        $ticket_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `tickets` WHERE `Field` NOT IN ('ticketid','to_do_date','to_do_end_date','ticket_label','ticket_label_date')"),MYSQLI_ASSOC);
         $ticket_query = [];
         foreach($ticket_columns as $ticket_column) {
             $ticket_query[] = "`".$ticket_column['Field']."` = '".$ticket[$ticket_column['Field']]."'";
@@ -3325,6 +3326,7 @@ function get_team_name($dbc, $teamid, $separator = ", ", $get_contacts = 0) {
 function get_contact_teams($dbc, $contactid) {
     return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
 }
+
 function add_update_history($dbc, $table, $history, $contactid, $before_change, $salesid = '') {
 		$user_name = get_contact($dbc, $_SESSION['contactid']);
 		$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);

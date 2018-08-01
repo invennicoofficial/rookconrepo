@@ -202,7 +202,9 @@ function bus_filter(select) {
 					</div>
                 </div>
 				<?php if(in_array('filter_extra_billing',$report_fields)) { ?>
+
 					<div class="form-group col-sm-5">
+
 						<label for="search_extra_ticket" class="col-sm-4 control-label">Search By Extra Billing <?= TICKET_NOUN ?>:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_extra_ticket" class="chosen-select-deselect form-control">
@@ -217,7 +219,9 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_materials',$report_fields)) { ?>
+
 					<div class="form-group col-sm-5">
+
 						<label for="search_material" class="col-sm-4 control-label">Search By Materials:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Material" name="search_material" class="chosen-select-deselect form-control">
@@ -232,7 +236,9 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_staff_expenses',$report_fields)) { ?>
+
 					<div class="form-group col-sm-5">
+
 						<label for="search_expenses" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Expenses:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
@@ -243,7 +249,9 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_ticket_notes',$report_fields)) { ?>
+
 					<div class="form-group col-sm-5">
+
 						<label for="search_notes" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Notes:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">

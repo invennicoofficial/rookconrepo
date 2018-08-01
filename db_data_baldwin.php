@@ -338,6 +338,7 @@
     }
     //2018-07-30 - Ticket #8444 - Teams
 
+
     //2018-07-24 - Ticket #6075 - Performance Improvement Plan
     if(!mysqli_query($dbc, "CREATE TABLE `field_config_performance_reviews` (
         `fieldconfigid` int(11) NOT NULL,
@@ -396,6 +397,7 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-07-27 - Ticket #7552 - Checklists
+
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
