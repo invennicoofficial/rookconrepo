@@ -205,29 +205,44 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 	if (!empty($equipment_category)) {
 		$equipment_category = 'Truck';
 	}
-	$result = mysqli_query($dbc,"SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 AND `equipmentid` = '$contact_id'");
+	$result = mysqli_query($dbc,"SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, CONCAT(`category`, ' #', `unit_number`) label, `classification` FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 AND `equipmentid` = '$contact_id'");
 
 	$old_staff = '';
 	while($row = mysqli_fetch_array( $result )) {
 		$completed_tickets = 0;
 		// Equipment Blocks
-		$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT ea.*, e.*,ea.`notes` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE e.`equipmentid` = '".$row['equipmentid']."' AND ea.`deleted` = 0 AND DATE(`start_date`) <= '$new_today_date' AND DATE(ea.`end_date`) >= '$new_today_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$new_today_date,%' ORDER BY ea.`start_date` DESC, ea.`end_date` ASC, e.`category`, e.`unit_number`"));
+		$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT ea.*, e.*,ea.`notes`, `ea`.`classification` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE e.`equipmentid` = '".$row['equipmentid']."' AND ea.`deleted` = 0 AND DATE(`start_date`) <= '$new_today_date' AND DATE(ea.`end_date`) >= '$new_today_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$new_today_date,%' ORDER BY ea.`start_date` DESC, ea.`end_date` ASC, e.`category`, e.`unit_number`"));
 		if(!empty($equip_assign)) {
 			$equipment_assignmentid = $equip_assign['equipment_assignmentid'];
 			$team_name = '(Assigned)';
+
+			$equip_classifications = implode('*#*',array_filter(array_unique([$row['classification'], $equip_assign['classification']])));
+			$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
+			$classification_label = '';
+			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+			}
+
 		    $query = $_GET;
 		    unset($query['equipment_assignmentid']);
 		    unset($query['teamid']);
 		    unset($query['unbooked']);
-			$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">'.$row['label'].'<br />'.$team_name.'</a>';
+			$team_name = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">'.$row['label'].$classification_label.'<br />'.$team_name.'</a>';
 		} else {
 			$equipment_assignmentid = '';
 			$team_name = '(No Team Assigned)';
+
+			$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $row['classification']))));
+			$classification_label = '';
+			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+			}
+
 		    $query = $_GET;
 		    unset($query['equipment_assignmentid']);
 		    unset($query['teamid']);
 		    unset($query['unbooked']);
-			$team_name = ($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid=NEW&equipmentid='.$row['equipmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$row['label'].'<br />'.$team_name.($edit_access == 1 ? '</a>' : '');
+			$team_name = ($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid=NEW&equipmentid='.$row['equipmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$row['label'].$classification_label.'<br />'.$team_name.($edit_access == 1 ? '</a>' : '');
 		}
 
 	    if(empty($row['calendar_color'])) {
