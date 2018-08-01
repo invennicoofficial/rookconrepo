@@ -86,7 +86,7 @@ $(document).ready(function() {
 		items: '.checkout_info',
 		update: saveFields
 	});
-	
+
 	filterIndCategories();
 
 	reloadSortableAccordions();
@@ -104,7 +104,7 @@ $(document).ready(function() {
 			sortFieldsCustom(div);
 		}
 	});
-	
+
 	$('.dataToggle:not(.disabled)').click(function() {
 		$(this).find('input').data('toggle',$(this).find('input').data('toggle') == 1 ? 0 : 1);
 		$(this).find('img').toggle();
@@ -314,7 +314,7 @@ function addNoteType() {
 	var clone = $('.note-option').last().clone();
 	clone.find('input').val('');
 	$('.note-option').last().after(clone);
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 	$('[name="note_types"]').last().focus();
 }
@@ -329,7 +329,7 @@ function addNotifyListItem() {
 	var clone = $('.notify_item').last().clone();
 	clone.find('input').val('');
 	$('.notify_item').last().after(clone);
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 	$('[name="ticket_notify_list_items"]').last().focus();
 }
@@ -366,7 +366,7 @@ function addIndividual() {
 	clone.find('select').val('').trigger('change.select2');
 	$('.ind_type').last().after(clone);
 	initInputs('.ind_type');
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function remIndividual(a) {
@@ -381,7 +381,7 @@ function addReason() {
 	clone.find('input').val('');
 	$('.cancel_reason').last().after(clone);
 	$('[name=cancel_reasons]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeReason(a) {
@@ -396,7 +396,7 @@ function addInfo() {
 	clone.find('input').val('');
 	$('.checkout_info').last().after(clone);
 	$('[name=checkout_info]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeInfo(a) {
@@ -411,7 +411,7 @@ function addInfoStaff() {
 	clone.find('input').val('');
 	$('.checkout_info_staff').last().after(clone);
 	$('[name=checkout_info_staff]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeInfoStaff(a) {
@@ -428,7 +428,7 @@ function updateIncidentReportEmail(input) {
 		method: 'POST',
 		data: { email: email },
 		success: function(response) {
-			
+
 		}
 	});
 }
@@ -488,7 +488,7 @@ function addAttachedChart() {
 
 	block.after(clone);
 	initInputs('.attached_chart_block');
-	
+
 	$('input,select').change(saveFields);
 	$('select[name="attached_chart_tab[]"],select[name="attached_chart_subtab[]"],select[name="attached_chart_heading[]"],select[name="attached_chart[]"]').change(function() { filterAttachedCharts(this); });
 }
@@ -606,7 +606,7 @@ function sortAccordions() {
 			blocks: blocks
 		},
 		success: function(response) {
-			
+
 		}
 	});
 	saveHigherLevelHeadings();
