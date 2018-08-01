@@ -616,10 +616,15 @@ if (!empty($equipment_category)) {
 							$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
 							$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
 							$clientids = $equip_assign['client_list'];
+
+							$classification_label = '';
+							if($equip_display_classification == 1 && !empty($equip_classifications)) {
+								$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+							}
 							// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
 							// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
 							// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
-							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'>".$equipment['label']."</div></a>";
+							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'>".$equipment['label'].$classification_label."</div></a>";
 						} ?>
 					</div>
 				</div>

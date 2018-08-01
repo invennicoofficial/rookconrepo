@@ -511,6 +511,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_combine_pickup'])) {
+		$scheduling_combine_pickup = $_POST['scheduling_combine_pickup'];
+	} else {
+		$scheduling_combine_pickup = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_pickup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_pickup') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_pickup."' WHERE `name`='scheduling_combine_pickup'");
 	if (!empty($_POST['scheduling_combine_time'])) {
 		$scheduling_combine_time = $_POST['scheduling_combine_time'];
 	} else {
@@ -528,6 +535,20 @@ if (isset($_POST['add_tab'])) {
 	$scheduling_warning_num_tickets = filter_var($_POST['scheduling_warning_num_tickets'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_warning_num_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_warning_num_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_warning_num_tickets."' WHERE `name`='scheduling_warning_num_tickets'");
+	if (!empty($_POST['scheduling_equip_classification'])) {
+		$scheduling_equip_classification = $_POST['scheduling_equip_classification'];
+	} else {
+		$scheduling_equip_classification = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification."' WHERE `name`='scheduling_equip_classification'");
+	if (!empty($_POST['scheduling_reset_active'])) {
+		$scheduling_reset_active = $_POST['scheduling_reset_active'];
+	} else {
+		$scheduling_reset_active = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_reset_active' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_reset_active') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_reset_active."' WHERE `name`='scheduling_reset_active'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -2019,6 +2040,13 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Pick Up Stops:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_pickup = get_config($dbc, 'scheduling_combine_pickup'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_pickup" <?= $scheduling_combine_pickup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will enable the Summary tab, which is a monthly view of all assigned Equipment in a Summary view with no functionality.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Enable Summary Tab:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
@@ -2030,6 +2058,20 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets'); ?>
 									<input type="number" name="scheduling_warning_num_tickets" value="<?= $scheduling_warning_num_tickets ?>" class="form-control"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Equipment Display Classification:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_equip_classification = get_config($dbc, 'scheduling_equip_classification'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification" <?= $scheduling_equip_classification == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Toggle All Assigned Equipment When Changing Dates:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_reset_active = get_config($dbc, 'scheduling_reset_active'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_reset_active" <?= $scheduling_reset_active == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
