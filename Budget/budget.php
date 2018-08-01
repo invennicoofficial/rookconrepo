@@ -175,19 +175,34 @@ function followupDate(sel) {
 										<?php $product_cats = $dbc->query("SELECT `category` FROM `products` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $product_cats->fetch_assoc()) {
 											if(in_array('all_products',$asset_tabs) || in_array('product_'.$cat['category'],$asset_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'product' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=product&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'product' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=product&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $material_cats = $dbc->query("SELECT `category` FROM `material` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $material_cats->fetch_assoc()) {
 											if(in_array('all_materials',$asset_tabs) || in_array('material_'.$cat['category'],$asset_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'material' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=material&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'material' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=material&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode('#*#', get_config($dbc, 'inventory_tabs')) as $cat) {
+											if(in_array('all_invs',$asset_tabs) || in_array('inventory_'.$cat,$asset_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'inventory' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=assets&type=inventory&cat=<?= $cat ?>"><?= $cat ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode(',', get_config($dbc, 'asset_tabs')) as $cat) {
+											if(in_array('all_assets',$asset_tabs) || in_array('asset_'.$cat,$asset_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'asset' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=assets&type=asset&cat=<?= $cat ?>"><?= $cat ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode(',', get_config($dbc, 'equipment_tabs')) as $cat) {
+											if(in_array('all_equips',$asset_tabs) || in_array('equip_'.$cat,$asset_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'equip' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=assets&type=equip&cat=<?= $cat ?>"><?= $cat ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $custom_cats = $dbc->query("SELECT `category` FROM `custom` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $custom_cats->fetch_assoc()) {
 											if(in_array('all_customs',$asset_tabs) || in_array('custom_'.$cat['category'],$asset_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'custom' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=custom&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('assets' == $_GET['tab'] && $_GET['type'] == 'custom' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=assets&type=custom&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $expense_cats = $dbc->query("SELECT `category`, `ec` FROM `expense_categories` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `ec`,`category`");
@@ -205,19 +220,34 @@ function followupDate(sel) {
 										<?php $product_cats = $dbc->query("SELECT `category` FROM `products` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $product_cats->fetch_assoc()) {
 											if(in_array('all_products',$liability_tabs) || in_array('product_'.$cat['category'],$liability_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'product' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=product&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'product' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=product&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $material_cats = $dbc->query("SELECT `category` FROM `material` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $material_cats->fetch_assoc()) {
 											if(in_array('all_materials',$liability_tabs) || in_array('material_'.$cat['category'],$liability_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'material' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=material&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'material' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=material&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode('#*#', get_config($dbc, 'inventory_tabs')) as $cat) {
+											if(in_array('all_invs',$liability_tabs) || in_array('inventory_'.$cat,$liability_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'inventory' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=liabilities&type=inventory&cat=<?= $cat ?>"><?= $cat ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode(',', get_config($dbc, 'asset_tabs')) as $cat) {
+											if(in_array('all_invs',$liability_tabs) || in_array('inventory_'.$cat,$liability_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'inventory' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=liabilities&type=inventory&cat=<?= $cat ?>"><?= $cat ?></a></li>
+											<?php } ?>
+										<?php } ?>
+										<?php foreach(explode(',', get_config($dbc, 'equipment_tabs')) as $cat) {
+											if(in_array('all_equips',$liability_tabs) || in_array('equip_'.$cat,$liability_tabs)) { ?>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'equip' && $_GET['cat'] == $cat ? 'active' : '') ?>" ><a href="?tab=liabilities&type=equip&cat=<?= $cat ?>"><?= $cat ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $custom_cats = $dbc->query("SELECT `category` FROM `custom` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `category`");
 										while($cat = $custom_cats->fetch_assoc()) {
 											if(in_array('all_customs',$liability_tabs) || in_array('custom_'.$cat['category'],$liability_tabs)) { ?>
-												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'custom' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=custom&cat=<?= $cat['category'] ?>"><?= (empty($cat['ec']) ? '' : $cat['ec'].': ').$cat['category'] ?></a></li>
+												<li class="sidebar-lower-level <?= ('liabilities' == $_GET['tab'] && $_GET['type'] == 'custom' && $_GET['cat'] == $cat['category'] ? 'active' : '') ?>" ><a href="?tab=liabilities&type=custom&cat=<?= $cat['category'] ?>"><?= $cat['category'] ?></a></li>
 											<?php } ?>
 										<?php } ?>
 										<?php $expense_cats = $dbc->query("SELECT `category`, `ec` FROM `expense_categories` WHERE `deleted`=0 AND IFNULL(`category`,'') != '' GROUP BY `category` ORDER BY `ec`,`category`");

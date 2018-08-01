@@ -43,7 +43,7 @@ $(document).ready(function() {
 	<?php } ?>
 <h3>Equipment</h3>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array("all_equips",$include) ? "checked" : (in_array("all_equips", $disable) || in_array_starts('equip_',$include) || in_array_starts('equip_',$disable) ? 'disabled' : '') ?> value="all_equips" onclick="if(this.checked) { $('[value^=equip_]').prop('disabled',true); } else { $('[value^=equip_]').removeAttr('disabled'); }" name="chart_items">All Equipments</label>
-	<?php foreach(explode(',', get_config($dbc, 'equipment_main_tabs')) as $cat) { ?>
+	<?php foreach(explode(',', get_config($dbc, 'equipment_tabs')) as $cat) { ?>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("equip_".$cat,$include) ? "checked" : (in_array("equip_".$cat, $disable) || in_array("all_equips", $disable) || in_array("all_equips", $include) ? 'disabled' : '') ?> value="equip_<?= $cat ?>" name="chart_items"><?= $cat ?></label>
 	<?php } ?>
 <h3>Custom</h3>
