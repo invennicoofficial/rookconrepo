@@ -1474,19 +1474,16 @@ var setHeading = function() {
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
-
 							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_general">
-
 								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?><span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
 
-
 					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
 						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
 
-							Loading...
+						Loading...
 						</div>
 					</div>
 				</div>
@@ -1499,6 +1496,7 @@ var setHeading = function() {
 
 							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
 
+
 								<?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
@@ -1507,6 +1505,7 @@ var setHeading = function() {
 
 					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
 						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+
 
 							Loading...
 						</div>

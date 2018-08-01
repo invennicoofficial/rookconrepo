@@ -195,6 +195,8 @@ if ( !empty($note) ) { ?>
                         <h1 class="no-margin">Checklists</h1>
                     <?php } else if ($side_content == 'my_tasks') { ?>
                         <h1 class="no-margin">Tasks</h1>
+                    <?php } else if ($side_content == 'my_timesheets') { ?>
+                        <h1 class="no-margin">Time Sheets</h1>
                     <?php } else if ($side_content == 'past_due' && $_GET['tab'] == 'alerts') { ?>
                         <h1 class="no-margin">Alerts</h1>
                     <?php } else if ($side_content == 'past_due') { ?>
@@ -244,6 +246,8 @@ if ( !empty($note) ) { ?>
                     include('daysheet_tasks.php');
                 } else if ($side_content == 'my_checklists') {
                     include('daysheet_checklists.php');
+                } else if ($side_content == 'my_timesheets') {
+                    include('daysheet_timesheets.php');
                 } else if ($side_content == 'my_support') {
                     include('daysheet_support.php');
                 } else if ($side_content == 'past_due') {

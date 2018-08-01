@@ -11,8 +11,11 @@
 	}
 	if(!mysqli_query($dbc, "ALTER TABLE `table_name` ADD `column` VARCHAR(40) DEFAULT '' AFTER `exist_column`")) {
 		echo "Error: ".mysqli_error($dbc)."<br />\n";
+	}
+	if(!mysqli_query($dbc, "ALTER TABLE `tickets` CHANGE `siteid` `siteid` TEXT NOT NULL")) {
+		echo "Error: ".mysqli_error($dbc)."<br />\n";
 	} */
-	
+	set_config($dbc, 'db_version_jonathan', 6);
 	if($db_version_jonathan < 7) {
 		// June 16, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `notes` TEXT AFTER `order_number`")) {
@@ -169,8 +172,14 @@
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	
-	if(get_config($dbc, 'db_version_jonathan') < 10) {
+	if($db_version_jonathan < 10) {
 		// July 30, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` CHANGE `siteid` `siteid` TEXT NOT NULL")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `siteid` `siteid` TEXT NOT NULL")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_userid` INT(11) UNSIGNED NOT NULL AFTER `software_url`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
