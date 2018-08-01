@@ -22,7 +22,6 @@ function saveFields() {
 		url: 'sales_ajax_all.php?action=setting_fields&ticket_fields='+ticket_fields,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
-            alert(response);
 		}
 	});
 }
