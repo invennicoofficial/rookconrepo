@@ -145,6 +145,7 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 }
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	$block_html = '';
+	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 	switch($view) {
@@ -181,7 +182,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$equipassign_weekly = "<div style='margin-top: 5px;'>";
 			$equip_regions = [$equipment['region']];
 			$equip_locations = [$equipment['location']];
-			$equip_classifications = [$equipment['classifications']];
+			$equip_classifications = [$equipment['classification']];
 			for($day_i = 0; $day_i < 7; $day_i++) {
 				$today_equip_assign = date('Y-m-d', strtotime($week_start_date_check.' +'.$day_i.' days'));
 				$today_equip_assign_day = date('l', strtotime($today_equip_assign));
@@ -197,7 +198,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 					$equipassign_weekly .= "&nbsp;".$day_of_week_letter.' <input type="checkbox" '.$today_checked.' disabled>';
 					$equip_regions[] = $equip_assign['region'];
 					$equip_locations[] = $equip_assign['location'];
-					$equip_classifications[] = $equip_assign['classifications'];
+					$equip_classifications[] = $equip_assign['classification'];
 				}
 			}
 			$equip_regions = implode('*#*', array_filter(array_unique($equip_regions)));
@@ -211,7 +212,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$clientids = array_filter(array_unique($clientids));
 			$clientids = implode(',',$clientids);
 
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$equipassign_weekly."</div></a>";
+			$classification_label = '';
+			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+			}
+
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
 			break;
 		case 'daily':
 		default:
@@ -239,8 +245,13 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$equip_regions = implode('*#*', array_filter(array_unique(explode('*#*', $equip_regions))));
 			$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
 			$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
+
+			$classification_label = '';
+			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+			}
 			
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
 			break;
 	}
 	return $block_html;

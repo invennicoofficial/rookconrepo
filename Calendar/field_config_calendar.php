@@ -528,6 +528,13 @@ if (isset($_POST['add_tab'])) {
 	$scheduling_warning_num_tickets = filter_var($_POST['scheduling_warning_num_tickets'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_warning_num_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_warning_num_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_warning_num_tickets."' WHERE `name`='scheduling_warning_num_tickets'");
+	if (!empty($_POST['scheduling_equip_classification'])) {
+		$scheduling_equip_classification = $_POST['scheduling_equip_classification'];
+	} else {
+		$scheduling_equip_classification = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification."' WHERE `name`='scheduling_equip_classification'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -2030,6 +2037,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets'); ?>
 									<input type="number" name="scheduling_warning_num_tickets" value="<?= $scheduling_warning_num_tickets ?>" class="form-control"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Equipment Display Classification:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_equip_classification = get_config($dbc, 'scheduling_equip_classification'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification" <?= $scheduling_equip_classification == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
