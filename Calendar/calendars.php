@@ -155,9 +155,6 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 	<div id="dialog-universal" title="Select a Type" style="display: none;">
 		What would you like to add?
 	</div>
-	<div id="dialog-confirm" title="Edit Recurring Shift" style="display: none;">
-		Would you like to update only this Shift, all recurring Shifts, or following recurring Shifts?
-	</div>
 	<div id="dialog-staff-add" title="Add Staff or Replace Staff" style="display: none;">
 		Would you like to add this Staff or replace all Staff with the new Staff?
 	</div>
