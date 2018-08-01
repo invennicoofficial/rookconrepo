@@ -58,5 +58,3 @@ $(document).ready(function() {
 	while($cat = $expense_cats->fetch_assoc()) { ?>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("expense_".$cat['category'],$include) ? "checked" : (in_array("expense_".$cat['category'], $disable) || in_array("all_expenses", $disable) || in_array("all_expenses", $include) ? 'disabled' : '') ?> value="expense_<?= $cat['category'] ?>" name="chart_items"><?= (!empty($cat['ec']) ? $cat['ec'].': ' : '').$cat['category'] ?></label>
 	<?php } ?>
-<h3>Receivables</h3>
-	<label class="form-checkbox"><input type="checkbox" <?= in_array("all_receivables",$include) ? "checked" : (in_array("all_receivables", $disable) || in_array_starts('receivable_',$include) || in_array_starts('receivable_',$disable) ? 'disabled' : '') ?> value="all_receivables" onclick="if(this.checked) { $('[value^=receivable_]').prop('disabled',true); } else { $('[value^=receivable_]').removeAttr('disabled'); }" name="chart_items">Receivables</label>
