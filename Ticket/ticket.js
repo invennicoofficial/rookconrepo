@@ -578,6 +578,7 @@ function saveFieldMethod(field) {
 					if(response > 0) {
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
+							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
 							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
@@ -1163,6 +1164,7 @@ function saveMethod(field) {
 					}
 					if(response > 0) {
 						if(table_name == 'contacts' && field_name == 'site_name') {
+							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
 							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
