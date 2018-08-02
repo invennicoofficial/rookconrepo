@@ -874,9 +874,6 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
-							<?php if($field_sort_field == 'Staff Group Together') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Group Together", $all_config) ? 'checked disabled' : (in_array("Staff Group Together", $value_config) ? "checked" : '') ?> value="Staff Group Together" name="tickets[]"> Group Staff Together</label>
-							<?php } ?>
 							<?php if($field_sort_field == 'Staff Rate Positions') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Rate Positions", $all_config) ? 'checked disabled' : (in_array("Staff Rate Positions", $value_config) ? "checked" : '') ?> value="Staff Rate Positions" name="tickets[]"> Only Positions with Rates</label>
 							<?php } ?>
@@ -888,18 +885,6 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Start') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Shift Start Time</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Staff Type of Time') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Type of Time", $all_config) ? 'checked disabled' : (in_array("Staff Type of Time", $value_config) ? "checked" : '') ?> value="Staff Type of Time" name="tickets[]"> Position/Type of Time</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Staff Date') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Date", $all_config) ? 'checked disabled' : (in_array("Staff Date", $value_config) ? "checked" : '') ?> value="Staff Date" name="tickets[]"> Date</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Staff Start Time') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start Time", $all_config) ? 'checked disabled' : (in_array("Staff Start Time", $value_config) ? "checked" : '') ?> value="Staff Start Time" name="tickets[]"> Start Time</label>
-							<?php } ?>
-							<?php if($field_sort_field == 'Staff End Time') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff End Time", $all_config) ? 'checked disabled' : (in_array("Staff End Time", $value_config) ? "checked" : '') ?> value="Staff End Time" name="tickets[]"> End Time</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Set Hours", $value_config) ? "checked" : '') ?> value="Staff Set Hours" name="tickets[]"> Payable Hours</label>
@@ -933,6 +918,24 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Anyone Can Add') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Staff Date", $value_config) ? "checked" : '') ?> value="Staff Multiple Times" name="tickets[]"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow adding multiple Dates/Times to the Staff's Time Sheet. The Time Sheet will take these values over the Check In/Check Out times."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span> Multiple Dates/Times</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Date", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Date", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Date" name="tickets[]"> Multiple Dates/Times - Date</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Start Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Start Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Start Time" name="tickets[]"> Multiple Dates/Times - Start Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times End Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times End Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times End Time" name="tickets[]"> Multiple Dates/Times - End Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Type", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Type", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Type" name="tickets[]"> Multiple Dates/Times - Type of Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Set Hours", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Set Hours" name="tickets[]"> Multiple Dates/Times - Payable Hours</label>
 							<?php } ?>
 						<?php } ?>
 						</div>
