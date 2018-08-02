@@ -1814,8 +1814,8 @@ h1 .id-circle { font-size:18px; height:40px; line-height:22px; margin:0 0.5em; w
             .tile-sidebar ul li { border-bottom:1px solid #e1e1e1; font-weight:bold; list-style:none; padding:10px 20px 10px 20px; }
 			.tile-sidebar ul li .pull-right { padding-left: 0.5em; }
                 .tile-sidebar ul li a img { margin-top:5px; padding-top:5px; width:18px; }
-				.tile-sidebar ul .arrow:after { content:"▼"; float:right; margin-left:0.5em; }
-                .tile-sidebar ul .collapsed .arrow:after { content:"►"; float:right; margin-left:0.5em; }
+				.tile-sidebar ul .arrow:after { content:"\25BC"; float:right; margin-left:0.5em; }
+                .tile-sidebar ul .collapsed .arrow:after { content:"\25BA"; float:right; margin-left:0.5em; }
                 .tile-sidebar ul li.active { background-color:#00aeef; color:#fff; }
                 .tile-sidebar ul li.sidebar-searchbox { background-color:#ccc; }
                     .tile-sidebar li a, a { color:#000; }
