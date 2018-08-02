@@ -376,9 +376,11 @@ switch($_GET['type']) {
             $mobile_calendar_view = 'Staff';
         }
         $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
+        $combine_pickups = get_config($dbc, 'scheduling_combine_pickup');
         $combine_time = get_config($dbc, 'scheduling_combine_time');
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
+        $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
         break;
     case 'estimates':
         $config_type = 'estimates';

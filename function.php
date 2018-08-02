@@ -812,7 +812,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }
-		return $label;
+		return html_entity_decode($label);
 	}
 	return '-';
 }
