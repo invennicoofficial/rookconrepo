@@ -39,6 +39,7 @@ $report_fields = explode(',', get_config($dbc, 'report_operation_fields')); ?>
 		if (isset($_POST['search_notes'])) {
 			$search_notes = $_POST['search_notes'];
 		} ?>
+
 		<h2><?= TICKET_NOUN ?> Time on Site</h2>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">

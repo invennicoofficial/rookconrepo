@@ -94,6 +94,25 @@ function viewTicket(a) {
     ?>
 
     <?php $search_clearfix = 1; ?>
+        <?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
+          <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
+            <label for="site_name" class="control-label">Search By Group:</label>
+          </div>
+            <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
+              <select data-placeholder="Select a Group" name="search_group" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+                  $team_name = get_team_name($dbc, $team['teamid']);
+                  $team_staff = get_team_contactids($dbc, $team['teamid']);
+                  if(count($team_staff) > 1) { ?>
+                    <option data-staff='<?= json_encode($team_staff) ?>' value="<?= $team_name ?>"><?= $team_name ?></option>
+                  <?php }
+                } ?>
+              </select>
+            </div>
+            <?php $search_clearfix++ ?>
+        <?php } ?>
+		
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
           <label for="site_name" class="control-label">Search By Staff:</label>
         </div>
@@ -107,31 +126,6 @@ function viewTicket(a) {
                 } ?>
             </select>
           </div>
-
-        <?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
-          <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
-            <label for="site_name" class="control-label">Search By Group:</label>
-          </div>
-            <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
-              <select data-placeholder="Select a Group" name="search_group" class="chosen-select-deselect form-control">
-                <option></option>
-                <?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
-                  $group = explode(',',$group);
-                  $group_name = $group[0];
-                  $group_staff = [];
-                  foreach ($group as $staff) {
-                    if ($staff > 0) {
-                      $group_staff[] = $staff;
-                    }
-                  }
-                  if(count($group) > 1) { ?>
-                    <option data-staff='<?= json_encode($group_staff) ?>' value="<?= $group_name ?>"><?= $group_name ?></option>
-                  <?php }
-                } ?>
-              </select>
-            </div>
-            <?php $search_clearfix++ ?>
-        <?php } ?>
 
         <?= ($search_clearfix%2) == 0 ? '<div class="clearfix"></div>' : '' ?>
 

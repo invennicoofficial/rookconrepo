@@ -221,13 +221,13 @@ var projectFilter = function() {
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Site:</label>
 			  <div class="col-sm-7">
-				<select data-placeholder="Select Site..." name="siteid" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
+				<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
 					<option value=""></option>
 					<?php if(empty($site_list)) {
 						$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 					}
 					foreach($site_list as $site_row) {
-						echo "<option data-business='".$site_row['businessid']."' ".($get_ticket['siteid'] == $site_row['contactid'] ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
+						echo "<option data-business='".$site_row['businessid']."' ".(strpos(','.$get_ticket['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
 					} ?>
 					<option value="MANUAL">Add New Site</option>
 				</select>

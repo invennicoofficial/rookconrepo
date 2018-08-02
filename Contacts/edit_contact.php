@@ -822,7 +822,7 @@ function removeContactForm(a, pdf_id) {
 		                <div class="col-sm-12">
 		                	<h3>
 		                		<?= ($_GET['edit'] > 0) ? 'Edit' : 'Add' ?> Contact
-		                		<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right">Open Full Window</a> 
+		                		<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right">Open Full Window</a>
 		                	</h3>
 		                </div>
 		            </div>
@@ -939,7 +939,7 @@ function removeContactForm(a, pdf_id) {
 				</div>
 			</div>
 		<?php } ?>
-		
+
 		<div class="tile-container" <?= IFRAME_PAGE ? 'style="background: none;"' : '' ?>>
  			<div class="tile-sidebar standard-collapsible hide-titles-mob" <?= IFRAME_PAGE ? 'style="display:none;"' : '' ?>><!-- style='display: block; height: 15em; margin-bottom: 0; overflow-y: auto; padding-left: 15px;' -->
 				<div style="height: 100%; overflow: auto;">

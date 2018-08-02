@@ -4,7 +4,7 @@
  * This is what the software users will refer when they want to see how a Tile or Sub Tab works
  */
 
-// error_reporting(E_ALL);
+error_reporting(0);
 include_once('../include.php');
 include ('../database_connection_htg.php');
 ?>
@@ -67,8 +67,13 @@ include ('../database_connection_htg.php');
             
             <!-- Tile Header -->
             <div class="tile-header standard-header">
-                <div class="scale-to-fill">
-                    <h1 class="gap-left"><a href="index.php" class="default-color">Software Guide</a></h1>
+                <div class="row">
+                    <div class="col-xs-10"><h1><a href="index.php" class="default-color">Software Guide</a></h1></div>
+                    <div class="col-xs-2 gap-top"><?php
+                        if ( config_visible_function ( $dbc, 'software_guide' ) == 1 ) {
+                            echo '<a href="field_config.php" class="mobile-block pull-right gap-right"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+                        } ?>
+                    </div>
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
@@ -96,6 +101,12 @@ include ('../database_connection_htg.php');
                                         </div>
                                     </div>
                                 </div><?php
+                            }
+                        }
+                        $local_guide = mysqli_query($dbc, "SELECT `additional_guide` FROM `local_software_guide` WHERE `guideid`='$guideid'");
+                        if ( $local_guide->num_rows > 0 ) {
+                            while ( $row=mysqli_fetch_assoc($local_guide) ) {
+                                echo '<div style="padding:1em;">'. html_entity_decode($row['additional_guide']) .'</div>';
                             }
                         }
                     }
@@ -168,12 +179,23 @@ include ('../database_connection_htg.php');
                                     echo '</div>';
         
                                     echo '<div class="standard-body-content" style="padding: 1em;">';
-                                    echo html_entity_decode($row['description']);
+                                        echo html_entity_decode($row['description']);
                                     echo '</div>';
                                 }
-                            } else {
-                                echo '<h4>Requested software guide is not available at this time. Please check back later for updates.</h4>';
                             }
+                            $local_guide = mysqli_query($dbc, "SELECT `additional_guide` FROM `local_software_guide` WHERE `guideid`='$guideid'");
+                            if ( $local_guide->num_rows > 0 ) {
+                                while ( $row=mysqli_fetch_assoc($local_guide) ) {
+                                    echo '<div style="padding:1em;">'. html_entity_decode($row['additional_guide']) .'</div>';
+                                }
+                            }
+                            
+                            if ( $guide->num_rows == 0 && $local_guide->num_rows == 0 ) {
+                                echo '<div class="standard-body-content" style="padding: 1em;">';
+                                    echo '<h4>Requested software guide is not available at this time. Please check back later for updates.</h4>';
+                                echo '</div>';
+                            }
+                        
                         } else {
                             $index_tiles = mysqli_query($dbc_htg, "SELECT `tile` FROM `how_to_guide` GROUP BY `tile` ORDER BY `tile`");
                             echo '<div class="standard-body-title">';
