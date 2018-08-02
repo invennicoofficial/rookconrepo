@@ -109,6 +109,12 @@ if (isset($_POST['submit'])) {
         if($email_body != '') {
             $send_body .= $_POST['email_body'];
         }
+		if($ticketid > 0) {
+			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`)")->fetch_assoc();
+			if(strpos(','.$ticket_options['field_config'].',',',External Response,') !== FALSE) {
+				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Add Response</a></p>';
+			}
+		}
 
         if (empty($from_email)) {
             $from_email = '';
@@ -165,7 +171,7 @@ if (isset($_POST['submit'])) {
 		$result_update_ticket = mysqli_query($dbc, $query_update_ticket);
 	} ?>
 
-	<script>debugger;
+	<script>
 	try {
 		$(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reloadCommunications();
 	} catch(e) { }

@@ -3386,6 +3386,14 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("External Communication", $all_config) ? 'checked disabled' : (in_array("External Communication", $value_config) ? "checked" : '') ?> value="External Communication" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add External Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response", $all_config) ? 'checked disabled' : (in_array("External Response", $value_config) ? "checked" : '') ?> value="External Response" name="tickets[]"> Request Response</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Thread", $all_config) ? 'checked disabled' : (in_array("External Response Thread", $value_config) ? "checked" : '') ?> value="External Response Thread" name="tickets[]"> Display Communication Thread</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Status", $all_config) ? 'checked disabled' : (in_array("External Response Status", $value_config) ? "checked" : '') ?> value="External Response Status" name="tickets[]"> Responder Status</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Documents", $all_config) ? 'checked disabled' : (in_array("External Response Documents", $value_config) ? "checked" : '') ?> value="External Response Documents" name="tickets[]"> Include Documents</label>
+						</div>
+					<?php } ?>
 				</div>
 			</div>
 		<?php }
