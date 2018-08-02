@@ -391,7 +391,7 @@ function saveFieldMethod(field) {
 			}
 			doneSaving();
 		} else if(field.value != 'MANUAL') {
-			var block = $(field).closest('.multi-block,.scheduled_stop');
+			var block = $(field).closest('.multi-block,.scheduled_stop,.staff-multi-time');
 			var id_num = $(field).data('id');
 			var table_name = $(field).data('table');
 			var data_type = $(field).data('type');
@@ -668,6 +668,10 @@ function saveFieldMethod(field) {
 						}
 						if(table_name == 'mileage') {
 							$(field).closest('.multi-block').find('[name="start"],[name="end"]').change();
+						}
+						if(table_name == 'ticket_attached' && $(field).data('type') == 'Multiple_Timesheet_Row') {
+							var staff_attached_id = $(field).closest('.staff_block').find('[data-id]').first().data('id');
+							$(field).closest('.staff-multi-time').find('[name="item_id"]').val(staff_attached_id).change();
 						}
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
@@ -1838,6 +1842,7 @@ function addMulti(img, style, clone_location = '') {
 	}
 	destroyInputs(panel);
 	var block = source.clone();
+	block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
 	block.find('input,select,textarea').val('');
 	block.find('[data-default]').each(function() {
 		$(this).val($(this).data('default'));
@@ -1899,6 +1904,37 @@ function remMulti(img) {
 	}
 	block.find('[name=deleted]').val(1).change();
 	block.prev('hr').remove();
+	if(block.find('[name=deleted]').is('[data-table]')) {
+		block.remove();
+	} else {
+		block.find('[data-table]').first().change();
+		block.hide();
+	}
+}
+function addStaffMultiTime(img) {
+	var multi_time = $(img).closest('.staff-multi-time');
+	var panel = multi_time.parents('.multi-block,.panel-body,.tab-section,.has-main-screen .main-screen').first();
+	destroyInputs(panel);
+	var block = $(multi_time).clone();
+	block.find('input,select,textarea').val('');
+	block.find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
+	multi_time.after(block);
+	if(panel.attr('id') != '' && panel.attr('id') != undefined) {
+		initInputs('#'+panel.attr('id'));
+	} else {
+		initInputs();
+	}
+	initPad('#'+panel.closest('.panel-collapse,.tab-section,.has-main-screen').attr('id'));
+	setSave();
+	initSelectOnChanges();
+}
+function remStaffMultiTIme(img) {
+	var block = $(img).closest('.staff-multi-time');
+	var panel = block.parents('.panel-body,.tab-section,.has-main-screen .main-screen').first();
+	if(panel.find('.multi-block:visible').length <= 1) {
+		addStaffMultiMulti(img);
+	}
+	block.find('[name=deleted]').val(1).change();
 	if(block.find('[name=deleted]').is('[data-table]')) {
 		block.remove();
 	} else {

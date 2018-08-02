@@ -471,7 +471,7 @@ if($_GET['action'] == 'update_fields') {
     //Insert into Time Sheet tile
     // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
-	$value_config = get_field_config($dbc, 'tickets');
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
 	if($ticketid > 0) {
 		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
 		$ticket_type = $get_ticket['ticket_type'];
@@ -703,20 +703,24 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`timer_start`, `type_of_time`, `start_time`, `staff`, `date`, `day_tracking_type`, `created_by`) SELECT '$seconds', 'day_tracking', '$time', `staff`, '".date('Y-m-d')."', CONCAT('Work:',MAX(`time_cards_id`)), 0 FROM `time_cards` WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='".$attached['item_id']."'");
 			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='".$attached['item_id']."'");
 			// Sign into the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
-			mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$seconds', '{$attached['position']}', 'Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `ticketid`!='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `timer_start` > 0");
+			if(strpos($value_config, ',Staff Multiple Times,') === FALSE) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$seconds', '{$attached['position']}', 'Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `ticketid`!='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `timer_start` > 0");
+			}
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."', `completed`=1 WHERE `id`!='$id' AND `src_table`='{$attached['src_table']}' AND `item_id`='{$attached['item_id']}' AND (`arrived`=1 AND `completed`=0)");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND `checked_in` IS NULL");
 			if(get_config($dbc, 'ticket_force_starts_day') > 0 && $attached['item_id'] > 0) {
-				$comment = get_config($dbc, 'day_tracking_preset_note');
+				$comment = get_config($dbc, 'day_tracking_preset_note' && strpos($value_config, ',Staff Multiple Times,') === FALSE);
 				mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `comment_box`) VALUES ('{$attached['item_id']}', '$today', '$time', 'day_tracking', '$seconds', '$comment')");
 			}
 		} else if(($attached['src_table'] == 'Staff' || $attached['src_table'] == 'Staff_Tasks' || $attached['src_table'] == 'Delivery') && $value == 0) {
 			// Sign Back Into Day Tracking, if they were Signed In
 			mysqli_query($dbc, "UPDATE `time_cards` `time` LEFT JOIN `time_cards` `src` ON `time`.`day_tracking_type`=CONCAT('Work:',`src`.`time_cards_id`) SET `time`.`timer_start`='".time()."', `time`.`start_time`='".date('H:i')."', `time`.`date`='".date('Y-m-d')."', `time`.`comment_box`=`src`.`comment_box`, `time`.`day_tracking_type`=`src`.`day_tracking_type`, `time`.`created_by`='".$_SESSION['contactid']."' WHERE `time`.`timer_start` > 0 AND `time`.`day_tracking_type` LIKE 'Work%' AND `time`.`staff`='".$attached['item_id']."' AND `time`.`deleted`=0");
 			// Sign out of the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+			if(strpos($value_config, ',Staff Multiple Times,') === FALSE) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+			}
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
@@ -732,15 +736,24 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "UPDATE `time_cards` `time` LEFT JOIN `time_cards` `src` ON `time`.`day_tracking_type`=CONCAT('Work:',`src`.`time_cards_id`) SET `time`.`timer_start`='".time()."', `time`.`start_time`='".date('H:i')."', `time`.`date`='".date('Y-m-d')."', `time`.`comment_box`=`src`.`comment_box`, `time`.`day_tracking_type`=`src`.`day_tracking_type`, `time`.`created_by`='".$_SESSION['contactid']."' WHERE `time`.`timer_start` > 0 AND `time`.`day_tracking_type` LIKE 'Work%' AND `time`.`staff`='".$attached['item_id']."' AND `time`.`deleted`=0");
 			// Sign out of the Ticket
 
-			// If payable hours are set and tracked in time cards, use that as total hours but keep time_tracked to the value set by checkin/checkout
-			$existing_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '{$attached['id']}' AND `timer_tracked` = 0 AND `total_hrs` > 0"));
-			$override_hours = '';
-			if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && !empty($existing_time_card)) {
-				$override_hours = $existing_time_card['total_hrs'];
-				mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = '1' WHERE `time_cards_id` = '{$existing_time_card['time_cards_id']}'");
-			}
+			if(strpos($value_config, ',Staff Multiple Times,') !== FALSE) {
+				// If using the Staff Multiple Dates/Time setting, insert Time Cards based on those settings
+				$staff_times = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$attached['id']."' AND '".$attached['id']."' > 0 AND `deleted` = 0");
+				while($staff_time = mysqli_fetch_assoc($staff_times)) {
+					mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`) SELECT '".$attached['ticketid']."', '".$staff_time['id']."' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `ticket_attached_id` = '".$staff_time['id']."' AND `deleted` = 0) num WHERE num.rows=0");
+					mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$attached['item_id']."', `date` = '".$staff_time['date_stamp']."', `start_time` = '".$staff_time['start_time']."', `end_time` = '".$staff_time['end_time']."', `type_of_time` = '".($staff_time['position'] == 'Sleep Hrs.' ? 'Sleep Hrs.' : $attached['position'])."', `total_hrs` = '".$staff_time['hours_set']."' WHERE `ticket_attached_id` = '".$staff_time['id']."'");
+				}
+			} else {
+				// If payable hours are set and tracked in time cards, use that as total hours but keep time_tracked to the value set by checkin/checkout
+				$existing_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '{$attached['id']}' AND `timer_tracked` = 0 AND `total_hrs` > 0"));
+				$override_hours = '';
+				if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && !empty($existing_time_card)) {
+					$override_hours = $existing_time_card['total_hrs'];
+					mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = '1' WHERE `time_cards_id` = '{$existing_time_card['time_cards_id']}'");
+				}
 
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = ".($override_hours > 0 ? $override_hours : "GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum')").", `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = ".($override_hours > 0 ? $override_hours : "GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum')").", `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+			}
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
@@ -748,7 +761,7 @@ if($_GET['action'] == 'update_fields') {
             insert_day_overview($dbc, $attached['item_id'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$attached['ticketid'].(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $attached['ticketid']);
 			echo $hours;
 		}
-	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1))) {
+	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1)) && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `$id_field`='$id'"));
 		$total_hours = $value;
 		$other_hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT IFNULL(SUM(`hours_set`),0) sum_hours FROM `ticket_attached` WHERE `src_table` = '{$hours['src_table']}' AND `item_id` = '{$hours['item_id']}' AND `ticketid` = '{$hours['ticketid']}' AND `deleted` = 0 AND `$id_field` != '$id'"))['sum_hours'];
@@ -761,16 +774,16 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`date`, `type_of_time`, `total_hrs`, `staff`, `ticketid`, `highlight`, `ticket_attached_id`) VALUES ('".(empty($_POST['date']) ? date('Y-m-d') : filter_var($_POST['date'],FILTER_SANITIZE_STRING))."', '{$hours['position']}', '$total_hours', '{$hours['item_id']}', '{$hours['ticketid']}', 1, '{$hours['id']}')");
 		}
 		$field_name = 'hours_set';
-	} else if($table_name == 'ticket_attached' && $field_name == 'time_comment') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'time_comment' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `$id_field`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$value') WHERE `time_cards_id` IN (SELECT MAX(`time_cards_id`) FROM `time_cards` WHERE `ticketid`='{$hours['ticketid']}' AND `staff`='{$hours['item_id']}' AND `date`='".date('Y-m-d')."')");
-	} else if($table_name == 'ticket_attached' && $field_name == 'position' && !($_GET['time_sheet'] == 'none')) {
+	} else if($table_name == 'ticket_attached' && $field_name == 'position' && !($_GET['time_sheet'] == 'none') && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `comment`='Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for $value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'date_stamp' && $_GET['time_sheet'] != 'none') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'date_stamp' && $_GET['time_sheet'] != 'none' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `date`='$value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'hours_tracked' && $_GET['time_sheet'] != 'none') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'hours_tracked' && $_GET['time_sheet'] != 'none' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`=FROM_UNIXTIME(UNIX_TIMESTAMP(STR_TO_DATE(`checked_in`,'%h:%i %p')) + `hours_tracked` / 3600,'%h:%i %p') WHERE `id`='$id'");
 		$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
@@ -779,16 +792,16 @@ if($_GET['action'] == 'update_fields') {
 			$end_time = time_decimal2time(time_time2decimal($time) + $hours);
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `end_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$end_time', '$seconds', '{$hours['position']}', 'Hours Modified on Ticket #{$attached['ticketid']} for  for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
 		}
-	} else if($table_name == 'ticket_attached' && $field_name == 'checked_in' && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'checked_in' && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `businessid`, `projectid`, `staff`, `date`, `ticket_attached_id`) SELECT `tickets`.`ticketid`, `tickets`.`businessid`, `tickets`.`projectid`, `ticket_attached`.`item_id`, `ticket_attached`.`date_stamp`, `ticket_attached`.`id` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` AND `ticket_attached`.`item_id`=`time_cards`.`staff` WHERE `time_cards`.`time_cards_id` IS NULL AND `ticket_attached`.`id`='{$attached['id']}'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `start_time`='$value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'checked_out' && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'checked_out' && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`=(UNIX_TIMESTAMP(STR_TO_DATE(`checked_out`,'%h:%i %p')) - UNIX_TIMESTAMP(STR_TO_DATE(`checked_in`,'%h:%i %p'))) / 3600 WHERE `id`='$id' AND `checked_in` != ''");
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `businessid`, `projectid`, `staff`, `date`, `ticket_attached_id`) SELECT `tickets`.`ticketid`, `tickets`.`businessid`, `tickets`.`projectid`, `ticket_attached`.`item_id`, `ticket_attached`.`date_stamp`, `ticket_attached`.`ticket_attached_id` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` AND `ticket_attached`.`item_id`=`time_cards`.`staff` WHERE `time_cards`.`time_cards_id` IS NULL AND `ticket_attached`.`id`='{$attached['id']}'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `end_time`='$value', `total_hrs`=(UNIX_TIMESTAMP(STR_TO_DATE(`end_time`,'%h:%i %p')) - UNIX_TIMESTAMP(STR_TO_DATE(`start_time`,'%h:%i %p'))) / 3600 WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'notes' && !($_GET['time_sheet'] == 'none') && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'notes' && !($_GET['time_sheet'] == 'none') && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		if($attached['src_table'] == 'Staff') {
 			mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'Checked Out: $value') WHERE `time_cards_id` IN (SELECT * FROM (SELECT MAX(`time_cards_id`) FROM `time_cards` WHERE `staff`='".$attached['item_id']."' AND `ticketid`='".$attached['ticketid']."' AND `type_of_time` IN ('Regular Hrs.','".$attached['position']."')) `time_id`)");
