@@ -398,6 +398,12 @@
     }
     //2018-07-27 - Ticket #7552 - Checklists
 
+    //2018-08-02 - Ticket #8273 - Camping
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `task_milestone_timeline` varchar(500) NOT NULL AFTER `task_board`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-02 - Ticket #8273 - Camping
+
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

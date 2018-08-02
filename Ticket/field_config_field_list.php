@@ -531,6 +531,14 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Date", $all_config) ? 'checked disabled' : (in_array("Detail Date", $value_config) ? "checked" : '') ?> value="Detail Date" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the date of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Date</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Detail Start Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Start Date Time", $all_config) ? 'checked disabled' : (in_array("Detail Start Date Time", $value_config) ? "checked" : '') ?> value="Detail Start Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the start date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled Start Date &amp; Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Detail End Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail End Date Time", $all_config) ? 'checked disabled' : (in_array("Detail End Date Time", $value_config) ? "checked" : '') ?> value="Detail End Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the end date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled End Date &amp; Time</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Detail Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Staff", $all_config) ? 'checked disabled' : (in_array("Detail Staff", $value_config) ? "checked" : '') ?> value="Detail Staff" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of Staff to assign to the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Assigned Staff</label>
@@ -866,6 +874,9 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Staff Group Together') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Group Together", $all_config) ? 'checked disabled' : (in_array("Staff Group Together", $value_config) ? "checked" : '') ?> value="Staff Group Together" name="tickets[]"> Group Staff Together</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Staff Rate Positions') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Rate Positions", $all_config) ? 'checked disabled' : (in_array("Staff Rate Positions", $value_config) ? "checked" : '') ?> value="Staff Rate Positions" name="tickets[]"> Only Positions with Rates</label>
 							<?php } ?>
@@ -876,7 +887,19 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Rate", $all_config) ? 'checked disabled' : (in_array("Staff Rate", $value_config) ? "checked" : '') ?> value="Staff Rate" name="tickets[]"> Rate (displayed for individuals with Settings Permissions)</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Start') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Start Time</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Shift Start Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Type of Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Type of Time", $all_config) ? 'checked disabled' : (in_array("Staff Type of Time", $value_config) ? "checked" : '') ?> value="Staff Type of Time" name="tickets[]"> Position/Type of Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Date", $all_config) ? 'checked disabled' : (in_array("Staff Date", $value_config) ? "checked" : '') ?> value="Staff Date" name="tickets[]"> Date</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Start Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start Time", $all_config) ? 'checked disabled' : (in_array("Staff Start Time", $value_config) ? "checked" : '') ?> value="Staff Start Time" name="tickets[]"> Start Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff End Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff End Time", $all_config) ? 'checked disabled' : (in_array("Staff End Time", $value_config) ? "checked" : '') ?> value="Staff End Time" name="tickets[]"> End Time</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Set Hours", $value_config) ? "checked" : '') ?> value="Staff Set Hours" name="tickets[]"> Payable Hours</label>
@@ -1289,6 +1312,11 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication", $all_config) ? 'checked disabled' : (in_array("Medication", $value_config) ? "checked" : '') ?> value="Medication" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to manage Medication for Members attached to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Multiple Days", $all_config) ? 'checked disabled' : (in_array("Medication Multiple Days", $value_config) ? "checked" : '') ?> value="Medication Multiple Days" name="tickets[]"> Multiple Days</label>
+						</div>
+					<?php } ?>
 				</div>
 			</div>
 		<?php }
