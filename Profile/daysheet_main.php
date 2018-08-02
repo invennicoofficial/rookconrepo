@@ -262,6 +262,8 @@ if ( !empty($note) ) { ?>
                     include('daysheet_timesheets.php');
                 } else if ($side_content == 'my_support') {
                     include('daysheet_support.php');
+                } else if ($side_content == 'my_communications') {
+                    include('daysheet_communications.php');
                 } else if ($side_content == 'past_due') {
                     include('daysheet_pastdue.php');
                 } else {
