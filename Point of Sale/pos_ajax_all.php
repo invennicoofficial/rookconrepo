@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 include ('../database_connection.php');
 include ('../function.php');
 include ('../global.php');

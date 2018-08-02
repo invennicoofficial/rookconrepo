@@ -76,7 +76,27 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							</div>
 						</div>
 					<?php }
-					if(strpos($value_config, ','."Customer Product Damage".',') !== FALSE && $field_sort_field == 'Customer Product Damage') { ?>
+					if(strpos($value_config, ','."Customer Product Damage Package".',') !== FALSE && $field_sort_field == 'Customer Product Damage Package') { ?>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">My Product Is Damage Free (Packaging Is Free of Damage If Left In Box):</label>
+							<div class="col-sm-8">
+								<label class="form-checkbox"><input type="radio" name="product__<?= $customer_approval['id'] ?>" value="1" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" <?= $customer_approval['product'] == 1 ? 'checked' : '' ?> onchange="if(this.checked) { $(this).closest('.form-group').find('.notes').hide(); }">Yes</label>
+								<label class="form-checkbox"><input type="radio" name="product__<?= $customer_approval['id'] ?>" value="2" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" <?= $customer_approval['product'] == 2 ? 'checked' : '' ?> onchange="if(this.checked) { $(this).closest('.form-group').find('.notes').show(); }">No</label>
+							</div>
+							<div class="col-sm-12 notes" <?= $customer_approval['product'] == 2 ? '' : 'style="display:none;"' ?>>
+								<label class="col-sm-4 control-label">Please Provide Details:</label>
+								<textarea name="notes" class="full-width noMceEditor" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['notes']) ?></textarea>
+								<label class="col-sm-4 control-label">Upload an Image:</label>
+								<div class="col-sm-8">
+									<!-- <img class="inline-img" src="../img/camera.png" onclick="$(this).next('input').click();"> -->
+									<input type="file" name="dimension_units" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" class="reload_customer_images">
+									<div class="uploaded_image gap-top" <?= !file_exists('download/'.$customer_approval['dimension_units']) || empty($customer_approval['dimension_units']) ? 'style="display:none;"' : '' ?>>
+										<?= file_exists('download/'.$customer_approval['dimension_units']) ? '<a href="download/'.$customer_approval['dimension_units'].'" target="_blank"><img src="download/'.$customer_approval['dimension_units'].'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '' ?>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php } else if(strpos($value_config, ','."Customer Product Damage".',') !== FALSE && $field_sort_field == 'Customer Product Damage') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">My Product Is Damage Free:</label>
 							<div class="col-sm-8">
