@@ -99,69 +99,7 @@ if (isset($_POST['submit_btn'])) {
             <a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
         <?php } ?>
         <div class="clearfix"></div>
-
-		<?php $tab_list = explode(',', get_config($dbc, 'invoice_tabs')); ?>
-        <div class='mobile-100-container gap-top'><?php
-            foreach($tab_list as $tab_name) {
-                if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
-                    switch($tab_name) {
-					case 'checkin': ?>
-						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
-						<?php break;
-                        case 'sell':
-                            if(in_array('touch',$ux_options)) { ?>
-                                <a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
-                                <a href='touch_main.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Touchscreen)</a>
-                            <?php } else { ?>
-                                <a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice</a>
-                            <?php }
-                            break;
-                        case 'today': ?>
-                            <span class="popover-examples list-inline">
-                                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                            </span>
-                            <a href='today_invoice.php' class="btn brand-btn mobile-block mobile-100">Today's Invoices</a>
-                            <?php break;
-                        case 'all': ?>
-                            <span class="popover-examples list-inline">
-                                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                            </span>
-                            <a href='all_invoice.php' class="btn brand-btn mobile-block mobile-100">All Invoices</a>
-                            <?php break;
-                        case 'invoices': ?>
-                            <a href='invoice_list.php' class="btn brand-btn mobile-block mobile-100">Invoices</a>
-                            <?php break;
-                        case 'unpaid': ?>
-                            <a href='unpaid_invoice_list.php' class="btn brand-btn mobile-block mobile-100">Accounts Receivable</a>
-                            <?php break;
-                        case 'voided': ?>
-                            <a href='void_invoices.php' class="btn brand-btn mobile-block mobile-100">Voided Invoices</a>
-                            <?php break;
-                        case 'refunds': ?>
-                            <span class="popover-examples list-inline">
-                                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Find invoices in order to issue Refunds or Create Adjustment Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                            </span>
-                            <a href='refund_invoices.php' class="btn brand-btn mobile-block mobile-100 active_tab">Refund / Adjustments</a>
-                            <?php break;
-                        case 'ui_report': ?>
-                            <span class="popover-examples list-inline">
-                                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="In this section you can create Invoices for insurers."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                            </span>
-                            <a href='unpaid_insurer_invoice.php' class="btn brand-btn mobile-block mobile-100">Unpaid Insurer Invoice Report</a>
-                            <?php break;
-                        case 'cashout': ?>
-                            <span class="popover-examples list-inline">
-                                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Daily front desk Cashout."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                            </span>
-                            <a href='cashout.php' class="btn brand-btn mobile-block mobile-100">Cash Out</a>
-                            <?php break;
-                        case 'gf': ?>
-                            <a href='giftcards.php' class="btn brand-btn mobile-block mobile-100">Gift Card</a>
-                            <?php break;
-                    }
-                }
-            } ?>
-        </div>
+		<?php include('tile_tabs.php'); ?>
 
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <div class="col-sm-5"></div><div class="col-sm-4" style="text-align:right;"><h3><label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); }"></label>

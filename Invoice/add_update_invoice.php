@@ -2479,3 +2479,7 @@ if($invoice_mode != 'Adjustment') {
 		}
 	}
 }
+
+// Update the Invoice Ticket List
+$ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
+$dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");

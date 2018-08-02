@@ -2693,8 +2693,13 @@ if($_GET['action'] == 'update_fields') {
 			while($line = $ticket_lines->fetch_assoc()) {
 				$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
 				$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
+				$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
+				$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly'];
 				$misc_item[] = $description;
 				$misc_qty[] = $qty;
+				$misc_price[] = $price;
+				$misc_total[] = $price * $qty;
+				$total_price += $price * $qty;
 			}
 			$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
 			while($line = $ticket_lines->fetch_assoc()) {
