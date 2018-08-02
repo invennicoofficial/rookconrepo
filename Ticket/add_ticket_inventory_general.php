@@ -337,7 +337,7 @@ do {
 									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 								}
 								foreach($site_list as $site_row) { ?>
-									<option <?= $general_inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+									<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
 								<?php } ?>
 							</select>
 						</div></div>
