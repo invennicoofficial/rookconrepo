@@ -333,8 +333,8 @@ function displayActiveBlocks() {
 <?php
 $client_type = get_config($dbc, 'scheduling_client_type');
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-if (!empty($equipment_category)) {
-	$equipment_category = 'Truck';
+if (empty($equipment_category)) {
+	$equipment_category = 'Equipment';
 }
 ?>
 <input type="hidden" id="retrieve_summary" name="retrieve_summary" value="1">
@@ -471,7 +471,7 @@ if (!empty($equipment_category)) {
 				<div id="collapse_equipment" class="panel-collapse collapse in">
 					<div class="panel-body" style="overflow-y: auto; padding: 0;">
 						<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
 						$date_query = date('Y-m-d');
 						if(!empty($_GET['date'])) {
 							$date_query = date('Y-m-d', strtotime($_GET['date']));
