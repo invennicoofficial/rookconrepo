@@ -461,8 +461,8 @@ function displayActiveBlocks() {
 <?php
 $client_type = get_config($dbc, 'scheduling_client_type');
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-if (!empty($equipment_category)) {
-	$equipment_category = 'Truck';
+if (empty($equipment_category)) {
+	$equipment_category = 'Equipment';
 }
 ?>
 <div class="hide_on_iframe ticket-calendar calendar-screen" style="padding-bottom: 0px;">
@@ -599,7 +599,7 @@ if (!empty($equipment_category)) {
 				<div id="collapse_equipment" class="panel-collapse collapse in">
 					<div class="panel-body" style="overflow-y: auto; padding: 0;">
 						<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
 						$date_query = date('Y-m-d');
 						if(!empty($_GET['date'])) {
 							$date_query = date('Y-m-d', strtotime($_GET['date']));
@@ -616,10 +616,15 @@ if (!empty($equipment_category)) {
 							$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
 							$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
 							$clientids = $equip_assign['client_list'];
+
+							$classification_label = '';
+							if($equip_display_classification == 1 && !empty($equip_classifications)) {
+								$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+							}
 							// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
 							// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
 							// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
-							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'>".$equipment['label']."</div></a>";
+							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'>".$equipment['label'].$classification_label."</div></a>";
 						} ?>
 					</div>
 				</div>

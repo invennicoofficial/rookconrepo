@@ -2,6 +2,7 @@
 include('../include.php');
 include_once('../Timesheet/reporting_functions.php');
 ?>
+<style>table td { background-color:transparent; }</style>
 </head>
 <body>
 <?php

@@ -948,7 +948,7 @@ function changeClient(sel) {
 }
 
 function selectProductPricing(sel) {
-    $(".category").val('');
+    /* $(".category").val('');
     //$(".category").trigger("change.select2");
     $(".product").val('');
     //$(".product").trigger("change.select2");
@@ -967,7 +967,7 @@ function selectProductPricing(sel) {
     $(".prodproduct").val('');
     //$(".prodproduct").trigger("change.select2");
     $(".prodpart").val('');
-    //$(".prodpart").trigger("change.select2");
+    //$(".prodpart").trigger("change.select2"); */
 
     $('.price').val('0');
     $('.quantity').val('0');

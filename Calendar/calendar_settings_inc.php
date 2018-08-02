@@ -341,8 +341,8 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'scheduling_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'scheduling_monthly_days'));
         $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-        if (!empty($equipment_category)) {
-            $equipment_category = 'Truck';
+        if (empty($equipment_category)) {
+            $equipment_category = 'Equipment';
         }
         echo '<input type="hidden" name="equipment_category_label" value="'.$equipment_category.'">';
         $dispatch_filters = get_config($dbc, 'scheduling_filters');
@@ -376,9 +376,11 @@ switch($_GET['type']) {
             $mobile_calendar_view = 'Staff';
         }
         $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
+        $combine_pickups = get_config($dbc, 'scheduling_combine_pickup');
         $combine_time = get_config($dbc, 'scheduling_combine_time');
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
+        $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
         break;
     case 'estimates':
         $config_type = 'estimates';

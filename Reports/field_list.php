@@ -169,6 +169,7 @@ $history_reports = [
 	'History Sales History'=>['reports_sales_history.php','Sales History','History Sales History','history_sales_history'],
 	'History HR History'=>['reports_hr_history.php','HR History','History HR History','history_hr_history'],
 	'History Point of Sale History'=>['reports_pos_history.php','Point of Sale History','History Point of Sale History','history_pos_history'],
+	'History Inventory History'=>['reports_inventory_history.php','Inventory History','History Inventory History','history_inventory_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],

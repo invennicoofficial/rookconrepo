@@ -578,7 +578,8 @@ function saveFieldMethod(field) {
 					if(response > 0) {
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
-							$('[name=siteid]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
+							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
+							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
 						} else if(block.length > 0 && table_name != 'tickets') {
@@ -1167,7 +1168,8 @@ function saveMethod(field) {
 					}
 					if(response > 0) {
 						if(table_name == 'contacts' && field_name == 'site_name') {
-							$('[name=siteid]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
+							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
+							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
 						} else if(block.length > 0 && table_name != 'tickets') {
@@ -1702,6 +1704,15 @@ function clearNote(type, block) {
 	block.find('select').data('id','').find('option').removeAttr('selected').trigger('change.select2');
 	reload_notes(type, $('.ticket_comments[data-type="'+type+'"]'));
 }
+function reloadCommunications() {
+	$('.ticket_communication.reload').each(function() {
+		$(this).removeClass('reload');
+		reload_communication($(this).data('type'),$(this).data('method'),this);
+	});
+}
+function reload_communication(type, method, target) {
+	$(target).load('../Ticket/add_ticket_view_communication.php?ticketid='+ticketid+'&comm_type='+type+'&comm_mode='+method);
+}
 function reload_needed_notes() {
 	$('.ticket_comments.reload').each(function() {
 		$(this).removeClass('reload');
@@ -1770,6 +1781,7 @@ function startTicketStaff() {
 
     block.after(clone);
     initInputs('.start-ticket-staff');
+	setSave();
 }
 function deletestartTicketStaff(button) {
     if($('div.start-ticket-staff').length <= 1) {
@@ -1788,6 +1800,7 @@ function internalTicketStaff() {
 
     block.after(clone);
     initInputs('.internal-ticket-staff');
+	setSave();
 }
 function deleteinternalTicketStaff(button) {
     if($('div.internal-ticket-staff').length <= 1) {
@@ -1805,6 +1818,7 @@ function customerTicketStaff() {
 
     block.after(clone);
     initInputs('.customer-ticket-staff');
+	setSave();
 }
 function deletecustomerTicketStaff(button) {
     if($('div.customer-ticket-staff').length <= 1) {
@@ -2277,7 +2291,8 @@ function addScheduledStop() {
 	sortScheduledStops();
 	$('.scheduled_stop').last().find('input').first().focus();
 }
-function siteSelect(value) {
+function siteSelect(select) {
+	var value = $(select).find('option:selected').val();
 	if(value == 'MANUAL') {
 		$('.site_info').hide();
 		$('.site_name').show().find('input').focus();
@@ -2285,7 +2300,7 @@ function siteSelect(value) {
 		$('.site_info').show();
 		$('.site_name').hide();
 		$('.site_info').find('[data-id][data-table*=contacts]').val('').data('id',value);
-		var opt = $('select[name="siteid"]').not('#po_siteid').find('option:selected');
+		var opt = $('select[name="siteid"],select[name="siteid[]"]').not('#po_siteid').find('option:selected');
 		$('.site_info [name=business_address]').val(opt.data('address'));
 		$('.site_info [name=site_name]').val(opt.data('site'));
 		$('.site_info [name=display_name]').val(opt.data('display'));
@@ -2803,6 +2818,14 @@ function addNote(type, btn, force_allow = 0) {
 		alert('Please create the '+ticket_name+' before adding notes.');
 	}
 }
+function addCommunication(type, method) {
+	if(ticketid > 0) {
+		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
+		overlayIFrameSlider('../Email Communication/add_communication.php?type='+type+'&ticketid='+ticketid,'auto',false,true);
+	} else {
+		alert('Please create the '+ticket_name+' before adding communications.');
+	}
+}
 function addContactNote(btn, clientid = '', force_allow = 0) {
 	if($('#clientid').val() != undefined) {
 		clientid = $('#clientid').val();
@@ -2931,8 +2954,8 @@ function initSelectOnChanges() {
 	if($('select#projectid').length > 0) {
 		$('select#projectid').off('change',projectFilter).change(projectFilter);
 	}
-	$('select[name="siteid"]').not('#po_siteid').change(function() {
-		siteSelect(this.value);
+	$('select[name="siteid"],select[name="siteid[]"]').not('#po_siteid').change(function() {
+		siteSelect(this);
 	});
 	if($('#salesorderid').length > 0) {
 		$('#salesorderid').off('change',setDeliveryOrder).change(setDeliveryOrder);
