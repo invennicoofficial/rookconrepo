@@ -36,8 +36,8 @@ if($_GET['view'] == 'weekly') {
 
 	$weekly_days = explode(',',get_config($dbc, 'scheduling_weekly_days'));
 
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	}
 	if(!empty($_GET['equipment_id'])) {
 		$equipment_id = $_GET['equipment_id'];
@@ -180,7 +180,7 @@ if($_GET['view'] == 'weekly') {
 			<div id="collapse_equipment" class="panel-collapse collapse in">
 				<div class="panel-body" style="overflow-y: auto; padding: 0;">
 					<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
 					if(empty($equipment_id)) {
 						$equipment_id = $equip_list[0]['equipmentid'];
 					}
@@ -342,8 +342,8 @@ if($_GET['view'] == 'weekly') {
 	if($calendar_type == 'ticket_multi') {
 		$calendar_type = 'ticket';
 	}
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
@@ -477,7 +477,7 @@ if($_GET['view'] == 'weekly') {
 			<div id="collapse_equipment" class="panel-collapse collapse in">
 				<div class="panel-body" style="overflow-y: auto; padding: 0;">
 					<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, `location`, `classification`, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, `location`, `classification`, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
 					foreach($equip_list as $equipment) {
 						echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
 					} ?>

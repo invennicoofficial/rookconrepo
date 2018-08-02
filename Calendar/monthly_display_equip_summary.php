@@ -24,8 +24,8 @@ $allowed_classifications_query = " AND (".implode(' OR ', $allowed_classificatio
 
 if(!isset($equipment_category)) {
 	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	}
 }
 

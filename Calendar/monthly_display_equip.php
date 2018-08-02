@@ -220,10 +220,10 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 		$all_contacts_query = "'".implode("','", $all_contacts)."'"; 
 	}
 	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	}
-	$result = mysqli_query($dbc,"SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, CONCAT(`category`, ' #', `unit_number`) label, `classification` FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 AND `equipmentid` = '$contact_id'");
+	$result = mysqli_query($dbc,"SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, CONCAT(`category`, ' #', `unit_number`) label, `classification` FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." AND `equipmentid` = '$contact_id'");
 
 	$old_staff = '';
 	while($row = mysqli_fetch_array( $result )) {
