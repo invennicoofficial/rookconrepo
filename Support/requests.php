@@ -153,7 +153,7 @@ if($request_tab == 'new'): ?>
 			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			
 			// Thank you Email to sender and CC email.
-			$to = array_filter(array_unique(explode(';',$to)));
+			$to = array_filter(array_unique(explode(';',$email)));
 			$cc = array_filter(array_unique(explode(';',$cc)));
 			try {
 				send_email('info@rookconnect',$to,$cc,'',$cust_subject,$cust_body,$email_attachments);
