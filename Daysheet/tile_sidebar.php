@@ -32,6 +32,9 @@
         <?php if (in_array('My Checklists', $daysheet_button_config)) { ?>
             <a href="?tab=checklists&daily_date=<?= date('Y-m-d') ?>&side_content=my_checklists&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Checklists</li></a>
         <?php } ?>
+        <?php if (in_array('My Communications', $daysheet_button_config)) { ?>
+            <a href="?tab=communications&daily_date=<?= date('Y-m-d') ?>&side_content=my_communications&date_display=daily"><li class="<?= $_GET['tab'] == 'communications' ? 'active' : '' ?>">My Communications</li></a>
+        <?php } ?>
         <?php if (in_array('My Support', $daysheet_button_config)) { ?>
             <a href="?tab=support&daily_date=<?= date('Y-m-d') ?>&side_content=my_support&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Support Requests</li></a>
         <?php } ?>
