@@ -124,6 +124,10 @@ $checklists_result = mysqli_fetch_all(mysqli_query($dbc, $checklists_query),MYSQ
 //Support Requests
 $support_query = "SELECT * FROM `support` WHERE (`assigned`='' OR CONCAT(',',`assigned`,',') LIKE ',".$contactid.",') AND `deleted` = 0";
 $support_result = mysqli_fetch_all(mysqli_query($dbc, $support_query),MYSQLI_ASSOC);
+
+//Communications
+$comm_query = "SELECT * FROM `email_communication` WHERE `deleted`=0 AND `created_by`='".$_SESSION['contactid']."' AND `today_date`='$daily_date'";
+$comm_result = mysqli_fetch_all(mysqli_query($dbc, $comm_query),MYSQLI_ASSOC);
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
@@ -422,7 +426,45 @@ $(document).ready(function () {
             echo '</ul>';
         }
     } else {
-        echo '<ul id="checklists_daily">';
+        echo '<ul id="support_daily">';
+        echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Communication', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Communications</h4>
+    <?php if (!empty($comm_result)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="comm_daily">';
+        }
+        foreach ($comm_result as $row) {
+			echo '<div class="note_block">';
+			if($row['businessid'] > 0) {
+				echo BUSINESS_CAT.': <a href="../Contacts/contacts_inbox.php?edit='.$row['businessid'].'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row['businessid'], 'name_company').'</a><br />';
+			}
+			$individuals = [];
+			foreach(array_filter(explode(',',$row['contactid'])) as $row_contactid) {
+				$individuals[] = '<a href="../Contacts/contacts_inbox.php?edit='.$row_contactid.'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row_contactid, 'name_company').'</a>';
+			}
+			if(count($individuals) > 0) {
+				echo 'Individuals: '.implode(', ',$individuals).'<br />';
+			}
+			echo profile_id($dbc, $row['created_by'],false);
+			echo '<div class="pull-right" style="width: calc(100% - 3.5em);">';
+			echo '<p><b>From: '.$row['from_name'].' &lt;'.$row['from_email'].'&gt;</b><br />';
+			echo '<b>To: '.implode('; ',array_filter(explode(',',$row['to_staff'].','.$row['to_contact'].','.$row['new_emailid']))).'</b><br />';
+			echo '<b>CC: '.implode('; ',array_filter(explode(',',$row['cc_staff'].','.$row['cc_contact']))).'</b>';
+			echo '<b>Subject: '.$row['subject'].'</b></p>';
+			echo html_entity_decode($row['email_body']);
+			echo '</div><div class="clearfix"></div><hr></div>';
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="comm_daily">';
         echo 'No records found.';
         echo '</ul>';
     } ?>
