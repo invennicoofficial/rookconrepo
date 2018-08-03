@@ -1,6 +1,6 @@
 <?php include_once ('../include.php');
 ob_clean(); ?>
-<script>initInputs();</script>
+<script>//initInputs();</script>
 <?php
 $strict_view = strictview_visible_function($dbc, 'ticket');
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
