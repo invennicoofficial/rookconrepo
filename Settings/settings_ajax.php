@@ -139,9 +139,13 @@ else if($fill == 'notifications') {
 	if($software_default == 1) {
 		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`software_default`) SELECT 1 FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `software_default` = 1) num WHERE num.rows=0");
 		$query_filter = " `software_default` = 1";
+		
+		mysqli_query($dbc, "UPDATE `journal_notifications` SET `email_sent` = 1 WHERE `contactid` NOT IN (SELECT `contactid` FROM `field_config_email_alerts` WHERE `contactid` > 0)");
 	} else if($contactid > 0) {
 		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`contactid`) SELECT '$contactid' FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `contactid` = '$contactid') num WHERE num.rows=0");
 		$query_filter = " `contactid` = '$contactid'";
+
+		mysqli_query($dbc, "UPDATE `journal_notifications` SET `email_sent` = 1 WHERE `contactid` = '$contactid'");
 	}
 
 	if(!empty($query_filter)) {

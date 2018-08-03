@@ -81,6 +81,12 @@ function saveConfig() {
 		$noti_config['frequency'] = 'daily';
 	}
 	?>
+	<?php if($_GET['subtab'] != 'software') { ?>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Email Address:</label>
+			<div class="col-sm-8"><?= get_email($dbc, $_SESSION['contactid']) ?></div>
+		</div>
+	<?php } ?>
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Email Alerts:</label>
 		<div class="col-sm-8">
