@@ -397,5 +397,14 @@
     }
     //2018-07-27 - Ticket #7552 - Checklists
 
+    //2018-08-02 - Ticket #8273 - Camping
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `start_time` varchar(10) NOT NULL AFTER `date_stamp`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `end_time` varchar(10) NOT NULL AFTER `start_time`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-02 - Ticket #8273 - Camping
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

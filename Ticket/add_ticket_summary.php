@@ -546,7 +546,7 @@ if(!empty($summary_hide_positions)) {
 				<?php $summary_members = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Members')".$query_daily);
 				 while($summary = mysqli_fetch_array($summary_members)) { ?>
 					<tr class="summary">
-						<td data-title="Member"><?= get_contact($dbc, $summary['item_id']) ?></td> ?>
+						<td data-title="Member"><?= get_contact($dbc, $summary['item_id']) ?></td>
 						<td data-title="Planned Hours"><?= $get_ticket['member_start_time'].' - '.$get_ticket['member_end_time'] ?></td>
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">

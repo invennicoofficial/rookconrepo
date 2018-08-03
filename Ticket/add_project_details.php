@@ -218,6 +218,46 @@ var projectFilter = function() {
 			</div>
 		<?php } ?>
 
+		<?php if ( strpos($value_config, ',Detail Start Date Time,') !== false && $field_sort_field == 'Detail Start Date Time') { ?>
+			<script type="text/javascript">
+			function updateStartDateTime(input) {
+				var date_time_string = input.value.toString();
+				var start_date = date_time_string.substr(0,date_time_string.indexOf(' '));
+				var start_time = date_time_string.substr(date_time_string.indexOf(' ')+1);
+				$('[name="to_do_date"]').val(start_date).change();
+				$('[name="start_time"]').val(start_time).change();
+			}
+			</script>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<input type="text" name="start_date_time" onchange="updateStartDateTime(this);" value="<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>" class="form-control dateandtimepicker"> 
+					<input name="to_do_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
+					<input name="start_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['start_time'] ?>">
+				</div>
+			</div>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail End Date Time,') !== false && $field_sort_field == 'Detail End Date Time') { ?>
+			<script type="text/javascript">
+			function updateEndDateTime(input) {
+				var date_time_string = input.value.toString();
+				var end_date = date_time_string.substr(0,date_time_string.indexOf(' '));
+				var end_time = date_time_string.substr(date_time_string.indexOf(' ')+1);
+				$('[name="to_do_end_date"]').val(end_date).change();
+				$('[name="end_time"]').val(end_time).change();
+			}
+			</script>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<input type="text" name="end_date_time" onchange="updateEndDateTime(this);" value="<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>" class="form-control dateandtimepicker"> 
+					<input name="to_do_end_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_end_date'] ?>">
+					<input name="end_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['end_time'] ?>">
+				</div>
+			</div>
+		<?php } ?>
+
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' ) { ?>
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Staff:</label>

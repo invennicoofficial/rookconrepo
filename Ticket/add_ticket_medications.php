@@ -3,7 +3,10 @@
 	<label class="col-sm-2 text-center">Member</label>
 	<label class="col-sm-2 text-center">Medication</label>
 	<label class="col-sm-2 text-center">Dosage</label>
-	<label class="col-sm-3 text-center"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Medication was administered. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Time</label>
+	<?php if (strpos($value_config, ',Medication Multiple Days,') !== false) { ?>
+		<label class="col-sm-2 text-center">Date</label>
+	<?php } ?>
+	<label class="col-sm-<?= strpos($value_config, ',Medication Multiple Days,') !== false ? '2' : '3' ?> text-center"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Medication was administered. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Time</label>
 	<label class="col-sm-2 text-center">Administered</label>
 	<div class="clearfix"></div>
 </div>
@@ -13,8 +16,28 @@
 	while($available_staff_row = mysqli_fetch_assoc($available_staff_query)) {
 		$available_staff[] = $available_staff_row['item_id'];
 	}
-	mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times` FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$get_ticket['start_time']."') AND TIME_TO_SEC('".$get_ticket['end_time']."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
-	$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `line_id`='0' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0".$query_daily);
+
+	if (strpos($value_config, ',Medication Multiple Days,') !== false) {
+		if(!empty($get_ticket['to_do_date'])) {
+			$ticket_start_date = $get_ticket['to_do_date'];
+			$ticket_end_date = empty(str_replace('0000-00-00','',$get_ticket['to_do_end_date'])) ? $get_ticket['to_do_date'] : $get_ticket['to_do_end_date'];
+			for($cur_date = $ticket_start_date; strtotime($cur_date) <= strtotime($ticket_end_date); $cur_date = date('Y-m-d', strtotime($cur_date.' + 1 day'))) {
+				$cur_start_time = $get_ticket['start_time'];
+				$cur_end_time = $get_ticket['end_time'];
+				if($cur_date != $ticket_start_date) {
+					$cur_start_time = '00:00 am';
+				}
+				if($cur_date != $ticket_end_date) {
+					$cur_end_time = '12:00 am';
+				}
+				mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`, `date_stamp`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times`, '$cur_date' FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` AND `med_attached`.`date_stamp` = '$cur_date' WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$cur_start_time."') AND TIME_TO_SEC('".$cur_end_time."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
+			}
+		}
+	} else {
+		mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times` FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$get_ticket['start_time']."') AND TIME_TO_SEC('".$get_ticket['end_time']."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
+	}
+
+	$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `line_id`='0' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0".$query_daily." ORDER BY `date_stamp`");
 	$medication = mysqli_fetch_assoc($medications);
 	do { ?>
 		<div class="multi-block">
@@ -39,7 +62,13 @@
 				<label class="show-on-mob">Dosage:</label>
 				<input type="text" class="form-control" name="description" <?= $medication['arrived'] > 0 ? 'readonly' : 'data-table="ticket_attached" data-id="'.$medication['id'].'" data-id-field="id" data-type="medication" data-type-field="src_table"' ?> value="<?= $medication['description'] ?>">
 			</div>
-			<div class="col-sm-3">
+			<?php if (strpos($value_config, ',Medication Multiple Days,') !== false) { ?>
+				<div class="col-sm-2">
+					<label class="show-on-mob">Date:</label>
+					<input type="text" class="form-control datepicker" name="date_stamp" <?= $medication['arrived'] > 0 ? 'readonly' : 'data-table="ticket_attached" data-id="'.$medication['id'].'" data-id-field="id" data-type="medication" data-type-field="src_table"' ?> value="<?= $medication['date_stamp'] ?>">
+				</div>
+			<?php } ?>
+			<div class="col-sm-<?= strpos($value_config, ',Medication Multiple Days,') !== false ? '2' : '3' ?>">
 				<label class="show-on-mob">Time:</label>
 				<input type="text" class="form-control datetimepicker" name="shift_start" <?= $medication['arrived'] > 0 ? 'readonly' : 'data-table="ticket_attached" data-id="'.$medication['id'].'" data-id-field="id" data-type="medication" data-type-field="src_table"' ?> value="<?= $medication['shift_start'] ?>">
 			</div>
@@ -51,7 +80,7 @@
 					<span style="<?= $medication['arrived'] > 1 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-8.png" class="text-lg inline-img no-margin"> Not Administered</span>
 				</div>
 			</div>
-			<div class="col-sm-1" style="<?= $medication['arrived'] > 0 ? 'display:none;' : '' ?>">
+			<div class="col-sm-1 pull-right" style="<?= $medication['arrived'] > 0 ? 'display:none;' : '' ?>">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $medication['id'] ?>" data-id-field="id" data-type="medication" data-type-field="src_table" value="0">
 				<img class="inline-img pull-right" onclick="addMulti(this, 'inline');" src="../img/icons/ROOK-add-icon.png">
 				<img class="inline-img pull-right" onclick="noMeds(this);" src="../img/remove.png">
@@ -183,7 +212,14 @@
 				<input type="text" class="form-control" name="description" readonly value="<?= $medication['description'] ?>">
 			</div>
 			<?php $pdf_contents[] = ['Dosage', $medication['description']]; ?>
-			<div class="col-sm-3">
+			<?php if (strpos($value_config, ',Medication Multiple Days,') !== false) { ?>
+				<div class="col-sm-2">
+					<label class="show-on-mob">Date:</label>
+					<input type="text" class="form-control datepicker" name="date_stamp" <?= $medication['arrived'] > 0 ? 'readonly' : 'data-table="ticket_attached" data-id="'.$medication['id'].'" data-id-field="id" data-type="medication" data-type-field="src_table"' ?> value="<?= $medication['date_stamp'] ?>">
+				</div>
+				<?php $pdf_contents[] = ['Date', $medication['date_stamp']]; ?>
+			<?php } ?>
+			<div class="col-sm-<?= strpos($value_config, ',Medication Multiple Days,') !== false ? '2' : '3' ?>">
 				<label class="show-on-mob">Time:</label>
 				<input type="text" class="form-control" name="shift_start" readonly value="<?= $medication['shift_start'] ?>">
 			</div>
