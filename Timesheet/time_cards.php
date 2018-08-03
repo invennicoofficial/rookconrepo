@@ -1202,7 +1202,7 @@ function addSignature(chk) {
 							SUM(`timer_tracked`) TRACKED_HRS,
 							SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `deleted`=0 GROUP BY `date`";
                         }
-						if($layout == 'multi_line') {
+						if($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') {
 							$sql .= ", `time_cards_id`";
 						}
 						$sql .= " ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
@@ -1215,6 +1215,7 @@ function addSignature(chk) {
 						while(strtotime($date) <= strtotime($search_end_date)) {
 							$attached_ticketid = 0;
 							$timecardid = 0;
+							$driving_time = '';
 							$ticket_attached_id = 0;
 							$approval_status = '';
 							$hl_colour = '';
@@ -1262,6 +1263,9 @@ function addSignature(chk) {
 									$total[$key] += $hrs[$key];
 								}
 								$timecardid = $row['time_cards_id'];
+								if(empty($row['ticketid'])) {
+									$driving_time = 'Driving Time';
+								}
 								$ticket_attached_id = $row['ticket_attached_id'];
 								$attached_ticketid = $row['ticketid'];
 								$start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
