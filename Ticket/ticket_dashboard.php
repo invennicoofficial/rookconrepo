@@ -227,12 +227,6 @@ function loadTickets() {
 		result_list = [];
 	}
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length > 0 || current_ticket_search_key != '') {
-
-alert('4');
-
-
-
-
 		$('.summary_tab').removeClass('active').removeClass('blue');
 		var type = $('[data-type] .active.blue,[data-type].active.blue').first().closest('[data-type]');
 		var title = type.find('a').first().text();
@@ -240,24 +234,16 @@ alert('4');
 		if(current_ticket_search_key != '') {
 			title_subtext += (type.length > 0 ? ': ' : '')+'Search Results for '+current_ticket_search_key+' ('+result_list.length+' results)';
 		}
-
-        alert('4');
-
 		$('li.active.blue:not(.highest-level) a').each(function() {
 			var cat = $(this).closest('ul').prevAll('a').first().text();
 			var item = $(this).clone();
 			item.find('span').remove();
 			title_subtext += (cat != '' ? ': <small><b>'+cat+' - ' : '<small><b>')+item.text()+'</b></small>';
 		});
-
-        alert('4');
-
 		var link = '?tile_name=<?= $tile_name ?>&type='+(type.length > 0 ? type.data('type').substr(7) : '')+'&edit=0';
 		if(type.is('[data-form]')) {
 			link = '?tile_name=<?= $tile_name ?>&custom_form='+type.data('type').substr(5);
 		}
-
-alert('4');
 
 		if(current_ticket_search_key != '') {
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').html(title+title_subtext);
@@ -267,7 +253,6 @@ alert('4');
 				$('.main-content-screen .main-screen .standard-dashboard-body-title h3').append('<a class="btn brand-btn pull-right" href="'+link+'">New '+title+'</a>');
 			<?php } ?>
 		}
-alert('4');
 
 		target.html('');
 		var arr = [];
@@ -278,17 +263,7 @@ alert('4');
 				arr.push(element);
 			}
 		});
-        alert('4');
-
 		showResults(arr, target, ++search_option_id);
-
-
-
-alert('4-end');
-
-
-
-
 	} else if($('.hide-titles-mob .standard-dashboard-body-content').is(':visible')) {
 		<?php if(!in_array('Disable',$db_summary) && empty($_GET['tab'])) { ?>
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').text('Summary');
@@ -689,12 +664,6 @@ IF(!IFRAME_PAGE) { ?>
 							ticket_tile: '<?= $_GET['tile_name'] ?>'
 						},
 						success: function(response) {
-							response = response.split('###*###');
-							if(response[1] != '' && response[1] != undefined) {
-								console.log(response[1]);
-							}
-							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
-							loadTickets();
 						}
 					});
 				});
