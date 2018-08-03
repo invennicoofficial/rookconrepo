@@ -445,7 +445,7 @@ foreach($_POST['projectids'] as $projectid) {
                 <a href="Add Email" onclick="$(this).closest('.dashboard-item').find('.select_users').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email"></a>
                 <!-- Email -->
 
-                <a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note" /></a>
+                <!--<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;">--><a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note" /></a>
                 <!-- Note -->
 
                  <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=reminder]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder"></a>

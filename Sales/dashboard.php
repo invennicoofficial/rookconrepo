@@ -56,6 +56,10 @@ function archive_sales_lead(sel) {
 
 function saveNote(sel) {
     var salesid = $(sel).data('salesid');
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, true);
+    
+    /* Function before notes slider
+    var salesid = $(sel).data('salesid');
     var note = sel.value;
     if (note!='') {
         $.ajax({
@@ -65,7 +69,7 @@ function saveNote(sel) {
                 alert("Note saved.");
             }
         });
-    }
+    } */
 }
 
 function flagLead(sel) {
@@ -419,7 +423,8 @@ function openProjectDialog(sel) {
 										<a href="Attach File" onclick="addDocument(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img black-color" title="Attach File" /></a>
 									<?php } ?>
 									<?php if(in_array('reply',$quick_actions)) { ?>
-										<a href="Add Note" onclick="$(this).closest('.info-block-detail').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>
+										<!--<a href="Add Note" onclick="$(this).closest('.info-block-detail').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>-->
+										<a href="#" onclick="saveNote(this);" data-salesid="<?= $row['salesid']; ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>
 									<?php } ?>
 									<?php if(in_array('email',$quick_actions)) { ?>
 										<a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img black-color" title="Send Email" /></a>

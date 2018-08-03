@@ -37,6 +37,17 @@ function setActions() {
 
 	$('.reply-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
+		var id = $(item).data('id');
+        var table = $(item).data('table');
+        var tile = '';
+        if ( table=='tasklist' ) {
+            tile = 'tasks';
+        } else if ( table=='tickets' ) {
+            tile = 'tickets';
+        }
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile='+tile+'&id='+id,'auto',false,true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
 		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
 			$(this).off('blur');
 			$.ajax({
@@ -61,7 +72,7 @@ function setActions() {
 			} else if(e.which == 27) {
 				$(this).off('blur').hide();
 			}
-		});
+		}); */
 	});
 	$('.archive-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');

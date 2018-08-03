@@ -413,7 +413,10 @@ function setActions() {
 		}).click();
 	});
 	$('.reply-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
+        var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
 		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
 			$(this).off('blur');
 			$.ajax({
@@ -434,7 +437,7 @@ function setActions() {
 			} else if(e.which == 27) {
 				$(this).off('blur').hide();
 			}
-		});
+		}); */
 	});
 
 	$('.emailpdf-icon').off('click').click(function() {

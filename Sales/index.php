@@ -113,6 +113,13 @@ include ('../include.php');
 ?>
 
 <div id="sales_div" class="container">
+    <div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+    
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php'); ?>
