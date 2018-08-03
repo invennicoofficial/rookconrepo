@@ -641,9 +641,8 @@ function send_csv(a) {
 											<option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $attached_ticketid ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
 										<?php } ?></select></td>
 									<td data-title="Task" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select a Task"><option></option>
-										<?php $task_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$attached_ticketid."'"))['task_available'];
-										foreach ($task_list as $task) { ?>
-											<option <?= $time_type == $task ? 'selected' : '' ?> value="<?= $task ?>"><?= $task ?></option>
+										<?php foreach ($task_list as $task) { ?>
+											<option <?= $time_type == $task['description'] ? 'selected' : '' ?> value="<?= $task['description'] ?>"><?= $task['description'] ?></option>
 										<?php } ?>
 									</select></td>
 								<?php } else if($layout == 'position_dropdown') { ?>
