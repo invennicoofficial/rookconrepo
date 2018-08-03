@@ -40,7 +40,7 @@ if(isset($_POST['submit'])) {
             break;
         
         case 'projects';
-            $query = "INSERT INTO `project_comment` (`projectid`, `comment`, `created_date`, `created_by`, `type`) VALUES ('$projectid', '$note', '$date', '$contactid', 'project_note')";
+            $query = "INSERT INTO `project_comment` (`projectid`, `comment`, `created_date`, `created_by`, `type`) VALUES ('$id', '$note', '$date', '$contactid', 'project_note')";
             break;
         
         case 'checklists':
@@ -59,7 +59,12 @@ if(isset($_POST['submit'])) {
 	
     if ( !empty($query) ) {
         if ( mysqli_query($dbc, $query) ) {
-            echo '<script type="text/javascript">alert("Note added successfully"); window.parent.location.reload(true);</script>';
+            if ( $tile != 'projects' ) {
+                echo '<script type="text/javascript">alert("Note added successfully"); window.parent.location.reload(true);</script>';
+            } else {
+                echo '<script type="text/javascript">alert("Note added successfully");</script>';
+            }
+            
             if ( $checklistnameid ) {
                 $before_change = capture_before_change($dbc, 'checklist_name', 'checklist', 'checklistnameid', $checklistnameid);
                 $item_name = explode('&lt;p&gt;', mysql_fetch_array(mysqli_query($dbc, "SELECT `checklist` FROM `checklist_name` WHERE `checklistnameid`='$checklistnameid'"))['checklist']);
@@ -131,7 +136,7 @@ switch(filter_var($_GET['tile'], FILTER_SANITIZE_STRING)) {
     case 'projects':
         $tile = 'projects';
         $id = preg_replace('/[^0-9]/', '', $_GET['id']);
-        $query = mysqli_query($dbc, "SELECT `comment`, `created_date`, `created_by` FROM `ticket_comment` WHERE projectid='$id'");
+        $query = mysqli_query($dbc, "SELECT `comment`, `created_date`, `created_by` FROM `project_comment` WHERE `projectid`='$id'");
         if ( $query->num_rows > 0 ) {
             $html .= '<div class="form-group clearfix full-width">
                 <div class="col-sm-12">';
