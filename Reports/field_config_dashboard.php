@@ -271,6 +271,9 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Receipts Summary Report".',') !== FALSE) { echo " checked"; } ?> value="Receipts Summary Report" name="reports_dashboard[]"> Receipts Summary Report</label>
 	</div>
 	<div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Project Progress Report".',') !== FALSE) { echo " checked"; } ?> value="Project Progress Report" name="reports_dashboard[]"> Project Progress Report</label>
+	</div>
+	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Item Closing % By Quantity".',') !== FALSE) { echo " checked"; } ?> value="Estimate Item Closing % By Quantity" name="reports_dashboard[]"> Estimate Item Closing % By Quantity</label>
 	</div>
     <div class="clearfix"></div>
