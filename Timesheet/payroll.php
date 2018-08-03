@@ -97,7 +97,7 @@ function viewTicket(a) {
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-        <input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
+			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
             <?php echo get_tabs('Payroll', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
             <br><br>
             <?php
@@ -142,7 +142,7 @@ function viewTicket(a) {
                     $security_query = " AND (".implode(" OR ", $security_query).")";
                 }
                 ?>
-
+				
 			<?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
 			  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
 				<label for="site_name" class="control-label">Search By Group:</label>
@@ -167,6 +167,7 @@ function viewTicket(a) {
 				</div>
 				<?php $search_clearfix++ ?>
 			<?php } ?>
+
             <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                 <label class="control-label">Search By Staff:</label>
             </div>
@@ -177,7 +178,7 @@ function viewTicket(a) {
                         <option <?= in_array('ALL',$search_staff_list) ? 'selected' : '' ?> value="ALL">All Staff</option>
 						<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
 						foreach($query as $staff_row) { ?>
-							<option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (in_array($staff_row['contactid'],$search_staff_list) !== FALSE) { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
+							<option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (in_array($staff_row['contactid'],$search_staff_list) !== FALSE && $search_staff_list != '') { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
 							if(in_array('ALL',$search_staff_list)) {
                                 $search_staff_list[] = $staff_id['contactid'];
                             }
@@ -454,24 +455,25 @@ function viewTicket(a) {
 						</tr>
 					<?php } ?>
                     <tr class='hidden-xs hidden-sm'>
-                        <th style='text-align:center; vertical-align:bottom; width:8em;'><div>Date</div></th>
+						<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
+						<?php $colspan = 1; ?>
 						<?php if(in_array('schedule',$value_config)) { $colspan++ ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
 						<?php if(in_array('scheduled',$value_config)) { $colspan++ ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-                        <?php if(in_array('ticketid',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-                        <?php if(in_array('show_hours',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Hours</div></th><?php } ?>
-                        <?php if(in_array('total_tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Hours</div></th><?php } ?>
-                        <?php if(in_array('start_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Start<br />Time</div></th><?php } ?>
-                        <?php if(in_array('end_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>End<br />Time</div></th><?php } ?>
+                        <?php if(in_array('ticketid',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
+                        <?php if(in_array('show_hours',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Hours</div></th><?php } ?>
+                        <?php if(in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line'])) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Hours</div></th><?php } ?>
+                        <?php if(in_array('start_time',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Start<br />Time</div></th><?php } ?>
+                        <?php if(in_array('end_time',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>End<br />Time</div></th><?php } ?>
 						<?php if(in_array('start_time_editable',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
 						<?php if(in_array('end_time_editable',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
-                        <?php if(in_array('planned_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Planned<br />Hours</div></th><?php } ?>
-                        <?php if(in_array('tracked_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
+                        <?php if(in_array('planned_hrs',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Planned<br />Hours</div></th><?php } ?>
+                        <?php if(in_array('tracked_hrs',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
+                        <?php if(in_array('total_tracked_time',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
                         <?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
 						<?php if($layout == 'ticket_task') { $colspan += 2; ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th>
-                        <?php if(in_array('sick_used',$value_config)) { ?><td style='text-align:center;'><?php echo $sick_taken; ?></td><?php } ?>
 						<?php } else if($layout == 'position_dropdown') { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Position</div></th><?php } ?>
-                        <?php if(in_array('total_tracked_time',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
-                        <?php if(in_array('total_tracked_time',$value_config)) { $colspan++; ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
+						<?php if(in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task'])) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Time Tracked</div></th><?php } ?>
+						<?php if(in_array($layout,['position_dropdown', 'ticket_task'])) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th><?php } ?>
                         <?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular' ?><br />Hours</div></th><?php } ?>
                         <?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Extra<br />Hours</div></th><?php } ?>
                         <?php if(in_array('relief_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Relief<br />Hours</div></th><?php } ?>
@@ -578,13 +580,11 @@ function viewTicket(a) {
                             $timecardid = $row['time_cards_id'];
                             $ticket_attached_id = $row['ticket_attached_id'];
                             $attached_ticketid = $row['ticketid'];
-
 							if(empty($row['ticketid'])) {
 								$driving_time = 'Driving Time';
 							}
                             $start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
                             $end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
-
                             $approv = $row['approv'];
 
                             if(in_array('training_hrs',$value_config) && $timecardid > 0) {

@@ -1,7 +1,5 @@
 <?php include('../include.php');
-include('../Calendar/calendar_functions_inc.php');
-
-?>
+include('../Calendar/calendar_functions_inc.php'); ?>
 <script type="text/javascript" src="timesheet.js"></script>
 <script type="text/javascript">
 function useProfileSig(chk) {
@@ -72,9 +70,8 @@ function send_csv(a) {
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-    	<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
-
-        <?php echo get_tabs('Manager Approvals', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
+			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
+			<?php echo get_tabs('Manager Approvals', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
         <?php
 			$highlight = get_config($dbc, 'timesheet_highlight');
@@ -217,7 +214,7 @@ function send_csv(a) {
 			</form>
 			<?php } ?>
 
-             <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
+			 <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
 
             <div id="no-more-tables">
             <?php $value_config = explode(',',get_field_config($dbc, 'time_cards'));

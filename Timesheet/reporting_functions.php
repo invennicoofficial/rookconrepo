@@ -59,22 +59,22 @@
 		$report_output = [];
 	}
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
-
 	$report_name = [];
 	$report_blocks = [];
-	foreach($staff_list as $staff) {
-		$search_staff = $staff['contactid'];
 
-		$filter_position_query = '';
-		if(!empty($search_position)) {
-		  $tickets_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`ticketid`) FROM `ticket_attached` WHERE `deleted` = 0 AND `position` = '$search_position' AND (`src_table` = 'Staff_tasks' OR `src_table` = 'Staff') AND `item_id` = '$search_staff'"),MYSQLI_ASSOC);
-		  $tickets_position = [];
-		  foreach ($tickets_sql as $ticket_sql) {
-			$tickets_position[] = $ticket_sql['ticketid'];
-		  }
-		  $tickets_position = "'".implode("'",$tickets_position)."'";
-		  $filter_position_query = " AND `ticketid` IN ($tickets_position)";
-		}
+	foreach($staff_list as $staff) {
+    $search_staff = $staff['contactid'];
+
+    $filter_position_query = '';
+    if(!empty($search_position)) {
+      $tickets_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`ticketid`) FROM `ticket_attached` WHERE `deleted` = 0 AND `position` = '$search_position' AND (`src_table` = 'Staff_tasks' OR `src_table` = 'Staff') AND `item_id` = '$search_staff'"),MYSQLI_ASSOC);
+      $tickets_position = [];
+      foreach ($tickets_sql as $ticket_sql) {
+        $tickets_position[] = $ticket_sql['ticketid'];
+      }
+      $tickets_position = "'".implode("'",$tickets_position)."'";
+      $filter_position_query = " AND `ticketid` IN ($tickets_position)";
+    }
 
 		$report_name[] = $staff['first_name'].' '.$staff['last_name'];
 		$report_block = '';
@@ -272,7 +272,7 @@
 					$planned_hrs = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 					$tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $timecardid);
 					$total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $timecardid);
-          $report_block .= '<tr style="'.$hl_colour.'" bgcolor="'.( date('d', strtotime($date))%2==1 ? 'white' : '#eee' ).'">'.
+					$report_block .= '<tr style="'.$hl_colour.'" bgcolor="'.( date('d', strtotime($date))%2==1 ? 'white' : '#eee' ).'">'.
 						'<td data-title="Date">'.$date.'</td>
 						'.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
 						'.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
@@ -576,7 +576,10 @@
   		return '<h4>Please select a staff member.</h4>';
     } else {
         $staff_list = [];
-        foreach (explode(',',$staff) as $search_staff) {
+        if(!is_array($staff)) {
+        	$staff = explode(',',$staff);
+        }
+        foreach ($staff as $search_staff) {
             if($search_staff > 0) {
                 $staff_list[] = ['contactid'=>$search_staff,'first_name'=>'','last_name'=>get_contact($dbc, $search_staff)];
             }
@@ -627,7 +630,7 @@
                 $result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
                 $date = $search_start_date;
                 $i = 0;
-                $bgcolor = 'white';
+				$bgcolor = 'white';
                 while(strtotime($date) <= strtotime($search_end_date)) {
                 	$milage = 0;
                 	$mileage_rate = 0;
@@ -724,8 +727,8 @@
 
 	                $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
                     if($row['hours'] > 0 || ($expenses_owed > 0 && strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE)) {
-                        $show_row = true;
-                        $view_ticket = [];
+						$show_row = true;
+                    	$view_ticket = [];
                     	foreach($ticketids as $ticketid) {
 	                    	if($ticketid > 0) {
 	                    		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$ticketid}'"));
@@ -749,7 +752,7 @@
 	                    $mileage_cost_html = implode('<br>',$mileage_cost_html);
 	                    $view_ticket = implode('<br>',$view_ticket);
                         $report .= '<tr bgcolor="'.$bgcolor.'">
-                            <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Date">'.$date.'</td>'.
+							<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Date">'.$date.'</td>'.
                             (in_array('view_ticket',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="'.TICKET_NOUN.'">'.$view_ticket.'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage">'.$mileage_html.'</td>' : '').
@@ -770,7 +773,7 @@
                     }
                     if($date != $row['date']) {
                         $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
-                        if($show_row) {
+						if($show_row) {
                             if ($bgcolor == 'white') {
                                 $bgcolor = '#eee';
                             } else {
@@ -842,10 +845,7 @@
   		return '<h4>Please select a staff member.</h4>';
     } else {
         $staff_list = [];
-        if(!is_array($staff)) {
-        	$staff = explode(',',$staff);
-        }
-        foreach ($staff as $search_staff) {
+        foreach (explode(',',$staff) as $search_staff) {
             if($search_staff > 0) {
                 $staff_list[] = ['contactid'=>$search_staff,'first_name'=>'','last_name'=>get_contact($dbc, $search_staff)];
             }
@@ -937,7 +937,7 @@
 		$report_output[] = $report;
 		$report = '';
 	}
-	
+
 	if($report_format == 'to_array') {
 		return $report_output;
 	}
