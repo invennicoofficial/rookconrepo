@@ -1316,7 +1316,7 @@ function addSignature(chk) {
 								$comments = '';
 								$timecardid = 0;
 								$ticket_attached_id = '';
-								$attached_ticketid = ''];
+								$attached_ticketid = '';
 								$start_time = '';
 								$end_time = '';
 
