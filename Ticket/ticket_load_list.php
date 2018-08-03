@@ -12,8 +12,6 @@ switch(get_config($dbc, 'ticket_sorting')) {
 	case 'label': $ticket_sort = ' ORDER BY `tickets`.`ticket_label` ASC'; break;
 	case 'oldest': $ticket_sort = ' ORDER BY `tickets`.`ticketid` ASC'; break;
 	case 'project': $ticket_sort = ' ORDER BY `tickets`.`projectid` DESC'; break;
-	case 'to_do_date_desc': $ticket_sort = ' ORDER BY `tickets`.`to_do_date` DESC'; break;
-	case 'to_do_date_asc': $ticket_sort = ' ORDER BY `tickets`.`to_do_date` ASC'; break;
 }
 $ticket_fields = '';
 $ticket_filter = '';
@@ -24,8 +22,8 @@ $file_name = '';
 if(strpos($ticket_type,'ticket_') !== FALSE) {
 	$ticket_filter = " AND '".substr($ticket_type,7)."' IN (IFNULL(NULLIF(`tickets`.`ticket_type`,''),'other'),'')";
 } else if(strpos($ticket_type,'form_') !== FALSE) {
-	$ticket_filter = " AND `ticket_pdf_field_values`.`pdf_type`='".substr($ticket_type,5)."' AND `ticket_pdf_field_values`.`deleted`=0";
-	$ticket_join = "LEFT JOIN `ticket_pdf_field_values` ON `tickets`.`ticketid`=`ticket_pdf_field_values`.`ticketid` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `tickets`.`ticketid`=`revisions`.`ticketid` AND `ticket_pdf_field_values`.`pdf_type`=`revisions`.`pdf_type`";
+	$ticket_filter = " AND `ticket_pdf_field_values`.`pdf_type`='".substr($ticket_type,5)."'";
+	$ticket_join = "LEFT JOIN `ticket_pdf_field_values` ON `tickets`.`ticketid`=`ticket_pdf_field_values`.`ticketid` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `revisions` ON `tickets`.`ticketid`=`revisions`.`ticketid` AND `ticket_pdf_field_values`.`pdf_type`=`revisions`.`pdf_type`";
 	$form = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='".substr($ticket_type,5)."'")->fetch_assoc();
 	$revisions = $form['revisions'];
 	$file_name = config_safe_str($form['pdf_name']);
@@ -49,11 +47,10 @@ while($ticket = mysqli_fetch_assoc($ticket_list)) {
 	$label = get_ticket_label($dbc,$ticket,$ticket['projecttype'],$ticket['project_name']).($revisions > 0 ? ' Revision #'.$ticket['revision'].' of '.$ticket['last_revision'] : '');
 	$file = '';
 	if($file_name != '') {
-		$file = '../Ticket/ticket_pdf_custom.php?ticketid='.$ticket['ticketid'].'&form='.substr($ticket_type,5).'&revision='.$ticket['revision'];;
-		// $file = '../Ticket/download/'.$file_name.'_'.$ticket['revision'].'_'.$ticket['ticketid'].'.pdf';
-		// if(!file_exists($file)) {
-			// $file = '../Ticket/download/'.$file_name.'_'.$ticket['ticketid'].'.pdf';
-		// }
+		$file = '../Ticket/download/'.$file_name.'_'.$ticket['revision'].'_'.$ticket['ticketid'].'.pdf';
+		if(!file_exists($file)) {
+			$file = '../Ticket/download/'.$file_name.'_'.$ticket['ticketid'].'.pdf';
+		}
 	}
 	$tickets[] = ['id'=>$ticket['ticketid'],'staff'=>explode(',',$ticket['contactid'].','.$ticket['internal_qa_contactid'].','.$ticket['deliverable_contactid']),'internal_qa'=>explode(',',$ticket['internal_qa_contactid']),'deliverable_id'=>explode(',',$ticket['deliverable_contactid']),'file'=>$file,'revision'=>$ticket['revision'],'created_by'=>$ticket['created_by'],'po'=>$ticket['purchase_order'].'#*#'.$ticket['po_numbers'],'customer_orders'=>$ticket['customer_order_num'].'#*#'.$ticket['customer_orders'],'business'=>$ticket['businessid'],'contact'=>explode(',',$ticket['clientid']),'project'=>$ticket['projecttype'],'status'=>$ticket['status'],'key'=>$ticket['to_do_date'].'-'.$label.' '.$ticket['purchase_order'].' '.$ticket['po_numbers'].' '.$ticket['customer_order_num'].' '.$ticket['customer_orders'],'label'=>$label,'type'=>$ticket_type];
 }
