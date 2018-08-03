@@ -124,16 +124,6 @@ function loadNote(tab) {
     }
 }
 function loadTickets() {
-	<?php if($_GET['form_list'] > 0) {
-		echo 'return;';
-	} ?>
-	if(ticket_list == undefined) {
-		return;
-	}
-	loadingOverlayHide();
-	clearTimeout(continue_loading);
-	ajax_loads.forEach(function(call) { call.abort(); });
-	$('.show-on-mob .standard-dashboard-body-content:visible').empty().html('<h4 class="col-sm-12">Enter a search term to display <?= TICKET_TILE ?> here<h4>');
 	var target = $('.main-content-screen .main-screen .standard-dashboard-body-content:visible');
 	var result_list = [];
 	var filter_list = [];
@@ -680,7 +670,7 @@ IF(!IFRAME_PAGE) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_staff_<?= $type ?>">Staff<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_staff_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, COUNT(*) `count` FROM `contacts` LEFT JOIN (SELECT `tickets`.`ticketid`, `tickets`.`contactid`, `tickets`.`internal_qa_contactid`, `tickets`.`deliverable_contactid`, GROUP_CONCAT(`item_id`) `staff_list`, `tickets`.`status`, `tickets`.`ticket_type` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` WHERE IFNULL(`ticket_attached`.`src_table`,'Staff')='Staff' AND IFNULL(`ticket_attached`.`deleted`,0)=0 AND `tickets`.`deleted`=0 AND `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') GROUP BY `tickets`.`ticketid`) `tickets` ON CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`tickets`.`internal_qa_contactid`,''),',',IFNULL(`tickets`.`deliverable_contactid`,''),',',IFNULL(`tickets`.`staff_list`,''),',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `contacts`.`deleted`=0 AND `contacts`.`status`>0 AND `tickets`.`ticketid` > 0 AND `contacts`.`first_name` != '' AND `contacts`.`last_name` != '' AND `contacts`.`contactid` > 0 $filter GROUP BY `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`")) as $row) { ?>
-										<li><a href="" data-staff="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); return false;"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
+										<li><a href="" data-staff="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
 									<?php } ?>
 								</ul>
 							</li>
