@@ -138,37 +138,24 @@ function loadTickets() {
 	var result_list = [];
 	var filter_list = [];
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length	> 0) {
-
-
-
-
-
-
-        alert('1');
 		var staff = [];
 		$('.active.blue [data-staff]').each(function() {
 			if($(this).data('staff') > 0) {
 				staff.push($(this).data('staff'));
 			}
 		});
-        alert('1');
-
 		var creator = [];
 		$('.active.blue [data-creator]').each(function() {
 			if($(this).data('creator') != '') {
 				creator.push($(this).data('creator'));
 			}
 		});
-        alert('1');
-
 		var business = [];
 		$('.active.blue [data-business]').each(function() {
 			if($(this).data('business') > 0) {
 				business.push($(this).data('business'));
 			}
 		});
-        alert('1');
-
 		var contact = [];
 		$('.active.blue [data-contact]').each(function() {
 			if($(this).data('contact') > 0) {
@@ -181,8 +168,6 @@ function loadTickets() {
 				project.push($(this).data('project'));
 			}
 		});
-        alert('1');
-
 		var po = [];
 		$('.active.blue [data-po]').each(function() {
 			if($(this).data('po') != '') {
@@ -195,14 +180,9 @@ function loadTickets() {
 				status.push($(this).data('status'));
 			}
 		});
-        alert('1');
-
 		if(ticket_list[$('.active.blue').closest('[data-type]').first().data('type')] != undefined) {
 			var i = 0;
-            alert('1');
 			ticket_list[$('.active.blue').closest('[data-type]').first().data('type')].forEach(function(ticket) {
-                        alert('1');
-
 				if((business.indexOf(ticket.business * 1) >= 0 || business.length == 0) &&
 					(ticket.contact.some(function(element) { return this.indexOf(element * 1) >= 0; }, contact) || contact.length == 0) &&
 					((ticket.staff.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status != 'Internal QA' && ticket.status != 'Customer QA') || (ticket.internal_qa.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status == 'Internal QA') || (ticket.deliverable_id.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status == 'Customer QA') || staff.length == 0) &&
@@ -211,9 +191,9 @@ function loadTickets() {
 					(project.indexOf(ticket.project) >= 0 || project.length == 0) &&
 					(status.indexOf(ticket.status) >= 0 || (status.length == 0 && ticket.status != 'Done' && ticket.status != 'Archive') || status.indexOf('ALL_STATUS') >= 0) &&
 					($('.active.blue').closest('[data-type]').first().data('limit') == undefined || $('.active.blue').closest('[data-type]').first().data('limit') > i)) {
-					    filter_list.push(ticket);
-					    i++;
-				    }
+					filter_list.push(ticket);
+					i++;
+				}
 			});
 		} else {
 			loadingOverlayShow('.main-content-screen');
@@ -228,14 +208,6 @@ function loadTickets() {
 				result_list.push(ticket);
 			}
 		});
-
-                        alert('1 - end');
-
-
-
-
-
-
 	} else if($('.search_list:visible').val() != '') {
 		var key = $('.search_list:visible').val();
 		if(key != undefined) {
@@ -256,7 +228,7 @@ function loadTickets() {
 	}
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length > 0 || current_ticket_search_key != '') {
 
-
+alert('4');
 
 
 
@@ -268,16 +240,24 @@ function loadTickets() {
 		if(current_ticket_search_key != '') {
 			title_subtext += (type.length > 0 ? ': ' : '')+'Search Results for '+current_ticket_search_key+' ('+result_list.length+' results)';
 		}
+
+        alert('4');
+
 		$('li.active.blue:not(.highest-level) a').each(function() {
 			var cat = $(this).closest('ul').prevAll('a').first().text();
 			var item = $(this).clone();
 			item.find('span').remove();
 			title_subtext += (cat != '' ? ': <small><b>'+cat+' - ' : '<small><b>')+item.text()+'</b></small>';
 		});
+
+        alert('4');
+
 		var link = '?tile_name=<?= $tile_name ?>&type='+(type.length > 0 ? type.data('type').substr(7) : '')+'&edit=0';
 		if(type.is('[data-form]')) {
 			link = '?tile_name=<?= $tile_name ?>&custom_form='+type.data('type').substr(5);
 		}
+
+alert('4');
 
 		if(current_ticket_search_key != '') {
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').html(title+title_subtext);
@@ -287,6 +267,7 @@ function loadTickets() {
 				$('.main-content-screen .main-screen .standard-dashboard-body-title h3').append('<a class="btn brand-btn pull-right" href="'+link+'">New '+title+'</a>');
 			<?php } ?>
 		}
+alert('4');
 
 		target.html('');
 		var arr = [];
@@ -297,10 +278,13 @@ function loadTickets() {
 				arr.push(element);
 			}
 		});
+        alert('4');
+
 		showResults(arr, target, ++search_option_id);
 
 
 
+alert('4-end');
 
 
 
