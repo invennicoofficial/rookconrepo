@@ -1189,7 +1189,7 @@ function addSignature(chk) {
 							SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 							GROUP_CONCAT(DISTINCT NULLIF(`comment_box`,'') SEPARATOR ', ') COMMENTS, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS,
 							SUM(`timer_tracked`) TRACKED_HRS,
-							SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`,, `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 GROUP BY `date`";
+							SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 GROUP BY `date`";
                         } else {
                             $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
 							SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
@@ -1302,7 +1302,7 @@ function addSignature(chk) {
 								} else {
 									$hrs['TRAINING'] = 0;
 								}
-								if(in_array('start_day_tile',$value_config) && !($row['ticketid'] > 0)) {
+								if(in_array('start_day_tile',$value_config) && !($attached_ticketid > 0)) {
 									$hrs['DRIVE'] = $hrs['REG'];
 									$hrs['REG'] = 0;
 									$total['REG'] -= $hrs['DRIVE'];
@@ -1317,6 +1317,7 @@ function addSignature(chk) {
 								$timecardid = 0;
 								$ticket_attached_id = '';
 								$attached_ticketid = '';
+								$time_type = '';
 								$start_time = '';
 								$end_time = '';
 
