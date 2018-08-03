@@ -138,6 +138,12 @@ function loadTickets() {
 	var result_list = [];
 	var filter_list = [];
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length	> 0) {
+
+
+
+
+
+
         alert('1');
 		var staff = [];
 		$('.active.blue [data-staff]').each(function() {
@@ -145,18 +151,24 @@ function loadTickets() {
 				staff.push($(this).data('staff'));
 			}
 		});
+        alert('1');
+
 		var creator = [];
 		$('.active.blue [data-creator]').each(function() {
 			if($(this).data('creator') != '') {
 				creator.push($(this).data('creator'));
 			}
 		});
+        alert('1');
+
 		var business = [];
 		$('.active.blue [data-business]').each(function() {
 			if($(this).data('business') > 0) {
 				business.push($(this).data('business'));
 			}
 		});
+        alert('1');
+
 		var contact = [];
 		$('.active.blue [data-contact]').each(function() {
 			if($(this).data('contact') > 0) {
@@ -169,6 +181,8 @@ function loadTickets() {
 				project.push($(this).data('project'));
 			}
 		});
+        alert('1');
+
 		var po = [];
 		$('.active.blue [data-po]').each(function() {
 			if($(this).data('po') != '') {
@@ -181,9 +195,14 @@ function loadTickets() {
 				status.push($(this).data('status'));
 			}
 		});
+        alert('1');
+
 		if(ticket_list[$('.active.blue').closest('[data-type]').first().data('type')] != undefined) {
 			var i = 0;
+            alert('1');
 			ticket_list[$('.active.blue').closest('[data-type]').first().data('type')].forEach(function(ticket) {
+                        alert('1');
+
 				if((business.indexOf(ticket.business * 1) >= 0 || business.length == 0) &&
 					(ticket.contact.some(function(element) { return this.indexOf(element * 1) >= 0; }, contact) || contact.length == 0) &&
 					((ticket.staff.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status != 'Internal QA' && ticket.status != 'Customer QA') || (ticket.internal_qa.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status == 'Internal QA') || (ticket.deliverable_id.some(function(element) { return this.indexOf(element * 1) >= 0; }, staff) && ticket.status == 'Customer QA') || staff.length == 0) &&
@@ -192,9 +211,9 @@ function loadTickets() {
 					(project.indexOf(ticket.project) >= 0 || project.length == 0) &&
 					(status.indexOf(ticket.status) >= 0 || (status.length == 0 && ticket.status != 'Done' && ticket.status != 'Archive') || status.indexOf('ALL_STATUS') >= 0) &&
 					($('.active.blue').closest('[data-type]').first().data('limit') == undefined || $('.active.blue').closest('[data-type]').first().data('limit') > i)) {
-					filter_list.push(ticket);
-					i++;
-				}
+					    filter_list.push(ticket);
+					    i++;
+				    }
 			});
 		} else {
 			loadingOverlayShow('.main-content-screen');
@@ -209,9 +228,15 @@ function loadTickets() {
 				result_list.push(ticket);
 			}
 		});
-	} else if($('.search_list:visible').val() != '') {
-                alert('2');
 
+                        alert('1 - end');
+
+
+
+
+
+
+	} else if($('.search_list:visible').val() != '') {
 		var key = $('.search_list:visible').val();
 		if(key != undefined) {
 			key = key.toLowerCase();
@@ -226,13 +251,15 @@ function loadTickets() {
 			}
 		});
 	} else {
-                alert('3');
-
 		current_ticket_search_key = '';
 		result_list = [];
 	}
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length > 0 || current_ticket_search_key != '') {
-                alert('4');
+
+
+
+
+
 
 		$('.summary_tab').removeClass('active').removeClass('blue');
 		var type = $('[data-type] .active.blue,[data-type].active.blue').first().closest('[data-type]');
@@ -271,9 +298,14 @@ function loadTickets() {
 			}
 		});
 		showResults(arr, target, ++search_option_id);
-	} else if($('.hide-titles-mob .standard-dashboard-body-content').is(':visible')) {
-                alert('5');
 
+
+
+
+
+
+
+	} else if($('.hide-titles-mob .standard-dashboard-body-content').is(':visible')) {
 		<?php if(!in_array('Disable',$db_summary) && empty($_GET['tab'])) { ?>
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').text('Summary');
 			$('.summary_tab').addClass('active blue');
