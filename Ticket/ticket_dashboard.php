@@ -124,10 +124,21 @@ function loadNote(tab) {
     }
 }
 function loadTickets() {
+	<?php if($_GET['form_list'] > 0) {
+		echo 'return;';
+	} ?>
+	if(ticket_list == undefined) {
+		return;
+	}
+	loadingOverlayHide();
+	clearTimeout(continue_loading);
+	ajax_loads.forEach(function(call) { call.abort(); });
+	$('.show-on-mob .standard-dashboard-body-content:visible').empty().html('<h4 class="col-sm-12">Enter a search term to display <?= TICKET_TILE ?> here<h4>');
 	var target = $('.main-content-screen .main-screen .standard-dashboard-body-content:visible');
 	var result_list = [];
 	var filter_list = [];
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length	> 0) {
+        alert('1');
 		var staff = [];
 		$('.active.blue [data-staff]').each(function() {
 			if($(this).data('staff') > 0) {
@@ -199,6 +210,8 @@ function loadTickets() {
 			}
 		});
 	} else if($('.search_list:visible').val() != '') {
+                alert('2');
+
 		var key = $('.search_list:visible').val();
 		if(key != undefined) {
 			key = key.toLowerCase();
@@ -213,10 +226,14 @@ function loadTickets() {
 			}
 		});
 	} else {
+                alert('3');
+
 		current_ticket_search_key = '';
 		result_list = [];
 	}
 	if($('[data-type] .active.blue').length + $('[data-type].active.blue').length > 0 || current_ticket_search_key != '') {
+                alert('4');
+
 		$('.summary_tab').removeClass('active').removeClass('blue');
 		var type = $('[data-type] .active.blue,[data-type].active.blue').first().closest('[data-type]');
 		var title = type.find('a').first().text();
@@ -255,6 +272,8 @@ function loadTickets() {
 		});
 		showResults(arr, target, ++search_option_id);
 	} else if($('.hide-titles-mob .standard-dashboard-body-content').is(':visible')) {
+                alert('5');
+
 		<?php if(!in_array('Disable',$db_summary) && empty($_GET['tab'])) { ?>
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').text('Summary');
 			$('.summary_tab').addClass('active blue');
