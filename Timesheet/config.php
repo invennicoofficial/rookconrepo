@@ -91,6 +91,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Start Time (Editable)', 'time', 'start_time_editable'),
 			array('End Time (Editable)', 'time', 'end_time_editable'),
 			array($timesheet_start_tile, 'time', 'start_day_tile'),
+			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
 			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
 			array('Type of Time', 'dropdown', 'type_of_time'),
 			array('Address', 'text', 'address'),
@@ -746,7 +747,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$ticket_labels = [];
 	$sql = "SELECT `ticketid` FROM `time_cards` WHERE `date` = '$date' AND `staff` = '$staff'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
 		$sql .= " AND `time_cards_id` = '$time_cards_id'";
 	}
 	$query = mysqli_query($dbc, $sql);
