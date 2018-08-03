@@ -44,6 +44,20 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
 		<div class="form-group">
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This setting will dictate how far ahead the software will create Recurring <?= TICKET_TILE ?> (eg. visible in the software) that are ongoing, and will continue creating <?= TICKET_TILE ?> on an ongoing basis up to the selected amount here. This is required as the software cannot create an infinite number of <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Ongoing Recurring <?= TICKET_TILE ?> Sync Up To:</label>
+			<div class="col-sm-8">
+				<?php $ticket_recurrence_sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years'; ?>
+				<select name="ticket_recurrence_sync_upto" class="chosen-select-deselect form-control">
+					<?php for($i = 1; $i <= 11; $i++) {
+						echo '<option value="'.$i.' months" '.($ticket_recurrence_sync_upto == $i.' months' ? 'selected' : '').'>'.$i.' Month'.($i > 1 ? 's' : '').'</option>';
+					}
+					for($i = 1; $i <= 5; $i++) {
+						echo '<option value="'.$i.' years" '.($ticket_recurrence_sync_upto == $i.' years' ? 'selected' : '').'>'.$i.' Year'.($i > 1 ? 's' : '').'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-sm-4 control-label">Labels for Multiple <?= TICKET_TILE ?>:<br /><em>Separate labels with a comma. Each successive <?= TICKET_NOUN ?> will use the next label.</em></label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="ticket_multiple_labels" value="<?= get_config($dbc, "ticket_multiple_labels") ?>">
@@ -517,6 +531,14 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Date", $all_config) ? 'checked disabled' : (in_array("Detail Date", $value_config) ? "checked" : '') ?> value="Detail Date" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the date of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Date</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Detail Start Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Start Date Time", $all_config) ? 'checked disabled' : (in_array("Detail Start Date Time", $value_config) ? "checked" : '') ?> value="Detail Start Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the start date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled Start Date &amp; Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Detail End Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail End Date Time", $all_config) ? 'checked disabled' : (in_array("Detail End Date Time", $value_config) ? "checked" : '') ?> value="Detail End Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the end date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled End Date &amp; Time</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Detail Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Staff", $all_config) ? 'checked disabled' : (in_array("Detail Staff", $value_config) ? "checked" : '') ?> value="Detail Staff" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of Staff to assign to the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Assigned Staff</label>
@@ -862,7 +884,7 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Rate", $all_config) ? 'checked disabled' : (in_array("Staff Rate", $value_config) ? "checked" : '') ?> value="Staff Rate" name="tickets[]"> Rate (displayed for individuals with Settings Permissions)</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Start') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Start Time</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Shift Start Time</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Set Hours", $value_config) ? "checked" : '') ?> value="Staff Set Hours" name="tickets[]"> Payable Hours</label>
@@ -896,6 +918,24 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Anyone Can Add') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Staff Multiple Times" name="tickets[]"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow adding multiple Dates/Times to the Staff's Time Sheet. The Time Sheet will take these values over the Check In/Check Out times."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span> Multiple Dates/Times</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Date", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Date", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Date" name="tickets[]"> Multiple Dates/Times - Date</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Start Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Start Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Start Time" name="tickets[]"> Multiple Dates/Times - Start Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times End Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times End Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times End Time" name="tickets[]"> Multiple Dates/Times - End Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Type", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Type", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Type" name="tickets[]"> Multiple Dates/Times - Type of Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Set Hours", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Set Hours" name="tickets[]"> Multiple Dates/Times - Payable Hours</label>
 							<?php } ?>
 						<?php } ?>
 						</div>
@@ -1275,6 +1315,11 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication", $all_config) ? 'checked disabled' : (in_array("Medication", $value_config) ? "checked" : '') ?> value="Medication" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to manage Medication for Members attached to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Multiple Days", $all_config) ? 'checked disabled' : (in_array("Medication Multiple Days", $value_config) ? "checked" : '') ?> value="Medication Multiple Days" name="tickets[]"> Multiple Days</label>
+						</div>
+					<?php } ?>
 				</div>
 			</div>
 		<?php }
@@ -1431,6 +1476,12 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Service Description') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Description", $all_config) ? 'checked disabled' : (in_array("Service Description", $value_config) ? "checked" : '') ?> value="Service Description" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify general details for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Description</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Details Tile') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tile", $all_config) ? 'checked disabled' : (in_array("Details Tile", $value_config) ? "checked" : '') ?> value="Details Tile" name="tickets[]"> Tile Name</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Details Tab') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tab", $all_config) ? 'checked disabled' : (in_array("Details Tab", $value_config) ? "checked" : '') ?> value="Details Tab" name="tickets[]"> Tab / Sub Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details Where') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Where", $all_config) ? 'checked disabled' : (in_array("Details Where", $value_config) ? "checked" : '') ?> value="Details Where" name="tickets[]"> Where</label>
@@ -3131,7 +3182,10 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Property Damage", $all_config) ? 'checked disabled' : (in_array("Customer Property Damage", $value_config) ? "checked" : '') ?> value="Customer Property Damage" name="tickets[]"> Property Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Product Damage') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" name="tickets[]"> Product Damage Notes</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" onclick="$('[value^=Customer][value*=Product][value*=Damage][value$=Package]').removeAttr('checked').change();" name="tickets[]"> Product Damage Notes</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Product Damage Package') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage Package", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage Package", $value_config) ? "checked" : '') ?> value="Customer Product Damage Package" onclick="$('[value^=Customer][value*=Product][value$=Damage]').removeAttr('checked').change();" name="tickets[]"> Product or Package Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Rate') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Rate", $all_config) ? 'checked disabled' : (in_array("Customer Rate", $value_config) ? "checked" : '') ?> value="Customer Rate" name="tickets[]"> Rating by Customer</label>
@@ -3327,6 +3381,48 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 									<div class="clearfix"></div>
 								</div>
 							<?php } ?>
+						</div>
+					<?php } ?>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'Internal Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Internal Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></span>:<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('internal_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('internal_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="internal_communication" data-toggle="<?= in_array('internal_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('internal_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('internal_communication_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Internal Communication", $all_config) ? 'checked disabled' : (in_array("Internal Communication", $value_config) ? "checked" : '') ?> value="Internal Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add Internal Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'External Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="External Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></span>:<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('external_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('external_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="external_communication" data-toggle="<?= in_array('external_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("External Communication", $all_config) ? 'checked disabled' : (in_array("External Communication", $value_config) ? "checked" : '') ?> value="External Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add External Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response", $all_config) ? 'checked disabled' : (in_array("External Response", $value_config) ? "checked" : '') ?> value="External Response" name="tickets[]"> Request Response</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Thread", $all_config) ? 'checked disabled' : (in_array("External Response Thread", $value_config) ? "checked" : '') ?> value="External Response Thread" name="tickets[]"> Display Communication Thread</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Status", $all_config) ? 'checked disabled' : (in_array("External Response Status", $value_config) ? "checked" : '') ?> value="External Response Status" name="tickets[]"> Responder Status</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Documents", $all_config) ? 'checked disabled' : (in_array("External Response Documents", $value_config) ? "checked" : '') ?> value="External Response Documents" name="tickets[]"> Include Documents</label>
 						</div>
 					<?php } ?>
 				</div>

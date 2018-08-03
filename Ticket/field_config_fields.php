@@ -86,7 +86,7 @@ $(document).ready(function() {
 		items: '.checkout_info',
 		update: saveFields
 	});
-	
+
 	filterIndCategories();
 
 	reloadSortableAccordions();
@@ -104,7 +104,7 @@ $(document).ready(function() {
 			sortFieldsCustom(div);
 		}
 	});
-	
+
 	$('.dataToggle:not(.disabled)').click(function() {
 		$(this).find('input').data('toggle',$(this).find('input').data('toggle') == 1 ? 0 : 1);
 		$(this).find('img').toggle();
@@ -201,6 +201,7 @@ function saveFields() {
 	var ticket_recurring_status = $('[name="ticket_recurring_status"]').val();
 	var ticket_material_increment = $('[name="ticket_material_increment"]').val();
 	var ticket_notes_alert_role = $('[name="ticket_notes_alert_role"]').val();
+	var ticket_recurrence_sync_upto = $('[name="ticket_recurrence_sync_upto"]').val();
 	$.post('ticket_ajax_all.php?action=ticket_fields', {
 		fields: ticket_fields,
 		field_name: '<?= empty($tab) ? 'tickets' : 'ticket_fields_'.$tab ?>',
@@ -269,6 +270,7 @@ function saveFields() {
 		ticket_approval_status: $('[name="ticket_approval_status"]').val(),
 		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
 		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
+		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto
 	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
@@ -312,7 +314,7 @@ function addNoteType() {
 	var clone = $('.note-option').last().clone();
 	clone.find('input').val('');
 	$('.note-option').last().after(clone);
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 	$('[name="note_types"]').last().focus();
 }
@@ -327,7 +329,7 @@ function addNotifyListItem() {
 	var clone = $('.notify_item').last().clone();
 	clone.find('input').val('');
 	$('.notify_item').last().after(clone);
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 	$('[name="ticket_notify_list_items"]').last().focus();
 }
@@ -364,7 +366,7 @@ function addIndividual() {
 	clone.find('select').val('').trigger('change.select2');
 	$('.ind_type').last().after(clone);
 	initInputs('.ind_type');
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function remIndividual(a) {
@@ -379,7 +381,7 @@ function addReason() {
 	clone.find('input').val('');
 	$('.cancel_reason').last().after(clone);
 	$('[name=cancel_reasons]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeReason(a) {
@@ -394,7 +396,7 @@ function addInfo() {
 	clone.find('input').val('');
 	$('.checkout_info').last().after(clone);
 	$('[name=checkout_info]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeInfo(a) {
@@ -409,7 +411,7 @@ function addInfoStaff() {
 	clone.find('input').val('');
 	$('.checkout_info_staff').last().after(clone);
 	$('[name=checkout_info_staff]').last().focus();
-	
+
 	$('input').off('change',saveFields).change(saveFields);
 }
 function removeInfoStaff(a) {
@@ -426,7 +428,7 @@ function updateIncidentReportEmail(input) {
 		method: 'POST',
 		data: { email: email },
 		success: function(response) {
-			
+
 		}
 	});
 }
@@ -486,7 +488,7 @@ function addAttachedChart() {
 
 	block.after(clone);
 	initInputs('.attached_chart_block');
-	
+
 	$('input,select').change(saveFields);
 	$('select[name="attached_chart_tab[]"],select[name="attached_chart_subtab[]"],select[name="attached_chart_heading[]"],select[name="attached_chart[]"]').change(function() { filterAttachedCharts(this); });
 }
@@ -604,7 +606,7 @@ function sortAccordions() {
 			blocks: blocks
 		},
 		success: function(response) {
-			
+
 		}
 	});
 	saveHigherLevelHeadings();

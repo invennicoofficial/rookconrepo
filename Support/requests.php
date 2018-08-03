@@ -153,11 +153,11 @@ if($request_tab == 'new'): ?>
 			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			
 			// Thank you Email to sender and CC email.
-			$to = array_filter(array_unique(explode(';',$to)));
-			$cc = array_filter(array_unique(explode(';',$cc)));
+			$to = array_filter(array_unique(explode(';',$email)));
+			$cc_list = array_filter(array_unique(explode(';',$cc)));
 			try {
-				send_email('info@rookconnect',$to,$cc,'',$cust_subject,$cust_body,$email_attachments);
-			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
+				send_email('info@rookconnect',$to,$cc_list,'',$cust_subject,$cust_body,$email_attachments);
+			} catch(Exception $e) { $errors .= "Error sending notification to ".implode('; ',array_merge($to,$cc_list)).".\n"; }
 		}
 		
 		if($errors != '') {

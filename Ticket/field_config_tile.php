@@ -126,6 +126,15 @@ function saveField() {
 				value: statuses.join(',')
 			}
 		});
+	} else if(this.name == 'ticket_default_session_user') {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'ticket_default_session_user',
+				value: this.value
+			}
+		});
 	}
 }
 </script>
@@ -265,6 +274,15 @@ function saveField() {
 		<?php $ticket_unassigned_status = get_config($dbc, 'ticket_unassigned_status'); ?>
 		<label><input name="ticket_unassigned_status" type="radio" value="1" <?= $ticket_unassigned_status == '1' ? 'checked' : '' ?>>Yes</label>
 		<label><input name="ticket_unassigned_status" type="radio" value="" <?= $ticket_unassigned_status != '1' ? 'checked' : '' ?>>No</label>
+	</div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Default New <?= TICKET_TILE?> to Logged In User:</label>
+	<div class="col-sm-8">
+		<?php $ticket_default_session_user = get_config($dbc, 'ticket_default_session_user'); ?>
+		<label><input name="ticket_default_session_user" type="radio" value="" <?= $ticket_default_session_user != 'no_user' ? 'checked' : '' ?>>Yes</label>
+		<label><input name="ticket_default_session_user" type="radio" value="no_user" <?= $ticket_default_session_user == 'no_user' ? 'checked' : '' ?>>No</label>
 	</div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_tile.php') { ?>

@@ -325,7 +325,7 @@ checkAuthorised('software_config');
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'contact_sort')) { ?><li <?= ($tab == 'contacts_sort_order' ? 'class="active" ' : '') ?>><a href='settings.php?tab=contacts_sort_order'> Display Preferences</a></li><?php } ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'font')) { ?><li <?= ($tab == 'font_settings' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=font_settings'> Font Settings</a></li><?php } ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'data_use')) { ?><li <?= ($tab == 'data_use' ? 'class="active" ' : ''); ?><a href='settings.php?tab=data_use'>Data Usage</a></li><?php } ?>
-			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'notes')) { ?><li <?= ($tab == 'notes' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=notes'>Notes</a></li><?php } ?>
+			<?php //if(check_subtab_persmission($dbc, 'software_config', ROLE, 'notes')) { ?><!--<li <?= ($tab == 'notes' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=notes'>Notes</a></li> --><?php //} ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'ticket_slider')) { ?><li <?= ($tab == 'ticket_slider' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=ticket_slider'><?= TICKET_NOUN ?> Slider</a></li><?php } ?>
 			<li <?= ($tab == 'notifications' ? 'class="active" ' : '') ?>><a href='settings.php?tab=notifications'>Notifications</a></li>
 		</div>

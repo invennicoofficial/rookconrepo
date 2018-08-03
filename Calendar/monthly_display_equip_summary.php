@@ -24,8 +24,8 @@ $allowed_classifications_query = " AND (".implode(' OR ', $allowed_classificatio
 
 if(!isset($equipment_category)) {
 	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	}
 }
 
@@ -80,7 +80,7 @@ while($row = mysqli_fetch_array( $result )) {
 		}
 	}
 
-    $column .= '<div class="calendar_block calendarSortable" data-region="'.$row['region'].'" data-location="'.$row['location'].'" data-classification="'.$row['classification'].'" data-contact="'.$row['equipmentid'].'" data-equipmassign="'.$row['equipment_assignmentid'].'">';
+    $column .= '<div class="calendar_block calendarSortable" data-region="'.$row['region'].'" data-location="'.$row['location'].'" data-classification="'.$row['classification'].'" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$row['equipmentid'].'" data-equipmassign="'.$row['equipment_assignmentid'].'">';
 	$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].'">';
 	$column .= $team_name;
 	$column .= '<br />(Completed '.$completed_tickets.' of '.count($tickets).' '.(count($tickets) == 1 ? TICKET_NOUN : TICKET_TILE).')';

@@ -202,6 +202,8 @@ checkAuthorised('security');
 
 					/* Tabbed View Contacts tile subtab settings */
 					if ( $tile == 'contacts' ) {
+						echo '<tr><td>Summary</td>';
+						echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ).'</tr>';
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
 						$each_tab	= explode ( ',', $tabs );
 						foreach ( $each_tab as $subtab ) {
@@ -218,6 +220,8 @@ checkAuthorised('security');
 
 					/* Contacts tile subtab settings */
 					if ( $tile == 'contacts_inbox' ) {
+						echo '<tr><td>Summary</td>';
+						echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ).'</tr>';
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
 						$each_tab	= explode ( ',', $tabs );
 						foreach ( $each_tab as $subtab ) {

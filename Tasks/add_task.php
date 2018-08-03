@@ -254,7 +254,7 @@ $(document).ready(function () {
         } else {
             url_fill = 'update_fields';
         }
-
+        
         $.ajax({
             url: 'task_ajax_all.php?fill='+url_fill,
             method: 'POST',
@@ -477,6 +477,29 @@ $(document).ready(function () {
     //$('#task_path').trigger('change');
 
 });
+
+function quick_add_time(task) {
+    task_id = $('[name=tasklistid]').val();
+	$(task).timepicker('option', 'onClose', function(time) {
+        var time = $(task).val();
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'task_ajax_all.php?fill=task_quick_time',
+				data: { id: task_id, time: time+':00' },
+				complete: function(result) {
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) {}
+                    });
+                }
+			});
+		}
+	});
+	$(task).timepicker('show');
+}
 
 function manual_add_time(task) {
 	taskid = $(task).data('taskid');
@@ -1272,7 +1295,8 @@ checkAuthorised('tasks');
                 <h5>Track Time To Task</h5>
                 <label for="first_name" class="col-xs-3 control-label text-right"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" /> Add Time:</label>
                 <div class="col-xs-3">
-                    <input name="task_work_time" value="<?= $task_work_time; ?>" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" />
+                    <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
+                    <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
                 <label for="first_name" class="col-xs-3 control-label text-right"><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> Track Time:</label>
                 <div class="col-xs-3">

@@ -538,11 +538,17 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										function ticket_delivery_email(checked) {
 											var div = $(checked).closest('.scheduled_stop');
 											var str = div.find('.email_body').val();
+											var eta = div.find('[name=eta]').val();
+											if(eta == undefined || eta = '') {
+												eta = 'on '+div.find('[name=to_do_date]').val();
+											} else {
+												eta = 'at '+eta;
+											}
 											if(checked.checked) {
-												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.replace('[[ETA]]',div.find('[name=eta]').val()));
+												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.replace('[[ETA]]',eta));
 												div.find('.email_div').show();
 											} else {
-												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.substring(0,str.search('will occur at '))+'will occur at [[ETA]]'+str.search('. Please be ready'));
+												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
 												div.find('.email_div').hide();
 											}
 										}
@@ -570,7 +576,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<label class="col-sm-4 control-label">Email Body:</label>
 												<div class="col-sm-12">
 													<textarea name="ticket_comment_email_body" class="form-control email_body"><p>Please be advised that a delivery will be made at your address shortly.</p>
-														<p>It is estimated that the delivery will occur at [[ETA]]. Please be ready to receive the delivery.</p>
+														<p>It is estimated that the delivery will occur [[ETA]]. Please be ready to receive the delivery.</p>
 														<p><a href="<?= WEBSITE_URL ?>/Ticket/status_link.php?s=<?= urlencode(encryptIt(json_encode(['ticket'=>$stop['ticketid'],'stop'=>$stop['id']]))) ?>">View Delivery Status</a></p></textarea>
 												</div>
 											</div>

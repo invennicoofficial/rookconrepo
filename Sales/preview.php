@@ -67,7 +67,7 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-xs-12 col-md-4 col-md-offset-1 preview-block-details-right">
                         <div class="row">
                             <div class="col-xs-6 default-color">Lead Value($):</div>
@@ -86,9 +86,9 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                             <div class="col-xs-6"><?= $row['new_reminder']; ?></div>
                         </div>
                     </div>
-                    
+
                     <div class="clearfix"></div>
-                    
+
                     <div class="col-xs-12 preview-block-details-full">
                         <div class="col-xs-12 col-sm-2 col-md-1"><b>Notes:</b></div>
                         <div class="col-xs-12 col-sm-10 col-md-11"><?php
@@ -104,9 +104,26 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                             } ?>
                         </div>
                     </div>
-                    
-                    <div class="clearfix"></div><?php
-                    
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-xs-12 preview-block-details-full">
+                        <div class="col-xs-12 col-sm-2 col-md-1"><b>Reminders:</b></div>
+                        <div class="col-xs-12 col-sm-10 col-md-11"><?php
+                            $comments = mysqli_query($dbc, "SELECT contactid, reminder_date FROM `reminders` WHERE src_table = 'sales' AND `src_tableid`='{$salesid}' AND reminder_date >= CURDATE() ORDER BY `reminder_date`");
+                            if ( $comments->num_rows > 0 ) {
+                                echo '<ul>';
+                                while ( $row=mysqli_fetch_assoc($comments) ) {
+                                    echo '<li>'. $row['reminder_date'] . ' : '.get_multiple_contact($dbc, $row['contactid']) .'</li>';
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '-';
+                            } ?>
+                        </div>
+                    </div>
+
+                    <?php
                     if ( !empty($row['serviceid']) ) { ?>
                         <div class="col-sm-12 triple-gap-top">
                             <div class="no-more-tables">
@@ -117,7 +134,7 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                                         if (strpos($value_config, ',Services Heading,') !== false) { echo '<th>Heading</th>'; }
                                         echo '<th>Unit Price($)</th>'; ?>
                                     </tr><?php
-                                    
+
                                     foreach ( explode(',', $row['serviceid']) as $each_serviceid ) {
                                         $service_row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `serviceid`, `service_type`, `category`, `heading`, `client_price` FROM `services` WHERE `serviceid`='{$each_serviceid}'"));
                                         echo '<tr>';
@@ -132,7 +149,7 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                         </div>
                         <div class="clearfix"></div><?php
                     }
-                    
+
                     if ( !empty($row['productid']) ) { ?>
                         <div class="col-sm-12 triple-gap-top">
                             <div class="no-more-tables">
@@ -143,7 +160,7 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                                         if (strpos($value_config, ',Products Heading,') !== false) { echo '<th>Heading</th>'; }
                                         echo '<th>Unit Price($)</th>'; ?>
                                     </tr><?php
-                                    
+
                                     foreach ( explode(',', $row['productid']) as $each_productid ) {
                                         $product_row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `productid`, `product_type`, `category`, `heading`, `client_price` FROM `products` WHERE `productid`='{$each_productid}'"));
                                         echo '<tr>';

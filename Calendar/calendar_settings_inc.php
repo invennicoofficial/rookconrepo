@@ -341,8 +341,8 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'scheduling_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'scheduling_monthly_days'));
         $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-        if (!empty($equipment_category)) {
-            $equipment_category = 'Truck';
+        if (empty($equipment_category)) {
+            $equipment_category = 'Equipment';
         }
         echo '<input type="hidden" name="equipment_category_label" value="'.$equipment_category.'">';
         $dispatch_filters = get_config($dbc, 'scheduling_filters');
@@ -376,9 +376,11 @@ switch($_GET['type']) {
             $mobile_calendar_view = 'Staff';
         }
         $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
+        $combine_pickups = get_config($dbc, 'scheduling_combine_pickup');
         $combine_time = get_config($dbc, 'scheduling_combine_time');
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
+        $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -423,6 +425,9 @@ switch($_GET['type']) {
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
+        $staff_split_security = get_config($dbc, 'ticket_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
+        $client_draggable = get_config($dbc, 'ticket_client_draggable');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';

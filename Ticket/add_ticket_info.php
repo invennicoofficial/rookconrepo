@@ -832,6 +832,22 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		            </div>
 		        </div>
 		    <?php } ?>
+		    <?php if(strpos($value_config,',Details Tile,') !== FALSE && $field_sort_field == 'Details Tile') { ?>
+		        <div class="form-group">
+		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
+		            <div class="col-sm-8">
+		                <input name="details_tile" class="form-control" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['details_tile'] ?>" />
+		            </div>
+		        </div>
+		    <?php } ?>
+		    <?php if(strpos($value_config,',Details Tab,') !== FALSE && $field_sort_field == 'Details Tab') { ?>
+		        <div class="form-group">
+		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tab / Sub Tab:</label>
+		            <div class="col-sm-8">
+		                <input name="details_tab" class="form-control" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['details_tab'] ?>" />
+		            </div>
+		        </div>
+		    <?php } ?>
 		    <?php if(strpos($value_config,',Details Who,') !== FALSE && $field_sort_field == 'Details Who') { ?>
 		        <div class="form-group">
 		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Any customers that will or may use this feature"><img src="../img/info.png" width="20"></a></span> Who:</label>

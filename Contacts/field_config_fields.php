@@ -1718,6 +1718,79 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                                                 </div>
                                             </div>
                                         <?php break;
+
+
+
+                                        case 'acc_upcoming_appointments_addition': ?>
+                                            <div class="form-group sort_group_blocks">
+                                                <label class="col-sm-4 control-label">Upcoming Appointments:</label>
+                                                <div class="col-sm-8">
+                                                    <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_upcoming_appointments_addition">Enable</label>
+                                                    <div class="block-group sortable_group" style="display:none;">
+                                                        <?php foreach(array_unique(array_merge($field_config,['Upcoming Appointments'])) as $field_option) {
+                                                            switch($field_option) {
+                                                                case 'Upcoming Appointments': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Upcoming Appointments', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Upcoming Appointments" onchange="save_options();">Upcoming Appointments</label><?php break;
+                                                            }
+                                                        } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php break;
+
+
+                                        case 'acc_ticket_tile_notes': ?>
+                                            <div class="form-group sort_group_blocks">
+                                                <label class="col-sm-4 control-label"><?php echo TICKET_NOUN.' Notes'; ?>:</label>
+                                                <div class="col-sm-8">
+                                                    <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_ticket_tile_notes">Enable</label>
+                                                    <div class="block-group sortable_group" style="display:none;">
+                                                        <?php foreach(array_unique(array_merge($field_config,['Session Notes'])) as $field_option) {
+                                                            switch($field_option) {
+                                                                case 'Session Notes': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Session Notes', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Session Notes" onchange="save_options();">Session Notes</label><?php break;
+                                                            }
+                                                        } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php break;
+
+                                        case 'acc_match_tile': ?>
+                                            <div class="form-group sort_group_blocks">
+                                                <label class="col-sm-4 control-label">Match:</label>
+                                                <div class="col-sm-8">
+                                                    <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_match_tile">Enable</label>
+                                                    <div class="block-group sortable_group" style="display:none;">
+                                                        <?php foreach(array_unique(array_merge($field_config,['Match'])) as $field_option) {
+                                                            switch($field_option) {
+                                                                case 'Match': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Match', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Match" onchange="save_options();">Match</label><?php break;
+                                                            }
+                                                        } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php break;
+
+                                        case 'acc_intake_tile': ?>
+                                            <div class="form-group sort_group_blocks">
+                                                <label class="col-sm-4 control-label">Intake Forms:</label>
+                                                <div class="col-sm-8">
+                                                    <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_intake_tile">Enable</label>
+                                                    <div class="block-group sortable_group" style="display:none;">
+                                                        <?php foreach(array_unique(array_merge($field_config,['Intake Forms'])) as $field_option) {
+                                                            switch($field_option) {
+                                                                case 'Intake Forms': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Intake Forms', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Intake Forms" onchange="save_options();">Intake Forms</label><?php break;
+                                                            }
+                                                        } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php break;
+
+
+
+
+
+
                                         case 'acc_vendor_price_lists': ?>
                                             <div class="form-group sort_group_blocks">
                                                 <label class="col-sm-4 control-label">Vendor Price List:</label>

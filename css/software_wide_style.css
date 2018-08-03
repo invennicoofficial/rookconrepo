@@ -3283,3 +3283,8 @@ position: relative;
 
   .no-more-tables-forced td:before {
     content: attr(data-title); }
+
+.left-dialog-button {
+	position: absolute;
+	left: 1.5em;
+}
