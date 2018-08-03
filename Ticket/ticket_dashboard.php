@@ -1,6 +1,8 @@
 <?php
-$archive_query = "UPDATE tickets SET status='Unassigned' WHERE contactid IS NULL OR contactid = ''";
-$delete_result = mysqli_query($dbc, $archive_query);
+if(get_config($dbc, 'ticket_unassigned_status') == 1) {
+	$archive_query = "UPDATE tickets SET status='Unassigned' WHERE (contactid IS NULL OR contactid = '') AND `status` != 'Archive' AND `deleted` = 0";
+	$delete_result = mysqli_query($dbc, $archive_query);
+}
 
 $ticket_tabs = [];
 foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_tab) {
@@ -44,7 +46,8 @@ if($db_sort != '') {
 $match_business = '';
 if(!empty(MATCH_CONTACTS)) {
 	$match_business = " AND `tickets`.`businessid` IN (".MATCH_CONTACTS.")";
-} ?>
+}
+$recent_manifests = get_config($dbc, 'recent_manifests'); ?>
 <script>
 var ajax_loads = [];
 $(document).ready(function() {
@@ -124,6 +127,9 @@ function loadTickets() {
 	<?php if($_GET['form_list'] > 0) {
 		echo 'return;';
 	} ?>
+	if(ticket_list == undefined) {
+		return;
+	}
 	loadingOverlayHide();
 	clearTimeout(continue_loading);
 	ajax_loads.forEach(function(call) { call.abort(); });
@@ -192,7 +198,10 @@ function loadTickets() {
 		} else {
 			loadingOverlayShow('.main-content-screen');
 		}
-		var key = $('.search_list:visible').val().toLowerCase();
+		var key = $('.search_list:visible').val();
+		if(key != undefined) {
+			key = key.toLowerCase();
+		}
 		current_ticket_search_key = key;
 		filter_list.forEach(function(ticket) {
 			if(key == '' || key == undefined || ticket.key.toLowerCase().search(key) >= 0) {
@@ -200,8 +209,14 @@ function loadTickets() {
 			}
 		});
 	} else if($('.search_list:visible').val() != '') {
-		var key = $('.search_list:visible').val().toLowerCase();
+		var key = $('.search_list:visible').val();
+		if(key != undefined) {
+			key = key.toLowerCase();
+		}
 		current_ticket_search_key = key;
+		if(ticket_list['ticket'] == undefined) {
+			return;
+		}
 		ticket_list['ticket'].forEach(function(ticket) {
 			if(key == '' || key == undefined || ticket.key.toLowerCase().search(key) >= 0) {
 				result_list.push(ticket);
@@ -296,7 +311,7 @@ function showResults(result_list, target, search_id) {
 		} else if(ticket != undefined && ticket.id > 0) {
 			target.append('<div class="dashboard-item form-horizontal">'+
 					'<h3><a href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+<?php if($tile_security['edit'] > 0) { ?>
-						'<a href="?custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small">Edit</a><div class="clearfix"></div>'+
+						'<?= ($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\'+$(\'.active.blue\').closest(\'[data-type]\').data(\'type\').substr(5)+\',\'+ticket.id+\',\'+ticket.revision+\',this); return false;" class="pull-right small pad-10">Archive</a>' : '') ?><a href="?custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small pad-10">Edit</a><div class="clearfix"></div>'+
 					<?php } else { ?>
 						''+
 					<?php } ?>'</div>');
@@ -304,6 +319,12 @@ function showResults(result_list, target, search_id) {
 		}
 	} else if(result_list.length > 0) {
 		continue_loading = setTimeout(function() { showResults(result_list, target, search_id); }, 1000);
+	}
+}
+function remForm(form, ticket, rev, div) {
+	if(confirm('Are you sure you want to remove this form?')) {
+		$(div).remove();
+		$.post('ticket_ajax_all.php?action=removePdfForm',{formid:form,ticket:ticket,revision:rev});
 	}
 }
 function setActions() {
@@ -315,6 +336,43 @@ function setActions() {
 			data: { ticketid: item.data('id') }
 		});
 		item.hide();
+	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+				data: {
+					field: 'manual_flag_colour',
+					value: item.find('[name=colour]').val(),
+					table: item.data('table'),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
 	});
 	$('.flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -354,6 +412,59 @@ function setActions() {
 			});
 		}).click();
 	});
+	$('.reply-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: '../Project/projects_ajax.php?action=project_actions',
+				method: 'POST',
+				data: {
+					field: 'comment',
+					value: this.value,
+					table: 'tickets',
+					id: item.data('id'),
+					id_field: 'ticketid'
+				}
+			});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
+	$('.emailpdf-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                            alert('PDF Sent');
+                }
+        		});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		item.find('[name=reminder]').change(function() {
@@ -441,40 +552,7 @@ function setActions() {
 	});
 	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		var select = item.find('.select_users');
-		select.find('.cancel_button').off('click').click(function() {
-			select.find('select option:selected').removeAttr('selected');
-			select.hide();
-			return false;
-		});
-		select.find('.submit_button').off('click').click(function() {
-			if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-				var users = [];
-				select.find('select option:selected').each(function() {
-					users.push(this.value);
-					$(this).removeAttr('selected');
-					select.find('select').trigger('change.select2');
-				});
-				$.ajax({
-					method: 'POST',
-					url: 'ticket_ajax_all.php?action=quick_actions',
-					data: {
-						id: item.data('id'),
-						id_field: item.data('id-field'),
-						table: item.data('table'),
-						field: 'email',
-						value: users
-					},
-					success: function(result) {
-						select.hide();
-						select.find('select').trigger('change.select2');
-						item.find('h4').append(result);
-					}
-				});
-			}
-			return false;
-		});
-		select.show();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
 }
 function setStatus(select) {
@@ -564,8 +642,8 @@ IF(!IFRAME_PAGE) { ?>
 					$formid = substr($type, 5);
 					$pdf_info = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='$formid'")->fetch_assoc();
 					$file_name = config_safe_str($pdf_info['pdf_name']);
-					$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid')";
-					$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
+					$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid' AND `deleted`=0)";
+					$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
 				} else if($type == 'ticket' && $_GET['tile_name'] != '') {
 					$row_type = $_GET['tile_name'];
 					$filter = " AND `tickets`.`ticket_type`='{$_GET['tile_name']}'";
@@ -585,8 +663,12 @@ IF(!IFRAME_PAGE) { ?>
 							ticket_type: '<?= $type ?>',
 							ticket_tile: '<?= $_GET['tile_name'] ?>'
 						},
-						success: function(response) {  console.log(response.split('###*###')[1]);
-							ticket_list['<?= $type ?>'] = JSON.parse(response.split('###*###')[0]);
+						success: function(response) {
+							response = response.split('###*###');
+							if(response[1] != '' && response[1] != undefined) {
+								console.log(response[1]);
+							}
+							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
 							loadTickets();
 						}
 					});
@@ -607,7 +689,7 @@ IF(!IFRAME_PAGE) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_creator_<?= $type ?>">Created By<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_creator_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, COUNT(*) `count` FROM `contacts` LEFT JOIN `tickets` ON `contacts`.`contactid`=`tickets`.`created_by` WHERE `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') AND `tickets`.`ticketid` > 0 AND (`contacts`.`first_name` != '' OR `contacts`.`last_name` != '') AND `contacts`.`contactid` > 0 $filter GROUP BY `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`")) as $row) { ?>
-										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
+										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets();"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
 									<?php } ?>
 								</ul>
 							</li>
@@ -760,17 +842,54 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
 					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=unbilled">Unbilled</a></li>
-						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=billed">Billed</a></li>
+						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
 					</ul>
 				</li>
 			<?php } ?>
-			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) { ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
+			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) {
+				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
+				$recent_inventory = get_config($dbc, 'recent_inventory'); ?>
+				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
 					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
-						<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', '' UNION SELECT 'recent', 'ZZZ', '', '', '', 'Top 25 Manifests', ''")) as $site) { ?>
-							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>"><?= $site['full_name'] ?></a></li>
+						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
+						<?php if(in_array('sort_top',$manifest_fields)) { ?>
+							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
 						<?php } ?>
+						<?php $project_type_list = [''=>''];
+						if(in_array('sort_project',$manifest_fields)) {
+							$project_type_list = $project_types;
+						}
+						$ticket_filter = '';
+						if(in_array_starts('type ',$manifest_fields)) {
+							$type_filters = [];
+							foreach($manifest_fields as $config_field) {
+								$config_field = explode(' ',$config_field);
+								if($config_field[0] == 'type' && count($config_field) == 2) {
+									$type_filters[] = $config_field[1];
+								}
+							}
+							$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+						}
+						foreach($project_type_list as $type_id => $type_name) {
+							if(in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields)) {
+								if(!empty($type_name)) { ?>
+									<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
+										<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
+								<?php } ?>
+								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) {
+									$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
+									$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type_id) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".$type_id."')" : '';
+									$piece_count = $dbc->query("SELECT COUNT(DISTINCT `ticket_attached`.`id`) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,".$site['contactid'].",%' $filter_inv $ticket_filter $filter_proj")->fetch_assoc(); ?>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?><span class="pull-right"><?= $piece_count['numrows'] ?></span></a></li>
+								<?php }
+								if(!empty($type_name)) { ?>
+										</ul>
+									</li>
+								<?php }
+							}
+						} ?>
 					</ul>
 				</li>
 			<?php } ?>
@@ -782,13 +901,13 @@ IF(!IFRAME_PAGE) { ?>
 <?php } ?>
 <div class="main-content-screen scale-to-fill has-main-screen <?= IFRAME_PAGE ? '' : 'hide-titles-mob' ?>" style="<?= IFRAME_PAGE ? 'height:auto;' : '' ?>">
 	<div class="loading_overlay" style="display:none;"><div class="loading_wheel"></div></div>
-	<div class="main-screen standard-dashboard-body override-main-screen form-horizontal ticket_list">
+	<div class="main-screen standard-dashboard-body override-main-screen form-horizontal ticket_list" style="<?= IFRAME_PAGE ? 'height:auto;' : '' ?>">
 		<?php if($_GET['form_list'] > 0) {
 			$form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['form_list']}'")->fetch_assoc();
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
 		<div class="standard-dashboard-body-title">
-			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Top 25 Manifests <a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? ': Create Manifests <a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$siteid.'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a><a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
+			<h3><?= TICKET_TILE.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.TICKET_TILE : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
 					<div class="notice popover-examples ticket_note_div" data-type="ticket_summary" style="display: none;">
@@ -817,7 +936,7 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if($_GET['tab'] == 'export') {
 				include('ticket_import.php');
 			} else if($_GET['form_list'] > 0) {
-				$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['form_list'],FILTER_SANITIZE_STRING)."') ");
+				$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['form_list'],FILTER_SANITIZE_STRING)."' AND `deleted`=0) ");
 				while($ticket = $tickets->fetch_assoc()) { ?>
 					<div class="dashboard-item form-horizontal">
 						<h3><a href="../Ticket/download/<?= $form['file_name'] ?>_<?= $ticket['ticketid'] ?>.pdf"><?= get_ticket_label($dbc, $ticket).': '.$form['pdf_name'] ?></a>
@@ -831,6 +950,10 @@ IF(!IFRAME_PAGE) { ?>
 			<?php } else if($_GET['tab'] == 'invoice') { ?>
 				<div class="col-sm-12" id="no-more-tables">
 					<?php include('ticket_invoice.php'); ?>
+				</div>
+			<?php } else if($_GET['tab'] == 'manifest' && $_GET['manifestid'] > 0) { ?>
+				<div class="col-sm-12" id="no-more-tables">
+					<?php include('ticket_manifest_edit.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'manifest') { ?>
 				<div class="col-sm-12" id="no-more-tables">
@@ -884,8 +1007,8 @@ IF(!IFRAME_PAGE) { ?>
 							$formid = substr($type, 5);
 							$pdf_info = $dbc->query("SELECT `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `id`='$formid'")->fetch_assoc();
 							$file_name = config_safe_str($pdf_info['pdf_name']);
-							$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid')";
-							$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
+							$filter = " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='$formid' AND `deleted`=0)";
+							$filter_join = " LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($pdf_info['revisions'] > 0 ? ", `revision`" : "").") `values` ON `tickets`.`ticketid`=`values`.`ticketid` AND `values`.`pdf_type`='$formid'";
 						} else if($type == 'ticket' && $_GET['tile_name'] != '') {
 							$row_type = $_GET['tile_name'];
 							$filter = " AND `tickets`.`ticket_type`='{$_GET['tile_name']}'";
@@ -1100,8 +1223,56 @@ IF(!IFRAME_PAGE) { ?>
 <?php if(!in_array('Disable',$db_summary)) {
 	$summary_urls = get_config($dbc, 'ticket_summary_urls'); ?>
 	<div class="summary_div" style="display:none;">
+		<script>
+		google.charts.load("current", {"packages":["corechart"]});
+		</script>
 		<?php $blocks = [];
 		$total_length = 0;
+		if(in_array('Time Graph',$db_summary)) {
+			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
+				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
+					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
+				}
+				$percent = round($total_tracked_time['seconds'] / $total_estimated_time['seconds'] * 100,3);
+				$blocks[] = [350, '<div class="overview-block">
+					<div id="time_chart" style="width: 100%; height: 350px;"></div>
+				</div>
+				<script>
+				google.charts.setOnLoadCallback(drawTimeChart);
+
+				function drawTimeChart() {
+
+				var data = google.visualization.arrayToDataTable([
+						["My Tracked Time", "Hours"],
+						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
+						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
+					]);
+
+					var options = {
+						title: "My Tracked Time",
+						pieHole: 0.5,
+						tooltip: { text: "none" },
+						slices: {
+							0: { color: "#00aeef" },
+							1: { color: "#84C6E4" },
+						}
+					};
+
+					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
+
+					chart.draw(data, options);
+				}
+				</script>'];
+				$total_length += 350;
+			} else {
+				$blocks[] = [68, '<div class="overview-block">
+					<h4>Today\'s Time Graph: No Time Found</h4>
+				</div>'];
+				$total_length += 68;
+			}
+		}
 		if(in_array('Estimated',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
@@ -1177,8 +1348,18 @@ IF(!IFRAME_PAGE) { ?>
 			$block = '<div class="overview-block">
 				<h4>My '.TICKET_TILE.'</h4>';
 				$tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE CONCAT(IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,'')) LIKE CONCAT('%".$_SESSION['contactid']."%') AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`status`");
+                $ticket_status = get_config($dbc, "ticket_status");
+                $ticket_status_color = explode(',', get_config($dbc, "ticket_status_color"));
 				while($ticket = $tickets->fetch_assoc()) {
-					$block .= '<p><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">'.$ticket['status'].'</a>: '.$ticket['count'].'</p>';
+                    $var_count = explode($ticket['status'], $ticket_status);
+                    $occr = substr_count($var_count[0], ",");
+                    $color_apply = '';
+                    if (strpos($ticket_status, $ticket['status']) !== false) {
+                        $color_apply = $ticket_status_color[$occr];
+                    }
+                    $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
+
+					$block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 					$block_length += 17;
 				}
 			$block .= '</div>';
@@ -1251,7 +1432,7 @@ IF(!IFRAME_PAGE) { ?>
 			$block_length = 68;
 			$block = '<div class="overview-block">
 				<h4>Last 25 Forms</h4>';
-				$tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
+				$tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
 				while($ticket = $tickets->fetch_assoc()) {
 					$block .= '<p><a href="../Ticket/download/'.config_safe_str($ticket['pdf_name']).'_'.$ticket['ticketid'].'.pdf">'.get_ticket_label($dbc, $ticket).' - '.$ticket['pdf_name'].'</a>';
 					if($tile_security['edit'] > 0) {
@@ -1274,7 +1455,7 @@ IF(!IFRAME_PAGE) { ?>
 				$block_length = 68;
 				$block = '<div class="overview-block">
 					<h4>Last 25 '.$form['pdf_name'].(in_array('ALL',$db_sort) ? '<a class="pull-right small" href="" onclick="$(\'[data-type=form_'.$form['id'].'] [data-status=ALL_STATUS]\').click().closest(\'[data-type]\').find(\'[data-toggle=collapse]\').first().filter(\'.collapsed\').click(); return false;">View All</a>' : '').'</h4>';
-					$tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
+					$tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 $match_business ORDER BY `formid` DESC LIMIT 0,25");
 					while($ticket = $tickets->fetch_assoc()) {
 						$link = '../Ticket/download/'.config_safe_str($form['pdf_name']).'_'.$ticket['revision'].'_'.$ticket['ticketid'].'.pdf';
 						if(!file_exists($link)) {
@@ -1300,11 +1481,7 @@ IF(!IFRAME_PAGE) { ?>
 		$displayed_length = 0; ?>
 		<div class="col-sm-6">
 			<?php foreach($blocks as $block_count => $block) {
-				if($block[0] == $displayed_length && $display_column == 0) {
-					$displayed_length = 0;
-					$total_length -= $block[0] + $displayed_length;
-					echo '</div><div class="col-sm-6">'.$block[1].'</div><div class="col-sm-6">';
-				} else if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks))) {
+				if($displayed_length > $total_length / 2 || ($display_column == 0 && $displayed_length > 0 && $block_count == count($blocks) - 1)) {
 					$displayed_length = 0;
 					$display_column = 1;
 					echo '</div><div class="col-sm-6">'.$block[1];
