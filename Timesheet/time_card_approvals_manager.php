@@ -517,6 +517,8 @@ function send_csv(a) {
 						while(strtotime($date) <= strtotime($search_end_date)) {
 							$attached_ticketid = 0;
 							$timecardid = 0;
+							$driving_time = '';
+							$time_type = '';
 							$ticket_attached_id = 0;
 							$approval_status = '';
 							$approval_initials = '';
@@ -550,6 +552,9 @@ function send_csv(a) {
 									$total[$key] += $hrs[$key];
 								}
 								$timecardid = $row['time_cards_id'];
+								if(empty($row['ticketid'])) {
+									$driving_time = 'Driving Time';
+								}
 								$ticket_attached_id = $row['ticket_attached_id'];
 								$attached_ticketid = $row['ticketid'];
 								$time_type = $row['type_of_time'];
@@ -633,10 +638,10 @@ function send_csv(a) {
 								if($layout == 'ticket_task') { ?>
 									<td data-title="<?= TICKET_NOUN ?>" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="ticketid[]" class="chosen-select-deselect" data-placeholder="Select a <?= TICKET_NOUN ?>"" onchange="getTasks(this);"><option></option>
 										<?php foreach($ticket_list as $ticket) { ?>
-											<option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $row['ticketid'] ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
+											<option data-tasks='<?= json_encode(explode(',', $ticket['task_available'])) ?>' <?= $ticket['ticketid'] == $attached_ticketid ? 'selected' : '' ?> value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
 										<?php } ?></select></td>
 									<td data-title="Task" class="ticket_task_td <?= in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '' ?>"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select a Task"><option></option>
-										<?php $task_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."'"))['task_available'];
+										<?php $task_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$attached_ticketid."'"))['task_available'];
 										foreach ($task_list as $task) { ?>
 											<option <?= $time_type == $task ? 'selected' : '' ?> value="<?= $task ?>"><?= $task ?></option>
 										<?php } ?>
@@ -644,7 +649,7 @@ function send_csv(a) {
 								<?php } else if($layout == 'position_dropdown') { ?>
 									<td data-title="Position"><select name="type_of_time[]" class="chosen-select-deselect" data-placeholder="Select Position"><option />
 										<?php foreach($position_list as $position) { ?>
-											<option <?= $position[0] == $row['type_of_time'] ? 'selected' : '' ?> value="<?= $position[0] ?>"><?= $position[0] ?></option>
+											<option <?= $position[0] == $time_type ? 'selected' : '' ?> value="<?= $position[0] ?>"><?= $position[0] ?></option>
 										<?php } ?></select></td>
 								<?php }
 								echo (in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center"><input type="text" name="regular_'.date('Y_m_d', strtotime($date)).'_'.$post_i.'" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control timepicker"></td>' : '').'
