@@ -664,6 +664,12 @@ IF(!IFRAME_PAGE) { ?>
 							ticket_tile: '<?= $_GET['tile_name'] ?>'
 						},
 						success: function(response) {
+							response = response.split('###*###');
+							if(response[1] != '' && response[1] != undefined) {
+								console.log(response[1]);
+							}
+							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
+							loadTickets();
 						}
 					});
 				});
