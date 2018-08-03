@@ -660,10 +660,11 @@ IF(!IFRAME_PAGE) { ?>
 						url: '../Ticket/ticket_load_list.php',
 						method: 'POST',
 						data: {
-							ticket_type: '<?= $type ?>',
-							ticket_tile: '<?= $_GET['tile_name'] ?>'
+							ticket_type: 'ticket_type',
+							ticket_tile: 'ticket'
 						},
 						success: function(response) {
+                            alert(response);
 							response = response.split('###*###');
 							if(response[1] != '' && response[1] != undefined) {
 								console.log(response[1]);
