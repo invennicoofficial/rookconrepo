@@ -655,7 +655,24 @@ IF(!IFRAME_PAGE) { ?>
 				}
 				$filter .= $match_business; ?>
 				<script>
-
+				$(document).ready(function() {
+					$.ajax({
+						url: '../Ticket/ticket_load_list.php',
+						method: 'POST',
+						data: {
+							ticket_type: '<?= $type ?>',
+							ticket_tile: '<?= $_GET['tile_name'] ?>'
+						},
+						success: function(response) {
+							response = response.split('###*###');
+							if(response[1] != '' && response[1] != undefined) {
+								console.log(response[1]);
+							}
+							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
+							loadTickets();
+						}
+					});
+				});
 				</script>
 				<li class="sidebar-higher-level highest-level" data-type="<?= $type ?>" <?= $file_name != '' ? 'data-form="'.$file_name.'"' : '' ?>><a class="cursor-hand collapsed" data-toggle="collapse" data-target="#<?= $type ?>"><?= $type_name ?><span class="arrow" /></a>
 					<ul class="collapse" id="<?= $type ?>" style="overflow: hidden;">
