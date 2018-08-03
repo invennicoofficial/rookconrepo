@@ -59,10 +59,10 @@ if(isset($_POST['submit'])) {
 	
     if ( !empty($query) ) {
         if ( mysqli_query($dbc, $query) ) {
-            if ( $tile != 'projects' ) {
-                echo '<script type="text/javascript">alert("Note added successfully"); window.parent.location.reload(true);</script>';
-            } else {
+            if ( $tile == 'tickets' || $tile == 'projects' ) {
                 echo '<script type="text/javascript">alert("Note added successfully");</script>';
+            } else {
+                echo '<script type="text/javascript">alert("Note added successfully"); window.parent.location.reload(true);</script>';
             }
             
             if ( $checklistnameid ) {
