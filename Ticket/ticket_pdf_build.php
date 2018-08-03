@@ -76,8 +76,14 @@ if(isset($_POST['custom_form'])) {
 			echo ' Origin: '.print_r($origin,true).' Destination: '.print_r($dest,true).' General: '.print_r($general,true).' Shipment: '.print_r($shipment,true)."-->";
 			while($field = $fields->fetch_assoc()) {
 				$options = explode(':',$field['options']);
+				$field_options = [];
+				if(in_array('mandatory',$options)) {
+					$field_options[] = 'required';
+				} else if(in_array('read',$options)) {
+					$field_options[] = 'readonly';
+				}
 				echo '<div class="form-group"><!--Field: '.print_r($field,true).'-->
-					<label class="control-label col-sm-4">'.$field['field_label'].'</label>
+					<label class="control-label col-sm-4">'.$field['field_label'].(in_array('required',$field_options) ? '<span class="text-red">*</span>' : '').'</label>
 					<div class="col-sm-8">';
 						$field_id = 0;
 						$value = $field['default_value'];
@@ -410,6 +416,7 @@ if(isset($_POST['custom_form'])) {
 								<?php } ?>
 							</select>
 						<?php }
+						$onchange = '';
 						if(!empty($field['field_value']) && $_GET['pdf_mode'] == 'edit') {
 							$value = $field['field_value'];
 						}
@@ -437,15 +444,15 @@ if(isset($_POST['custom_form'])) {
 						if(in_array($values[0], ['checkbox','checkbox_residue','checkbox_other_products','checkbox_shipping_list'])) {
 							echo '<label class="form-checkbox"><input type="checkbox" name="'.$field['field_name'].'" value="'.$value.'" '.$checkbox_checked.' onchange="updateChecked(this);"><input type="hidden" name="'.$field['field_name'].'" class="hidden_checkbox" value="" '.(empty($checkbox_checked) ? '' : 'disabled').'></label>';
 						} else if($field['height'] > 7) {
-							echo '<textarea class="form-control noMceEditor" rows="6" '.$onchange.' name="'.$field['field_name'].'">'.$value.'</textarea>';
+							echo '<textarea class="form-control noMceEditor" '.implode(' ',$field_options).' rows="6" '.$onchange.' name="'.$field['field_name'].'">'.$value.'</textarea>';
 						} else {
-							echo '<input type="text" class="form-control '.$field['input_class'].'" '.$onchange.' name="'.$field['field_name'].'" value="'.$value.'">';
+							echo '<input type="text" '.implode(' ',$field_options).' class="form-control '.$field['input_class'].'" '.$onchange.' name="'.$field['field_name'].'" value="'.$value.'">';
 						}
 					echo '</div>
 				</div>';
 			}
 		}
-		echo '<button name="custom_form" value="'.$form['id'].'" class="btn brand-btn pull-right" type="submit" onclick="return confirm(\'The Changes You Have Made Will Create a New Revision Document. Click Okay if this is Correct.\');">Save</button>
+		echo '<button name="custom_form" value="'.$form['id'].'" class="btn brand-btn pull-right" type="submit" onclick="if($(\'[required]\').filter(function() { return this.value == \'\'; }).length > 0) { alert(\'Please complete all required fields.\'); return false; } else { return confirm(\'The Changes You Have Made Will Create a New Revision Document. Click Okay if this is Correct.\'); }">Save</button>
 		<div class="clearfix"></div>
 		</form>';
 	}
