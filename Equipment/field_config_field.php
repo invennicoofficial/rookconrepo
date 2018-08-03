@@ -235,12 +235,34 @@ $(document).ready(function() {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_6" >
-						Service & Alerts<span class="glyphicon glyphicon-plus"></span>
+						Profit &amp; Loss<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
 			<div id="collapse_6" class="panel-collapse collapse">
+				<div class="panel-body">
+
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billing Rate".',') !== FALSE) { echo " checked"; } ?> value="Billing Rate" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Billing Rate
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billed Hours".',') !== FALSE) { echo " checked"; } ?> value="Billed Hours" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Billed Time
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billed Total".',') !== FALSE) { echo " checked"; } ?> value="Billed Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Billed Amount
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Expense Total".',') !== FALSE) { echo " checked"; } ?> value="Expense Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Expenses
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Profit Total".',') !== FALSE) { echo " checked"; } ?> value="Profit Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Profit
+
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_7" >
+						Service & Alerts<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_7" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Date".',') !== FALSE) { echo " checked"; } ?> value="Next Service Date" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Date
@@ -270,13 +292,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_7" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_8" >
 						Location<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_7" class="panel-collapse collapse">
+			<div id="collapse_8" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Classification Dropdown".',') !== FALSE) { echo " checked"; } ?> value="Classification Dropdown" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Classification Dropdown
@@ -337,13 +359,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_8" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_9" >
 						Status<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_8" class="panel-collapse collapse">
+			<div id="collapse_9" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Status".',') !== FALSE) { echo " checked"; } ?> value="Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Status
@@ -357,13 +379,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_9" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_10" >
 						Quote Description<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_9" class="panel-collapse collapse">
+			<div id="collapse_10" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Quote Description
@@ -375,13 +397,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_10" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_11" >
 						General<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_10" class="panel-collapse collapse">
+			<div id="collapse_11" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Volume".',') !== FALSE) { echo " checked"; } ?> value="Volume" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Equipment Volume (<?= get_config($dbc, 'volume_units') ?>)

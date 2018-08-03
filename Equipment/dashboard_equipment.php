@@ -223,22 +223,22 @@ $offset = ($pageNum - 1) * $rowsPerPage;
 
 $status_search = '';
 if($status == 'Active') {
-	$status_search = " AND IFNULL(`status`,'') NOT IN ('Inactive')";
+	$status_search = " AND IFNULL(`equipment`.`status`,'') NOT IN ('Inactive')";
 } else {
-	$status_search = " AND IFNULL(`status`,'') IN ('Inactive')";
+	$status_search = " AND IFNULL(`equipment`.`status`,'') IN ('Inactive')";
 }
 if($equipment != '') {
 	if(!empty($_GET['category']) && $_GET['category'] != 'Top') {
-		$category_query = " AND category='$category'";
+		$category_query = " AND `equipment`.category='$category'";
 	}
-    $query_check_credentials = "SELECT * FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
+    $query_check_credentials = "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.deleted=0 $status_search AND (`equipment`.unit_number LIKE '%" . $equipment . "%' OR `equipment`.type LIKE '%" . $equipment . "%' OR `equipment`.category LIKE '%" . $equipment . "%' OR `equipment`.ownership_status LIKE '%" . $equipment . "%' OR `equipment`.make LIKE '%" . $equipment . "%' OR `equipment`.model LIKE '%" . $equipment . "%' OR `equipment`.model_year LIKE '%" . $equipment . "%' OR `equipment`.cost LIKE '%" . $equipment . "%' OR `equipment`.region LIKE '%" . $equipment . "%' OR `equipment`.location LIKE '%" . $equipment . "%' OR `equipment`.classification LIKE '%" . $equipment . "%') $category_query $access_query GROUP BY `equipment`.`equipmentid` ORDER BY ABS(`equipment`.unit_number) LIMIT $offset, $rowsPerPage";
     $query = "SELECT count(*) as numrows FROM equipment WHERE deleted=0 $status_search AND (unit_number LIKE '%" . $equipment . "%' OR type LIKE '%" . $equipment . "%' OR category LIKE '%" . $equipment . "%' OR ownership_status LIKE '%" . $equipment . "%' OR make LIKE '%" . $equipment . "%' OR model LIKE '%" . $equipment . "%' OR model_year LIKE '%" . $equipment . "%' OR cost LIKE '%" . $equipment . "%' OR region LIKE '%" . $equipment . "%' OR location LIKE '%" . $equipment . "%' OR classification LIKE '%" . $equipment . "%') $category_query $access_query ORDER BY ABS(unit_number)";
 } else {
     if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
-        $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search $access_query ORDER BY ABS(unit_number) DESC LIMIT 25";
+        $query_check_credentials = "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.deleted = 0 $status_search $access_query GROUP BY `equipment`.`equipmentid` ORDER BY ABS(`equipment`.unit_number) DESC LIMIT 25";
     } else {
         $category = $_GET['category'];
-        $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search AND category='$category' $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
+        $query_check_credentials = "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.deleted = 0 $status_search AND `equipment`.category='$category' $access_query GROUP BY `equipment`.`equipmentid` ORDER BY ABS(`equipment`.unit_number) LIMIT $offset, $rowsPerPage";
         $query = "SELECT count(*) as numrows FROM equipment WHERE deleted = 0 $status_search AND category='$category'".$access_query;
     }
 }
@@ -543,6 +543,36 @@ if($num_rows > 0) {
 	    echo '<div class="col-sm-6">
 			<label class="col-sm-4">HR Rate Travel:</label>
 			<div class="col-sm-8">' . $row['hr_rate_travel'] . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Billing Rate".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Billing Rate:</label>
+			<div class="col-sm-8">$' . number_format($row['invoiced_amt'] / $row['invoiced_hours'],2) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Billed Hours".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Billed Hours:</label>
+			<div class="col-sm-8">' . round($row['invoiced_hours'],3) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Billed Total".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Billed Amount:</label>
+			<div class="col-sm-8">$' . number_format($row['invoiced_amt'],2) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Expense Total".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Expenses:</label>
+			<div class="col-sm-8">$' . number_format($row['expense_total'],2) . '</div>
+		</div>';
+	    }
+	    if (strpos($value_config, ','."Profit Total".',') !== FALSE) {
+	    echo '<div class="col-sm-6">
+			<label class="col-sm-4">Total Profit:</label>
+			<div class="col-sm-8">$' . number_format($row['invoiced_amt'] - $row['expense_total'],2) . '</div>
 		</div>';
 	    }
 	    if (strpos($value_config, ','."Next Service Date".',') !== FALSE) {
