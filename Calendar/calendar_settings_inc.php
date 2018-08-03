@@ -381,6 +381,7 @@ switch($_GET['type']) {
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
         $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
         break;
     case 'estimates':
         $config_type = 'estimates';
