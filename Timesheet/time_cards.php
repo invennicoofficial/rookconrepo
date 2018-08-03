@@ -1406,7 +1406,7 @@ function addSignature(chk) {
 								'.(in_array('signature',$value_config) ? '<td data-title="Signature" style="text-align:center" class="theme-color-border-bottom">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').
 							'</tr>';
 
-							if($layout != 'multi_line' || $date != $row['date']) {
+							if(($layout != 'multi_line' && $layout != 'position_dropdown' && $layout != 'ticket_task') || $date != $row['date']) {
 								$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
 							}
 						}
@@ -1471,7 +1471,6 @@ function addSignature(chk) {
 							'.($layout == 'position_dropdown' ? '<td data-title=""></td>' : '').'
 							'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('direct_hrs',$value_config) ? '<td data-title=""></td>' : '').'
-							'.(in_array('start_day_tile',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('indirect_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('extra_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 							'.(in_array('relief_hrs',$value_config) ? '<td data-title=""></td>' : '').'
