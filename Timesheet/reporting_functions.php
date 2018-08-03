@@ -841,11 +841,14 @@
 	}
 	$col_width = 100 / $total_columns;
 
-    if($staff == '') {
+    if($staff == '' || count(array_filter($staff)) == 0) {
   		return '<h4>Please select a staff member.</h4>';
     } else {
         $staff_list = [];
-        foreach (explode(',',$staff) as $search_staff) {
+		if(!is_array($staff)) {
+			$staff = explode(',',$staff);
+		}
+        foreach ($staff as $search_staff) {
             if($search_staff > 0) {
                 $staff_list[] = ['contactid'=>$search_staff,'first_name'=>'','last_name'=>get_contact($dbc, $search_staff)];
             }

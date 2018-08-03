@@ -1116,7 +1116,7 @@ function addSignature(chk) {
 				<div id="no-more-tables">
 					<table class='table table-bordered'>
 						<tr class='hidden-xs hidden-sm'>
-							<td colspan="<?= 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + ($layout == 'ticket_task' ? 1 : 0) + ($layout == 'position_dropdown' ? 1 : 0)
+							<td colspan="<?= 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + ($layout == 'ticket_task' ? 2 : 0) + ($layout == 'position_dropdown' ? 1 : 0)
 								+ (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs',$value_config) ? 1 : 0) + (in_array('start_time',$value_config) ? 1 : 0)
 								+ (in_array('end_time',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0) + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0)
 								+ (in_array('reg_hrs',$value_config) ? 1 : 0) + (in_array('payable_hrs',$value_config) ? 1 : 0) + (in_array('direct_hrs',$value_config) ? 1 : 0) + (in_array('indirect_hrs',$value_config) ? 1 : 0)
