@@ -431,5 +431,14 @@
     }
     //2018-08-02 - Ticket #8273 - Camping
 
+    //2018-08-07 - Ticket #8518 - Equipment Follow Up
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `follow_up_date` date NOT NULL AFTER `finance`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `follow_up_staff` varchar(500) NOT NULL AFTER `follow_up_date`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-07 - Ticket #8518 - Equipment Follow Up
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
