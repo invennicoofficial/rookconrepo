@@ -381,6 +381,9 @@ switch($_GET['type']) {
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
         $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $service_followup = get_config($dbc, 'scheduling_service_followup');
+        $service_date = get_config($dbc, 'scheduling_service_date');
+        $passed_service = get_config($dbc, 'scheduling_passed_service');
         break;
     case 'estimates':
         $config_type = 'estimates';

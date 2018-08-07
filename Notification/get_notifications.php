@@ -1,16 +1,19 @@
 <?php include_once(substr(dirname(__FILE__), 0, -12).'include.php');
 
 if($search_user > 0) {
-    $today_date = date('Y-m-d');
+    if($get_from != 'daysheet') {
+        $today_date = date('Y-m-d');
+        $fetch_until = date('Y-m-d');
 
-    $latest_date = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `contactid` = '".$search_user."' AND `date` <= '".$today_date."' ORDER BY `date` DESC"))['date'];
-    if(!empty($latest_date)) {
-        $today_date = $latest_date;
-    } else {
-        $latest_date = date('Y-m-d');
+        $latest_date = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `contactid` = '".$search_user."' AND `date` <= '".$today_date."' ORDER BY `date` DESC"))['date'];
+        if(!empty($latest_date)) {
+            $today_date = $latest_date;
+        } else {
+            $latest_date = date('Y-m-d');
+        }
     }
 
-    for($today_date; strtotime($today_date) <= strtotime(date('Y-m-d')); $today_date = date('Y-m-d', strtotime($today_date.' + 1 days'))) {
+    for($today_date; strtotime($today_date) <= strtotime($fetch_until); $today_date = date('Y-m-d', strtotime($today_date.' + 1 days'))) {
         $reminderids = [];
         //Reminders
         $reminders_query = "SELECT * FROM `reminders` WHERE `reminder_date` = '$today_date' AND `contactid` = '$search_user' AND `deleted` = 0";
@@ -96,11 +99,25 @@ if($search_user > 0) {
             $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['incidentreportid']."' AND `type` = 'incident_report' AND `date` = '".$today_date."' AND `contactid` = '".$search_user."' AND `deleted` = 0"))['daysheetreminderid'];
             $reminderids[] = $reminderid;
         }
+        $equipment_followup_reminders_query = "SELECT * FROM `equipment` WHERE `follow_up_date` = '".$today_date."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$search_user.",%' AND `deleted` = 0";
+        $equipment_followup_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_followup_reminders_query),MYSQLI_ASSOC);
+        foreach ($equipment_followup_reminders_result as $reminder) {
+            mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['equipmentid']."', '".$search_user."', 'equipment_followup', '".$today_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['equipmentid']."' AND `type` = 'equipment_followup' AND `date` = '".$today_date."' AND `contactid` = '".$search_user."' AND `deleted` = 0) num WHERE num.rows = 0");
+            $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['equipmentid']."' AND `type` = 'equipment_followup' AND `date` = '".$today_date."' AND `contactid` = '".$search_user."' AND `deleted` = 0"))['daysheetreminderid'];
+            $reminderids[] = $reminderid;
+        }
+        $equipment_service_reminders_query = "SELECT * FROM `equipment` WHERE `next_service_date` = '".$today_date."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$search_user.",%' AND `deleted` = 0";
+        $equipment_service_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_service_reminders_query),MYSQLI_ASSOC);
+        foreach ($equipment_service_reminders_result as $reminder) {
+            mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['equipmentid']."', '".$search_user."', 'equipment_service', '".$today_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['equipmentid']."' AND `type` = 'equipment_service' AND `date` = '".$today_date."' AND `contactid` = '".$search_user."' AND `deleted` = 0) num WHERE num.rows = 0");
+            $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['equipmentid']."' AND `type` = 'equipment_service' AND `date` = '".$today_date."' AND `contactid` = '".$search_user."' AND `deleted` = 0"))['daysheetreminderid'];
+            $reminderids[] = $reminderid;
+        }
 
         //If reminders not found, mark it as deleted
         $reminderids = "'".implode("','",$reminderids)."'";
-              $date_of_archival = date('Y-m-d');
-      mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$today_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$search_user."' AND `done` = 0 AND `deleted` = 0");
+        $date_of_archival = date('Y-m-d');
+        mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$today_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$search_user."' AND `done` = 0 AND `deleted` = 0");
     }
 
     $today_date = date('Y-m-d');
@@ -146,6 +163,16 @@ if($search_user > 0) {
         } else if ($daysheet_reminder['type'] == 'incident_report') {
             $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
             if(strtotime($reminder['ir14']) > strtotime($today_date)) {
+                mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `done` = 1 WHERE `daysheetreminderid` = '".$daysheet_reminder['daysheetreminderid']."'");
+            }
+        } else if ($daysheet_reminder['type'] == 'equipment_followup') {
+            $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+            if(strtotime($reminder['follow_up_date']) > strtotime($today_date)) {
+                mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `done` = 1 WHERE `daysheetreminderid` = '".$daysheet_reminder['daysheetreminderid']."'");
+            }
+        } else if ($daysheet_reminder['type'] == 'equipment_service') {
+            $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+            if(strtotime($reminder['next_service_date']) > strtotime($today_date)) {
                 mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `done` = 1 WHERE `daysheetreminderid` = '".$daysheet_reminder['daysheetreminderid']."'");
             }
         }
