@@ -201,6 +201,16 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// August 7, 2018
+		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `newsboard_seen` (
+			`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`newsboardid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`contactid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`seen_date` DATETIME DEFAULT CURRENT_TIMESTAMP
+		)")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
 	

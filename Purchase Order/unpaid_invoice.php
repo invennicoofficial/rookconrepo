@@ -18,7 +18,7 @@ if (isset($_POST['send_drive_logs'])) {
 
 				} else {
 					 echo '<script type="text/javascript"> alert("One or more of the email addresses you have provided is not a proper email address.");
-							window.location.replace("unpaid_invoice.php"); </script>';
+							window.location.replace("index.php?tab=payable&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 							exit();
 				}
 			}
@@ -38,10 +38,10 @@ if (isset($_POST['send_drive_logs'])) {
 
 
     echo '<script type="text/javascript"> alert("PDF(s) sent to '.$email_list.'.");
-	window.location.replace("unpaid_invoice.php"); </script>';
+	window.location.replace("index.php?tab=payable&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	} else {
 	echo '<script type="text/javascript"> alert("Please enter at least 1 email address, or make sure you have selected at least one PDF to send.");
-	window.location.replace("unpaid_invoice.php"); </script>';
+	window.location.replace("index.php?tab=payable&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	}
 }
 

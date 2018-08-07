@@ -9,7 +9,7 @@ if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET status = 'Paying' WHERE posid= '".$poside."'" );
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' sent to Accounts Payable.");
-	window.location.replace("receiving.php"); </script>';
+	window.location.replace("index.php?tab=receiving&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 }
 if (isset($_POST['send_drive_logs'])) {
 	$email_list = $_POST['email_list'];
@@ -23,7 +23,7 @@ if (isset($_POST['send_drive_logs'])) {
 
 				} else {
 					 echo '<script type="text/javascript"> alert("One or more of the email addresses you have provided is not a proper email address.");
-							window.location.replace("receiving.php"); </script>';
+							window.location.replace("index.php?tab=receiving&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 							exit();
 				}
 			}
@@ -43,10 +43,10 @@ if (isset($_POST['send_drive_logs'])) {
 
 
     echo '<script type="text/javascript"> alert("PDF(s) sent to '.$email_list.'.");
-	window.location.replace("receiving.php"); </script>';
+	window.location.replace("index.php?tab=receiving&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	} else {
 	echo '<script type="text/javascript"> alert("Please enter at least 1 email address, or make sure you have selected at least one PDF to send.");
-	window.location.replace("receiving.php"); </script>';
+	window.location.replace("index.php?tab=receiving&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	}
 }
 
