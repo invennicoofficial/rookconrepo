@@ -127,7 +127,8 @@ $marketing_reports = [
 	'Contact Report by Status'=>['report_contact_report_by_status.php','Contact Report by Status','Contact Report by Status','contact_report_by_status'],
 	'Contact Postal Code'=>['report_marketing_contact_pc.php','Contact Postal Code','Contact Postal Code','contact_postal_code'],
 	'Site visitors'=>['report_marketing_site_visitors.php','Website Visitors','Site Visitors','site_visitors'],
-	'Cart Abandonment'=>['report_marketing_cart_abandonment.php','Cart Abandonment','Cart Abandonment','cart_abandonment']
+	'Cart Abandonment'=>['report_marketing_cart_abandonment.php','Cart Abandonment','Cart Abandonment','cart_abandonment'],
+	'Promotions and Coupons'=>['report_marketing_promotions.php','Promotions & Coupons Usage','Promotions and Coupons','promotions_coupons']
 ];
 $compensation_reports = [
 	'Adjustment Compensation'=>['report_compensation_adjustments.php','Adjustment Compensation','Adjustment Compensation','compensation_adjust'],
