@@ -269,7 +269,7 @@ switch($_GET['tile']) {
                 <div class="col-sm-8">
                     <select name="cc_contact[]" multiple class="chosen-select-deselect form-control">
                         <option></option>
-                        <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 IFNULL(`email_address`,'') != ''"));
+                        <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
                         foreach($contact_list as $contact) {
                             if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
                                 <option value="<?= $contact['contactid']; ?>"><?= $contact['full_name'] ?></option>
@@ -328,7 +328,7 @@ switch($_GET['tile']) {
 
             <div class="clearfix"></div><hr>
 
-            <h5>Email Details</h5>
+            <h5>Email Details:</h5>
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Subject:</label>
         		<div class="col-sm-8">
