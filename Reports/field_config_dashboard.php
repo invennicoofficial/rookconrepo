@@ -390,6 +390,9 @@ if (isset($_POST['submit'])) {
 	<div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Contact Report by Status".',') !== FALSE) { echo " checked"; } ?> value="Contact Report by Status" name="reports_dashboard[]"> Contact Report by Status</label>
 	</div>
+	<div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Promotions and Coupons".',') !== FALSE) { echo " checked"; } ?> value="Promotions and Coupons" name="reports_dashboard[]"> Promotions &amp; Coupons Usage</label>
+	</div>
     <div class="clearfix"></div>
 
     <h3>Compensation</h3>

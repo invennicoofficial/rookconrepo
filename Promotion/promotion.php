@@ -15,7 +15,7 @@ checkAuthorised('promotion');
 		<div class="col-md-12">
 
         <div class="col-sm-10">
-			<h1>Promotions Dashboard</h1>
+			<h1>Promotions &amp; Coupons Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
@@ -157,6 +157,9 @@ checkAuthorised('promotion');
                     if (strpos($value_config, ','."MSRP".',') !== FALSE) {
                         echo '<th>MSRP</th>';
                     }
+                    if (strpos($value_config, ','."Times Used".',') !== FALSE) {
+                        echo '<th># of Times Used</th>';
+                    }
                     echo '<th>Function</th>';
                     echo "</tr>";
             } else {
@@ -220,6 +223,9 @@ checkAuthorised('promotion');
                 }
                 if (strpos($value_config, ','."MSRP".',') !== FALSE) {
                     echo '<td data-title="MSRP">' . $row['msrp'] . '</td>';
+                }
+                if (strpos($value_config, ','."Times Used".',') !== FALSE) {
+                    echo '<td data-title="# of Times Used">' . $row['times_used'] . '</td>';
                 }
 
                 echo '<td data-title="Function">';
