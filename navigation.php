@@ -40,54 +40,9 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.START_DAY.'</a>';
 		}
 	}
-$_SERVER['page_load_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-$_SERVER['page_load_info'] .= 'Ticket Banners Loaded: '.number_format($_SERVER['page_load_time'],5)."\n";
-?>
-<header id="main-header">
-	<div class="container" style="display:none;">
-		<div class="row">
-            <div class="logo-div">
-                <a href="<?php echo WEBSITE_URL; ?>/home.php" class="logo" style="text-align: left;">
-                    <?php
-                    $logo_upload = get_config($dbc, 'logo_upload');
-                    if($logo_upload == '') {
-                        echo '<img src="'.WEBSITE_URL.'/img/logo.png" style="height: 80px; width: auto;" alt="Main Dashboard">';
-                    } else {
-                        echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" alt="Main Dashboard">';
-                    }
-                    ?>
-                </a>
-            </div>
-	        <?php if (strpos($site_url,'forgot_pwd.php') == false && $_SESSION['contactid'] > 0) { ?>
-				<div class="header-nav">
-					<span style="font-size: 1.5em;">
-						<p class="welcome-msg pull-right" style="position: relative; margin-bottom: 0;"><?= $active_ticket_buttons ?>
-						<?php $contact_category = $_SESSION['category'];
-						// if(tile_enabled($dbc, 'contacts_rolodex')) {
-						// 	$contacts_folder = 'ContactsRolodex';
-						// } else {
-							$contacts_folder = 'Contacts';
-						// }
-						if(strtolower($contact_category) != 'staff') {
-							$profile_access = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_security` WHERE `category` = '$contact_category' AND `security_level` = '".ROLE."'"))['profile_access'];
-							if($profile_access == 'disable') {
-								$profile_html = profile_id($dbc, $_SESSION['contactid'], false);
-							} else {
-								$profile_html = '<a href="'.WEBSITE_URL.'/'.$contacts_folder.'/contacts_inbox.php?edit='.$_SESSION['contactid'].'" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
-							}
-						} else {
-							$profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
-						}
-						echo $profile_html; ?>
-						<a href="<?php echo WEBSITE_URL; ?>/logout.php"><img src="<?php echo WEBSITE_URL; ?>/img/logout-icon.png"></a></p>
-					</span>
-					<div class="clearfix"></div>
-				</div>
-	        <?php } ?>
-	    </div>
-	</div>
-</header>
-<?php endif; ?>
+	$_SERVER['page_load_time'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+	$_SERVER['page_load_info'] .= 'Ticket Banners Loaded: '.number_format($_SERVER['page_load_time'],5)."\n";
+endif; ?>
 <script>
 $(document).ready(function() {
 	// Modify ENTER key for all forms to move focus to the next input

@@ -46,8 +46,7 @@ $(document).ready(function() {
         $query_add  = 'news.cross_software_approval = 1 AND';
     }
     
-	$query = "
-		SELECT DISTINCT
+	$query = "SELECT DISTINCT
             news.newsboardid AS nID, news.title AS title, news.description AS description, news.expiry_date,
 			img.document_link AS image
 		FROM
@@ -62,8 +61,7 @@ $(document).ready(function() {
 			news.newsboardid DESC";
     
     //Get softwarewide news boards
-    $query_sw = "
-		SELECT DISTINCT
+    $query_sw = "SELECT DISTINCT
             news.newsboardid AS nID, news.title AS title, news.description AS description, news.expiry_date,
 			img.document_link AS image
 		FROM
