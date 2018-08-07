@@ -312,11 +312,7 @@ function viewTicket(a) {
                 $query_check_credentials = 'SELECT * FROM time_cards WHERE (approv = "Y" OR approv = "P") AND `deleted`=0 '.$filter;
 
                 $result = mysqli_query($dbc, $query_check_credentials);
-                $value_config = explode(',',get_field_config($dbc, 'time_cards'));
-                if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
-                    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
-                }
-                $timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
+                $layout = get_config($dbc, 'timesheet_layout');
                 $schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT `scheduled_hours`, `schedule_days` FROM `contacts` WHERE `contactid`='$search_staff'"));
                 $schedule_hrs = explode('*',$schedule['scheduled_hours']);
                 $schedule_days = explode('*',$schedule['schedule_days']);
@@ -429,32 +425,6 @@ function viewTicket(a) {
                     }
 					</script>
 
-                    <table class='table table-bordered'>
-					<?php if(in_array($layout, ['', 'multi_line','ticket_task','position_dropdown'])) { ?>
-						<tr class='hidden-xs hidden-sm'>
-							<td colspan="<?= 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? 1 : 0) + (in_array('start_time',$value_config) ? 1 : 0) + (in_array('end_time',$value_config) ? 1 : 0) + (in_array('start_time_editable',$value_config) ? 1 : 0) + (in_array('end_time_editable',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0) + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0) + (in_array('start_day_tile',$value_config) ? 1 : 0) + ($layout == 'ticket_task') + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0) + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0) ?>">Balance Forward Y.T.D.</td>
-							<?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('relief_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('sleep_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('training_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('sick_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('sick_used',$value_config)) { ?><th style='text-align:center;'><?= $sick_taken; ?></th><?php } ?>
-							<?php if(in_array('stat_hrs',$value_config)) { ?><th style='text-align:center;'><?= $stat_hours; ?></th><?php } ?>
-							<?php if(in_array('stat_used',$value_config)) { ?><th style='text-align:center;'><?= $stat_taken; ?></th><?php } ?>
-							<?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center;'><?= $vacation_hours; ?></th><?php } ?>
-							<?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center;'><?= $vacation_taken; ?></th><?php } ?>
-							<?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
-							<?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
-							<td colspan="<?= in_array('comment_box',$value_config) ? 2 : 1 ?>"></td>
-						</tr>
-					<?php } ?>
                     <tr class='hidden-xs hidden-sm'>
 						<th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
 						<?php $colspan = 1; ?>

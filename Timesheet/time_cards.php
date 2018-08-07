@@ -929,11 +929,7 @@ function addSignature(chk) {
 
         <br><br>
 		<?php $layout = get_config($dbc, 'timesheet_layout');
-			$highlight = get_config($dbc, 'timesheet_highlight');
-			$mg_highlight = get_config($dbc, 'timesheet_manager');
-			$submit_mode = get_config($dbc, 'timesheet_submit_mode');
-			$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
-			$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
+            $submit_mode = get_config($dbc, 'timesheet_submit_mode');
 			$schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT `scheduled_hours`, `schedule_days` FROM `contacts` WHERE `contactid`='$search_staff'"));
 			$schedule_hrs = explode('*',$schedule['scheduled_hours']);
 			$schedule_days = explode(',',$schedule['schedule_days']);

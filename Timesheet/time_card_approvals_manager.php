@@ -74,8 +74,6 @@ function send_csv(a) {
 			<?php echo get_tabs('Manager Approvals', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
         <?php
-			$highlight = get_config($dbc, 'timesheet_highlight');
-			$mg_highlight = get_config($dbc, 'timesheet_manager');
             $search_site = '';
             $search_staff_list = '';
             $search_start_date = '';
@@ -94,13 +92,6 @@ function send_csv(a) {
 			if(!empty($_GET['search_end_date'])) {
 				$search_end_date = $_GET['search_end_date'];
 			}
-			$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
-			$timesheet_approval_initials = get_config($dbc, 'timesheet_approval_initials');
-			$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
-			$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
-			$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
-			$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
-			$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 			$current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : -1;
 			$_GET['pay_period'] = $current_period;
 			include('pay_period_dates.php');
