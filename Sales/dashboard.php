@@ -144,25 +144,8 @@ function addDocument(sel) {
 
 function sendEmail(sel) {
 	var item = $(sel).closest('.info-block-detail');
-	item.find('.select_users').show();
-	item.find('.send').click(email_action);
-	item.find('.cancel').click(function() {
-		item.find('.select_users').hide();
-		item.find('.select_users select').val('').trigger('change.select2');
-	});
-}
-function email_action() {
-	var item = $(this).closest('.info-block-detail');
-	$.ajax({
-		url: 'sales_ajax_all.php?action=send_email',
-		method: 'POST',
-		data: {
-			value: item.find('.select_users select').val(),
-			id: item.data('id')
-		}
-	});
-	item.find('.select_users').hide();
-	item.find('.select_users select').val('').trigger('change.select2');
+	var salesid = item.data('id');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales&salesid='+salesid,'auto',false,true)
 }
 
 function createProject(sel) {
@@ -319,40 +302,7 @@ function openProjectDialog(sel) {
                                     </div>
                                 </div></a>
 
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Status:</div>
-                                    <div class="col-sm-7">
-										<?php if($approvals > 0 || $status != 'Pending') { ?>
-											<select name="status" class="chosen-select-deselect form-control" id="ssid_<?= $row['salesid'] ?>">
-												<option value=""></option><?php
-												foreach ( explode(',', $statuses) as $status_list ) {
-													$selected = ($status_list==$status) ? 'selected="selected"' : '';
-													echo '<option '. $selected .' value="'. $status_list .'">'. $status_list .'</li>';
-												} ?>
-											</select>
-										<?php } else {
-											echo $status;
-										} ?>
-                                    </div>
-                                </div>
-
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Next Action:</div>
-                                    <div class="col-sm-7">
-                                        <select name="next_action" class="chosen-select-deselect form-control" id="nsid_<?= $row['salesid'] ?>">
-                                            <option value=""></option><?php
-                                            foreach ( explode(',', $next_actions) as $next_action ) {
-                                                $selected = ($next_action==$row['next_action']) ? 'selected="selected"' : '';
-                                                echo '<option '. $selected .' value="'. $next_action .'">'. $next_action .'</li>';
-                                            } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Follow Up:</div>
-                                    <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
-                                </div>
+                                <div class="clearfix"></div>
 
                                 <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="sales_notes" data-salesid="<?= $row['salesid']; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
 								<?php if(in_array('flag_manual',$quick_actions)) {
@@ -402,7 +352,7 @@ function openProjectDialog(sel) {
 								</div>
 								<input type="text" name="time_add" style="display:none; margin-top: 2em;" class="form-control timepicker">
 								<input type="text" name="time_track" class="datetimepicker form-control" style="display:none;">
-                                <div class="double-gap-top action-icons">
+                                <div class="gap-bottom action-icons">
 									<?php if($project_security['edit'] > 0) { ?>
                                         <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="cursor-hand inline-img" title="Assign To A <?= PROJECT_NOUN ?>" id="<?=$row['salesid']?>" onclick="openProjectDialog(this); return false;" /><?php
                                     } ?>
@@ -436,6 +386,43 @@ function openProjectDialog(sel) {
 									<?php if(in_array('archive',$quick_actions)) { ?>
 										<a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the Sales Lead" /></a>
 									<?php } ?>
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Status:</div>
+                                    <div class="col-sm-7">
+										<?php if($approvals > 0 || $status != 'Pending') { ?>
+											<select name="status" class="chosen-select-deselect form-control" id="ssid_<?= $row['salesid'] ?>">
+												<option value=""></option><?php
+												foreach ( explode(',', $statuses) as $status_list ) {
+													$selected = ($status_list==$status) ? 'selected="selected"' : '';
+													echo '<option '. $selected .' value="'. $status_list .'">'. $status_list .'</li>';
+												} ?>
+											</select>
+										<?php } else {
+											echo $status;
+										} ?>
+                                    </div>
+                                </div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Next Action:</div>
+                                    <div class="col-sm-7">
+                                        <select name="next_action" class="chosen-select-deselect form-control" id="nsid_<?= $row['salesid'] ?>">
+                                            <option value=""></option><?php
+                                            foreach ( explode(',', $next_actions) as $next_action ) {
+                                                $selected = ($next_action==$row['next_action']) ? 'selected="selected"' : '';
+                                                echo '<option '. $selected .' value="'. $next_action .'">'. $next_action .'</li>';
+                                            } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Follow Up:</div>
+                                    <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
                             </div><?php
                         } ?>
