@@ -1451,7 +1451,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Packages';
 				break;
 			case 'promotion':
-				$tiles[] = 'Promotions';
+				$tiles[] = 'Promotions & Coupons';
 				break;
 			case 'services':
 				$tiles[] = 'Services';

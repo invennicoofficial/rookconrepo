@@ -1489,7 +1489,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'pos', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Promotions</td>
+                                        <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion', 'admin'); ?>
                                     </tr>
                                     <tr>
