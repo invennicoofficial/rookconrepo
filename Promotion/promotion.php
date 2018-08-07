@@ -225,7 +225,7 @@ checkAuthorised('promotion');
                     echo '<td data-title="MSRP">' . $row['msrp'] . '</td>';
                 }
                 if (strpos($value_config, ','."Times Used".',') !== FALSE) {
-                    echo '<td data-title="# of Times Used">' . $row['times_used'] . '</td>';
+                    echo '<td data-title="# of Times Used">' . ( $row['times_used'] == NULL ? 0 : $row['times_used'] ) . '</td>';
                 }
 
                 echo '<td data-title="Function">';
