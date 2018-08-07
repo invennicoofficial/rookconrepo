@@ -92,6 +92,9 @@ function saveFields() {
                     </tr>
                     <tr>
                         <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Time".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Time" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Time Tracking
+                        </td>
+                        <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."History".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="History" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;History
                         </td>
                     </tr>

@@ -32,7 +32,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'contracts': return ['link'=>"Contract/index.php",'name'=>'Contracts']; break;
 			case 'driving_log': return ['link'=>"Driving Log/driving_log_tiles.php",'name'=>'Driving Log']; break;
 			case 'package': return ['link'=>"Package/package.php",'name'=>'Packages']; break;
-			case 'promotion': return ['link'=>"Promotion/promotion.php",'name'=>'Promotions']; break;
+			case 'promotion': return ['link'=>"Promotion/promotion.php",'name'=>'Promotions & Coupons']; break;
 			//case 'services': return ['link'=>"Services/services.php?category=3D Printing",'name'=>'Services']; break;
             case 'services': return ['link'=>"Services/index.php",'name'=>'Services']; break;
 			case 'products': return ['link'=>"Products/products.php",'name'=>'Products']; break;

@@ -1291,7 +1291,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'pos'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Promotions</td>
+                                        <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion'); ?>
                                     </tr>
                                     <tr>
