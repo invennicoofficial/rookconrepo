@@ -510,8 +510,11 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Project History".',') !== FALSE) { echo " checked"; } ?> value="History Project History" name="reports_dashboard[]"> Project History</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Contact History".',') !== FALSE) { echo " checked"; } ?> value="History Contact History" name="reports_dashboard[]"> Contact History</label>
+	</div>
   <div class="clearfix"></div>
-  
+
   <h3>Estimates</h3>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Report".',') !== FALSE) { echo " checked"; } ?> value="Estimate Report" name="reports_dashboard[]"> Estimate Report</label>
