@@ -672,24 +672,27 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Dispatch Calendar draggables
 	function dispatchDraggable() {
-		var clone, before, parent;
+		var clone, before, parent, current_block;
 		$('.equip_assign_div').sortable({
 			connectWith: ".equip_assign_block",
 			items: '.equip_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
+			helper: 'clone',
 			start: function (e, block) {
 				$(block.item).show();
 				clone = $(block.item).clone();
 				before = $(block.item).prev();
 		        parent = $(block.item).parent();
+		        current_block = $(block.item);
 			},
 			stop: function(e, td) {
 				if($('.highlightCell').length > 0) {
 					if(before.length) {
-						before.after(clone);	
+						before.after(clone);
 					} else {
 						parent.prepend(clone);
 					}
+					$(current_block).remove();
 					var blocktype = td.item.data('blocktype');
 					var clientid = td.item.data('client');
 					var staffid = td.item.data('staff');
@@ -752,7 +755,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Teams draggables
 	function teamsDraggable() {
-		var clone, before, parent;
+		var clone, before, parent, current_block;
 		$('.team_assign_div').sortable({
 			connectWith: ".team_assign_block",
 			items: '.team_assign_draggable.sorting-initialize',
@@ -762,6 +765,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 				clone = $(block.item).clone();
 				before = $(block.item).prev();
 		        parent = $(block.item).parent();
+		        current_block = $(block.item);
 			},
 			stop: function(e, td) {
 				if($('.highlightCell').length > 0) {
@@ -770,6 +774,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					} else {
 						parent.prepend(clone);
 					}
+					$(current_block).remove();
 					var staffid = td.item.data('staff');
 					var target = $('.highlightCell').removeClass('highlightCell');
 					var teamid = target.data('team');
@@ -801,7 +806,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Clients draggables
 	function clientsDraggable() {
-		var clone, before, parent;
+		var clone, before, parent, current_block;
 		$('.client_assign_div').sortable({
 			connectWith: ".calendar_view table:not(#time_html) td[data-duration]:not([data-contact=0])",
 			items: '.client_assign_draggable.sorting-initialize',
@@ -811,6 +816,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 				clone = $(block.item).clone();
 				before = $(block.item).prev();
 		        parent = $(block.item).parent();
+		        current_block = $(block.item);
 			},
 			stop: function(e, td) {
 				if($('.highlightCell').length > 0) {
@@ -819,6 +825,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					} else {
 						parent.prepend(clone);
 					}
+					$(current_block).remove();
 					var clientid = td.item.data('client');
 					var target = $('.highlightCell').removeClass('highlightCell');
 					var contact = target.data('contact');
