@@ -37,6 +37,10 @@ if($_GET['fill'] == 'tile_config' || $_GET['fill'] == 'admin_tile_config')
 			$sql = "INSERT INTO `security_privileges` (`tile`, `level`, `privileges`) SELECT '$name', '$level_name', '$value' FROM (SELECT COUNT(*) num FROM `security_privileges` WHERE `tile`='$name' AND `level`='$level_name') rows WHERE rows.num=0";
 			$result = mysqli_query($dbc, $sql);
 		}
+
+    $before_change = '';
+    $history = "Security Privileges have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 }
 if($_GET['fill'] == 'admin_tile_config') {
@@ -84,8 +88,14 @@ if($_GET['fill'] == 'tile_config') {
     mysqli_query($dbc,"INSERT INTO `tile_security` (`tile_name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `tile_security` WHERE `tile_name`='$name') num WHERE num.rows=0");
 	if(!empty($turnOn) || $value == 'turn_on') {
 		$tile_SQL = "UPDATE `tile_security` SET `user_enabled`='1', `tile_history`=CONCAT(IFNULL(CONCAT(`tile_history`,'<br />'),''),'$history') WHERE `tile_name`='$name'";
+    $before_change = '';
+    $history = "User has been enable for tile $name. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	} else {
 		$tile_SQL = "UPDATE `tile_security` SET `user_enabled`='0', `tile_history`=CONCAT(IFNULL(CONCAT(`tile_history`,'<br />'),''),'$history') WHERE `tile_name`='$name'";
+    $before_change = '';
+    $history = "User has been disabled for tile $name. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 
 	// Run the SQL statements
@@ -99,6 +109,10 @@ if($_GET['fill'] == 'tile_config') {
 				$result = mysqli_query($dbc, $sql);
 			}
 		}
+
+    $before_change = '';
+    $history = "Security Privileges have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 	$new_status = mysqli_fetch_array(mysqli_query($dbc, "SELECT `admin_enabled`, `user_enabled` FROM `tile_security` WHERE `tile_name`='$name'"));
 	echo $tile_SQL.'#*#';
@@ -216,11 +230,20 @@ if($_GET['fill'] == 'security_level') {
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(*) AS total_id FROM security_level_names WHERE `identifier`='$name'"));
 
     if($get_config['total_id'] == 0) {
-		$query_insert_customer = "INSERT INTO `security_level_names` (`label`, `identifier`, `active`, `history`) VALUES ('$label', '$name', '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', '$history')";
+		    $query_insert_customer = "INSERT INTO `security_level_names` (`label`, `identifier`, `active`, `history`) VALUES ('$label', '$name', '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', '$history')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Leven names have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     } else {
+        $before_change = capture_before_change($dbc, 'security_level_names', 'active', 'identifier', $name);
+        $before_change .= capture_before_change($dbc, 'security_level_names', 'label', 'identifier', $name);
         $query_rate_card = "UPDATE `security_level_names` SET `active` = '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', `label`='$label', history = concat(IFNULL(`history`,''),'$history') WHERE `identifier` = '$name'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $active = strpos($value,'turn_on') !== FALSE ? 1 : 0;
+        $history = capture_after_change('active', $active);
+        $history .= capture_after_change('label', $label);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 }
 if($_GET['fill'] == 'privileges_config') {
@@ -233,9 +256,15 @@ if($_GET['fill'] == 'privileges_config') {
     if($get_config['total_id'] == 0) {
         $query_insert_customer = "INSERT INTO `security_privileges` (`tile`, `level`, `privileges`) VALUES ('$tile', '$level', '$value')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     } else {
+        $before_change = capture_before_change($dbc, 'security_privileges', 'privileges', 'tile', $tile, 'level', $level);
         $query_rate_card = "UPDATE `security_privileges` SET `privileges` = '$value' WHERE tile='$tile' AND level='$level'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('privileges', $value);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 
     /*
@@ -266,6 +295,9 @@ if($_GET['fill'] == 'privileges_config_log') {
 	$date = date('m/d/Y h:i:s a', time());
         $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`) VALUES ('$tile', '$level', '$value','$name', '$date')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'cost_quote_followup') {
