@@ -49,7 +49,9 @@ function unsaved(event) {
 function saveField(event) {
 	if(event != undefined && event.target != undefined) {
 		current_fields.push(event.target);
-	}
+	} else if(event != undefined && event.type != undefined && event.type == 'text') {
+        current_fields.push(event);
+    }
 	if(saving_field == null && current_fields.length > 0) {
 		saving_field = current_fields.shift();
 		for(var i = current_fields.length - 1; i >= 0; i--) {
