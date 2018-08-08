@@ -180,5 +180,6 @@ $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
 	'Estimate Stats'=>['reports_estimate_stats.php','Estimate Stats','Estimate Stats','reports_estimate_stats'],
 	'Estimate Alerts'=>['reports_estimate_alerts.php','Estimate Alerts','Estimate Alerts','reports_estimate_alerts'],
+	'Estimate Forecasting'=>['reports_estimate_forecasting.php','Estimate Forecasting','Estimate Forecasting','reports_estimate_forecasting'],
 ];
 $report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports, $estimates_reports);

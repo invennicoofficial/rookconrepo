@@ -531,6 +531,9 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Alerts".',') !== FALSE) { echo " checked"; } ?> value="Estimate Alerts" name="reports_dashboard[]"> Estimate Alerts</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Estimate Forecasting".',') !== FALSE) { echo " checked"; } ?> value="Estimate Forecasting" name="reports_dashboard[]"> Estimate Forecasting</label>
+	</div>
 
     <div class="form-group pull-right">
         <a href="report_tiles.php" class="btn brand-btn">Back</a>
