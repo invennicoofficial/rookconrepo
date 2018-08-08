@@ -271,16 +271,19 @@ if($type == 'Ticket') {
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 	$contents = '<div class="action_notifications">';
 	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != '' ORDER BY `taskcommid` DESC");
-	while($item_comment = mysqli_fetch_assoc($item_comments)) {
-		$comment = explode(':',$item_comment['comment']);
+	$odd_even = 0;
+    while($item_comment = mysqli_fetch_assoc($item_comments)) {
+		$bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+        $comment = explode(':',$item_comment['comment']);
 		if($comment[0] == 'document' && $comment[1] > 0 && count($comment) == 2) {
 			$document = $dbc->query("SELECT * FROM `task_document` WHERE `taskdocid`='".$comment[1]."'")->fetch_assoc();
-			$contents .= '<hr style="border-color:#ddd; margin:10px 0;" /><p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks/download/'.$document['document'].'">'.$document['document'].'</a>';
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small><span class="clearfix"></span></p>';
+			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks/download/'.$document['document'].'">'.$document['document'].'</a>';
+			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small><span class="clearfix"></span></div>';
 		} else {
-			$contents .= '<hr style="border-color:#ddd; margin:10px 0;" /><p><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small><span class="clearfix"></span></p>';
+			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
+			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small><span class="clearfix"></span></div>';
 		}
+        $odd_even++;
 	}
 	foreach(explode(',',$item['alerts_enabled']) as $alertid) {
 		if($alertid > 0) {
