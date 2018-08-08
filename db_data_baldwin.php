@@ -406,5 +406,17 @@
     }
     //2018-08-02 - Ticket #8273 - Camping
 
+    //2018-08-08 - Ticket #8582 - Ticket Timer
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `deleted_by` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `date_of_archival` date NOT NULL AFTER `deleted`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-08 - Ticket #8582 - Ticket Timer
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -224,7 +224,7 @@ function report_receivables($dbc, $starttime, $table_style, $table_row_style, $g
 
             $ticketid = $row['ticketid'];
 
-            $result = mysqli_query($dbc, "SELECT * FROM ticket_timer WHERE ticketid = '$ticketid'");
+            $result = mysqli_query($dbc, "SELECT * FROM ticket_timer WHERE ticketid = '$ticketid' AND `deleted` = 0");
             $num_rows = mysqli_num_rows($result);
             if($num_rows > 0) {
                 $times = array();
