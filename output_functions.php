@@ -23,12 +23,12 @@ function profile_id($dbc, $contactid, $echo = true) {
 		$output = '<img class="id-circle" src="'.$profile_photo.'">';
 	} else {
 		// If no image has been uploaded, and an avatar has been selected, use the avatar
-		$user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `preset_profile_picture`, `first_name`, `last_name`, `initials`, `calendar_color` FROM `contacts` LEFT JOIN `user_settings` ON `contacts`.`contactid`=`user_settings`.`contactid` WHERE `contacts`.`contactid` = '$contactid'"));
+		$user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `preset_profile_picture`, `first_name`, `last_name`, `name`, `initials`, `calendar_color` FROM `contacts` LEFT JOIN `user_settings` ON `contacts`.`contactid`=`user_settings`.`contactid` WHERE `contacts`.`contactid` = '$contactid'"));
 		if(!empty($user['preset_profile_picture']) && url_exists(WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'])) {
 			$output = '<img class="id-circle" src="'.WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'].'">';
 		// If nothing else has been set, use the contact's initials
 		} else {
-			$initials = ($user['initials'] == '' ? ($user['first_name'].$user['last_name'] == '' ? $user : substr(decryptIt($user['first_name']),0,1).substr(decryptIt($user['last_name']),0,1)) : $user['initials']);
+			$initials = ($user['initials'] == '' ? ($user['first_name'].$user['last_name'].$user['name'] == '' ? '?' : substr(decryptIt($user['name']),0,1).substr(decryptIt($user['first_name']),0,1).substr(decryptIt($user['last_name']),0,1)) : $user['initials']);
 			$colour = ($user['calendar_color'] == '' ? '#6DCFF6' : $user['calendar_color']);
 			$output = '<span class="id-circle" style="background-color:'.$colour.'; font-family: \'Open Sans\';">'.(!empty($initials) ? $initials : '&nbsp;').'</span>';
 		}
