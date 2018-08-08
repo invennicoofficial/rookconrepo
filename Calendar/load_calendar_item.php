@@ -401,7 +401,14 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
         $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$equip_assign_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach ($team_contacts as $team_contact) {
         	if(!empty($team_contact['contactid']) && !in_array($team_contact['contactid'], $hide_staff)) {
-	    		$team_contactids[$team_contact['contactid']] = [get_contact($dbc, $team_contact['contactid'], 'category'), get_contact($dbc, $team_contact['contactid']), $team_contact['contact_position']];
+                $row_cat = get_contact($dbc, $team_contact['contactid'], 'category');
+                $row_name = '';
+                if($row_cat == 'Staff') {
+                    $row_name = get_contact($dbc, $team_contact['contactid']);
+                } else {
+                    $row_name = get_contact($dbc, $team_contact['contactid'],'name_company');
+                }
+	    		$team_contactids[$team_contact['contactid']] = [$row_cat, $row_name, $team_contact['contact_position']];
         	}
         }
 
@@ -413,7 +420,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
         }
 
         foreach ($team_contactids as $key => $value) {
-        	$cur_staff = '<span class="equip_assign_staff" data-contact="'.$key.'" data-contact-name="'.get_contact($dbc, $key).'">'.($edit_access == 1 ? '<sup><a href="" onclick="removeStaffEquipAssign(this); return false;" style="font-size: x-small; color: #888; text-decoration: none; top: -0.2em; position: relative;">x</a></sup>' : '').$value[0].': '.(!empty($value[2]) ? $value[2].': ' : '').$value[1].'</span>';
+        	$cur_staff = '<span class="equip_assign_staff" data-contact="'.$key.'" data-contact-name="'.$value[1].'">'.($edit_access == 1 ? '<sup><a href="" onclick="removeStaffEquipAssign(this); return false;" style="font-size: x-small; color: #888; text-decoration: none; top: -0.2em; position: relative;">x</a></sup>' : '').$value[0].': '.(!empty($value[2]) ? $value[2].': ' : '').$value[1].'</span>';
         	$team_name .= $cur_staff.'<br />';
         }
         $team_name = rtrim($team_name, '<br />');
