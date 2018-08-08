@@ -57,6 +57,6 @@ foreach($teams as $row) {
             }
         }
         $team_contactids = implode(',', $team_contactids);
-        echo "<a href='' onclick='$(\"[id^=collapse_staff] .block-item\").removeClass(\"active\"); $(\"#collapse_teams .block-item[data-teamid!=".$row['teamid']."]\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view".($_GET['view'] == 'monthly' ? '_monthly' : '')."(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
+        echo "<a href='' onclick='$(\"[id^=collapse_staff] .block-item\").removeClass(\"active\"); $(\"#collapse_teams .block-item[data-teamid!=".$row['teamid']."]\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view".($_GET['view'] == 'monthly' || $_GET['mode'] == 'staff_summary' || $_GET['mode'] == 'ticket_summary' ? '_monthly' : '')."(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
     }
 } ?>

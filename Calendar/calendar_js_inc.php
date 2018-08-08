@@ -23,7 +23,7 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] == 'ticket_summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 
@@ -40,7 +40,8 @@ $(document).on("overlayIFrameSliderLoad", function(e) {
 			$('.iframe_overlay .iframe iframe').off('load').attr('src', '/blank_loading_page.php');
 			$('html').prop('onclick',null).off('click');
 			var calendar_view = $('#calendar_view').val();
-			if(calendar_view == 'monthly') {
+			var calendar_mode = $('#calendar_mode').val();
+			if(calendar_view == 'monthly' || calendar_mode == 'ticket_summary') {
 				reload_all_data_month();
 			} else {
 				reload_all_data();
@@ -52,7 +53,8 @@ $(document).on("overlayIFrameSliderLoad", function(e) {
 		$('.hide_on_iframe').show();
 		$(this).off('load').attr('src', '/blank_loading_page.php');
 		var calendar_view = $('#calendar_view').val();
-		if(calendar_view == 'monthly') {
+		var calendar_mode = $('#calendar_mode').val();
+		if(calendar_view == 'monthly' || calendar_mode == 'ticket_summary') {
 			reload_all_data_month();
 		} else {
 			reload_all_data();
@@ -1128,11 +1130,12 @@ function clear_all_data_month() {
 function retrieve_whole_month() {
 	var calendar_date = $('#calendar_start').val();
 	var calendar_view = $('#calendar_view').val();
+	var calendar_mode = $('#calendar_mode').val();
 	var type = $('#calendar_type').val();
 
 	loadingOverlayShow('.calendar_view');
 	$.ajax({
-		url: '../Calendar/monthly_display.php?<?= http_build_query($_GET) ?>&type='+type+'&view='+calendar_view+'&date='+calendar_date+'&retrieve_all=1',
+		url: '../Calendar/monthly_display.php?<?= http_build_query($_GET) ?>&type='+type+'&view='+calendar_view+'&date='+calendar_date+'&retrieve_all=1'+'&mode='+calendar_mode,
 		method: 'GET',
 		success: function(response) {
 			$('.calendar_view').html(response);
