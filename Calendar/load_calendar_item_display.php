@@ -53,9 +53,14 @@ if(!empty($equipassign_data[$current_day][$contact_id])) {
 	$equipassignid_data = "";
 }
 
+$region_group = '';
+if($columns_group_regions == 1) {
+	$region_group = $calendar_table[$calendar_date][$contact_id]['region'];
+}
+
 //Table header title
 $column['title'] = '';
-$column['title'] .= "<th ".($today_date == $current_day ? 'class="today-active"' : '' )." data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' $equipassignid_data data-date='".$current_day."' data-row='title' style='";
+$column['title'] .= "<th ".($today_date == $current_day ? 'class="today-active"' : '' )." data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' $equipassignid_data data-date='".$current_day."' data-row='title' style='";
 if($equipassign_data[$current_day][$contact_id] > 0) {
 	$equipassign_region = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `region` FROM `equipment_assignment` WHERE `equipment_assignmentid`='".$equipassign_data[$current_day][$contact_id]."'"))['region'];
 } else {
@@ -79,14 +84,14 @@ $column['title'] .= ($current_day == 0 ? $calendar_col['title'] : ($_GET['view']
 
 //Notes
 $column['notes'] = '';
-$column['notes'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['notes'].'</div>';
+$column['notes'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['notes'].'</div>';
 $column['notes'] .= '<div class="calendar_notes_btn" style="text-align: right; position: relative;">'.($edit_access == 1 ? '<a class="edit_calendar_notes" href=""><sub>EDIT</sub></a>' : '').'</div>';
 $column['notes'] .= '<div class="calendar_notes_edit" style="display:none;"><textarea style="resize: vertical;" class="noMceEditor form-control">'.html_entity_decode($calendar_col['notes']).'</textarea></div>';
 $column['notes'] .= '<a class="expand-div-link" href="" onclick="expandDiv(this); return false;"><div style="font-size: 1.5em; text-align: center;">...</div></a>';
 
 //Reminders
 $column['reminders'] = '';
-$column['reminders'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['reminders'].'</div>';
+$column['reminders'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['reminders'].'</div>';
 if('reminders' == 'notes' && $contact_id != 0) {
 	$column['reminders'] .= '<div class="calendar_notes_btn" style="text-align: right; position: relative;">'.($edit_access == 1 ? '<a class="edit_calendar_notes" href=""><sub>EDIT</sub></a>' : '').'</div>';
 	$column['reminders'] .= '<div class="calendar_notes_edit" style="display:none;"><textarea style="resize: vertical;" class="noMceEditor form-control">'.html_entity_decode($calendar_col['reminders']).'</textarea></div>';
@@ -95,7 +100,7 @@ $column['reminders'] .= '<a class="expand-div-link" href="" onclick="expandDiv(t
 
 //Warnings
 $column['warnings'] = '';
-$column['warnings'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['warnings'].'</div>';
+$column['warnings'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['warnings'].'</div>';
 if('warnings' == 'notes' && $contact_id != 0) {
 	$column['warnings'] .= '<div class="calendar_notes_btn" style="text-align: right; position: relative;">'.($edit_access == 1 ? '<a class="edit_calendar_notes" href=""><sub>EDIT</sub></a>' : '').'</div>';
 	$column['warnings'] .= '<div class="calendar_notes_edit" style="display:none;"><textarea style="resize: vertical;" class="noMceEditor form-control">'.html_entity_decode($calendar_col['warnings']).'</textarea></div>';
@@ -104,7 +109,7 @@ $column['warnings'] .= '<a class="expand-div-link" href="" onclick="expandDiv(th
 
 //Ticket summary
 $column['ticket_summary'] = '';
-$column['ticket_summary'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-draggable='0' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'>".$calendar_col['ticket_summary']."</td>";
+$column['ticket_summary'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' data-draggable='0' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'>".$calendar_col['ticket_summary']."</td>";
 
 //Rows
 $column['rows'] = [];
@@ -134,7 +139,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 	if ($calendar_col[$calendar_row][1] == 'SHIFT' || $calendar_col[$calendar_row][0] == 'no_shift') {
 		$is_shift = ' background-color: #eee';
 	}
-	$row_html .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-region='".$calendar_table[$current_day][$contact_id]['region']."' data-date='".$current_day."' data-calendartype='".$_GET['type']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' $equipassignid_data data-time='$calendar_row' data-duration='".($day_period * 60)."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$is_shift.$highlight_today."'>";
+	$row_html .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-region='".$calendar_table[$current_day][$contact_id]['region']."' data-date='".$current_day."' data-calendartype='".$_GET['type']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' $equipassignid_data data-time='$calendar_row' data-duration='".($day_period * 60)."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$is_shift.$highlight_today."'>";
 	if($calendar_time_behind_cell == 1 && $calendar_row >= 0) {
 		$current_row = date('h:i a', strtotime($day_start));
 		$current_row = date('h:i a', strtotime('+'.($day_period * $calendar_row).' minutes', strtotime($current_row)));

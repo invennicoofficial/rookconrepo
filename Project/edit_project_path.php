@@ -37,6 +37,17 @@ function setActions() {
 
 	$('.reply-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
+		var id = $(item).data('id');
+        var table = $(item).data('table');
+        var tile = '';
+        if ( table=='tasklist' ) {
+            tile = 'tasks';
+        } else if ( table=='tickets' ) {
+            tile = 'tickets';
+        }
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile='+tile+'&id='+id,'auto',false,true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
 		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
 			$(this).off('blur');
 			$.ajax({
@@ -61,7 +72,7 @@ function setActions() {
 			} else if(e.which == 27) {
 				$(this).off('blur').hide();
 			}
-		});
+		}); */
 	});
 	$('.archive-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -490,7 +501,7 @@ if($pathid[1] > 0 && $pathid[0] == 'I') {
 if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 	$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0"));
 	$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
-	$summary_tickets = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tickets, SUM(IF(`tickets`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_ticket_time, SUM(`ticket_timer`) spent_ticket_time FROM `tickets` LEFT JOIN (SELECT `ticketid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `ticket_timer` FROM `ticket_timer` GROUP BY `ticketid`) timers ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `projectid`='$projectid' AND `deleted`=0"));
+	$summary_tickets = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tickets, SUM(IF(`tickets`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_ticket_time, SUM(`ticket_timer`) spent_ticket_time FROM `tickets` LEFT JOIN (SELECT `ticketid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `ticket_timer` FROM `ticket_timer` GROUP BY `ticketid`) timers ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `projectid`='$projectid' AND `tickets`.`deleted`=0 AND `ticket_timer`.`deleted`=0"));
 	$summary_workorders = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) workorders, SUM(IF(`workorder`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_workorder_time, SUM(`workorder_timer`) spent_workorder_time FROM `workorder` LEFT JOIN (SELECT `workorderid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `workorder_timer` FROM `workorder_timer` GROUP BY `workorderid`) timers ON `workorder`.`workorderid`=`timers`.`workorderid` WHERE `projectid`='$projectid'"));
 	$summary_tasks = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tasks, SUM(IF(`tasklist`.`status`='".$status_complete."',1,0)) complete, SUM(TIME_TO_SEC(`work_time`)) task_time FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0")); ?>
 	<script>

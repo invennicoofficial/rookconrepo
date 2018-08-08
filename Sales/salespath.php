@@ -218,6 +218,15 @@ function task_send_reply(task) {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+    
+    /* Function before notes slider
+    task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task board';
+		task_id = task_id.substring(5);
+	}
 	$('[name=reply_'+task_id+']').show().focus();
 	$('[name=reply_'+task_id+']').keyup(function(e) {
 		if(e.which == 13) {
@@ -242,7 +251,7 @@ function task_send_reply(task) {
                 }
 			})
 		}
-	});
+	}); */
 }
 
 function task_quick_add_time(task) {
@@ -814,8 +823,8 @@ function checklist_attach_file(checklist) {
 									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
 										while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
 											<div class="note_block row">
-												<div class="col-xs-2"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-												<div class="col-xs-10" style="<?= $style_strikethrough ?>">
+												<div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
+												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
 													<div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
 													<div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
 												</div>
@@ -833,7 +842,7 @@ function checklist_attach_file(checklist) {
 								<div class="form-group clearfix">
 									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
 										while ( $row_comment=mysqli_fetch_assoc($comments) ) {
-                                            $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                      $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
 											<div class="note_block row <?= $bg_class ?>">
 												<div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
 												<div class="col-xs-11" style="<?= $style_strikethrough ?>">

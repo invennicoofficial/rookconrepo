@@ -758,6 +758,11 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
 		$patientid = $_POST['patientid'];
 	}
+        
+    //Update promotion times_used
+    if ( !empty($promotionid) ) {
+        mysqli_query($dbc, "UPDATE `promotion` SET `times_used` = IF(ISNULL(`times_used`), 1, `times_used` + 1) WHERE `promotionid`='$promotionid'");
+    }
 
 	$query = mysqli_query($dbc,"DELETE FROM invoice_compensation WHERE `invoiceid`='$invoiceid'");
 	$n = 0;

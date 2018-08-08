@@ -120,7 +120,7 @@ if(strpos($value_config, ',Checkin Delivery,') !== FALSE && !($_GET['stop'] > 0)
 <?php } else if(mysqli_num_rows($checkins) == 0) { ?>
 	</h3><h4>No records found attached to this <?= TICKET_NOUN ?>.</h4>
 <?php } else if(strpos($value_config, ',Checkin Hide All Button,') === FALSE) { ?>
-	<button class="btn brand-btn pull-right" onclick="checkinAll(this); return false;">Check In All</button></h3>
+	<button class="btn brand-btn pull-right" onclick="if($('#collapse_checkin,#tab_section_ticket_checkin').find('.toggle[value=0]').length > 0 && confirm('Are you sure you want to check in all individuals?')) { checkinAll(this); } return false;">Check In All</button></h3>
 	<div class="clearfix"></div>
 <?php } else { ?>
 	</h3>

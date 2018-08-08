@@ -49,14 +49,9 @@ while($ticket = mysqli_fetch_assoc($ticket_list)) {
 	$label = get_ticket_label($dbc,$ticket,$ticket['projecttype'],$ticket['project_name']).($revisions > 0 ? ' Revision #'.$ticket['revision'].' of '.$ticket['last_revision'] : '');
 	$file = '';
 	if($file_name != '') {
-		$file = '../Ticket/ticket_pdf_custom.php?ticketid='.$ticket['ticketid'].'&form='.substr($ticket_type,5).'&revision='.$ticket['revision'];;
-		// $file = '../Ticket/download/'.$file_name.'_'.$ticket['revision'].'_'.$ticket['ticketid'].'.pdf';
-		// if(!file_exists($file)) {
-			// $file = '../Ticket/download/'.$file_name.'_'.$ticket['ticketid'].'.pdf';
-		// }
+		$file = '../Ticket/ticket_pdf_custom.php?ticketid='.$ticket['ticketid'].'&form='.substr($ticket_type,5).'&revision='.$ticket['revision'];
 	}
-	$tickets[] = ['id'=>$ticket['ticketid'],'staff'=>explode(',',$ticket['contactid'].','.$ticket['internal_qa_contactid'].','.$ticket['deliverable_contactid']),'internal_qa'=>explode(',',$ticket['internal_qa_contactid']),'deliverable_id'=>explode(',',$ticket['deliverable_contactid']),'file'=>$file,'revision'=>$ticket['revision'],'created_by'=>$ticket['created_by'],'po'=>$ticket['purchase_order'].'#*#'.$ticket['po_numbers'],'customer_orders'=>$ticket['customer_order_num'].'#*#'.$ticket['customer_orders'],'business'=>$ticket['businessid'],'contact'=>explode(',',$ticket['clientid']),'project'=>$ticket['projecttype'],'status'=>$ticket['status'],'key'=>$ticket['to_do_date'].'-'.$label.' '.$ticket['purchase_order'].' '.$ticket['po_numbers'].' '.$ticket['customer_order_num'].' '.$ticket['customer_orders'],'label'=>$label,'type'=>$ticket_type];
+	$tickets[] = json_encode(['id'=>$ticket['ticketid'],'staff'=>explode(',',$ticket['contactid'].','.$ticket['internal_qa_contactid'].','.$ticket['deliverable_contactid']),'internal_qa'=>explode(',',$ticket['internal_qa_contactid']),'deliverable_id'=>explode(',',$ticket['deliverable_contactid']),'file'=>$file,'revision'=>$ticket['revision'],'created_by'=>$ticket['created_by'],'po'=>$ticket['purchase_order'].'#*#'.$ticket['po_numbers'],'customer_orders'=>$ticket['customer_order_num'].'#*#'.$ticket['customer_orders'],'business'=>$ticket['businessid'],'contact'=>explode(',',$ticket['clientid']),'project'=>$ticket['projecttype'],'status'=>$ticket['status'],'key'=>$ticket['to_do_date'].'-'.$label.' '.$ticket['purchase_order'].' '.$ticket['po_numbers'].' '.$ticket['customer_order_num'].' '.$ticket['customer_orders'],'label'=>$label,'type'=>$ticket_type]);
 }
 $_SERVER['page_load_info'] .= 'Output Ticket List: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
-echo json_encode($tickets);
-?>
+echo '['.implode(',',$tickets).']';

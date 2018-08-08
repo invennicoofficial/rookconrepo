@@ -99,6 +99,12 @@ if(isset($_POST['export_contacts'])) {
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
+    $("#report").change(function(){
+        url = $(location).attr('hostname');
+        value = $(this).val();
+        window.location.href = 'staff.php?tab=reporting&report='+value;
+    });
+
 	$('#staff_accordions .panel-heading').click(loadPanel);
 	$('#search_staff_form').submit(function() {
 		window.location.href = $(this).prop('action');
@@ -391,8 +397,13 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 				'reminders' => 'Reminders',
                 'reporting' => 'Reporting', ]; ?>
 
-			<?php if(!isset($_GET['settings'])) { ?>
-				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
+			<?php if(!isset($_GET['settings'])) {
+            $report = '';
+            if(!empty($_GET['report'])) {
+                $report = '&report='.$_GET['report'];
+            }
+            ?>
+				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action.$report ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
 					<!-- Sidebar -->
 					<div class="standard-collapsible tile-sidebar sidebar hide-titles-mob">
 						<ul>
@@ -416,7 +427,7 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 												if($staff_category == 'ALL' || strpos(','.get_contact($dbc, $staff_contact, 'staff_category').',', ','.$staff_category.',') !== FALSE) {
 													if(!in_array($support_contact,
 														$sorted_match_contacts)) {
-														$sorted_match_contacts[] = $support_contact; 
+														$sorted_match_contacts[] = $support_contact;
 													}
 													if(!in_array($staff_contact, $match_contacts[$support_contact])) {
 														$match_contacts[$support_contact][] = $staff_contact;
