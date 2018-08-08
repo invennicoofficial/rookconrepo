@@ -5,18 +5,78 @@ if(isset($_POST['submit'])) {
 	$sender = get_email($dbc, $_SESSION['contactid']);
 	$subject = filter_var($_POST['subject'],FILTER_SANITIZE_STRING);
 	$body = filter_var(htmlentities($_POST['body'],FILTER_SANITIZE_STRING));
+
+    $cc_emails = [];
+    foreach($_POST['cc_staff'] as $cc_staff) {
+        if($cc_staff > 0) {
+            $cc_emails[] = get_email($dbc, $cc_staff);
+        }
+    }
+    foreach($_POST['cc_contact'] as $cc_contact) {
+        if($cc_contact > 0) {
+            $cc_emails[] = get_email($dbc, $cc_contact);
+        }
+    }
+    foreach(array_filter(explode(',',$_POST['cc_other'])) as $cc_other) {
+        $cc_other = trim($cc_other);
+        if(filter_var($cc_other,FILTER_VALIDATE_EMAIL)) {
+            $cc_emails[] = $cc_other;
+        }
+    }
+
+    $bcc_emails = [];
+    foreach($_POST['bcc_staff'] as $bcc_staff) {
+        if($bcc_staff > 0) {
+            $bcc_emails[] = get_email($dbc, $bcc_staff);
+        }
+    }
+    foreach($_POST['bcc_contact'] as $bcc_contact) {
+        if($bcc_contact > 0) {
+            $bcc_emails[] = get_email($dbc, $bcc_contact);
+        }
+    }
+    foreach(array_filter(explode(',',$_POST['bcc_other'])) as $bcc_other) {
+        $bcc_other = trim($bcc_other);
+        if(filter_var($bcc_other,FILTER_VALIDATE_EMAIL)) {
+            $bcc_emails[] = $bcc_other;
+        }
+    }
+
 	$error = '';
-	foreach($_POST['staff'] as $user) {
-		if($user > 0) {
+    foreach($_POST['to_staff'] as $user) {
+        if($user > 0) {
             $body = str_replace(['[STAFF_NAME]'],[get_contact($dbc, $user)],$body);
-			$user = get_email($dbc, $user);
-			try {
-				send_email($sender, $user, '', '', $subject, html_entity_decode($body), '');
-			} catch (Exception $e) {
-				$error .= "Unable to send email: ".$e->getMessage()."\n";
-			}
-		}
-	}
+            $user = get_email($dbc, $user);
+            try {
+                send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+            } catch (Exception $e) {
+                $error .= "Unable to send email: ".$e->getMessage()."\n";
+            }
+        }
+    }
+    foreach($_POST['to_contact'] as $user) {
+        if($user > 0) {
+            $body = str_replace(['[STAFF_NAME]'],[get_contact($dbc, $user)],$body);
+            $user = get_email($dbc, $user);
+            try {
+                send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+            } catch (Exception $e) {
+                $error .= "Unable to send email: ".$e->getMessage()."\n";
+            }
+        }
+    }
+    foreach(array_filter(explode(',',$_POST['to_staff'])) as $user) {
+        $user = trim($user);
+        if(filter_var($user,FILTER_VALIDATE_EMAIL)) {
+            $body = str_replace(['[STAFF_NAME]'],[$user],$body);
+            try {
+                send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+            } catch (Exception $e) {
+                $error .= "Unable to send email: ".$e->getMessage()."\n";
+            }
+        }
+    }
+
 	echo '<script type="text/javascript"> alert("'.(empty($error) ? 'Successfully sent.' : $error).'"); </script>';
 }
 
@@ -87,6 +147,13 @@ switch($_GET['tile']) {
                 <a href='".WEBSITE_URL."/Tasks/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
         }
         break;
+    case 'sales':
+        $salesid = $_GET['salesid'];
+        $subject = "A reminder about a ".SALES_NOUN;
+        $body = "This is a reminder about a ".SALES_NOUN.".<br />\n<br />
+            <a href='".WEBSITE_URL."/Sales/sale.php?p=preview&id=$salesid'>Click here</a> to see the ".SALES_NOUN.".<br />\n<br />
+            $item";
+        break;
     case 'tasks':
         $id = $_GET['id'];
         $type = $_GET['type'];
@@ -141,21 +208,127 @@ switch($_GET['tile']) {
             <div class="clearfix"></div>
             <hr />
 
-        	<div class="form-group">
-        		<label class="col-sm-4 control-label">Staff:</label>
-        		<div class="col-sm-8">
-        			<select name="staff[]" multiple class="chosen-select-deselect form-control">
-        				<option></option>
+            <h5>To:</h5>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Staff:</label>
+                <div class="col-sm-8">
+                    <select name="to_staff[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
                         <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
                         foreach($staff_list as $staff) {
-                        	if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
-	                            <option value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
-	                        <?php }
+                            if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
+                                <option value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
+                            <?php }
                         } ?>
-        			</select>
-        		</div>
-        	</div>
+                    </select>
+                </div>
+            </div>
 
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contact:</label>
+                <div class="col-sm-8">
+                    <select name="to_contact[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
+                        foreach($contact_list as $contact) {
+                            if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
+                                <option value="<?= $contact['contactid']; ?>"><?= $contact['full_name'] ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Other Email:<br><em>Enter emails separated by a comma</em></label>
+                <div class="col-sm-8">
+                    <input type="text" name="to_other" class="form-control" value="">
+                </div>
+            </div>
+
+            <div class="clearfix"></div><hr>
+
+            <h5>CC:</h5>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Staff:</label>
+                <div class="col-sm-8">
+                    <select name="cc_staff[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+                        foreach($staff_list as $staff) {
+                            if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
+                                <option value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contact:</label>
+                <div class="col-sm-8">
+                    <select name="cc_contact[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
+                        foreach($contact_list as $contact) {
+                            if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
+                                <option value="<?= $contact['contactid']; ?>"><?= $contact['full_name'] ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Other Email:<br><em>Enter emails separated by a comma</em></label>
+                <div class="col-sm-8">
+                    <input type="text" name="cc_other" class="form-control" value="">
+                </div>
+            </div>
+
+            <div class="clearfix"></div><hr>
+
+            <h5>BCC:</h5>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Staff:</label>
+                <div class="col-sm-8">
+                    <select name="bcc_staff[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+                        foreach($staff_list as $staff) {
+                            if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
+                                <option value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Contact:</label>
+                <div class="col-sm-8">
+                    <select name="bcc_contact[]" multiple class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
+                        foreach($contact_list as $contact) {
+                            if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
+                                <option value="<?= $contact['contactid']; ?>"><?= $contact['full_name'] ?></option>
+                            <?php }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Other Email:<br><em>Enter emails separated by a comma</em></label>
+                <div class="col-sm-8">
+                    <input type="text" name="bcc_other" class="form-control" value="">
+                </div>
+            </div>
+
+            <div class="clearfix"></div><hr>
+
+            <h5>Email Details:</h5>
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Subject:</label>
         		<div class="col-sm-8">

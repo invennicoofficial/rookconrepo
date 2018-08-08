@@ -660,16 +660,16 @@ function calendarScrollLoad() {
 				columns_to_load.forEach(function(col) {
 					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
-						return row.contactid == col_arr[1];
+						return row.contactid == col_arr[1] && row.block_type == col_arr[2];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1], 'next', col_arr[2]);
+						load_items(item_row[0], col_arr[0], col_arr[1], 'next', col_arr[2], item_row[0].region);
 						item_row[0].loaded = true;
 					}
 					clear_excess_data('prev');
 				});
 				reload_resize_all();
-				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'_'+ref_contact) {
+				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'#*#'+ref_contact+'#*#'+ref_blocktype) {
 					end_of_list = true;
 				}
 				start_of_list = false;
@@ -685,16 +685,16 @@ function calendarScrollLoad() {
 				columns_to_load.forEach(function(col) {
 					var col_arr = col.split('#*#');
 					var item_row = $.grep(item_list[col_arr[0]], function(row) {
-						return row.contactid == col_arr[1];
+						return row.contactid == col_arr[1] && row.block_type == col_arr[2];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2]);
+						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2], item_row[0].region);
 						item_row[0].loaded = true;
 					}
 					clear_excess_data('next');
 				});
 				reload_resize_all();
-				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'_'+ref_contact) {
+				if(columns_to_load.length == 1 && columns_to_load[0] == ref_date+'#*#'+ref_contact+'#*#'+ref_blocktype) {
 					start_of_list = true;
 				}
 				end_of_list = false;
@@ -763,6 +763,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 		var config_type = $('#calendar_config_type').val();
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
+		var region = $(block).data('region-group');
 		if(teamid != '' && teamid > 0) {
 			contact = teamid;
 			block_type = 'team';
@@ -805,6 +806,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 						var item_data = JSON.parse(response);
 						item_data['contactid'] = contact;
 						item_data['block_type'] = block_type;
+						item_data['region'] = region;
 						item_data['loaded'] = false;
 						var item_index = -1;
 						$.each(item_list[calendar_date], function(i,v){
@@ -813,8 +815,19 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 						        return true;
 						    }
 						});
+						var splice_index = -1;
+						if(!(item_index) > -1) {
+							$.each(item_list[calendar_date], function(i,v){
+							    if(v.region == region){
+							        splice_index = i;
+							        return true;
+							    }
+							});
+						}
 						if(item_index > -1) {
 							item_list[calendar_date][item_index] = item_data;
+						} else if(splice_index > -1) {
+							item_list[calendar_date].splice((splice_index+1),0,item_data);
 						} else {
 							item_list[calendar_date].push(item_data);
 						}
@@ -848,7 +861,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 							return (row.contactid == contact && row.block_type == block_type);
 						});
 						if(!item_row[0].loaded) {
-							load_item = load_items(item_row[0], calendar_date, contact, 'next', block_type);
+							load_item = load_items(item_row[0], calendar_date, contact, 'next', block_type, region);
 							item_row[0].loaded = true;
 							i++;
 						}
@@ -921,7 +934,7 @@ function retrieve_columns_to_load(item_list, date, contact, retrieve_type, limit
 	}
 	return include_list;
 }
-function load_items(item_row, date, contact, insert_type = 'next', block_type = '') {
+function load_items(item_row, date, contact, insert_type = 'next', block_type = '', region = '') {
 	loadingOverlayShow('.calendar_view');
 	var deferred = $.Deferred();
 	//Does this column already exist?
@@ -942,40 +955,49 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 			$('.calendar_view table:not(#time_html) tr[data-rowtype='+row_time+'] td'+filter_query).replaceWith(row_html);
 		});
 	} else if(insert_type == 'prev') {
-			//Is there a column that exists?
-			var first_title = $('.calendar_view table:not(#time_html) th[data-date='+date+']').first();
-			filter_query += '[data-date='+date+']';
+		//Is there a column that exists?
+		var first_title = $('.calendar_view table:not(#time_html) th[data-date='+date+']').first();
+		filter_query += '[data-date='+date+']';
+		var first_region = $('.calendar_view table:not(#time_html) th[data-date='+date+'][data-region-group="'+region+'"]').first();
+		if(first_region.length > 0) {
+			first_title = first_region;
+			filter_query += '[data-region-group="'+region+'"]';
+		}
 
-			if(first_title.length > 0) {
-				//If column doesn't exist but there is a column, prepend it
-				first_title.before(item_row['title']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).first().before(item_row['notes']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).first().before(item_row['reminders']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td'+filter_query).first().before(item_row['warnings']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=ticket_summary] td'+filter_query).first().before(item_row['ticket_summary']);
-				item_row['rows'].forEach(function(item) {
-					var row_time = item.time;
-					var row_html = item.html;
-					$('.calendar_view table:not(#time_html) tr[data-rowtype='+row_time+'] td'+filter_query).first().before(row_html);
-				});
-			} else {
-				//If no columns exist, append to the beginning of the table
-				$('.calendar_view table:not(#time_html) th').first().after(item_row['title']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td').first().after(item_row['notes']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td').first().after(item_row['reminders']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td').first().after(item_row['warnings']);
-				$('.calendar_view table:not(#time_html) tr[data-rowtype=ticket_summary] td').first().after(item_row['ticket_summary']);
-				item_row['rows'].forEach(function(item) {
-					var row_time = item.time;
-					var row_html = item.html;
-					$('.calendar_view table:not(#time_html) tr[data-rowtype='+row_time+'] td').first().after(row_html);
-				});
-			}
+		if(first_title.length > 0) {
+			//If column doesn't exist but there is a column, prepend it
+			first_title.before(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).first().before(item_row['notes']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).first().before(item_row['reminders']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td'+filter_query).first().before(item_row['warnings']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=ticket_summary] td'+filter_query).first().before(item_row['ticket_summary']);
+			item_row['rows'].forEach(function(item) {
+				var row_time = item.time;
+				var row_html = item.html;
+				$('.calendar_view table:not(#time_html) tr[data-rowtype='+row_time+'] td'+filter_query).first().before(row_html);
+			});
+		} else {
+			//If no columns exist, append to the beginning of the table
+			$('.calendar_view table:not(#time_html) th').first().after(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td').first().after(item_row['notes']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td').first().after(item_row['reminders']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td').first().after(item_row['warnings']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=ticket_summary] td').first().after(item_row['ticket_summary']);
+			item_row['rows'].forEach(function(item) {
+				var row_time = item.time;
+				var row_html = item.html;
+				$('.calendar_view table:not(#time_html) tr[data-rowtype='+row_time+'] td').first().after(row_html);
+			});
+		}
 	} else {
 		//Is there a column that exists?
 		var last_title = $('.calendar_view table:not(#time_html) th[data-date='+date+']').last();
 		filter_query += '[data-date='+date+']';
-
+		var last_region = $('.calendar_view table:not(#time_html) th[data-date='+date+'][data-region-group="'+region+'"]').last();
+		if(last_region.length > 0) {
+			last_title = last_region;
+			filter_query += '[data-region-group="'+region+'"]';
+		}
 		if(last_title.length > 0) {
 			last_title.after(item_row['title']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).last().after(item_row['notes']);
@@ -1087,7 +1109,7 @@ function scrollToToday() {
 						return row.contactid == col_arr[1] && row.block_type == col_arr[2];
 					});
 					if(!item_row[0].loaded) {
-						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2]);
+						load_items(item_row[0], col_arr[0], col_arr[1], 'prev', col_arr[2], item_row[0].region);
 						item_row[0].loaded = true;
 					}
 				});

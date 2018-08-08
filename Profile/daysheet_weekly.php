@@ -64,6 +64,10 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
     $alerts_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $alerts_reminders_query),MYSQLI_ASSOC);
     $inc_rep_reminders_query = "SELECT * FROM `incident_report` WHERE `ir14` = '".$current_day."' AND `assign_followup` = '".$contactid."'";
     $inc_rep_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $inc_rep_reminders_query),MYSQLI_ASSOC);
+    $equipment_followup_reminders_query = "SELECT * FROM `equipment` WHERE `follow_up_date` = '".$current_day."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
+    $equipment_followup_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_followup_reminders_query),MYSQLI_ASSOC);
+    $equipment_service_reminders_query = "SELECT * FROM `equipment` WHERE `next_service_date` = '".$current_day."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
+    $equipment_service_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_service_reminders_query),MYSQLI_ASSOC);
 
     //Tickets
 	if(strtotime($current_day.' 23:59:59') < time() && get_config($dbc, 'timesheet_hide_past_days') == '1' && $dbc->query("SELECT COUNT(*) `count` FROM `time_cards` WHERE `date`='$current_day' AND `staff`='{$_SESSION['contactid']}' AND `end_time` IS NULL AND `start_time` IS NOT NULL")->fetch_assoc()['count'] == 0) {
@@ -149,6 +153,14 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                     }
                     foreach ($inc_rep_reminders_result as $reminder) {
                         echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>'.$row_close;
+                        $no_records = false;
+                    }
+                    foreach ($equipment_followup_reminders_result as $reminder) {
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Follow Up Equipment ('.$reminder['category'].' #'.$reminder['unit_number'].'): Next Service Date coming up on '.$reminder['next_service_date'].'</a>'.$row_close;
+                        $no_records = false;
+                    }
+                    foreach ($equipment_service_reminders_result as $reminder) {
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }

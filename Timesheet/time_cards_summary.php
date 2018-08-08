@@ -1,33 +1,43 @@
 <?php include_once('../include.php');
 include_once('../Calendar/calendar_functions_inc.php');
 include_once('../Timesheet/config.php');
-$search_site = '';
-$search_project = 0;
-$search_ticket = 0;
-$search_staff = $_SESSION['contactid'];
-if(!empty($_GET['search_staff'])) {
-	$search_staff = $_GET['search_staff'];
+if(empty($search_staff)) {
+    $search_staff = $_SESSION['contactid'];
+    if(!empty($_GET['search_staff'])) {
+        $search_staff = $_GET['search_staff'];
+    }
+    if(!empty($_GET['search_client'])) {
+        $search_staff = $_GET['search_client'];
+    }
 }
-if(!empty($_GET['search_client'])) {
-	$search_staff = $_GET['search_client'];
+if(empty($search_start_date)) {
+    $search_start_date = date('Y-m-01');
+    $search_end_date = date('Y-m-t');
+    if(!empty($_GET['search_start_date'])) {
+        $search_start_date = $_GET['search_start_date'];    
+    }
+    if(!empty($_GET['search_end_date'])) {
+        $search_end_date = $_GET['search_end_date'];    
+    }
 }
-$search_start_date = date('Y-m-01');
-$search_end_date = date('Y-m-t');
-if(!empty($_GET['search_project'])) {
-	$search_project = $_GET['search_project'];    
+if(empty($search_staff)) {
+    $search_project = 0;
+    if(!empty($_GET['search_project'])) {
+        $search_project = $_GET['search_project'];    
+    } 
 } 
-if(!empty($_GET['search_ticket'])) {
-	$search_ticket = $_GET['search_ticket'];    
+if(empty($search_staff)) {
+    $search_ticket = 0;
+    if(!empty($_GET['search_ticket'])) {
+        $search_ticket = $_GET['search_ticket'];    
+    } 
 } 
-if(!empty($_GET['search_site'])) {
-	$search_site = $_GET['search_site'];    
+if(empty($search_staff)) {
+    $search_site = '';
+    if(!empty($_GET['search_site'])) {
+        $search_site = $_GET['search_site'];    
+    } 
 } 
-if(!empty($_GET['search_start_date'])) {
-	$search_start_date = $_GET['search_start_date'];    
-}
-if(!empty($_GET['search_end_date'])) {
-	$search_end_date = $_GET['search_end_date'];    
-}
 $current_period = isset($_GET['pay_period']) ? $_GET['pay_period'] : 0;
 $timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
@@ -52,7 +62,9 @@ if($layout == '' || $layout == 'multi_line') {
 		SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 		GROUP_CONCAT(DISTINCT NULLIF(`comment_box`,'') SEPARATOR ', ') COMMENTS, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS,
 		SUM(`timer_tracked`) TRACKED_HRS,
-		SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 GROUP BY `date`";
+		SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS,
+        `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards`
+        WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 $sql_approv GROUP BY `date`";
 	} else {
 	    $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
 		SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
@@ -63,7 +75,9 @@ if($layout == '' || $layout == 'multi_line') {
 		SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 		GROUP_CONCAT(DISTINCT NULLIF(`comment_box`,'') SEPARATOR ', ') COMMENTS, GROUP_CONCAT(`projectid`) PROJECTS, GROUP_CONCAT(`clientid`) CLIENTS,
 		SUM(`timer_tracked`) TRACKED_HRS,
-		SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `deleted`=0 GROUP BY `date`";
+		SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS,
+        `ticket_attached_id`, `manager_approvals`, `coord_approvals`, `manager_name`, `coordinator_name`, `ticketid`, `start_time`, `end_time` FROM `time_cards`
+        WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `deleted`=0 $sql_approv GROUP BY `date`";
 	}
 	if($layout == 'multi_line') {
 		$sql .= ", `time_cards_id`";

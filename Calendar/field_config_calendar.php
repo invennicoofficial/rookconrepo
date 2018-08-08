@@ -549,6 +549,34 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_reset_active' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_reset_active') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_reset_active."' WHERE `name`='scheduling_reset_active'");
+	if (!empty($_POST['scheduling_service_followup'])) {
+		$scheduling_service_followup = $_POST['scheduling_service_followup'];
+	} else {
+		$scheduling_service_followup = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_service_followup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_service_followup') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_service_followup."' WHERE `name`='scheduling_service_followup'");
+	if (!empty($_POST['scheduling_service_date'])) {
+		$scheduling_service_date = $_POST['scheduling_service_date'];
+	} else {
+		$scheduling_service_date = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_service_date' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_service_date') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_service_date."' WHERE `name`='scheduling_service_date'");
+	if (!empty($_POST['scheduling_passed_service'])) {
+		$scheduling_passed_service = $_POST['scheduling_passed_service'];
+	} else {
+		$scheduling_passed_service = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_passed_service' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_passed_service') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_passed_service."' WHERE `name`='scheduling_passed_service'");
+	if (!empty($_POST['scheduling_columns_group_regions'])) {
+		$scheduling_columns_group_regions = $_POST['scheduling_columns_group_regions'];
+	} else {
+		$scheduling_columns_group_regions = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_columns_group_regions' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_columns_group_regions') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_columns_group_regions."' WHERE `name`='scheduling_columns_group_regions'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -2072,6 +2100,34 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_reset_active = get_config($dbc, 'scheduling_reset_active'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_reset_active" <?= $scheduling_reset_active == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Service Follow Up Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_service_followup = get_config($dbc, 'scheduling_service_followup'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_service_followup" <?= $scheduling_service_followup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Next Service Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_service_date = get_config($dbc, 'scheduling_service_date'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_service_date" <?= $scheduling_service_date == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Passed Service Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_passed_service = get_config($dbc, 'scheduling_passed_service'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_passed_service" <?= $scheduling_passed_service == 1 ? 'checked' : '' ?> value="1"></label>
+                </div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Group Columns by Region:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_columns_group_regions" <?= $scheduling_columns_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

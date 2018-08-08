@@ -2,6 +2,7 @@
 	<ul>
 		<?php if(isset($_GET['settings'])) { ?>
 			<li class="sidebar-higher-level <?= $_GET['settings'] == 'macros' ? 'active' : '' ?>"><a href="?settings=macros">Add Macros</a></li>
+			<li class="sidebar-higher-level bb_warehouses <?= $_GET['settings'] == 'bb_warehouses' ? 'active' : '' ?>" <?= strpos('|'.get_config($dbc, 'upload_macros').'|', '|macro_import_bb.php|') !== FALSE ? '' : 'style="display:none;"' ?>><a href="?settings=bb_warehouses">Best Buy Warehouses</a></li>
 		<?php } else {
 			if(in_array('upload',$tab_list)) { ?>
 				<li class="sidebar-higher-level <?= $_GET['tab'] == 'upload' ? 'active' : '' ?>"><a href="?tab=upload">Upload CSV</a></li>

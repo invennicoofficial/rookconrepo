@@ -107,6 +107,12 @@
             }
             if (strpos($value_config, ',Tasks,') !== false) { 
                 include('details_tasks.php');
+				echo "<hr>";
+            }
+            if (strpos($value_config, ',Time,') !== false) { 
+				echo "<div>";
+                include('details_time.php');
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',History,') !== false) { 
                 include('details_history.php');
