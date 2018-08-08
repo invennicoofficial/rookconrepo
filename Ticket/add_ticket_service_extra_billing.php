@@ -15,19 +15,27 @@ if(strpos($value_config, ',Service Extra Billing Display Only If Exists,') !== F
 	echo '<div class="col-sm-12">
 		<div class="note_block extra_billing">';
 		if($num_extra_billing > 0) {
-			while($row = mysqli_fetch_assoc($extra_billings)) {
-				echo profile_id($dbc, $row['created_by']);
-				echo '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment']);
-				echo "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'].'</em></div>';
-				echo '<div class="clearfix"></div>';
+			$odd_even = 0;
+            while($row = mysqli_fetch_assoc($extra_billings)) {
+				$bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+                echo '<div class="'.$bg_class.'">';
+                    echo profile_id($dbc, $row['created_by']);
+                    echo '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment']);
+                    echo "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'].'</em></div>';
+                    echo '<div class="clearfix"></div>';
+                echo '</div>';
 
-				$pdf_content = html_entity_decode($row['comment']);
-				$pdf_content .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'].'</em>';
+				$pdf_content = '<div class="'.$bg_class.'">';
+                    $pdf_content .= html_entity_decode($row['comment']);
+                    $pdf_content .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'].'</em>';
+                $pdf_content = '</div>';
 				$pdf_contents[] = ['Extra Billing', $pdf_content];
+                
+                $odd_even++;
 			}
 		} else {
 			echo '<h4>No Extra Billing Found.</h4>';
 		}
 		echo '</div>
-	</div><div class="clearfix"></div><hr>'; ?>
+	</div><div class="clearfix"></div>'; ?>
 </div>

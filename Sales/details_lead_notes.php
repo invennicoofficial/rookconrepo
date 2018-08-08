@@ -7,9 +7,10 @@
             if ( !empty($salesid) ) {
                 $result = mysqli_query($dbc, "SELECT * FROM `sales_notes` WHERE `salesid`='{$salesid}' ORDER BY `salesnoteid` DESC");
                 if($result->num_rows > 0) {
+                    $odd_even = 0;
                     echo '
                         <br />
-                        <table>
+                        <table class="table">
                             <tr class="hidden-xs hidden-sm">
                                 <th>Note</th>
                                 <th>Date</th>
@@ -18,7 +19,8 @@
                             </tr>';
                     
                     while($row = mysqli_fetch_array($result)) {
-                        echo '<tr>';
+                        $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+                        echo '<tr class="'.$bg_class.'">';
                             $by = $row['created_by'];
                             $to = $row['email_comment'];
                             //echo '<td data-title="Schedule">'. $row['note_heading'] .'</td>';
@@ -28,6 +30,7 @@
                             echo '<td data-title="Added By">'. get_staff($dbc, $by) .'</td>';
                             //echo '<td data-title="Schedule"><a href=\'delete_restore.php?action=delete&ticketcommid='.$row['ticketcommid'].'&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Delete</a></td>';
                         echo '</tr>';
+                        $odd_even++;
                     }
                     
                     echo '</table><br /><br />';
