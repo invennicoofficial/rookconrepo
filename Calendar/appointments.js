@@ -760,6 +760,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			connectWith: ".team_assign_block",
 			items: '.team_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
+			helper: 'clone',
 			start: function (e, block) {
 				$(block.item).show();
 				clone = $(block.item).clone();
@@ -811,6 +812,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			connectWith: ".calendar_view table:not(#time_html) td[data-duration]:not([data-contact=0])",
 			items: '.client_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
+			helper: 'clone',
 			start: function (e, block) {
 				$(block.item).show();
 				clone = $(block.item).clone();
