@@ -114,6 +114,7 @@ if($calendar_ticket_diff_label == 1) {
     $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
 }
 $calendar_ticket_status_icon = get_config($dbc, 'calendar_ticket_status_icon');
+$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
 if($_GET['type'] == '' || $_GET['view'] == '') {
     $default = get_config($dbc, 'calendar_default');
     $user_default = mysqli_fetch_array(mysqli_query($dbc, "SELECT IFNULL(`calendar_view`,'default') view FROM `user_settings` WHERE `contactid`='{$_SESSION['contactid']}'"))['view'];
@@ -432,6 +433,8 @@ switch($_GET['type']) {
         $staff_split_security = get_config($dbc, 'ticket_staff_split_security');
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
+        $staff_summary = get_config($dbc, 'ticket_staff_summary');
+        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';
