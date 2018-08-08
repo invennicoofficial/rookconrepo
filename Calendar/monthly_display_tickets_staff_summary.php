@@ -44,7 +44,7 @@ while($row = mysqli_fetch_assoc($tickets)) {
 
 foreach($all_teams as $contact_id => $ticket_count) {
 	$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$contact_id."'"));
-	$staff = get_team_name($dbc, $row['teamid']).' ( '.get_team_name($dbc, $row['teamid'], ', ', 1).')';
+	$staff = get_team_name($dbc, $row['teamid']).(!empty($row['team_name']) ? ' ('.get_team_name($dbc, $row['teamid'], ', ', 1).')' : '');
     if(empty($row['calendar_color'])) {
     	$row['calendar_color'] = '#6DCFF6';
     }
