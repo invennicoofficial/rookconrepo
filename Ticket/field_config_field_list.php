@@ -1318,6 +1318,7 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 					<?php if(!$action_mode && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Multiple Days", $all_config) ? 'checked disabled' : (in_array("Medication Multiple Days", $value_config) ? "checked" : '') ?> value="Medication Multiple Days" name="tickets[]"> Multiple Days</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Group Days", $all_config) ? 'checked disabled' : (in_array("Medication Group Days", $value_config) ? "checked" : '') ?> value="Medication Group Days" name="tickets[]"> Group Days In Accordion</label>
 						</div>
 					<?php } ?>
 				</div>
