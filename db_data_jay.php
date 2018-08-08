@@ -13,6 +13,11 @@
     if(!mysqli_query($dbc, "CREATE TABLE `local_software_guide` (`local_guideid` INT(11) NOT NULL AUTO_INCREMENT, `guideid` INT(11) NULL DEFAULT NULL, `additional_guide` TEXT NULL DEFAULT NULL, `deleted` SMALLINT(1) NOT NULL DEFAULT '0', PRIMARY KEY (`local_guideid`));")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
+    
+    // 07-Aug-2018
+    if(!mysqli_query($dbc, "ALTER TABLE `promotion` ADD `times_used` INT(11) NULL DEFAULT NULL AFTER `deleted`;")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
 	
     echo "Jay's DB Changes Done<br /><br />\n";
 ?>

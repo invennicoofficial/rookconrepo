@@ -666,8 +666,12 @@ IF(!IFRAME_PAGE) { ?>
 							ticket_type: '<?= $type ?>',
 							ticket_tile: '<?= $_GET['tile_name'] ?>'
 						},
-						success: function(response) {  console.log(response.split('###*###')[1]);
-							ticket_list['<?= $type ?>'] = JSON.parse(response.split('###*###')[0]);
+						success: function(response) {
+							response = response.split('###*###');
+							if(response[1] != '' && response[1] != undefined) {
+								console.log(response[1]);
+							}
+							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
 							loadTickets();
 						}
 					});
@@ -688,7 +692,7 @@ IF(!IFRAME_PAGE) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_creator_<?= $type ?>">Created By<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_creator_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, COUNT(*) `count` FROM `contacts` LEFT JOIN `tickets` ON `contacts`.`contactid`=`tickets`.`created_by` WHERE `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') AND `tickets`.`ticketid` > 0 AND (`contacts`.`first_name` != '' OR `contacts`.`last_name` != '') AND `contacts`.`contactid` > 0 $filter GROUP BY `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`")) as $row) { ?>
-										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
+										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets();"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
 									<?php } ?>
 								</ul>
 							</li>
@@ -1229,7 +1233,7 @@ IF(!IFRAME_PAGE) { ?>
 		$total_length = 0;
 		if(in_array('Time Graph',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
-			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
 			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
 				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
 					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
@@ -1280,7 +1284,7 @@ IF(!IFRAME_PAGE) { ?>
 			$total_length += 68;
 		}
 		if(in_array('Tracked',$db_summary)) {
-			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc()['time'];
+			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
 				<h4>Today\'s Tracked Time: '.$total_tracked_time.'</h4>
 			</div>'];

@@ -812,7 +812,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }
-		return $label;
+		return html_entity_decode($label);
 	}
 	return '-';
 }
@@ -864,6 +864,10 @@ function get_security_levels($dbc) {
 				mysqli_query($dbc, "INSERT INTO `security_level_names` (`label`, `identifier`, `history`) SELECT '".get_securitylevel($dbc, $field_name)."', '".$field_name."', `".$field_name."_history` FROM `security_level`");
 			}
 		}
+
+		$before_change = '';
+    $history = "Security level names have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 
 	$on_security = ['Super Admin'=>'super'];
@@ -1110,6 +1114,9 @@ function insert_privileges($dbc, $tile) {
     $q1 = mysqli_query($dbc, "INSERT INTO `security_privileges` (tile, level, privileges) VALUES ('$tile', 'teammember', '*hide*')");
     $q1 = mysqli_query($dbc, "INSERT INTO `security_privileges` (tile, level, privileges) VALUES ('$tile', 'staff', '*hide*')");
     $q1 = mysqli_query($dbc, "INSERT INTO `security_privileges` (tile, level, privileges) VALUES ('$tile', 'customers', '*hide*')");
+		$before_change = '';
+    $history = "Security Privileges have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 }
 
 function get_security($dbc, $tile) {
@@ -1451,7 +1458,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Packages';
 				break;
 			case 'promotion':
-				$tiles[] = 'Promotions';
+				$tiles[] = 'Promotions & Coupons';
 				break;
 			case 'services':
 				$tiles[] = 'Services';
@@ -2779,7 +2786,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     break;
                 case 'equipment_insurance':
                 case 'equipment_registration':
-                    $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid']+'&iframe_slider=1';
                     break;
                 case 'projects':
                     $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['src_tableid'];
@@ -3264,7 +3271,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
             foreach($ticket_attached_queries as $id => $ticket_attached_query) {
                 $existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
                 if(empty($existing)) {
-                    mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");  
+                    mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");
                     $existing_id = mysqli_insert_id($dbc);
                 } else {
                     $existing_id = $existing['id'];
@@ -3276,7 +3283,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
             foreach($ticket_schedule_queries as $id => $ticket_schedule_query) {
                 $existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
                 if(empty($existing)) {
-                    mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");  
+                    mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");
                     $existing_id = mysqli_insert_id($dbc);
                 } else {
                     $existing_id = $existing['id'];
@@ -3288,7 +3295,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
             foreach($ticket_comment_queries as $id => $ticket_comment_query) {
                 $existing = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$recurring_ticket['ticketid']."' AND `main_id` = '".$id."'"));
                 if(empty($existing)) {
-                    mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");   
+                    mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`) VALUES ('".$recurring_ticket['ticketid']."')");
                     $existing_id = mysqli_insert_id($dbc);
                 } else {
                     $existing_id = $existing['ticketcommid'];

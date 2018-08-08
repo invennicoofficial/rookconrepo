@@ -1195,7 +1195,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',promotion,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('promotion', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Promotions</td>
+				<td data-title="Comment">Promotions & Coupons</td>
 				<?php echo security_tile_config_function('promotion', get_privileges($dbc, 'promotion',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>

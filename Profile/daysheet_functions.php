@@ -76,7 +76,7 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 
     //Timer stuff
     $total_minutes = 0;
-    $ticket_timer = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_timer` WHERE `ticketid` = '".$ticket['ticketid']."' AND `created_by` = '".$contactid."' AND `timer_type` != 'Break'"),MYSQLI_ASSOC);
+    $ticket_timer = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_timer` WHERE `ticketid` = '".$ticket['ticketid']."' AND `created_by` = '".$contactid."' AND `timer_type` != 'Break' AND `deleted` = 0"),MYSQLI_ASSOC);
     foreach ($ticket_timer as $timer) {
         $hours = intval(explode(':', $timer['timer'])[0]);
         $minutes = intval(explode(':', $timer['timer'])[1]);

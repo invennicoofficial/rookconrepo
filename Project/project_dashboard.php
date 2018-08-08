@@ -671,7 +671,7 @@ $(document).ready(function() {
 					$total_length += $block_length;
 				}
 				if(in_array('SUMM Tracked', $summ_config)) {
-					$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time`, `project`.* FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer`) `time_list` LEFT JOIN `tickets` ON `time_list`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `project`.`deleted`=0 GROUP BY `project`.`projectid`");
+					$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time`, `project`.* FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer` WHERE `deleted` = 0) `time_list` LEFT JOIN `tickets` ON `time_list`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `project`.`deleted`=0 GROUP BY `project`.`projectid`");
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Actual Time</h4>';
