@@ -169,7 +169,7 @@ if(!empty($_GET['edit'])) {
 	$login_id = $_SESSION['contactid'];
 	// AND timer_type='Break' AND end_time IS NULL
 
-	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id')"));
+	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id' AND `deleted` = 0)"));
 
 	$created_date = $get_ticket['created_date'];
 	$created_by = $get_ticket['created_by'];
