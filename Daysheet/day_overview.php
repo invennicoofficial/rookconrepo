@@ -150,7 +150,7 @@ if (isset($_POST['add_manual'])) {
         $html_weekly .= '</table>';
     }
 
-    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
     $result = mysqli_query($dbc, $query_check_credentials);
     $num_rows = mysqli_num_rows($result);
 
@@ -618,7 +618,7 @@ if (isset($_POST['add_manual'])) {
 		<?php } ?>
 
 		<?php
-			$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+			$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
 			$result = mysqli_query($dbc, $query_check_credentials);
 			$num_rows = mysqli_num_rows($result);
 		?>
@@ -976,7 +976,7 @@ if (isset($_POST['add_manual'])) {
 					$spent_time = '';
 
 					if($ticketNumber != '') {
-						$query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' ORDER BY tickettimerid DESC";
+						$query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' AND `deleted` = 0 ORDER BY tickettimerid DESC";
 						$result1 = mysqli_query($dbc, $query_check_credentials1);
 						$num_rows1 = mysqli_num_rows($result1);
 						if($num_rows1 > 0) {
