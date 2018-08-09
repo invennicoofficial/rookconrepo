@@ -68,7 +68,6 @@ if(mysqli_num_rows($page_options) > 0) {
 if(strpos_any !== FALSE)
 $_SERVER['page_load_info'] .= 'Start of Page: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 if(get_config($dbc, 'timesheet_force_end_midnight') > 0 && strtotime(get_config($dbc, 'timesheet_midnight_last_ended')) < strtotime(date('Y-m-d'))) {
-	echo 'hello';
 	include_once('../Calendar/calendar_functions_inc.php');
 	$midnight_end = true;
 	$end_time_list = mysqli_query($dbc, "SELECT `contacts`.`contactid`, `time_cards`.`date`, `time_cards`.`time_cards_id` FROM `contacts` LEFT JOIN `time_cards` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `contacts`.`category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `contacts`.`status`>0 AND `contacts`.`deleted`=0 AND `timer_start` > 0 AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` > 0 AND `type_of_time`='day_tracking' AND `date` != '".date('Y-m-d')."'");
