@@ -146,6 +146,10 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Service Staff Checklist';
 } else if($_GET['tab'] == 'ticket_service_extra_billing.php') {
 	$sort_field = 'Service Extra Billing';
+} else if($_GET['tab'] == 'internal_communication') {
+	$sort_field = 'Internal Communication';
+} else if($_GET['tab'] == 'external_communication') {
+	$sort_field = 'External Communication';
 }
 
 if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
@@ -792,6 +796,14 @@ if($generate_pdf) {
 			$_GET['tab'] = 'view_ticket_comment';
 		} else if($_GET['tab'] == 'ticket_checkout_staff') {
 			$_GET['tab'] = 'ticket_checkout';
+		} else if($_GET['tab'] == 'internal_communication') {
+			$communication_type = 'Internal';
+			$communication_method = 'email';
+			$_GET['tab'] = 'communication';
+		} else if($_GET['tab'] == 'external_communication') {
+			$communication_type = 'External';
+			$communication_method = 'email';
+			$_GET['tab'] = 'communication';
 		}
 
 		if(substr($sort_field, 0, strlen('FFMCUST_')) === 'FFMCUST_') {
