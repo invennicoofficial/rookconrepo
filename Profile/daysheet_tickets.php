@@ -321,7 +321,7 @@ if(!empty($_GET['search_start_date'])) {
     $_SERVER['QUERY_STRING'][] = 'search_start_date='.$_GET['search_start_date'];
 }
 if(!empty($_GET['search_end_date'])) {
-    $sarch_end_date = $_GET['search_end_date'];
+    $search_end_date = $_GET['search_end_date'];
     $_SERVER['QUERY_STRING'][] = 'search_end_date='.$_GET['search_end_date'];
 }
 $_SERVER['QUERY_STRING'] = implode('&', $_SERVER['QUERY_STRING']);
