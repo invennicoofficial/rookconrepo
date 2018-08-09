@@ -34,10 +34,6 @@ $submit_mode = get_config($dbc, 'timesheet_submit_mode');
 $sql_approv = '';
 if($current_page == 'payroll.php') {
     $sql_approv = "AND (`approv`='Y' OR `approv`='P')";
-} else if($current_page != 'time_cards.php') {
-    $sql_approv = "AND `approv`='N'";
-} else {
-    $sql_approv = "AND `approv`='N'";
 }
 $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0)
     + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? 1 : 0) + (in_array('start_time',$value_config) || in_array('start_time_editable',$value_config) ? 1 : 0)
@@ -45,11 +41,6 @@ $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('schedul
     + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0) + (in_array('start_day_tile',$value_config) ? 1 : 0) + ($layout == 'ticket_task')
     + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0)
     + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0) ?>
-<style>
-table td {
-    background-color: transparent;
-}
-</style>
 <script>
 $(document).ready(function() {
     checkTimeOverlaps();
@@ -469,7 +460,7 @@ var useProfileSig = function(chk) {
             '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
             '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;"></td>' : '').'
             '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="theme-color-border-bottom">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
-            '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($approv == 'P' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($approv == 'P' ? 'checked readonly' : '').' /></label></td>' : '');
+            '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.(($current_page == 'payroll.php' && $approv == 'P') || ($current_page != 'payroll.php' && ($approv == 'P' || $approv == 'Y')) ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.(($current_page == 'payroll.php' && $approv == 'P') || ($current_page != 'payroll.php' && ($approv == 'P' || $approv == 'Y')) ? 'checked readonly' : '').' /></label></td>' : '');
         echo '</tr>';
         if(($layout != 'multi_line' && $layout != 'position_dropdown' && $layout != 'ticket_task') || $date != $row['date']) {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
