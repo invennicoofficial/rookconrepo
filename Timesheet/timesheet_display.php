@@ -41,6 +41,11 @@ $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('schedul
     + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0) + (in_array('start_day_tile',$value_config) ? 1 : 0) + ($layout == 'ticket_task')
     + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0)
     + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0) ?>
+<style>
+table td {
+    background-color: transparent;
+}
+</style>
 <script>
 $(document).ready(function() {
     checkTimeOverlaps();

@@ -1,37 +1,39 @@
 <!-- Products -->
 <script type="text/javascript">
+var add_new_p = 1;
 $(document).ready(function() {
-    var add_new_p = 1;
     $('#deleteproduct_0').hide();
-    $('#add_row_p').on( 'click', function () {
-        $('#deleteproduct_0').show();
-        var clone = $('.additional_p').clone();
-        clone.find('.form-control').val('');
-
-        clone.find('#sproduct_0').attr('id', 'sproduct_'+add_new_p);
-		clone.find('#pcategory_0').attr('id', 'pcategory_'+add_new_p);
-        clone.find('#pheading_0').attr('id', 'pheading_'+add_new_p);
-
-        clone.find('#product_0').attr('id', 'product_'+add_new_p);
-        clone.find('#deleteproduct_0').attr('id', 'deleteproduct_'+add_new_p);
-        $('#deleteproduct_0').hide();
-
-        clone.removeClass("additional_p");
-        $('#add_here_new_p').append(clone);
-
-        resetChosen($("#sproduct_"+add_new_p));
-        resetChosen($("#pcategory_"+add_new_p));
-        resetChosen($("#pheading_"+add_new_p));
-
-        add_new_p++;
-
-        return false;
-    });
+    $('.add_row_p').on( 'click', add_row_product);
 });
 $(document).on('change', 'select.prod_serv_onchange', function() { selectProductProduct(this); });
 $(document).on('change', 'select.prod_cat_onchange', function() { selectProductCat(this); });
 $(document).on('change', 'select[name="productid[]"]', function() { selectProductHeading(this); });
 
+function add_row_product() {
+    $('#deleteproduct_0').show();
+    var clone = $('.additional_p').clone();
+    clone.find('.form-control').val('');
+
+    clone.find('#sproduct_0').attr('id', 'sproduct_'+add_new_p);
+    clone.find('#pcategory_0').attr('id', 'pcategory_'+add_new_p);
+    clone.find('#pheading_0').attr('id', 'pheading_'+add_new_p);
+
+    clone.find('#product_0').attr('id', 'product_'+add_new_p);
+    clone.find('#deleteproduct_0').attr('id', 'deleteproduct_'+add_new_p);
+    $('#deleteproduct_0').hide();
+
+    clone.removeClass("additional_p");
+    $('#add_here_new_p').append(clone);
+
+    resetChosen($("#sproduct_"+add_new_p));
+    resetChosen($("#pcategory_"+add_new_p));
+    resetChosen($("#pheading_"+add_new_p));
+
+    add_new_p++;
+    $('.add_row_p').off('click',add_row_product).on( 'click', add_row_product);
+
+    return false;
+}
 function selectProductProduct(sel) {
 	var stage = sel.value;
 	var typeId = sel.id;
@@ -137,6 +139,7 @@ function seleteProduct(sel, hide, blank) {
 
                         <div class="col-sm-1" >
                             <a href="#" onclick="seleteProduct(this,'product_','pheading_'); return false;" id="<?= 'deleteproduct_'.$id_loop; ?>"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
+                            <a href="#" id="add_row_p" class="gap-md-left-15"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                         </div>
                         
                         <div class="clearfix"></div>
@@ -188,6 +191,7 @@ function seleteProduct(sel, hide, blank) {
                 
                 <div class="col-sm-1 pad-5">
                     <a href="#" onclick="seleteProduct(this,'product_','pheading_'); return false;" id="deleteproduct_0"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
+                    <a href="#" class="add_row_p gap-md-left-15"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                 </div>
                 
                 <div class="clearfix"></div>
@@ -195,10 +199,6 @@ function seleteProduct(sel, hide, blank) {
         </div><!-- .additional_s -->
 
         <div id="add_here_new_p"></div>
-        
-        <div class="col-sm-12 gap-md-left-10 gap-top">
-            <a href="#" id="add_row_p" class="gap-md-left-15"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
-        </div>
         
         <div class="clearfix"></div>
         
