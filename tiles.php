@@ -207,7 +207,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 	session_start(['cookie_lifetime' => 518400]);
 	$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 	$_SESSION['tile_list'] = [];
-	if(START_DAY != '' && $_SESSION['category'] == 'Staff') {
+	if(START_DAY != '' && $_SESSION['category'] == 'Staff' && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
 		$timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
 		$tile_label = START_DAY;
 		if($timer > 0) {
