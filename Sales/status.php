@@ -9,6 +9,7 @@ $estimates_active = tile_enabled($dbc, 'estimate')['user_enabled'];
 $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+$staff_list = sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
 $filter = "`deleted` = 0 ";
 if(isset($_GET['s'])) {
 	$filter .= " AND `status`='".filter_var($_GET['s'],FILTER_SANITIZE_STRING)."'";
