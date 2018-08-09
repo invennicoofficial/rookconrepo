@@ -39,7 +39,29 @@
 
 	$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `line_id`='0' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0".$query_daily." ORDER BY `date_stamp`");
 	$medication = mysqli_fetch_assoc($medications);
-	do { ?>
+	$current_date = 'FIRST_DATE';
+	if(strpos($value_config, ',Medication Group Days,') !== FALSE) { ?>
+		<div id="panel_medication_groups" class="panel-group">
+	<?php }
+	do {
+		if(strpos($value_config, ',Medication Group Days,') !== FALSE && $current_date != $medication['date_stamp']) {
+			if($current_date != 'FIRST_DATE') { ?>
+						</div>
+					</div>
+				</div>
+			<?php }
+			$current_date = $medication['date_stamp']; ?>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#panel_medication_groups" href="#collapse_medication_<?= $current_date ?>">
+							<?= (!empty($current_date) && $current_date != 'FIRST_DATE' ? $current_date : 'No Date') ?><span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+				<div id="collapse_medication_<?= $current_date ?>" class="panel-collapse collapse">
+					<div class="panel-body">
+		<?php } ?>
 		<div class="multi-block">
 			<div class="col-sm-2">
 				<label class="show-on-mob">Member:</label>
@@ -193,9 +215,37 @@
 			<div class="clearfix"></div>
 		</div>
 	<?php } while($medication = mysqli_fetch_assoc($medications));
+	if(strpos($value_config, ',Medication Group Days,') !== FALSE) { ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	<?php }
 } else {
-	$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `line_id`='0' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0".$query_daily);
-	while($medication = mysqli_fetch_assoc($medications)) { ?>
+	$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `line_id`='0' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0".$query_daily." ORDER BY `date_stamp`");
+	$current_date = 'FIRST_DATE';
+	if(strpos($value_config, ',Medication Group Days,') !== FALSE && mysqli_num_rows($medications) > 0) { ?>
+		<div id="panel_medication_groups" class="panel-group">
+	<?php }
+	while($medication = mysqli_fetch_assoc($medications)) {
+		if(strpos($value_config, ',Medication Group Days,') !== FALSE && $current_date != $medication['date_stamp']) {
+			if($current_date != 'FIRST_DATE') { ?>
+						</div>
+					</div>
+				</div>
+			<?php }
+			$current_date = $medication['date_stamp']; ?>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#panel_medication_groups" href="#collapse_medication_<?= $current_date ?>">
+							<?= (!empty($current_date) && $current_date != 'FIRST_DATE' ? $current_date : 'No Date') ?><span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+				<div id="collapse_medication_<?= $current_date ?>" class="panel-collapse collapse">
+					<div class="panel-body">
+		<?php } ?>
 		<div class="multi-block">
 			<div class="col-sm-2">
 				<label class="show-on-mob">Member:</label>
@@ -215,7 +265,7 @@
 			<?php if (strpos($value_config, ',Medication Multiple Days,') !== false) { ?>
 				<div class="col-sm-2">
 					<label class="show-on-mob">Date:</label>
-					<input type="text" class="form-control datepicker" name="date_stamp" <?= $medication['arrived'] > 0 ? 'readonly' : 'data-table="ticket_attached" data-id="'.$medication['id'].'" data-id-field="id" data-type="medication" data-type-field="src_table"' ?> value="<?= $medication['date_stamp'] ?>">
+					<input type="text" class="form-control" readonly name="date_stamp" value="<?= $medication['date_stamp'] ?>">
 				</div>
 				<?php $pdf_contents[] = ['Date', $medication['date_stamp']]; ?>
 			<?php } ?>
@@ -261,6 +311,12 @@
 			</div>
 			<?php $pdf_contents[] = ['Witnessed By', ($medication['witness_name'] != '' ? $medication['witness_name'].'<br />' : '').'<img src="download/witnessed_'.$medication['id'].'.png">']; ?>
 			<div class="clearfix"></div>
+		</div>
+	<?php }
+	if(strpos($value_config, ',Medication Group Days,') !== FALSE && mysqli_num_rows($medications) > 0) { ?>
+					</div>
+				</div>
+			</div>
 		</div>
 	<?php }
 } ?>

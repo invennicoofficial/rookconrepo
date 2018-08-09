@@ -191,7 +191,7 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
 			$ticket_result[$row1['created_by']]['ticketid'][] = $row1['ticketid'];
 
 			$tempTicketNumber = $row1['ticketid'];
-			$query_check_credentials2 = "SELECT start_time,end_time,timer_type FROM ticket_timer where ticketid = $tempTicketNumber";
+			$query_check_credentials2 = "SELECT start_time,end_time,timer_type FROM ticket_timer where ticketid = $tempTicketNumber AND `deleted` = 0";
 			$result2 = mysqli_query($dbc, $query_check_credentials2);
 			while($row2 = mysqli_fetch_array($result2)) {
 				if($row2['end_time'] != '' && $row2['timer_type'] == 'Work') {

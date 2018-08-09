@@ -31,7 +31,7 @@ if(!empty($_GET['calendar_view'])) {
 }
 
 $ticket_layout = get_config($dbc, 'ticket_layout');
-$value_config = get_field_config($dbc, 'tickets');
+$value_config = ','.get_field_config($dbc, 'tickets').',';
 $sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
 $ticket_tab_locks = get_config($dbc, 'ticket_tab_locks');
 $client_accordion_category = get_config($dbc, 'client_accordion_category');
@@ -169,7 +169,7 @@ if(!empty($_GET['edit'])) {
 	$login_id = $_SESSION['contactid'];
 	// AND timer_type='Break' AND end_time IS NULL
 
-	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id')"));
+	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id' AND `deleted` = 0)"));
 
 	$created_date = $get_ticket['created_date'];
 	$created_by = $get_ticket['created_by'];
@@ -395,11 +395,11 @@ if($admin_group->num_rows > 0) {
 	}
 	$value_config_all = $value_config;
 	if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-		$value_config = $admin_group['unlocked_fields'];
+		$value_config = ','.$admin_group['unlocked_fields'].',';
 	}
 } else {
 	$admin_group = [];
-}		
+}
 
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
