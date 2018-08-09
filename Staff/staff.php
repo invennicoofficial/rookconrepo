@@ -204,7 +204,7 @@ switch($tab) {
 		$body_title = 'Reporting';
 		$search_action = 'reporting';
 		$tab_list['reporting'] = true;
-		$tab_note = "It's a log of everything done and all time tracked by day, week, month, by staff";
+		$tab_note = "This report provides a log of everything done and all time tracked per staff";
 		break;
 	default:
 		$body_title = 'Active Staff';
