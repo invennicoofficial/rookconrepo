@@ -47,9 +47,11 @@
                         <th width="10%">Quantity</th>
                     </tr>
                     <?php $item_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, IF(`sortorder` = 0, NULL, `sortorder`) `sortorder` FROM `sales_order_product_temp` WHERE `parentsotid` = '$sotid' AND `contact_category` = '**no_cat**' AND `heading_name` = '$heading_name' ORDER BY `sortorder` IS NOT NULL, `sortorder` ASC"),MYSQLI_ASSOC);
+                    $odd_even = 0;
                     foreach ($item_list as $item) {
+                        $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
                         $item_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_product_details_temp` WHERE `parentsotid` = '".$item['sotid']."' AND `contactid` = '".$customerid."'")); ?>
-                        <tr>
+                        <tr class="<?= $bg_class ?>">
                             <input type="hidden" name="item_contactid[]" value="<?= $customerid ?>">
                             <input type="hidden" name="item_soptid[]" value="<?= $item['sotid'] ?>">
                             <td data-title="Category"><?= $item['item_category'] ?></td>
@@ -57,6 +59,7 @@
                             <td data-title="Price"><?= $item['item_price'] ?></td>
                             <td data-title="Quantity"><input type="number" name="item_quantity[]" class="form-control" value="<?= !empty($item_details['quantity']) ? $item_details['quantity'] : '0' ?>"></td>
                         </tr>
+                        <?php $odd_even++; ?>
                     <?php } ?>
                 </table>
             </div><?php
