@@ -333,6 +333,14 @@ function send_reminder(task) {
 
 function send_reply(task) {
 	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task board';
@@ -363,7 +371,7 @@ function send_reply(task) {
 			})
 		}
 	});
-}
+} */
 
 function quick_add_time(task) {
 	task_id = $(task).parents('span').data('task');
@@ -1045,16 +1053,18 @@ function checklist_attach_file(checklist) {
                                     if ( $comments->num_rows > 0 ) { ?>
                                         <div class="form-group clearfix full-width">
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                                while ( $row_comment=mysqli_fetch_assoc($comments) ) { ?>
-                                                    <div class="note_block row">
+                                                $odd_even = 0;
+                                                while ( $row_comment=mysqli_fetch_assoc($comments) ) {
+                                                    $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                                                    <div class="note_block row <?= $bg_class ?>">
                                                         <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
                                                         <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><?= html_entity_decode($row_comment['comment']); ?></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
                                                         </div>
                                                         <div class="clearfix"></div>
-                                                    </div>
-                                                    <hr class="margin-vertical" /><?php
+                                                    </div><?php
+                                                    $odd_even++;
                                                 } ?>
                                             </div>
                                             <div class="clearfix"></div>

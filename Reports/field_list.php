@@ -128,7 +128,8 @@ $marketing_reports = [
 	'Contact Report by Status'=>['report_contact_report_by_status.php','Contact Report by Status','Contact Report by Status','contact_report_by_status'],
 	'Contact Postal Code'=>['report_marketing_contact_pc.php','Contact Postal Code','Contact Postal Code','contact_postal_code'],
 	'Site visitors'=>['report_marketing_site_visitors.php','Website Visitors','Site Visitors','site_visitors'],
-	'Cart Abandonment'=>['report_marketing_cart_abandonment.php','Cart Abandonment','Cart Abandonment','cart_abandonment']
+	'Cart Abandonment'=>['report_marketing_cart_abandonment.php','Cart Abandonment','Cart Abandonment','cart_abandonment'],
+	'Promotions and Coupons'=>['report_marketing_promotions.php','Promotions & Coupons Usage','Promotions and Coupons','promotions_coupons']
 ];
 $compensation_reports = [
 	'Adjustment Compensation'=>['report_compensation_adjustments.php','Adjustment Compensation','Adjustment Compensation','compensation_adjust'],
@@ -179,5 +180,6 @@ $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
 	'Estimate Stats'=>['reports_estimate_stats.php','Estimate Stats','Estimate Stats','reports_estimate_stats'],
 	'Estimate Alerts'=>['reports_estimate_alerts.php','Estimate Alerts','Estimate Alerts','reports_estimate_alerts'],
+	'Estimate Forecasting'=>['reports_estimate_forecasting.php','Estimate Forecasting','Estimate Forecasting','reports_estimate_forecasting'],
 ];
 $report_list = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports, $customer_reports, $staff_reports, $history_reports, $estimates_reports);

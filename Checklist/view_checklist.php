@@ -148,7 +148,11 @@ function <?= $diff_function ?>send_reply(checklist) {
 		var type = 'checklist board';
 		checklist_id = checklist_id.substring(5);
 	}
-	$('[name=reply_'+checklist_id+']').show().focus();
+    
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=checklists&id='+checklist_id, 'auto', false, true);
+    
+	/* Function before notes slider
+    $('[name=reply_'+checklist_id+']').show().focus();
 	$('[name=reply_'+checklist_id+']').keyup(function(e) {
 		if(e.which == 13) {
 			$(this).blur();
@@ -168,7 +172,7 @@ function <?= $diff_function ?>send_reply(checklist) {
 				complete: function(result) { reloadChecklistScreen($(checklist).closest('.checklist_screen')); }
 			})
 		}
-	});
+	}); */
 }
 function <?= $diff_function ?>edit_item(checklist) {
 	checklist_id = $(checklist).closest('[data-checklist]').data('checklist');

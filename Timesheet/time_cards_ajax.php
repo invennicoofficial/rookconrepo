@@ -270,4 +270,36 @@ else if($_GET['action'] == 'unapprove_time') {
 }
 else if($_GET['action'] == 'stop_holiday_update_noti') {
 	set_config($dbc, 'holiday_update_stopdate', date('Y-m-d'));
+} else if($_GET['action'] == 'update_time') {
+    $type_of_time = filter_var($_POST['type_of_time'],FILTER_SANITIZE_STRING);
+    $field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+    $value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+    if($field == 'total_hrs') {
+        $value = explode(':',$value);
+        $value = $value[0] + ($value[1] / 60);
+    }
+    $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+    $date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+    $staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
+    $siteid = filter_var($_POST['siteid'],FILTER_SANITIZE_STRING);
+    $projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+    $clientid = filter_var($_POST['clientid'],FILTER_SANITIZE_STRING);
+    $ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+    $attach_id = filter_var($_POST['ticketattachedid'],FILTER_SANITIZE_STRING);
+    $type = filter_var($_POST['type_of_time'],FILTER_SANITIZE_STRING);
+    $page = filter_var($_POST['page'],FILTER_SANITIZE_STRING);
+    if(!($id > 0)) {error_reporting(E_ALL);
+        $id = $dbc->query("SELECT MAX(`time_cards_id`) `time_cards_id` FROM `time_cards` WHERE `staff`='$staff' AND `date`='$date' AND '$siteid' IN (`business`,'') AND '$projectid' IN (`projectid`,'') AND '$ticketid' IN (`ticketid`,'') AND '$clientid' IN (`clientid`,'') AND '$attach_id' IN (`ticket_attached_id`,'')")->fetch_assoc()['time_cards_id'];
+    }
+    if($id > 0 && $field == 'approv') {
+        $dbc->query("UPDATE `time_cards` SET `$field`='$value' WHERE `time_cards_id`='$id'");
+    } else if($id > 0) {
+        $dbc->query("UPDATE `time_cards` SET `$field`='$value', `".($page == 'time_cards.php' ? '' : 'manager_')."highlight`=1 WHERE `time_cards_id`='$id'");
+    } else {
+        $dbc->query("INSERT INTO `time_cards` (`business`,`projectid`,`ticketid`,`date`,`clientid`,`ticket_attached_id`,`staff`,`type_of_time`,`$field`) VALUES ('$siteid','$projectid','$ticketid','$date','$clientid','$attach_id','$staff','$type','$value')");
+        echo $dbc->insert_id;
+    }
+    if($attach_id > 0 && $field == 'total_hrs') {
+        $dbc->query("UPDATE `ticket_attached` SET `time_set`='$value' WHERE `id`='$attach_id'");
+    }
 }

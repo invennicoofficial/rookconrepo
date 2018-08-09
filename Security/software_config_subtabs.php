@@ -759,6 +759,9 @@ checkAuthorised('security');
 						if(strpos($reports,',Pro Bono Report,') !== false) { ?>
 							<tr><td>Pro-Bono</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pro_bono' ); ?></tr>
 						<?php }
+						if(strpos($reports,',Promotions and Coupons,') !== false) { ?>
+							<tr><td>Promotions & Coupons</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'promotions_coupons' ); ?></tr>
+						<?php }
 						if(strpos($reports,',Referral,') !== false) { ?>
 							<tr><td>Referrals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'referral' ); ?></tr>
 						<?php }

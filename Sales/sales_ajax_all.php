@@ -499,7 +499,7 @@ if ( $_GET['fill']=='checklistArchive' ) {
 if($_GET['action'] == 'lead_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
-	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
+	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`date`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',DATE(NOW()),TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
 }
 
 if($_GET['action'] == 'setting_tile') {

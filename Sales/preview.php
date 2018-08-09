@@ -94,11 +94,12 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
                         <div class="col-xs-12 col-sm-10 col-md-11"><?php
                             $comments = mysqli_query($dbc, "SELECT * FROM `sales_notes` WHERE `salesid`='{$salesid}' ORDER BY `salesnoteid` DESC");
                             if ( $comments->num_rows > 0 ) {
-                                echo '<ul>';
+                                $odd_even = 0;
                                 while ( $row=mysqli_fetch_assoc($comments) ) {
-                                    echo '<li>'. html_entity_decode($row['comment']) .'</li>';
+                                    $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+                                    echo '<div class="'.$bg_class.'">'. html_entity_decode($row['comment']) .'</div>';
+                                    $odd_even++;
                                 }
-                                echo '</ul>';
                             } else {
                                 echo '-';
                             } ?>

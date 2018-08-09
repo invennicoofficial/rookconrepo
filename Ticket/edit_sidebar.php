@@ -76,6 +76,7 @@ if($_GET['action_mode'] == 1) {
 <?php } ?>
 <?php $current_heading = '';
 $current_heading_closed = true;
+$value_config = ','.$value_config.',';
 $sort_order = array_filter($sort_order);
 foreach($sort_order as $sort_field) { ?>
 	<?php //Add higher level heading

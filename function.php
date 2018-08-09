@@ -1458,7 +1458,7 @@ function get_tile_names($tile_list) {
 				$tiles[] = 'Packages';
 				break;
 			case 'promotion':
-				$tiles[] = 'Promotions';
+				$tiles[] = 'Promotions & Coupons';
 				break;
 			case 'services':
 				$tiles[] = 'Services';
@@ -2786,7 +2786,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     break;
                 case 'equipment_insurance':
                 case 'equipment_registration':
-                    $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid']+'&iframe_slider=1';
                     break;
                 case 'projects':
                     $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['src_tableid'];

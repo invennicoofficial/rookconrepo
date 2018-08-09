@@ -159,7 +159,7 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
             $ticketid = $row_report['ticketid'];
 		    $total_all = [];
 
-            $tickets = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`timers`.`type`='Tracked',`timers`.`time`,0)))) `timer_total`, SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`timers`.`type`='Manual',`timers`.`time`,0)))) `manual_time` FROM `tickets` LEFT JOIN (SELECT `ticketid`,`created_by`,`created_date`,`time_length` `time`, 'Manual' `type` FROM `ticket_time_list` WHERE `time_type`='Manual Time' AND `deleted`=0 UNION SELECT `ticketid`,`created_by`,`created_date`,`timer` `time`, 'Tracked' `type` FROM `ticket_timer`) `timers` ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `tickets`.`ticketid` ='$ticketid'"));
+            $tickets = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`timers`.`type`='Tracked',`timers`.`time`,0)))) `timer_total`, SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`timers`.`type`='Manual',`timers`.`time`,0)))) `manual_time` FROM `tickets` LEFT JOIN (SELECT `ticketid`,`created_by`,`created_date`,`time_length` `time`, 'Manual' `type` FROM `ticket_time_list` WHERE `time_type`='Manual Time' AND `deleted`=0 UNION SELECT `ticketid`,`created_by`,`created_date`,`timer` `time`, 'Tracked' `type` FROM `ticket_timer` WHERE `deleted` = 0) `timers` ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `tickets`.`ticketid` ='$ticketid'"));
 
             $total_all[] = $tickets['timer_total'];
             $total_all[] = $tickets['manual_time'];

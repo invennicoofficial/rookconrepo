@@ -539,7 +539,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											var div = $(checked).closest('.scheduled_stop');
 											var str = div.find('.email_body').val();
 											var eta = div.find('[name=eta]').val();
-											if(eta == undefined || eta = '') {
+											if(eta == undefined || eta == '') {
 												eta = 'on '+div.find('[name=to_do_date]').val();
 											} else {
 												eta = 'at '+eta;
