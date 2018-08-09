@@ -1216,7 +1216,7 @@ checkAuthorised();
 										<?php echo tile_config_function($dbc, 'calllog', 'admin'); ?>
 									</tr>
                                     <tr>
-                                        <td data-title="Drop Off Analysis">Dropoff Analysis</td>
+                                        <td data-title="Drop Off Analysis">Drop Off Analysis</td>
                                         <?php echo tile_config_function($dbc, 'drop_off_analysis', 'admin'); ?>
                                     </tr>
 									<tr>

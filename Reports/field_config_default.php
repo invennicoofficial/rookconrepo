@@ -374,6 +374,7 @@ if (isset($_POST['submit'])) {
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>
                   <option value="Estimate Stats" <?= $desktop_landing_subtab_config['value']=='Estimate Stats' ? 'selected="selected"' : '' ?>>Estimate Stats</option>
                   <option value="Estimate Alerts" <?= $desktop_landing_subtab_config['value']=='Estimate Alerts' ? 'selected="selected"' : '' ?>>Estimate Alerts</option>
+                  <option value="Estimate Forecasting" <?= $desktop_landing_subtab_config['value']=='Estimate Forecasting' ? 'selected="selected"' : '' ?>>Estimate Forecasting</option>
               </optgroup>
 
             </select>
