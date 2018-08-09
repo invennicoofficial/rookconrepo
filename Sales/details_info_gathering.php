@@ -1,14 +1,16 @@
 <!-- Information Gathering -->
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#add_row_infodoc').on( 'click', function () {
-        var clone = $('.additional_infodoc').clone();
-        clone.find('.form-control').val('');
-        clone.removeClass("additional_infodoc");
-        $('#add_here_new_infodoc').append(clone);
-        return false;
-    });
+    $('.add_row_infodoc').on( 'click', add_info_doc);
 });
+function add_info_doc() {
+    var clone = $('.additional_infodoc').clone();
+    clone.find('.form-control').val('');
+    clone.removeClass("additional_infodoc");
+    $('#add_here_new_infodoc').append(clone);
+    $('.add_row_infodoc').off('click',add_info_doc).on( 'click', add_info_doc);
+    return false;
+}
 </script>
 
 <div class="accordion-block-details padded" id="infogathering">
@@ -55,14 +57,14 @@ $(document).ready(function() {
         <div class="col-xs-12 col-sm-8 gap-md-left-15 gap-top">
             <div class="additional_infodoc">
                 <div class="col-sm-7"><input name="infodoc_label[]" type="text" placeholder="Information Gathering Document Label" class="form-control" /></div>
-                <div class="col-sm-5"><input name="upload_infodoc[]" multiple type="file" data-filename-placement="inside" class="form-control" /></div>
+                <div class="col-sm-4"><input name="upload_infodoc[]" multiple type="file" data-filename-placement="inside" class="form-control" /></div>
+                <a href="#" class="add_row_infodoc"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                 <div class="clearfix"></div>
             </div>
 
             <div id="add_here_new_infodoc"></div>
 
             <div class="col-sm-12 gap-md-left-10 gap-top">
-                <a href="#" id="add_row_infodoc" class=""><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
             </div>
         </div>
         <div class="clearfix"></div>
