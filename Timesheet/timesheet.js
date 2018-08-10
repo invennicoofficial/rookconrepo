@@ -86,7 +86,7 @@ function saveFieldMethod(field) {
             page: $('[name=current_page]').val()
         }, function(response) {
             if(response > 0) {
-                block.find('[name=tiime_cards_id]').val(response);
+                block.find('[name=time_cards_id]').val(response);
             } else if(response != '') {
                 console.log(response);
             }
