@@ -822,7 +822,7 @@ if($_GET['tab'] == 'approvals') {
     ?>
     <script type="text/javascript">
     function displayEGSOptions() {
-    	if($('[name="timesheet_payroll_styling"]:checked').val() == 'EGS') {
+    	if($('[name="timesheet_payroll_styling"]:checked').val() == 'EGS' || $('[name="timesheet_payroll_styling"]:checked').val() == 'Both') {
     		$('.egs_div').show();
     	} else {
     		$('.egs_div').hide();
@@ -846,10 +846,11 @@ if($_GET['tab'] == 'approvals') {
                       <div class="col-sm-8">
                         <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'Default' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="Default" onchange="displayEGSOptions();"> Default</label>
                         <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'EGS' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="EGS" onchange="displayEGSOptions();"> Total Time Tracked</label>
+                        <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'Both' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="Both" onchange="displayEGSOptions();"> Both as Tabs</label>
                       </div>
                     </div>
 
-                    <div class="egs_div" <?= $timesheet_payroll_styling != 'EGS' ? 'style="display:none;"' : '' ?>>
+                    <div class="egs_div" <?= $timesheet_payroll_styling != 'EGS' && $timesheet_payroll_styling != 'Both' ? 'style="display:none;"' : '' ?>>
 	                    <div class="form-group">
 	                    	<?php $timesheet_payroll_layout = get_config($dbc, 'timesheet_payroll_layout'); ?>
 	                    	<label class="col-sm-4 control-label">Layout:</label>
