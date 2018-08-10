@@ -163,6 +163,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_break_option', $_POST['timesheet_break_option']);
 	set_config($dbc, 'ticket_force_starts_day', $_POST['ticket_force_starts_day']);
 	set_config($dbc, 'active_ticket_button', $_POST['active_ticket_button']);
+	set_config($dbc, 'timesheet_force_end_midnight', $_POST['timesheet_force_end_midnight']);
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'holiday') {
 	set_config($dbc, 'holiday_update_noti', filter_var($_POST['holiday_update_noti']));
 	set_config($dbc, 'holiday_update_staff', filter_var($_POST['holiday_update_staff']));
@@ -750,7 +751,11 @@ if($_GET['tab'] == 'approvals') {
 					</div>";
 					$timesheet_end_tile = get_config($dbc, 'timesheet_end_tile');
 					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>End Time Tracking Tile:<br /><em>Only appears after Start Time Tracking Tile has started the time tracking.</em></label>";
-					echo "<div class='col-sm-8'><input type='text' name='timesheet_end_tile' value='$timesheet_end_tile' class='form-control'></div>"; ?>
+					echo "<div class='col-sm-8'><input type='text' name='timesheet_end_tile' value='$timesheet_end_tile' class='form-control'></div>";
+					$timesheet_force_end_midnight = get_config($dbc, 'timesheet_force_end_midnight');
+					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>Force End Day at Midnight:</label>";
+					echo "<div class='col-sm-8'><label class='form-checkbox'><input ".($timesheet_force_end_midnight > 0 ? 'checked' : '')." type='checkbox' name='timesheet_force_end_midnight' value='1'> Enable</label></div>";
+					?>
 				</div>
 			</div>
 		</div>

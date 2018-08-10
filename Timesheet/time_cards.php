@@ -1,6 +1,6 @@
 <?php
 include('../include.php');
-include('../Calendar/calendar_functions_inc.php');
+include_once('../Calendar/calendar_functions_inc.php');
 include 'config.php';
 ?>
 <script type="text/javascript" src="timesheet.js"></script>

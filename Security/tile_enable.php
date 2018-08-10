@@ -938,7 +938,7 @@ $(document).ready(function() {
 										<?php echo tile_config_function($dbc, 'calllog'); ?>
 									</tr>
                                     <tr>
-                                        <td data-title="Drop Off Analysis">Dropoff Analysis</td>
+                                        <td data-title="Drop Off Analysis">Drop Off Analysis</td>
                                         <?php echo tile_config_function($dbc, 'drop_off_analysis'); ?>
                                     </tr>
 									<tr>
@@ -1291,7 +1291,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'pos'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Promotions</td>
+                                        <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion'); ?>
                                     </tr>
                                     <tr>

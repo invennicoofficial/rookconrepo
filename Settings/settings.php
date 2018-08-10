@@ -147,7 +147,7 @@ checkAuthorised('software_config');
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'login')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -162,7 +162,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'social')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -177,7 +178,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'favicon')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -192,7 +194,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'logo')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -208,7 +211,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'contact_sort')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -223,7 +227,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'font')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -238,7 +243,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'data_use')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -253,9 +259,9 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-			<?php } ?><?php //if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
-				<!--
-                <div class="panel panel-default">
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'notes')) { ?>
+				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_notes">
@@ -269,8 +275,8 @@ checkAuthorised('software_config');
 						</div>
 					</div>
 				</div>
-                -->
-			<?php //} ?><?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?>
+			<?php } ?>
+			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'ticket_slider')) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -286,16 +292,30 @@ checkAuthorised('software_config');
 					</div>
 				</div>
 			<?php } ?>
+			<div class="panel panel-default">
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_notifications">
+							Notifications <span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+				<div id="collapse_notifications" class="panel-collapse collapse">
+					<div class="panel-body" data-url="notifications.php">
+						Loading...
+					</div>
+				</div>
+			</div>
 
 		</div>
 
 		<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 			<ul>
-				<li <?= ($tab == 'style' ? 'class="active" ' : '') ?>><a href='settings.php?tab=style'>Styling</a></li>
-				<li <?= ($tab == 'format' ? 'class="active" ' : '') ?>><a href='settings.php?tab=format'>Formatting</a></li>
-				<li <?= ($tab == 'menus' ? 'class="active" ' : '') ?>><a href='settings.php?tab=menus'>Menu Formatting</a></li>
-				<li <?= ($tab == 'tile_order' ? 'class="active" ' : '') ?>><a href='settings.php?tab=tile_order'>Tile Sort Order</a></li>
-				<li <?= ($tab == 'my_dashboard' ? 'class="active" ' : '') ?>><a href='settings.php?tab=my_dashboard'>My Dashboards</a></li>
+			<li <?= ($tab == 'style' ? 'class="active" ' : '') ?>><a href='settings.php?tab=style'>Styling</a></li>
+			<li <?= ($tab == 'format' ? 'class="active" ' : '') ?>><a href='settings.php?tab=format'>Formatting</a></li>
+			<li <?= ($tab == 'menus' ? 'class="active" ' : '') ?>><a href='settings.php?tab=menus'>Menu Formatting</a></li>
+			<li <?= ($tab == 'tile_order' ? 'class="active" ' : '') ?>><a href='settings.php?tab=tile_order'>Tile Sort Order</a></li>
+			<li <?= ($tab == 'my_dashboard' ? 'class="active" ' : '') ?>><a href='settings.php?tab=my_dashboard'>My Dashboards</a></li>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'dashboard')) { ?><li <?= ($tab == 'dashboard' ? 'class="active" ' : '') ?>><a href='settings.php?tab=dashboard'>Dashboards</a></li><?php } ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'identity')) { ?><li <?= ($tab == 'identity' ? 'class="active" ' : '') ?>><a href='settings.php?tab=identity'>Software Identity</a></li><?php } ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'login')) { ?><li <?= ($tab == 'login' ? 'class="active" ' : '') ?>><a href='settings.php?tab=login'>Software Login Page</a></li><?php } ?>
@@ -307,6 +327,7 @@ checkAuthorised('software_config');
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'data_use')) { ?><li <?= ($tab == 'data_use' ? 'class="active" ' : ''); ?><a href='settings.php?tab=data_use'>Data Usage</a></li><?php } ?>
 			<?php //if(check_subtab_persmission($dbc, 'software_config', ROLE, 'notes')) { ?><!--<li <?= ($tab == 'notes' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=notes'>Notes</a></li> --><?php //} ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'ticket_slider')) { ?><li <?= ($tab == 'ticket_slider' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=ticket_slider'><?= TICKET_NOUN ?> Slider</a></li><?php } ?>
+			<li <?= ($tab == 'notifications' ? 'class="active" ' : '') ?>><a href='settings.php?tab=notifications'>Notifications</a></li>
 		</div>
 		
 		<div class="scale-to-fill has-main-screen hide-titles-mob" style="margin-bottom:-20px;">
@@ -329,6 +350,7 @@ checkAuthorised('software_config');
 						case 'data_use': echo 'Data Usage Reporting'; break;
 						case 'notes': echo 'Notes'; break;
 						case 'ticket_slider': echo TICKET_NOUN.' Slider View'; break;
+						case 'notifications': echo 'Notifications'; break;
 					} ?></h3>
 				</div>
 
@@ -350,6 +372,7 @@ checkAuthorised('software_config');
 						case 'data_use': include('data_usage.php'); break;
 						case 'notes': include('notes.php'); break;
 						case 'ticket_slider': include('ticket_slider.php'); break;
+						case 'notifications': include('notifications.php'); break;
 					} ?>
 				</div>
 			</div>
