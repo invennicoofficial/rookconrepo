@@ -3,7 +3,7 @@
 	 * Software Guide Dashboard
 	 */
 	error_reporting(0);
-	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
+	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1);
 	include ('../include.php');
     include ('check_security.php');
     include ('../database_connection_htg.php');
