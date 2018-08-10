@@ -36,6 +36,9 @@ if (isset($_POST['submit'])) {
         $query_insert_equipment = "INSERT INTO `equipment_service_record` (`reportid`, `equipmentid`, `inventoryid`, `service_date`, `advised_service_date`, `description_of_job`, `service_record_mileage`, `service_record_hours`, `completed`, `contactid`, `service_type`, `vendorid`, `cost`, `service_record_kilometers`, `rec_next_service_mileage`, `file`) VALUES	('$reportid', '$equipmentid', '$inventoryid', '$service_date', '$advised_service_date', '$description_of_job', '$service_record_mileage', '$service_record_hours', '$completed', '$contactid', '$service_type', '$vendorid', '$cost', '$service_record_kilometers', '$rec_next_service_mileage', '$doc_name')";
         $result_insert_equipment	= mysqli_query($dbc, $query_insert_equipment);
         $url = 'Added';
+				$before_change = '';
+        $history = "New equipment service Added. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     } else {
         $servicerecordid = $_POST['servicerecordid'];
 		if($doc_name == '') {
@@ -48,6 +51,9 @@ if (isset($_POST['submit'])) {
         $query_update_equipment = "UPDATE `equipment_service_record` SET `equipmentid` = '$equipmentid', `inventoryid` = '$inventoryid', `service_date` = '$service_date', `advised_service_date` = '$advised_service_date', `description_of_job` = '$description_of_job', `service_record_mileage` = '$service_record_mileage', `service_record_hours` = '$service_record_hours', `completed` = '$completed', `contactid` = '$contactid', `service_type` = '$service_type', `vendorid` = '$vendorid', `cost` = '$cost', `service_record_kilometers` = '$service_record_kilometers', `rec_next_service_mileage` = '$rec_next_service_mileage', `file` = '$photo_update' WHERE	`servicerecordid` = '$servicerecordid'";
         $result_update_equipment	= mysqli_query($dbc, $query_update_equipment);
         $url = 'Updated';
+				$before_change = '';
+        $history = "Equipment service is been updated. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("?tab=service_record"); </script>';
@@ -374,7 +380,7 @@ if (isset($_POST['submit'])) {
                             <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
                         </div>
                     </div>
-                </div>            
+                </div>
 
     		</form>
         </div>
