@@ -152,23 +152,6 @@ if ( !empty($note) ) { ?>
                     <?php } ?>
 
                     <?php
-                    if ($_GET['tab'] == 'tickets') { ?>
-                            <button class='btn brand-btn'><a href="../Ticket/index.php?tile_name=ticket">Tickets
-                            </a></button>
-
-                    <a href="?tab=tickets&daily_date=<?= $daily_date ?>&side_content=my_tickets&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
-
-                    <a href="?tab=tickets&daily_date=<?= $daily_date ?>&side_content=my_tickets&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
-                    <?php } ?>
-
-                    <?php
-                    if ($_GET['tab'] == 'tasks') { ?>
-                    <a href="?tab=tasks&daily_date=<?= $daily_date ?>&side_content=my_tasks&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
-
-                    <a href="?tab=tasks&daily_date=<?= $daily_date ?>&side_content=my_tasks&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
-                    <?php } ?>
-
-                    <?php
                     if ($_GET['tab'] == 'checklists') { ?>
                     <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
 
@@ -239,7 +222,7 @@ if ( !empty($note) ) { ?>
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="sidebar weekly" style="padding: 1em; margin: 0 auto; overflow-y: auto;">
+            <div class="sidebar weekly" style="padding: 1em; margin: 0 auto; overflow-y: auto; <?= $_GET['tab'] == 'tickets' ? ' background-color: transparent;' : '' ?>">
                 <?php if($side_content == 'contact_form') {
                     include('daysheet_contact_form.php');
                 } else if($side_content == 'my_shifts') {

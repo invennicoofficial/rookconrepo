@@ -341,10 +341,10 @@ $(document).ready(function() {
         $sections.each(function(){
             var divPosition = $(this).offset().top;
             if( divPosition - 1 < currentScroll ){
-                $currentSection = $(this);
-				var id = $currentSection.attr('id');
 				$('.tile-sidebar li').removeClass('active');
-				$('.tile-sidebar [href=#'+id+'] li').addClass('active');
+				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+            } else if(divPosition < currentScroll + $('.main-screen .tile-container').height()) {
+				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             }
         });
     });
