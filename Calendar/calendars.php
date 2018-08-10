@@ -24,6 +24,8 @@ if(strpos(','.strtolower(STAFF_CATS).',', ",'".strtolower(get_contact($dbc,$_SES
 			$appt_calendar_equipment = '';
 			mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$appt_calendar_equipment' WHERE `contactid`='".$_SESSION['contactid']."'");
 		}
+	} else if($_GET['mode'] == 'staff_summary') {
+		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='', `appt_calendar_teams`='' WHERE `contactid`='".$_SESSION['contactid']."'");
 	} else {
 		if((!isset($_GET['date']) && $calendar_reset_active == 1) || ($calendar_reset_active == 2 && strtotime(date('Y-m-d', strtotime($calendar_blocks_last_reloaded))) < strtotime(date('Y-m-d')))) {
 			$calendar_reset_active_mode = get_config($dbc, 'calendar_reset_active_mode');
@@ -340,6 +342,14 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 					<a href="?type=shift&mode=client&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'client' ? 'active' : '' ?>" style="float: left;"><?= $shift_client_type ?></span></a>
 					<a href="?type=shift&mode=staff&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] != 'client' && $_GET['mode'] != 'tickets' ? 'active' : '' ?>" style="float: left;">Staff</span></a>
 				<?php }
+			} else if($_GET['type'] == 'ticket' && in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar') && ($staff_summary == 1 || $ticket_summary == 1)) { ?>
+				<a href="?type=ticket&mode=&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= empty($_GET['mode']) || $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a>
+				<?php if($staff_summary == 1) { ?>
+					<a href="?type=ticket&mode=staff_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'staff_summary' ? 'active' : '' ?>" style="float: left;">Staff Summary</span></a>
+				<?php } ?>
+				<?php if($ticket_summary == 1) { ?>
+					<a href="?type=ticket&mode=ticket_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'ticket_summary' ? 'active' : '' ?>" style="float: left;"><?= TICKET_NOUN ?> Summary</span></a>
+				<?php }
 			} ?>
 			<?php if(config_visible_function($dbc, 'calendar_rook')) { ?>
 				<div class="pull-right" style="height: 2.75em; padding: 0.25em; width: 2.75em;"><a href="field_config_calendar.php" class="mobile-block"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me" style="height: 100%;"></a></div>
@@ -552,43 +562,43 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 						}
 						break;
 					case 'ticket':
-						switch($_GET['view']) {
-							case '30day':
-								if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
-									include('ticket_30day.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'custom':
-								if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
-									include('ticket_custom.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'monthly':
-								if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
-									include('tickets_monthly.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'weekly':
-								if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
-									include('tickets_weekly.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'daily':
-							default:
-								if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
-									include('tickets_daily.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
+						if($_GET['mode'] == 'staff_summary') {
+							if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
+								include('tickets_staff_summary.php');
+							} else {
+								echo 'This Calendar is either not enabled or you do not have access.';
+							}
+						} else if($_GET['mode'] == 'ticket_summary') {
+							if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
+								include('tickets_ticket_summary.php');
+							} else {
+								echo 'This Calendar is either not enabled or you do not have access.';
+							}
+						} else {
+							switch($_GET['view']) {
+								case 'monthly':
+									if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
+										include('tickets_monthly.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								case 'weekly':
+									if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
+										include('tickets_weekly.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								case 'daily':
+								default:
+									if(in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar')) {
+										include('tickets_daily.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+							}
 						}
 						break;
 					case 'my':

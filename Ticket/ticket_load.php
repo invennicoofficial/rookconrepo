@@ -1,5 +1,7 @@
 <?php include_once ('../include.php');
-ob_clean(); ?>
+if(!$no_ob_clean) {
+	ob_clean();
+} ?>
 <script>initInputs();</script>
 <?php
 $strict_view = strictview_visible_function($dbc, 'ticket');

@@ -308,8 +308,8 @@ while($row = mysqli_fetch_array( $result )) {
 		//$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="">&nbsp;<a class="" href="#" style="display:block; padding: 5px;color:black;border-radius: 10px; background-color: '.$row['calendar_color'].';" id="ticket_'.$row_tickets['ticketid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Ticket/add_tickets.php?ticketid='.$row_tickets['ticketid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
 		}
     }
-    if($ticket_summary != '') {
-        $column .= '<span>Completed '.$completed_tickets.' of '.count($tickets).' '.(count($tickets) == 1 ? TICKET_NOUN : TICKET_TILE).'</span>';
+    if($ticket_summary != '' && !empty($all_tickets)) {
+        $column .= '<span>Completed '.$completed_tickets.' of '.count($all_tickets).' '.(count($all_tickets) == 1 ? TICKET_NOUN : TICKET_TILE).'</span>';
     }
 
     if($_GET['block_type'] != 'team') {
