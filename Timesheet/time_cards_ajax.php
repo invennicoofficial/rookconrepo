@@ -332,6 +332,5 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
             $comment_history = '<br>'.$comment_history;
         }
         mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id` = '$id'");
-        echo "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id` = '$id'";
 	}
 }
