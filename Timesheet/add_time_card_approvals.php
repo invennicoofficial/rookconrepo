@@ -352,7 +352,7 @@ if (isset($_POST['submit'])) {
 			$back_url = 'payroll.php';
 		}
 	}*/
-	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
+	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&subtab=".$_GET['subtab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
 }
 ?>
 </head>
