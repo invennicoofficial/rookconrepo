@@ -155,6 +155,9 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Sort Completed to End', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Sort Completed to End">Display Completed <?= TICKET_TILE ?> at End</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Address', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Address"> Site Address</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Site Notes', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Site Notes"> Site Notes</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Key Number', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Key Number"> Key Number</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Door Code Number', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Door Code Number"> Door Code Number</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Alarm Code Number', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Alarm Code Number"> Alarm Code Number</label>
             </div>
             <div class="clearfix"></div>
             <label class="col-sm-4 control-label"><?= CONTACTS_NOUN ?> for Combined <?= TICKET_TILE ?>:</label>
