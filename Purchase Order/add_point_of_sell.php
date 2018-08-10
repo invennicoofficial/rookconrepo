@@ -35,6 +35,7 @@ if (isset($_POST['submit_pos'])) {
         $invoice_date = date('Y-m-d');
     }
     $contactid = implode(',',$_POST['contactid']);
+    $equipmentid = $_POST['equipmentid'];
     $productpricing = $_POST['productpricing'];
 
     $sub_total = $_POST['sub_total'];
@@ -131,7 +132,7 @@ if (isset($_POST['submit_pos'])) {
 	$workorderid = $_POST['work_order'];
 	$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
 	$siteid = filter_var($_POST['siteid'],FILTER_SANITIZE_STRING);
-    $query_insert_invoice = "INSERT INTO `purchase_orders` (`invoice_date`, `name`, `upload`, `po_category`, `contactid`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `created_by`, `comment`, `ship_date`, `due_date`, `status`, `gst`, `pst`, `delivery_type`, `delivery_address`, `contractorid`, `deposit_paid`, `updatedtotal`, `cross_software`,`software_author`, `software_seller`, `projectid`, `client_projectid`, `ticketid`, `businessid`, `siteid`, `workorderid`) VALUES ('$invoice_date', '$name', '$upload', '$po_category', '$contactid', '$productpricing', '$sub_total', '$discount_type', '$discount_value', '$total_after_discount', '$delivery', '$assembly', '$total_before_tax', '$client_tax_exemption', '$tax_exemption_number', '$total_price', '$payment_type', '$created_by', '$comment', '$ship_date', '$due_date', '$status', '$gst_total', '$pst_total', '$delivery_type', '$delivery_address', '$contractorid', '$dep_paid', '$updatedtotal', '$cross_software', '$software_author', '$software_seller', '$projectid', '$client_projectid', '$ticketid', '$businessid', '$siteid', '$workorderid')";
+    $query_insert_invoice = "INSERT INTO `purchase_orders` (`invoice_date`, `name`, `upload`, `po_category`, `contactid`, `equipmentid`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `created_by`, `comment`, `ship_date`, `due_date`, `status`, `gst`, `pst`, `delivery_type`, `delivery_address`, `contractorid`, `deposit_paid`, `updatedtotal`, `cross_software`,`software_author`, `software_seller`, `projectid`, `client_projectid`, `ticketid`, `businessid`, `siteid`, `workorderid`) VALUES ('$invoice_date', '$name', '$upload', '$po_category', '$contactid', '$equipmentid', '$productpricing', '$sub_total', '$discount_type', '$discount_value', '$total_after_discount', '$delivery', '$assembly', '$total_before_tax', '$client_tax_exemption', '$tax_exemption_number', '$total_price', '$payment_type', '$created_by', '$comment', '$ship_date', '$due_date', '$status', '$gst_total', '$pst_total', '$delivery_type', '$delivery_address', '$contractorid', '$dep_paid', '$updatedtotal', '$cross_software', '$software_author', '$software_seller', '$projectid', '$client_projectid', '$ticketid', '$businessid', '$siteid', '$workorderid')";
 
     $results_are_in = mysqli_query($dbc, $query_insert_invoice) or die(mysqli_error($dbc));
     $posid = mysqli_insert_id($dbc);
@@ -260,7 +261,7 @@ if (isset($_POST['submit_pos'])) {
 			window.top.new_po_added("'.$posid.'", "'.$total_price.'");
 		} catch (error) { }
 	}
-	window.location.reload("index.php");
+	window.location.replace("index.php");
 	</script>';
 if($cross_software !== 'zen') {
    echo '    window.open("download/purchase_order_'.$posid.'.pdf", "fullscreen=yes");';
@@ -992,10 +993,10 @@ function countPOSTotal(sel) {
 
 	if (tax_type == "1") {
 		tax_rate = $("#tax_rate2").val();
-		console.log(tax_type+" + tax_rate: " + tax_rate);
+		// console.log(tax_type+" + tax_rate: " + tax_rate);
 	} else {
 		tax_rate = $("#tax_rate").val();
-		console.log(tax_type+" + else tax_rate: " + tax_rate);
+		// console.log(tax_type+" + else tax_rate: " + tax_rate);
 	}
 	//tax_rate = 15;
 
@@ -1179,13 +1180,32 @@ jQuery(document).ready(function($){
 				$('[name=siteid]').val(site).trigger('change.select2');
 			}
 		} else if(this.name == 'project') {
-			var ticket = $(this).find('option:selected');
-			var project = ticket.data('project');
-			$('[name=project]').val(project).trigger('change.select2');
-			var business = ticket.data('business');
-			$('[name=businessid]').val(business).trigger('change.select2');
-			var site = ticket.data('site');
-			$('[name=siteid]').val(site).trigger('change.select2');
+			var project = $(this).find('option:selected');
+			$('[name=work_order] option').each(function() {
+				if($(this).data('project') > 0 && $(this).data('project') != project.val() && project.val() > 0) {
+					$(this).hide();
+				} else {
+					$(this).show();
+				}
+			});
+			$('[name=work_order]').trigger('change.select2');
+			var business = project.data('business');
+            if(business > 0) {
+                $('[name=businessid]').val(business).trigger('change.select2');
+            }
+			var site = project.data('site');
+            if(site > 0) {
+                $('[name=siteid]').val(site).trigger('change.select2');
+            } else if(business > 0) {
+                $('[name=siteid] option').each(function() {
+                    if($(this).data('business') > 0 && $(this).data('business') != business && business > 0) {
+                        $(this).hide();
+                    } else {
+                        $(this).show();
+                    }
+                });
+                $('[name=siteid]').trigger('change.select2');
+            }
 		} else if(this.name == 'businessid') {
 			var business = this.value;
 			$('[name=project] option').each(function() {
@@ -1345,6 +1365,45 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 					foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `site_name`,`display_name`,`name`,`businessid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `deleted`=0 AND `status` > 0")) as $row) {
 						echo "<option data-business='".$row['businessid']."' value='" . $row['contactid'] . "'>".$row['full_name']."</option>";
 					} ?>
+				</select>
+			</div>
+		</div>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+        $equip_cats = explode(',',get_config($dbc, 'equipment_tabs'));
+        if(count($equip_cats) > 1) { ?>
+            <script>
+            function filterEquipment(category) {
+                $('[name=equipmentid] option').each(function() {
+                    if(category == '' || $(this).data('category') == category) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $('[name=equipmentid]').trigger('change.select2');
+            }
+            </script>
+            <div class="form-group">
+                <label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays the equipment categories, and filters the Equipment drop down to find the equipment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Equipment Category:</label>
+                <div class="col-sm-9">
+                    <select onchange="filterEquipment(this.value);" data-placeholder="Select Equipment Category..." class="chosen-select-deselect form-control"><option />
+                        <?php foreach($equip_cats as $equip_cat) { ?>
+                            <option value='<?= $equip_cat ?>'><?= $equip_cat ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
+		<div class="form-group">
+			<label for="travel_task" class="col-sm-3 control-label">Equipment:</label>
+			<div class="col-sm-9">
+				<select name="equipmentid" data-placeholder="Select Equipment..." class="chosen-select-deselect form-control"><option />
+                    <?php $result = mysqli_query($dbc, "SELECT `equipmentid`, `category`, `make`, `model`, `unit_number` FROM `equipment` WHERE `deleted`=0");
+					while($equip_row = $result->fetch_assoc()) { ?>
+                        <option data-category="<?= $equip_row['category'] ?>" value="<?= $equip_row['equipmentid'] ?>"><?= (count($equip_cats) > 1 && $equip_row['category'] != '' ? $equip_row['category'].': ' : '').implode(' ',array_filter([$equip_row['make'],$equip_row['model'],$equip_row['unit_number']])) ?></option>
+					<?php } ?>
 				</select>
 			</div>
 		</div>
@@ -2147,7 +2206,7 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 		<?php if(strpos($value_config,',miscUnitPrice,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Unit Price:</label>
-				<input name="misc_unit_price[]" id="misc_unit_price_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_unit_price]').val() * this.value).keyup();" type="text" class="form-control " />
+				<input name="misc_unit_price[]" id="misc_unit_price_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_qty]').val() * this.value).keyup();" type="text" class="form-control " />
 			</div>
 		<?php } ?>
 

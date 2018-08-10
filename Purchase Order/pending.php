@@ -301,6 +301,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 			$search_any = $_POST['search_any'];
 			$search .= "AND (inv.posid = '$search_any' OR c.name = '$search_any' OR inv.delivery_type = '$search_any' OR inv.total_price LIKE '%" . $search_any . "%' OR inv.payment_type LIKE '%" . $search_any . "%' OR inv.invoice_date LIKE '%" . $search_any . "%' OR inv.status LIKE '%" . $search_any . "%' OR inv.comment LIKE '%" . $search_any . "%') ";
 		}
+        if(!empty($_GET['vendorid']) && !isset($_POST['search_vendor'])) {
+            $_POST['search_vendor'] = $_GET['vendorid'];
+        }
 		if(!empty($_POST['search_vendor'])) {
 			$search_vendor = $_POST['search_vendor'];
 			$search .= " AND c.contactid='$search_vendor'";
@@ -457,6 +460,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 			if (strpos($value_config, ','."Customer".',') !== FALSE) {
 				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Vendor</th>';
 			}
+			if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Equipment as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Equipment</th>';
+			}
 			if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 				echo '<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Total Price</th>';
 			}
@@ -540,6 +546,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 		}
 		if (strpos($value_config, ','."Customer".',') !== FALSE) {
 			echo '<td data-title="Vendor">' . get_client($dbc, $contactid) . '</td>';
+		}
+		if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+			echo '<td data-title="Equipment">' . $dbc->query("SELECT CONCAT(`category`,': ',`make`,' ',`model`,' ',`unit_number`) `label` FROM `equipment` WHERE `equipmentid`='".$roww['equipmentid']."'")->fetch_assoc()['label'] . '</td>';
 		}
 		if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 			echo '<td data-title="Total Price">' . $roww['total_price'] . '</td>';
