@@ -37,8 +37,13 @@ function calculateHoursByStartEndTimes(input) {
 			new_minutes = new_minutes.toString().length > 1 ? new_minutes : '0'+new_minutes.toString();
 
 			var new_time = new_hours+':'+new_minutes;
-			$(block).find('[name="total_hrs"]').first().val(new_time);
-            saveField($(block).find('[name=total_hrs]').first().get(0));
+            var hours_block = $(block).find('[name=time_cards_id]').filter(function() { return this.value > 0; });
+            if(hours_block.length == 0) {
+                var hours_block = $(block).find('[name=time_cards_id]');
+            }
+            hours_block = hours_block.first().closest('td').find('[name^=total_hrs]');
+			hours_block.val(new_time);
+            saveField(hours_block.get(0));
 		}
 	}
 }
@@ -52,7 +57,11 @@ function saveFieldMethod(field) {
     } else if(field.name == 'total_hrs') {
         var blocks = $(field).closest('td');
     } else if(field.name == 'start_time' || field.name == 'end_time' || field.name == 'ticketid' || field.name == 'type_of_time' || field.name == 'comment_box') {
-        var blocks = line.find('[name=time_cards_id]').first().closest('td');
+        if(line.find('[name=time_cards_id]').filter(function() { return this.value > 0; }).length > 0) {
+            var blocks = line.find('[name=time_cards_id]').filter(function() { return this.value > 0; }).first().closest('td');
+        } else {
+            var blocks = line.find('[name=time_cards_id]').first().closest('td');
+        }
     } else {
         var blocks = [];
         line.find('[name=time_cards_id]').filter(function() { return this.value > 0; }).each(function() {
