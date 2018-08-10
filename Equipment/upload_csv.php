@@ -296,7 +296,7 @@ while($row = fgetcsv($handle)) {
 					break;
 			}
 		}
-		
+
 		$query_insert_equipment = "INSERT INTO `equipment` (`equ_description`, `category`, `type`, `make`, `model`, `submodel`, `model_year`, `label`, `total_kilometres`, `style`, `vehicle_size`, `color`, `trim`, `fuel_type`, `tire_type`, `drive_train`, `serial_number`, `unit_number`, `vin_number`, `licence_plate`, `nickname`, `year_purchased`, `mileage`, `hours_operated`, `cost`, `cnd_cost_per_unit`, `usd_cost_per_unit`, `finance`, `lease`, `insurance`, `insurance_contact`, `insurance_phone`, `hourly_rate`, `daily_rate`, `semi_monthly_rate`, `monthly_rate`, `field_day_cost`, `field_day_billable`, `hr_rate_work`, `hr_rate_travel`, `next_service_date`, `next_service`, `next_serv_desc`, `service_location`, `last_oil_filter_change_date`, `last_oil_filter_change`, `next_oil_filter_change_date`, `next_oil_filter_change`, `last_insp_tune_up_date`, `last_insp_tune_up`, `next_insp_tune_up_date`, `next_insp_tune_up`, `tire_condition`, `last_tire_rotation_date`, `last_tire_rotation`, `next_tire_rotation_date`, `next_tire_rotation`, `reg_renewal_date`, `insurance_renewal`, `location`, `lsd`, `status`, `ownership_status`, `quote_description`, `notes`, `cvip_renewal_date`, `vehicle_access_code`, `cargo`, `lessor`, `group`, `use`, `staffid`)
 			VALUES ('$equ_description', '$category', '$type', '$make', '$model', '$submodel', '$model_year', '$label', '$total_kilometres', '$style', '$vehicle_size', '$color', '$trim', '$fuel_type', '$tire_type', '$drive_train', '$serial_number', '$unit_number', '$vin_number', '$licence_plate', '$nickname', '$year_purchased', '$mileage', '$hours_operated', '$cost', '$cnd_cost_per_unit', '$usd_cost_per_unit', '$finance', '$lease', '$insurance', '$insurance_contact', '$insurance_phone', '$hourly_rate', '$daily_rate', '$semi_monthly_rate', '$monthly_rate', '$field_day_cost', '$field_day_billable', '$hr_rate_work', '$hr_rate_travel', '$next_service_date', '$next_service', '$next_serv_desc', '$service_location', '$last_oil_filter_change_date', '$last_oil_filter_change', '$next_oil_filter_change_date', '$next_oil_filter_change', '$last_insp_tune_up_date', '$last_insp_tune_up', '$next_insp_tune_up_date', '$next_insp_tune_up', '$tire_condition', '$last_tire_rotation_date', '$last_tire_rotation', '$next_tire_rotation_date', '$next_tire_rotation', '$reg_renewal_date', '$insurance_renewal', '$location', '$lsd', '$status', '$ownership_status', '$quote_description', '$notes', '$cviprenewal', '$vehicle_access_code', '$cargo', '$lessor', '$group', '$use', '$staff')";
 		if(!mysqli_query($dbc, $query_insert_equipment)) {
@@ -304,6 +304,10 @@ while($row = fgetcsv($handle)) {
 			echo "<script> console.log('Row $row Error: ".mysqli_error($dbc)."'); </script>";
 			echo "<script> console.log(\"".str_replace(['`',"\n"],'',$query_insert_equipment)."\"); </script>";
 		}
+
+		$before_change = '';
+		$history = "New equipment Added. <br />";
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	}
 }
 if(count($error_rows) > 0) {

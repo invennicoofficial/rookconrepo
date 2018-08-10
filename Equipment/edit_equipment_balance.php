@@ -19,8 +19,24 @@ if(isset($_POST['submit'])) {
 		move_uploaded_file($_FILES['bill_of_sale']['tmp_name'], "download/".$bill_of_sale);
 	}
 
+	$before_change = capture_before_change($dbc, 'equipment', 'purchase_date', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'purchase_amt', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'purchase_km', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'sale_date', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'sale_amt', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'bill_of_sale', 'equipmentid', $equipmentid);
+
 	$sql = "UPDATE `equipment` SET `purchase_date`='$purchase_date', `purchase_amt`='$purchase_amt', `purchase_km`='$purchase_km', `sale_date`='$sale_date', `sale_amt`='$sale_amt', `bill_of_sale`='$bill_of_sale' WHERE `equipmentid`='$equipmentid'";
 	mysqli_query($dbc, $sql);
+
+	$history = capture_after_change('purchase_date', $purchase_date);
+	$history .= capture_after_change('purchase_amt', $purchase_amt);
+	$history .= capture_after_change('purchase_km', $purchase_km);
+	$history .= capture_after_change('sale_date', $sale_date);
+	$history .= capture_after_change('sale_amt', $sale_amt);
+	$history .= capture_after_change('bill_of_sale', $bill_of_sale);
+
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 } ?>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -141,7 +157,7 @@ $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - 
 						</div>
 					</div>
 				</div>
-				
+
 			</form>
 		</div>
 	</div>

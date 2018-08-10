@@ -110,5 +110,25 @@ if(!mysqli_query($dbc, "ALTER TABLE `security_history` CHANGE `history_id` `hist
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `updated_by` varchar(100) NOT NULL")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `description` text NOT NULL")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `before_change` text")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `contactid` int(11) NOT NULL")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>
