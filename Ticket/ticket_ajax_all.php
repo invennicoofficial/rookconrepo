@@ -745,10 +745,10 @@ if($_GET['action'] == 'update_fields') {
 				}
 			} else {
 				// If payable hours are set and tracked in time cards, use that as total hours but keep time_tracked to the value set by checkin/checkout
-				if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && $hours['hours_set'] > 0) {
+				if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && $attached['hours_set'] > 0) {
 					$latest_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '".$attached['id']."' AND `deleted` = 0 AND `timer_start` > 0 ORDER BY `time_cards_id` DESC"));
 					if(!empty($latest_time_card)) {
-						mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '".$hours['hours_set']."', `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `time_cards_id` = '".$latest_time_card['time_cards_id']."'");
+						mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '".$attached['hours_set']."', `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `time_cards_id` = '".$latest_time_card['time_cards_id']."'");
 						mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `ticket_attached_id` = '".$attached['id']."' AND `time_cards_id` != '".$latest_time_card['time_cards_id']."'");
 					}
 
