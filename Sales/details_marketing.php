@@ -1,5 +1,6 @@
 <!-- Marketing Material -->
 <script type="text/javascript">
+var add_new_m = 1;
 $(document).ready(function() {
 	$('.send_cancel').click(
     function() {
@@ -9,42 +10,42 @@ $(document).ready(function() {
     });
 
 	//Materials
-    var add_new_m = 1;
     $('#deletemm_0').hide();
-    $('#add_row_m').on( 'click', function () {
-        $('#deletemm_0').show();
-        var clone = $('.additional_m').clone();
-        clone.find('.form-control').val('');
-
-        clone.find('#mmaterial_0').attr('id', 'mmaterial_'+add_new_m);
-		clone.find('#mcategory_0').attr('id', 'mcategory_'+add_new_m);
-        clone.find('#mheading_0').attr('id', 'mheading_'+add_new_m);
-		clone.find('#mcustomers_0').attr('id', 'mcustomers_'+add_new_m);
-		clone.find('#mcustomer_0').attr('id', 'mcustomer_'+add_new_m);
-		
-		clone.find('#pdfshow_0').attr('id', 'pdfshow_'+add_new_m).html('');
-
-        clone.find('#mm_0').attr('id', 'mm_'+add_new_m);
-        clone.find('#deletemm_0').attr('id', 'deletemm_'+add_new_m);
-        $('#deletemm_0').hide();
-
-        clone.removeClass("additional_m");
-        $('#add_here_new_m').append(clone);
-
-        resetChosen($("#mmaterial_"+add_new_m));
-        resetChosen($("#mcategory_"+add_new_m));
-        resetChosen($("#mheading_"+add_new_m));
-		resetChosen($("#mcustomer_"+add_new_m));
-
-        add_new_m++;
-
-        return false;
-    });
+    $('.add_row_m').on( 'click', add_material_row);
 });
 $(document).on('change', 'select.mmat_type_onchange', function() { selectMaterialMaterial(this); });
 $(document).on('change', 'select.mmat_cat_onchange', function() { selectMaterialCat(this); });
 $(document).on('change', 'select[name="marketingmaterialid[]"]', function() { selectMaterialHeading(this); });
+function add_material_row() {
+    $('#deletemm_0').show();
+    var clone = $('.additional_m').clone();
+    clone.find('.form-control').val('');
 
+    clone.find('#mmaterial_0').attr('id', 'mmaterial_'+add_new_m);
+    clone.find('#mcategory_0').attr('id', 'mcategory_'+add_new_m);
+    clone.find('#mheading_0').attr('id', 'mheading_'+add_new_m);
+    clone.find('#mcustomers_0').attr('id', 'mcustomers_'+add_new_m);
+    clone.find('#mcustomer_0').attr('id', 'mcustomer_'+add_new_m);
+    
+    clone.find('#pdfshow_0').attr('id', 'pdfshow_'+add_new_m).html('');
+
+    clone.find('#mm_0').attr('id', 'mm_'+add_new_m);
+    clone.find('#deletemm_0').attr('id', 'deletemm_'+add_new_m);
+    $('#deletemm_0').hide();
+
+    clone.removeClass("additional_m");
+    $('#add_here_new_m').append(clone);
+
+    resetChosen($("#mmaterial_"+add_new_m));
+    resetChosen($("#mcategory_"+add_new_m));
+    resetChosen($("#mheading_"+add_new_m));
+    resetChosen($("#mcustomer_"+add_new_m));
+
+    add_new_m++;
+    $('.add_row_m').off('click',add_material_row).on( 'click', add_material_row);
+
+    return false;
+}
 function selectMaterialHeading(sel) {
 	var maketingid = sel.value;
 	var id = sel.id;
@@ -230,6 +231,7 @@ function approvebutton(sel) {
                         
                         <div class="col-sm-12 col-md-1">
                             <a href="#" onclick="seleteMaterial(this,'mm_','mheading_'); return false;" id="<?= 'deletemm_'.$id_loop; ?>"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
+                            <a href="#" class="gap-md-left-15 add_row_m"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                         </div>
                         
                         <div class="clearfix"></div>
@@ -281,6 +283,7 @@ function approvebutton(sel) {
                 
                 <div class="col-sm-1 pad-5">
                     <a href="#" onclick="seleteMaterial(this,'mm_','mheading_'); return false;" id="deletemm_0"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
+                    <a href="#" class="gap-md-left-15 add_row_m"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                 </div>
                 
                 <div class="clearfix"></div>
@@ -290,7 +293,6 @@ function approvebutton(sel) {
         <div id="add_here_new_m"></div>
         
         <div class="col-sm-12 gap-md-left-10 gap-top">
-            <a href="#" id="add_row_m" class="gap-md-left-15"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
         </div>
         
         <div class="clearfix"></div>

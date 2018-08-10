@@ -144,34 +144,37 @@ if (isset($_POST['printpdf'])) {
 <?php
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
 
-  $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
 
-  $report_data .= '<tr style="'.$table_row_style.'">
-  <th width="30%">Detail Before Change</th>
-  <th width="30%">Changed Detail</th>
-  <th width="15%">Changed By</th>
-  <th width="15%">Changed Date</th>
-  </tr>';
+    $report_data .= '<tr style="'.$table_row_style.'">
+    <th width="30%">Detail Before Change</th>
+    <th width="30%">Changed Detail</th>
+    <th width="15%">Changed By</th>
+    <th width="15%">Changed Date</th>
+    </tr>';
 
-$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM sales_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
-foreach($query as $rowid) {
-      $changed_by = $rowid[6];
-      $changed_date = $rowid[2];
-      $change_details = $rowid[5];
-      $cid = $row['contactid'];
+    $query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM sales_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
+    $odd_even = 0;
+    foreach($query as $rowid) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        $changed_by = $rowid[6];
+        $changed_date = $rowid[2];
+        $change_details = $rowid[5];
+        $cid = $row['contactid'];
 
-      $report_data .= '<tr nobr="true">';
-      $report_data .= '<td>'.$rowid[7].'</td>';
-      $report_data .= '<td>'.html_entity_decode($change_details).'</td>';
-      $report_data .= '<td>'.$changed_by.'</td>';
-      $report_data .= '<td>'.$changed_date.'</td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>'.$rowid[7].'</td>';
+            $report_data .= '<td>'.html_entity_decode($change_details).'</td>';
+            $report_data .= '<td>'.$changed_by.'</td>';
+            $report_data .= '<td>'.$changed_date.'</td>';
+        $report_data .= "</tr>";
+        
+        $odd_even++;
+    }
 
-      $report_data .= "</tr>";
-  }
+    $report_data .= "</table>";
 
-  $report_data .= "</table>";
-
-  return $report_data;
+    return $report_data;
 }
 
 function AddPlayTime2($times) {
