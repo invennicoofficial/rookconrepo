@@ -693,7 +693,7 @@
 			                            break;
 			                    }
 				            	$total[$key] += $hrs[$key];
-				            	if(in_array($key, $config['hours_types'])) {
+				            	if($key != 'TRACKED_HRS') {
 					            	$hrs['ROW_HRS'] += $hrs[$key];
 					            	$grand_total += $hrs[$key];
 					            }
@@ -779,7 +779,7 @@
 				                            break;
 				                    }
 					            	$total[$key] += $next_hrs[$key];
-					            	if(in_array($key, $config['hours_types'])) {
+					            	if($key != 'TRACKED_HRS') {
 						            	$hrs[$key] += $next_hrs[$key];
 						            	$grand_total += $next_hrs[$key];
 						            }
