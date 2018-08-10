@@ -49,16 +49,21 @@ $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('schedul
 $(document).ready(function() {
     checkTimeOverlaps();
     initLines();
+    $('[name=ticketid]').each(function() {
+        getTasks(this);
+    });
 });
 var getTasks = function(sel) {
+    var task_name = $(sel).closest('tr').find('select[name="type_of_time"]').val();
     var tasks = $(sel).find('option:selected').data('tasks');
-    var tasks_sel = $(sel).closest('tr').find('[name="type_of_time"]');
+    var tasks_sel = $(sel).closest('tr').find('select[name="type_of_time"]');
     var tasks_html = '<option></option>';
-    if(tasks != undefined) {
-        tasks.forEach(function(task) {
-            tasks_html += '<option value="'+task+'">'+task+'</option>';
-        });
+    if(tasks == undefined) {
+        return;
     }
+    tasks.forEach(function(task) {
+        tasks_html += '<option '+(task == task_name ? 'selected' : '')+' value="'+task+'">'+task+'</option>';
+    });
     $(tasks_sel).html(tasks_html).trigger('change.select2');
     if($(sel).val() != undefined && $(sel).val() != '') {
         $(sel).closest('tr').find('.view_ticket').data('ticketid', $(sel).val()).show();
@@ -462,8 +467,8 @@ var useProfileSig = function(chk) {
             $ticket_options .= "<option data-tasks='".json_encode(explode(',', $ticket['task_available']))."' ".($ticket['ticketid'] == $attached_ticketid ? 'selected' : '').' value="'.$ticket['ticketid'].'">'.get_ticket_label($dbc, $ticket).'</option>';
         }			
         $task_options = '';
-        foreach(explode(',',$task_list) as $task) {
-            $task_options .= '<option '.($time_type == $task ? 'selected' : '').' value="'.$task.'">'.$task.'</option>';
+        foreach($task_list as $task) {
+            $task_options .= '<option '.($time_type == $task['description'] ? 'selected' : '').' value="'.$task['description'].'">'.$task['description'].'</option>';
         }			
         $position_options = '';
         foreach($position_list as $position) {
@@ -516,7 +521,7 @@ var useProfileSig = function(chk) {
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
             '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'</td>' : '').'
-            '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="theme-color-border-bottom">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
+            '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
             '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? 'checked readonly' : '').' /></label></td>' : '');
         echo '</tr>';
         if(!in_array($layout,['position_dropdown', 'ticket_task','multi_line']) || $date != $row['date']) {
@@ -606,18 +611,20 @@ var useProfileSig = function(chk) {
         echo "</tr>";
     } ?>
 </table>
-<?php $profile_sig = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$_SESSION['contactid']."'"))['stored_signature'];
-if(!empty($profile_sig)) {
-    if(!file_exists('../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png')) {
-        if(!file_exists('../Contacts/signatures')) {
-            mkdir('../Contacts/signatures', 0777, true);
+<?php if($current_page != 'time_cards.php') {
+    $profile_sig = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$_SESSION['contactid']."'"))['stored_signature'];
+    if(!empty($profile_sig)) {
+        if(!file_exists('../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png')) {
+            if(!file_exists('../Contacts/signatures')) {
+                mkdir('../Contacts/signatures', 0777, true);
+            }
+            include_once('../phpsign/signature-to-image.php');
+            $signature = sigJsonToImage(html_entity_decode($profile_sig));
+            imagepng($signature, '../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png');
         }
-        include_once('../phpsign/signature-to-image.php');
-        $signature = sigJsonToImage(html_entity_decode($profile_sig));
-        imagepng($signature, '../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png');
+        echo '<label class="form-checkbox"><input type="checkbox" name="use_profile_sig" value="1" onchange="useProfileSig(this);"> Use Profile Signature</input></label>';
+        echo '<div class="profile_sig_box" style="display: none;"><img src="../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png"></div>';
     }
-    echo '<label class="form-checkbox"><input type="checkbox" name="use_profile_sig" value="1" onchange="useProfileSig(this);"> Use Profile Signature</input></label>';
-    echo '<div class="profile_sig_box" style="display: none;"><img src="../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png"></div>';
 }
 if($current_page == 'payroll.php') { ?>
     <div class="form-group">
