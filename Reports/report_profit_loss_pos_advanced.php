@@ -244,6 +244,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                     <th>Gross Profit</th>
                 </tr>';
 
+                $i=0;
                 while($row_report = mysqli_fetch_array($report_validation)) {
                     $inventoryids = array_filter(explode(',', $row_report['inventoryid']));
                     $sell_prices = array_filter(explode(',', $row_report['sell_price']));
@@ -253,7 +254,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                     $payment_type = $payment_type[0];
                     $item_count = count($inventoryids);
 
-                    for($i=0; $i<$item_count; $i++) {
+                    /* for($i=0; $i<$item_count; $i++) {
                         //$unit_price = get_inventory($dbc, $inventoryids[$i], 'final_retail_price');
                         //$total_price = number_format($sell_prices[$i] * $quantities[$i], 2);
                         $total_price = $unit_price * $quantities[$i];
@@ -270,6 +271,24 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                         $report_data .= "</tr>";
                         $total += $total_price-$total_cdn;
                         $costs += $total_cdn;
+                    } */
+                    
+                    if ($i<$item_count) {
+                        $total_price = $unit_price * $quantities[$i];
+                        $cdn_cpu = get_inventory($dbc, $inventoryids[$i], 'cdn_cpu');
+                        $total_cdn = number_format($cdn_cpu * $quantities[$i], 2);
+
+                        $report_data .= '<tr nobr="true">';
+                            $report_data .= '<td data-title="Invoice#">' .$row_report['invoiceid'].'</td>';
+                            $report_data .= '<td data-title="Inventory">' . get_inventory($dbc, $inventoryids[$i], 'category'). ': '. get_inventory($dbc, $inventoryids[$i], 'name'). '</td>';
+                            $report_data .= '<td data-title="Status">' .$payment_type .'</td>';
+                            $report_data .= '<td data-title="Breakdown">qty: ' . $quantities[$i] . ' | price: ' . number_format($unit_price,2) . ' | total_price: ' . number_format($total_price,2) . ' | cdn_cpu: ' . $cdn_cpu . ' | total_cdn: ' . $total_cdn . ' = ('.number_format($total_price, 2).' - '.$total_cdn.') </td>';
+                            $report_data .= '<td data-title="Gross Costs" align="right">$' . number_format($total_cdn,2). '</td>';
+                            $report_data .= '<td data-title="Gross Profit" align="right">$' . number_format($total_price - $total_cdn,2). '</td>';
+                        $report_data .= "</tr>";
+                        $total += $total_price-$total_cdn;
+                        $costs += $total_cdn;
+                        $i++;
                     }
                 }
 
