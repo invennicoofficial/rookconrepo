@@ -219,10 +219,18 @@ if($_GET['tab'] == 'approvals') {
 	$k=0;
 	foreach($config['settings'] as $settings => $value) {
 		if(isset($value['config_field'])) {
-			$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
-			$value_config = ','.$get_field_config[$value['config_field']].',';
-			if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE) {
-				$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
+			if($value['config_field'] == 'time_cards_total_hrs_layout') {
+				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+				$value_config = ','.$get_field_config[$value['config_field']].',';
+				if(empty(trim($value_config,','))) {
+					$value_config = ',reg_hrs,overtime_hrs,doubletime_hrs,';
+				}
+			} else {
+				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+				$value_config = ','.$get_field_config[$value['config_field']].',';
+				if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE) {
+					$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
+				}
 			}
 			?>
 			<div class="panel panel-default">

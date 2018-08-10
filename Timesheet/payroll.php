@@ -169,7 +169,7 @@ function viewTicket(a) {
 			<?php } ?>
 
             <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
-                <label class="control-label">Search By Staff:</label>
+                <label class="control-label">Search By Staff:</1label>
             </div>
             <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
                 <?php if($timesheet_payroll_styling == 'EGS') { ?>
@@ -267,8 +267,9 @@ function viewTicket(a) {
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
                     
-                    if($timesheet_payroll_styling == 'EGS') { ?>
-                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff_list; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=payroll" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
+                    if($timesheet_payroll_styling == 'EGS') {
+                        $search_staff_query = implode('search_staff%5B%5D=', $search_staff_list); ?>
+                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff%5B%5D=<?php echo $search_staff_query; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=payroll" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
                     } ?>
                 </div>
             </div>
