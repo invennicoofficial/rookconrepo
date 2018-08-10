@@ -283,7 +283,10 @@ function openProjectDialog(sel) {
 								$flag_label = $row['flag_label'];
 							} else if(!empty($row['flag_colour'])) {
 								$flag_colour = $row['flag_colour'];
-								$flag_label = $flag_labels[array_search($row['flag_colour'], $flag_colours)];
+                                $flag_label_row = array_search($row['flag_colour'], $flag_colours);
+                                if($flag_label_row !== FALSE) {
+                                    $flag_label = $flag_labels[$flag_label_row];
+                                }
 							}
 							$lead_count++; ?>
                             <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">

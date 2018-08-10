@@ -296,7 +296,10 @@ if ( $leads->num_rows > 0 ) {
 			$flag_label = $row['flag_label'];
 		} else if(!empty($row['flag_colour'])) {
 			$flag_colour = $row['flag_colour'];
-			$flag_label = $flag_labels[array_search($row['flag_colour'], $flag_colours)];
+            $flag_label_row = array_search($row['flag_colour'], $flag_colours);
+            if($flag_label_row !== FALSE) {
+                $flag_label = $flag_labels[$flag_label_row];
+            }
 		} ?>
         <div class="main-screen-white silver-border gap-bottom info-block-detail" data-id="<?= $row['salesid'] ?>" style="height:auto; <?= empty($flag_colour) ? '' : 'background-color: #'.$flag_colour ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>">
             <div class="col-xs-12 gap-top horizontal-block-container">
