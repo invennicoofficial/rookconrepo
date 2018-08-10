@@ -106,7 +106,7 @@ function viewTicket(a) {
                 <br>
                 <div>
                     <a href="payroll.php?<?= http_build_query($query_string) ?>&subtab=Summary"><button type="button" class="btn brand-btn mobile-block <?= (empty($_GET['subtab']) || $_GET['subtab'] == 'Summary' ? 'active_tab' : '') ?>">Summary</button></a>
-                    <a href="payroll.php?<?= http_build_query($query_string) ?>&subtab=Detailed"><button type="button" class="btn brand-btn mobile-block <?= ($_GET['subtab'] == 'Default' ? 'active_tab' : '') ?>">Detailed</button></a>
+                    <a href="payroll.php?<?= http_build_query($query_string) ?>&subtab=Detailed"><button type="button" class="btn brand-btn mobile-block <?= ($_GET['subtab'] == 'Detailed' ? 'active_tab' : '') ?>">Detailed</button></a>
                 </div>
             <?php } ?>
             <br><br>
