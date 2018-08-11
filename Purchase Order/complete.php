@@ -7,7 +7,10 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET status = 'Paying' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('status', 'Paying');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' sent to Accounts Payable.");
 	window.location.replace("complete.php"); </script>';
 }

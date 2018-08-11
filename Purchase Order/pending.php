@@ -13,7 +13,12 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'approval', 'posid', $poside);
+	$before_change .= capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET approval = 'Approved', status = 'Receiving' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('approval', 'Approved');
+	$history .= capture_after_change('status', 'Receiving');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved.");
 	window.location.replace("pending.php"); </script>';
 }
@@ -36,7 +41,12 @@ if (isset($_POST['send_drive_logs_approve'])) {
 	$message = "Please see the attached Purchase Order below.";
 	$meeting_attachment .= 'download/purchase_order_'.$poside.'.pdf';
 	send_email([$_POST['email_address']=>$_POST['email_name']], $to, '', '', $_POST['email_subject'], $message, $meeting_attachment);
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'approval', 'posid', $poside);
+	$before_change .= capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET approval = 'Approved', status = 'Receiving' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('approval', 'Approved');
+	$history .= capture_after_change('status', 'Receiving');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved and sent to '.$email_list.'.");
 	window.location.replace("pending.php"); </script>';
 	} else {

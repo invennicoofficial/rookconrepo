@@ -178,6 +178,7 @@ $history_reports = [
 	'History Equipment History'=>['reports_equipment_history.php','Equipment History','History Equipment History','history_equipmenty_history'],
 	'History Vendor Price List History'=>['reports_vpl_history.php','Vendor Price List History','History Vendor Price List History','history_vpl_history'],
 	'History Rate Card History'=>['reports_ratecard_history.php','Rate Card History','History Rate Card History','history_ratecard_history'],
+	'History Purchase Order History'=>['reports_po_history.php','Purchase Order History','History Purchase Order History','history_po_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],

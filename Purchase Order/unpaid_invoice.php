@@ -330,7 +330,10 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 			$date = date('Y/m/d', time());
 			if (new DateTime($date) >= new DateTime($cutoffdater)) {
 				$posid = $roww['posid'];
+				$before_change = capture_before_change($dbc, 'point_of_sell', 'deleted', 'posid', $posid);
 				$query_update_employee = "UPDATE `point_of_sell` SET deleted = '1' WHERE posid='$posid'";
+				$history = capture_after_change('deleted', '1');
+			  add_update_history($dbc, 'po_history', $history, '', $before_change);
 				$result_update_employee = mysqli_query($dbc, $query_update_employee);
 				$style2 = 'display:none;';
 			}
