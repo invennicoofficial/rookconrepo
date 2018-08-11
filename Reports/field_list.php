@@ -177,6 +177,7 @@ $history_reports = [
 	'History Security History'=>['reports_security_history.php','Security History','History Security History','history_security_history'],
 	'History Equipment History'=>['reports_equipment_history.php','Equipment History','History Equipment History','history_equipmenty_history'],
 	'History Vendor Price List History'=>['reports_vpl_history.php','Vendor Price List History','History Vendor Price List History','history_vpl_history'],
+	'History Rate Card History'=>['reports_ratecard_history.php','Rate Card History','History Rate Card History','history_ratecard_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
