@@ -135,6 +135,11 @@ if (isset($_POST['submit_pos'])) {
     $query_insert_invoice = "INSERT INTO `purchase_orders` (`invoice_date`, `name`, `upload`, `po_category`, `contactid`, `equipmentid`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `created_by`, `comment`, `ship_date`, `due_date`, `status`, `gst`, `pst`, `delivery_type`, `delivery_address`, `contractorid`, `deposit_paid`, `updatedtotal`, `cross_software`,`software_author`, `software_seller`, `projectid`, `client_projectid`, `ticketid`, `businessid`, `siteid`, `workorderid`) VALUES ('$invoice_date', '$name', '$upload', '$po_category', '$contactid', '$equipmentid', '$productpricing', '$sub_total', '$discount_type', '$discount_value', '$total_after_discount', '$delivery', '$assembly', '$total_before_tax', '$client_tax_exemption', '$tax_exemption_number', '$total_price', '$payment_type', '$created_by', '$comment', '$ship_date', '$due_date', '$status', '$gst_total', '$pst_total', '$delivery_type', '$delivery_address', '$contractorid', '$dep_paid', '$updatedtotal', '$cross_software', '$software_author', '$software_seller', '$projectid', '$client_projectid', '$ticketid', '$businessid', '$siteid', '$workorderid')";
 
     $results_are_in = mysqli_query($dbc, $query_insert_invoice) or die(mysqli_error($dbc));
+
+		$before_change = '';
+    $history = "Purchase Order entry has been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
     $posid = mysqli_insert_id($dbc);
 			// ADD Column in Table for PDF //
 			$col = "SELECT `type_category` FROM purchase_orders_product";
@@ -155,6 +160,10 @@ if (isset($_POST['submit_pos'])) {
 			}
 		}
 
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		for($i=0; $i<count($_POST['vplinventoryid']); $i++) {
 			$inventoryid = $_POST['vplinventoryid'][$i];
 			$price = $_POST['vplprice'][$i];
@@ -165,6 +174,10 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 
 		for($i=0; $i<count($_POST['prodinventoryid']); $i++) {
 			$inventoryid = $_POST['prodinventoryid'][$i];
@@ -178,6 +191,10 @@ if (isset($_POST['submit_pos'])) {
 			}
 		}
 
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		for($i=0; $i<count($_POST['servinventoryid']); $i++) {
 			$inventoryid = $_POST['servinventoryid'][$i];
 			$price = $_POST['servprice'][$i];
@@ -188,6 +205,10 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 
 		for($i=0; $i<count($_POST['misc_product']); $i++) {
 			$misc_product = filter_var($_POST['misc_product'][$i],FILTER_SANITIZE_STRING);
@@ -202,13 +223,20 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 	} else {
 		$order_id = $_POST['order_id'];
 		if($_POST['spreadsheet'] == 'Yes') {
 					include('edit_vpl_spreadsheet.php');
 					if(isset($file_name_save_db)) {
+						$before_change = capture_before_change($dbc, 'purchase_orders', 'spreadsheet_name', 'posid', $posid);
 						$query_update_vendor = "UPDATE `purchase_orders` SET `spreadsheet_name` = '$file_name_save_db' WHERE `posid` = '$posid'";
 						$result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+				    $history = capture_after_change('spreadsheet_name', $file_name_save_db);
+				    add_update_history($dbc, 'po_history', $history, '', $before_change);
 			}
 		}
 		for($i=0; $i<count($_POST['inventoryid_list']); $i++) {
@@ -224,6 +252,10 @@ if (isset($_POST['submit_pos'])) {
 				}
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 	}
 
     include ('create_pos_pdf.php');
