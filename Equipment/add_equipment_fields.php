@@ -703,6 +703,8 @@ foreach ($classification as $single_classification) { ?>
 <div class="col-sm-8">
   <input readonly value="<?= number_format($total_billed - $total_expenses,2) ?>" type="text" class="form-control">
 </div>
+</div>
+<?php } ?>
 
 <?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
