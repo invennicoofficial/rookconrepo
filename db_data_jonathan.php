@@ -210,6 +210,11 @@
 		)")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        // August 11, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `newsboard_seen` ADD `newsboard_src` VARCHAR(2) DEFAULT NULL AFTER `newsboardid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

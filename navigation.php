@@ -287,7 +287,7 @@ if(!isset($_SESSION['fullscreen'])) {
                                 </a>
                             </li>
                             <?php if ( isset($_SESSION[ 'newsboard_menu_choice' ]) && $_SESSION[ 'newsboard_menu_choice' ] != NULL ) { ?>
-                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/newsboard.php" class="newsboard-button"><img src="<?= WEBSITE_URL ?>/img/newsboard-icon.png" title="Newsboard" class="inline-img"></a></li>
+                                <li class="pull-left"><?php include('Notification/newsboard.php'); ?></li>
                             <?php } ?>
                             <?php if(tile_visible($dbc, 'calendar_rook')): ?>
                                 <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color"></a></li>

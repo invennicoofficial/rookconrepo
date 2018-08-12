@@ -81,6 +81,7 @@ $(document).ready(function() {
         $results_sw = mysqli_query($dbc_htg, $query_sw);
         if ( $results_sw->num_rows > 0 ) {
             while ( $row_sw = mysqli_fetch_assoc ( $results_sw ) ) {
+                $dbc->query("INSERT INTO `newsboard_seen` (`newsboardid`,`contactid`,`newsboard_src`) SELECT '".$row['nID']."','".$_SESSION['contactid']."','sw' FROM (SELECT COUNT(*) `rows` FROM `newsboard_seen` WHERE `newsboardid`='".$row['nID']."' AND `contactid`='".$_SESSION['contactid']."' AND `newsboard_src`='sw') `count` WHERE `count`.`rows`=0");
                 $desc = html_entity_decode ( $row_sw[ 'description' ] ); ?>
                 <div class="nb-block col-sm-3 col-md-3 grid-item">
                     <div class="nb-title"><h2><?= str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $row_sw[ 'title' ]); ?></h2></div>
@@ -98,6 +99,7 @@ $(document).ready(function() {
             $cross_num_rows = mysqli_num_rows($results);
             if ( $results->num_rows > 0 ) {
                 while ( $row = mysqli_fetch_assoc ( $results ) ) {
+                    $dbc->query("INSERT INTO `newsboard_seen` (`newsboardid`,`contactid`) SELECT '".$row['nID']."','".$_SESSION['contactid']."' FROM (SELECT COUNT(*) `rows` FROM `newsboard_seen` WHERE `newsboardid`='".$row['nID']."' AND `contactid`='".$_SESSION['contactid']."' AND `newsboard_src` IS NULL) `count` WHERE `count`.`rows`=0");
                     $desc = html_entity_decode ( $row[ 'description' ] ); ?>
                     <div class="nb-block col-sm-3 col-md-3 grid-item">
                         <div class="nb-title"><h2><?= $row[ 'title' ]; ?></h2></div>
@@ -116,6 +118,7 @@ $(document).ready(function() {
             $results = mysqli_query($dbc, $query);
             if ( $results->num_rows > 0 ) {
                 while ( $row = mysqli_fetch_assoc ( $results ) ) {
+                    $dbc->query("INSERT INTO `newsboard_seen` (`newsboardid`,`contactid`) SELECT '".$row['nID']."','".$_SESSION['contactid']."' FROM (SELECT COUNT(*) `rows` FROM `newsboard_seen` WHERE `newsboardid`='".$row['nID']."' AND `contactid`='".$_SESSION['contactid']."' AND `newsboard_src` IS NULL) `count` WHERE `count`.`rows`=0");
                     $desc = html_entity_decode ( $row[ 'description' ] ); ?>
                     <div class="nb-block col-sm-3 col-md-3 grid-item">
                         <div class="nb-title"><h2><?= str_replace(['Rook Connect', 'Precision Work Flow'], ['ROOK Connect', 'Precision Workflow'], $row[ 'title' ]); ?></h2></div>
