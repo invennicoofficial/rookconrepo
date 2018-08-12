@@ -20,7 +20,7 @@ if (isset($_POST['send_drive_log_noemail'])) {
 	$history .= capture_after_change('status', 'Receiving');
 	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved.");
-	window.location.replace("pending.php"); </script>';
+	window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 }
 if (isset($_POST['send_drive_logs_approve'])) {
 	$poside = $_POST['send_drive_logs_approve'];
@@ -32,7 +32,7 @@ if (isset($_POST['send_drive_logs_approve'])) {
 				if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL) === false) {
 				} else {
 					 echo '<script type="text/javascript"> alert("One or more of the email addresses you have provided is not a proper email address.");
-							window.location.replace("pending.php"); </script>';
+							window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 							exit();
 				}
 			}
@@ -48,10 +48,10 @@ if (isset($_POST['send_drive_logs_approve'])) {
 	$history .= capture_after_change('status', 'Receiving');
 	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved and sent to '.$email_list.'.");
-	window.location.replace("pending.php"); </script>';
+	window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	} else {
 	echo '<script type="text/javascript"> alert("Please enter at least 1 email address.");
-	window.location.replace("pending.php"); </script>';
+	window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	}
 }
 if (isset($_POST['send_drive_logs'])) {
@@ -67,7 +67,7 @@ if (isset($_POST['send_drive_logs'])) {
 
 				} else {
 					 echo '<script type="text/javascript"> alert("One or more of the email addresses you have provided is not a proper email address.");
-							window.location.replace("pending.php"); </script>';
+							window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 							exit();
 				}
 			}
@@ -87,10 +87,10 @@ if (isset($_POST['send_drive_logs'])) {
 
 
     echo '<script type="text/javascript"> alert("PDF(s) sent to '.$email_list.'.");
-	window.location.replace("pending.php"); </script>';
+	window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	} else {
 	echo '<script type="text/javascript"> alert("Please enter at least 1 email address, or make sure you have selected at least one PDF to send.");
-	window.location.replace("pending.php"); </script>';
+	window.location.replace("index.php?tab=pending&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	}
 }
 

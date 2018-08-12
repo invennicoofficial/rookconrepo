@@ -456,11 +456,14 @@ $group = '';
 $use = '';
 $staff = '';
 $equipment_image = '';
+$total_billed = 0;
+$total_hours = 0;
+$total_expenses = 0;
 
 if(!empty($_GET['edit']))   {
 
     $equipmentid = $_GET['edit'];
-    $get_equipment =    mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM equipment WHERE equipmentid='$equipmentid'"));
+	$get_equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.`equipmentid`='".$equipmentid."'"));
 
     $equ_description = $get_equipment['equ_description'];
     $category = $get_equipment['category'];
@@ -546,6 +549,10 @@ if(!empty($_GET['edit']))   {
     $use = $get_equipment['use'];
     $staff = $get_equipment['staffid'];
     $equipment_image = $get_equipment['equipment_image'];
+	
+	$total_billed = $get_equipment['invoiced_amt'];
+	$total_hours = $get_equipment['invoiced_hours'];
+	$total_expenses = $get_equipment['expense_total'];
 }
 
 $accordion_list = [];
