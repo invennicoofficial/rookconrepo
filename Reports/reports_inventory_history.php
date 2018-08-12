@@ -168,7 +168,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
             $report_data .= '<td>'.$changed_by.'</td>';
             $report_data .= '<td>'.$changed_date.'</td>';
         $report_data .= "</tr>";
-
+    
         $odd_even++;
     }
 
