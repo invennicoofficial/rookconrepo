@@ -25,7 +25,10 @@ $(document).ready(function() {
                     <em>The following will be added to the end of your email:</em>
                     <p><a href="<?= WEBSITE_URL ?>/external_response.php?r=<?= encryptIt(json_encode(['ticketid'=>$ticketid])) ?>" target="_blank">You can reply to this message by clicking here.</a></p>
                 <?php }
-            } ?>
+            } else if($ticketid > 0 && $communication_type == 'Internal') { ?>
+                <em>The following will be added to the end of your email:</em>
+                <p><a href="<?= WEBSITE_URL ?>/external_response.php?r=<?= encryptIt(json_encode(['ticketid'=>$ticketid])) ?>" target="_blank">Click here</a> to view the <?= TICKET_NOUN ?></p>
+            <?php } ?>
         </div>
       </div>
       <?php } ?>
