@@ -200,6 +200,11 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_role` TEXT AFTER `software_user_name`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        // August 10, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `equipmentid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `siteid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		// August 7, 2018
 		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `newsboard_seen` (

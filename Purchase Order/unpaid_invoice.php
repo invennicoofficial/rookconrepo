@@ -152,6 +152,9 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 			$search_any = $_POST['search_any'];
 			$search .= "AND (inv.posid = '$search_any' OR c.name = '$search_any' OR inv.delivery_type = '$search_any' OR inv.total_price LIKE '%" . $search_any . "%' OR inv.payment_type LIKE '%" . $search_any . "%' OR inv.invoice_date LIKE '%" . $search_any . "%' OR inv.status LIKE '%" . $search_any . "%' OR inv.comment LIKE '%" . $search_any . "%') ";
 		}
+        if(!empty($_GET['vendorid']) && !isset($_POST['search_vendor'])) {
+            $_POST['search_vendor'] = $_GET['vendorid'];
+        }
 		if(!empty($_POST['search_vendor'])) {
 			$search_vendor = $_POST['search_vendor'];
 			$search .= " AND c.contactid='$search_vendor'";
@@ -291,6 +294,9 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 			if (strpos($value_config, ','."Customer".',') !== FALSE) {
 				echo '<th><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Vendor</th>';
 			}
+			if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+				echo '<th><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Equipment as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Equipment</th>';
+			}
 			if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 				echo '<th><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Total Price</th>';
 			}
@@ -324,7 +330,10 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 			$date = date('Y/m/d', time());
 			if (new DateTime($date) >= new DateTime($cutoffdater)) {
 				$posid = $roww['posid'];
+				$before_change = capture_before_change($dbc, 'point_of_sell', 'deleted', 'posid', $posid);
 				$query_update_employee = "UPDATE `point_of_sell` SET deleted = '1' WHERE posid='$posid'";
+				$history = capture_after_change('deleted', '1');
+			  add_update_history($dbc, 'po_history', $history, '', $before_change);
 				$result_update_employee = mysqli_query($dbc, $query_update_employee);
 				$style2 = 'display:none;';
 			}
@@ -353,6 +362,9 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 		}
 		if (strpos($value_config, ','."Customer".',') !== FALSE) {
 			echo '<td data-title="Vendor">' . decryptIt($customer['name']) . '</td>';
+		}
+		if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+			echo '<td data-title="Equipment">' . $dbc->query("SELECT CONCAT(`category`,': ',`make`,' ',`model`,' ',`unit_number`) `label` FROM `equipment` WHERE `equipmentid`='".$roww['equipmentid']."'")->fetch_assoc()['label'] . '</td>';
 		}
 		if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 			echo '<td data-title="Total Price">' . $roww['total_price'] . '</td>';

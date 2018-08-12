@@ -13,7 +13,8 @@ if(!isset($project)) {
 <div id="head_notes" class="form-horizontal col-sm-12" data-tab-name="details">
 	<h3><?= PROJECT_NOUN ?> Notes</h3>
 	<?php $project_notes = mysqli_query($dbc, "SELECT * FROM `project_comment` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `type` NOT LIKE 'detail_%'");
-	if(mysqli_num_rows($project_notes) > 0) { ?>
+	if(mysqli_num_rows($project_notes) > 0) {
+        $odd_even = 0; ?>
 		<table class='table table-bordered'>
             <tr class='hidden-xs hidden-sm'>
 				<th>Note</th>
@@ -22,12 +23,14 @@ if(!isset($project)) {
 				<th>Added By</th>
             </tr>
 			<?php while($note = mysqli_fetch_assoc($project_notes)) { ?>
-				<tr>
+                <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+				<tr class="<?= $bg_class ?>">
 					<td data-title="Note"><?= html_entity_decode($note['comment']) ?></td>
 					<td data-title="Assigned To"><?= get_contact($dbc, $note['email_comment']) ?></td>
 					<td data-title="Date"><?= $note['created_date'] ?></td>
 					<td data-title="Added By"><?= get_contact($dbc, $note['created_by']) ?></td>
 				</tr>
+                <?php $odd_even++; ?>
 			<?php } ?>
 		</table>
 	<?php } ?>

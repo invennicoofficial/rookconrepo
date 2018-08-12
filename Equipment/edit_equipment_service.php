@@ -18,9 +18,13 @@ if(isset($_POST['submit'])) {
 	$next_tire_rotation = filter_var($_POST['next_tire_rotation'],FILTER_SANITIZE_STRING);
 	$status = filter_var($_POST['status'],FILTER_SANITIZE_STRING);
 	$service_staff = filter_var($_POST['service_staff'],FILTER_SANITIZE_STRING);
-	
+
 	$sql = "UPDATE `equipment` SET `last_oil_filter_change_date`='$last_oil_filter_change_date', `last_oil_filter_change`='$last_oil_filter_change', `next_oil_filter_change_date`='$next_oil_filter_change_date', `next_oil_filter_change`='$next_oil_filter_change', `next_oil_filter_change`='$next_oil_filter_change', `last_insp_tune_up_date`='$last_insp_tune_up_date', `last_insp_tune_up`='$last_insp_tune_up', `next_insp_tune_up_date`='$next_insp_tune_up_date', `next_insp_tune_up`='$next_insp_tune_up', `last_tire_rotation_date`='$last_tire_rotation_date', `last_tire_rotation`='$last_tire_rotation', `next_tire_rotation_date`='$next_tire_rotation_date', `next_tire_rotation`='$next_tire_rotation', `status`='$status', `service_staff`='$service_staff' WHERE `equipmentid`='$equipmentid'";
 	mysqli_query($dbc, $sql);
+
+	$before_change = '';
+	$history = "Equipment is been updated. <br />";
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 } ?>
 <script>
 $(document).ready(function() {

@@ -4,7 +4,7 @@ $security = get_security($dbc, 'equipment');
 
 if (isset($_POST['inv_field'])) {
 	$tab_field = filter_var($_POST['tab_field'],FILTER_SANITIZE_STRING);
-	$accordion = filter_var($_POST['accordion'],FILTER_SANITIZE_STRING);
+	$accordion = filter_var(urldecode($_POST['accordion']),FILTER_SANITIZE_STRING);
 	$equipment = implode(',',$_POST['equipment']);
 	$order = filter_var($_POST['order'],FILTER_SANITIZE_STRING);
 
@@ -17,7 +17,7 @@ if (isset($_POST['inv_field'])) {
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
 
-	echo '<script type="text/javascript"> window.location.replace("?settings=field&tab='.$tab_field.'&accr='.$accordion.'"); </script>';
+	echo '<script type="text/javascript"> window.location.replace("?settings=field&tab='.$tab_field.'&accr='.urlencode($accordion).'"); </script>';
 }
 ?>
 <script type="text/javascript">
@@ -79,7 +79,7 @@ $(document).ready(function() {
 				<option <?php if ($accr == "Purchase Info") { echo " selected"; } ?> value="Purchase Info"><?php echo get_field_config_equipment($dbc, 'Purchase Info', 'order', $invtype); ?> : Purchase Info</option>
 				<option <?php if ($accr == "Product Cost") { echo " selected"; } ?> value="Product Cost"><?php echo get_field_config_equipment($dbc, 'Product Cost', 'order', $invtype); ?> : Product Cost</option>
 				<option <?php if ($accr == "Pricing") { echo " selected"; } ?> value="Pricing"><?php echo get_field_config_equipment($dbc, 'Pricing', 'order', $invtype); ?> : Pricing</option>
-				<option <?php if ($accr == "Service & Alerts") { echo " selected"; } ?> value="Service & Alerts"><?php echo get_field_config_equipment($dbc, 'Service & Alerts', 'order', $invtype); ?> : Service & Alerts</option>
+				<option <?php if ($accr == "Service & Alerts") { echo " selected"; } ?> value="<?= urlencode('Service & Alerts') ?>"><?php echo get_field_config_equipment($dbc, 'Service & Alerts', 'order', $invtype); ?> : Service &amp; Alerts</option>
 				<option <?php if ($accr == "Location") { echo " selected"; } ?> value="Location"><?php echo get_field_config_equipment($dbc, 'Location', 'order', $invtype); ?> : Location</option>
 				<option <?php if ($accr == "Status") { echo " selected"; } ?> value="Status"><?php echo get_field_config_equipment($dbc, 'Status', 'order', $invtype); ?> : Status</option>
 				<option <?php if ($accr == "Registration") { echo " selected"; } ?> value="Registration"><?php echo get_field_config_equipment($dbc, 'Registration', 'order', $invtype); ?> : Registration</option>
@@ -265,6 +265,8 @@ $(document).ready(function() {
 			<div id="collapse_7" class="panel-collapse collapse">
 				<div class="panel-body">
 
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Follow Up Date".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Date" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Follow Up Date
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Follow Up Staff".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Staff" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Follow Up Staff
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Date".',') !== FALSE) { echo " checked"; } ?> value="Next Service Date" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Date
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Hours".',') !== FALSE) { echo " checked"; } ?> value="Next Service Hours" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Hours
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Description".',') !== FALSE) { echo " checked"; } ?> value="Next Service Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Description

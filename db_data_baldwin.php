@@ -397,6 +397,31 @@
     }
     //2018-07-27 - Ticket #7552 - Checklists
 
+    //2018-07-31 - Ticket #7497 - Email Alerts
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_email_alerts` (
+        `fieldconfigid` int(11) NOT NULL,
+        `software_default` int(1) NOT NULL DEFAULT 0,
+        `contactid` int(11) NOT NULL,
+        `enabled` int(1) NOT NULL DEFAULT 0,
+        `alerts` text,
+        `frequency` varchar(500),
+        `alert_hour` varchar(500) NOT NULL,
+        `alert_days` varchar(500) NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_email_alerts`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `journal_notifications` ADD `email_sent` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-07-31 - Ticket #7497 - Email Alerts
+
     //2018-08-02 - Ticket #8273 - Camping
     if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `start_time` varchar(10) NOT NULL AFTER `date_stamp`")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -405,6 +430,49 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-08-02 - Ticket #8273 - Camping
+
+    //2018-08-08 - Ticket #8582 - Ticket Timer
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `deleted_by` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_timer` ADD `date_of_archival` date NOT NULL AFTER `deleted`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-08 - Ticket #8582 - Ticket Timer
+
+    //2018-08-07 - Ticket #8518 - Equipment Follow Up
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `follow_up_date` date NOT NULL AFTER `finance`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `follow_up_staff` varchar(500) NOT NULL AFTER `follow_up_date`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-07 - Ticket #8518 - Equipment Follow Up
+
+    //2018-08-09 - Ticket #8583 - Payroll: By Staff
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config` ADD `time_cards_total_hrs_layout` text AFTER `time_cards_dashboard`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    $updated_already = get_config($dbc, 'updated_ticket8583_timesheet');
+    if(empty($updated_already)) {
+        $value_config = ','.get_field_config($dbc, 'time_cards').',';
+        $new_value_config = ',reg_hrs,overtime_hrs,doubletime_hrs,';
+        if(strpos($value_config, ',view_ticket,') !== FALSE) {
+            $new_value_config .= 'view_ticket,';
+        }
+        if(strpos($value_config, ',total_tracked_hrs,') !== FALSE) {
+            $new_value_config .= 'total_tracked_hrs,';
+        }
+        if(strpos($value_config, ',staff_combine,') !== FALSE) {
+            $new_value_config .= 'staff_combine,';
+        }
+        set_field_config($dbc, 'time_cards_total_hrs_layout', $new_value_config);
+        set_config($dbc, 'updated_ticket8583_timesheet', 1);
+    }
+    //2018-08-09 - Ticket #8583 - Payroll: By Staff
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

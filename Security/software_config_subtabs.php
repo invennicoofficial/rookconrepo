@@ -759,6 +759,9 @@ checkAuthorised('security');
 						if(strpos($reports,',Pro Bono Report,') !== false) { ?>
 							<tr><td>Pro-Bono</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pro_bono' ); ?></tr>
 						<?php }
+						if(strpos($reports,',Promotions and Coupons,') !== false) { ?>
+							<tr><td>Promotions & Coupons</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'promotions_coupons' ); ?></tr>
+						<?php }
 						if(strpos($reports,',Referral,') !== false) { ?>
 							<tr><td>Referrals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'referral' ); ?></tr>
 						<?php }
@@ -1147,6 +1150,7 @@ checkAuthorised('security');
 						<tr><td>Font Settings</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'font' ); ?></tr>
 						<tr><td>Data Usage</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'data_use' ); ?></tr>
 						<tr><td>Notes</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notes' ); ?></tr>
+						<tr><td>Notifications: Software Default</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notifications_software' ); ?></tr>
 					<?php }
 					// include ('../Settings/settings_subtab_settings.php');
 					/* End of Settings tile subtab settings */

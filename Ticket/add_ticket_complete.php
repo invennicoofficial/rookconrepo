@@ -46,12 +46,15 @@
 		if($generate_pdf) {
 			ob_clean();
 		}
-		while($row = mysqli_fetch_array($notes)) {
-			echo '<div class="note_block">';
+		$odd_even = 0;
+        while($row = mysqli_fetch_array($notes)) {
+			$bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+            echo '<div class="note_block '.$bg_class.'">';
 				echo profile_id($dbc, $row['created_by']);
 				echo '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment'].$row['note']);
 				echo "<em>Check In All used by ".get_contact($dbc, $row['created_by'])." at ".$row['note_date'].$row['created_date']."</em>";
-			echo '</div><div class="clearfix"></div><hr></div>';
+			echo '</div><div class="clearfix"></div></div>';
+            $odd_even++;
 		}
 		if($generate_pdf) {
 			$pdf_contents[] = ['', ob_get_contents()];

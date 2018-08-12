@@ -42,11 +42,11 @@ if (isset($_POST['submit'])) {
 
     echo '<script type="text/javascript"> window.location.replace("'.$back_url.'"); </script>';
 } else if(isset($_POST['approv_db'])) {
-	$session_user = get_contact($dbc, $_SESSION['contactid']);
+	$staff = $_POST['staff_id'];
+	/*$session_user = get_contact($dbc, $_SESSION['contactid']);
 	$layout = get_config($dbc, "timesheet_layout");
 	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
 	$timesheet_record_history = get_config($dbc, 'timesheet_record_history');
-	$staff = $_POST['staff_id'];
 	$time_cards_id = 0;
 	$site = $_POST['site_id'];
 	$supervisor = $_POST['supervisor_id'];
@@ -351,8 +351,8 @@ if (isset($_POST['submit'])) {
 			}
 			$back_url = 'payroll.php';
 		}
-	}
-	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
+	}*/
+	echo "<script>window.location.replace('".$back_url."?tab=".$_GET['tab']."&subtab=".$_GET['subtab']."&search_staff%5B%5D=".$staff."&pay_period=".$_GET['pay_period']."&search_start_date=".$_GET['search_start_date']."&search_end_date=".$_GET['search_end_date']."&search_site=".$_GET['search_site']."');</script>";
 }
 ?>
 </head>

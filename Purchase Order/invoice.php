@@ -85,6 +85,9 @@ if (isset($_POST['submit_pos'])) {
 		$query_insert_invoice = "INSERT INTO `purchase_orders` (`contactid`, `inventoryid`, `quantity`, `price`, `sub_total`, `gst`, `total_price`, `payment_type`, `invoice_date`, `created_by`, `comment`, `status`) VALUES ('$contactid', '$inventoryid', '$quantity', '$price', '$sub_total', '$gst','$total_price', '$payment_type', '$invoice_date', '$created_by', '$comment', '$status')";
  		$results_are_in = mysqli_query($dbc, $query_insert_invoice);
         $posid = mysqli_insert_id($dbc);
+        $before_change = '';
+        $history = "Purchase Order entry has been added. <br />";
+        add_update_history($dbc, 'po_history', $history, '', $before_change);
 
         $customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT customer, first_name, last_name, phone, email, office_street, office_city, office_state, office_country, office_zip FROM customer WHERE contactid='$contactid'"));
 

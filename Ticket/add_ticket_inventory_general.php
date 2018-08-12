@@ -34,7 +34,7 @@ function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
 	var i = 0;
 	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		if($(this).val() != first_piece.get(i).value) {
+		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
 			$(this).val(first_piece.get(i).value).change();
 		}
 		i++;

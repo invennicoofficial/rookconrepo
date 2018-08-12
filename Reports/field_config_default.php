@@ -112,6 +112,7 @@ if (isset($_POST['submit'])) {
                     <option value="Sales by Service Category" <?= $mobile_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                     <option value="Sales Estimates" <?= $mobile_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                     <option value="Receipts Summary Report" <?= $mobile_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                    <option value="Project Progress Report" <?= $mobile_landing_subtab_config['value']=='Project Progress Report' ? 'selected="selected"' : '' ?>>Project Progress Report</option>
                     <option value="Estimate Item Closing % By Quantity" <?= $mobile_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                     <option value="Gross Revenue by Staff" <?= $mobile_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                     <option value="Patient Invoices" <?= $mobile_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
@@ -274,6 +275,7 @@ if (isset($_POST['submit'])) {
                     <option value="Sales by Service Category" <?= $desktop_landing_subtab_config['value']=='Sales by Service Category' ? 'selected="selected"' : '' ?>>Sales by Service Category</option>
                     <option value="Sales Estimates" <?= $desktop_landing_subtab_config['value']=='Sales Estimates' ? 'selected="selected"' : '' ?>>Sales Estimates</option>
                     <option value="Receipts Summary Report" <?= $desktop_landing_subtab_config['value']=='Receipts Summary Report' ? 'selected="selected"' : '' ?>>Receipts Summary Report</option>
+                    <option value="Project Progress Report" <?= $desktop_landing_subtab_config['value']=='Project Progress Report' ? 'selected="selected"' : '' ?>>Project Progress Report</option>
                     <option value="Estimate Item Closing % By Quantity" <?= $desktop_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                     <option value="Gross Revenue by Staff" <?= $desktop_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                     <option value="Patient Invoices" <?= $desktop_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
@@ -364,11 +366,19 @@ if (isset($_POST['submit'])) {
                   <option value="History HR History" <?= $desktop_landing_subtab_config['value']=='History HR History' ? 'selected="selected"' : '' ?>>HR History</option>
                   <option value="History Point of Sale History" <?= $desktop_landing_subtab_config['value']=='History Point of Sale History' ? 'selected="selected"' : '' ?>>Point of Sale History</option>
                   <option value="History Inventory History" <?= $desktop_landing_subtab_config['value']=='History Inventory History' ? 'selected="selected"' : '' ?>>Inventory History</option>
+                  <option value="History Project History" <?= $desktop_landing_subtab_config['value']=='History Project History' ? 'selected="selected"' : '' ?>>Project History</option>
+                  <option value="History Contact History" <?= $desktop_landing_subtab_config['value']=='History Contact History' ? 'selected="selected"' : '' ?>>Contact History</option>
+                  <option value="History Security History" <?= $desktop_landing_subtab_config['value']=='History Security History' ? 'selected="selected"' : '' ?>>Security History</option>
+                  <option value="History Equipment History" <?= $desktop_landing_subtab_config['value']=='History Equipment History' ? 'selected="selected"' : '' ?>>Equipment History</option>
+                  <option value="History Vendor Price List History" <?= $desktop_landing_subtab_config['value']=='History Vendor Price List History' ? 'selected="selected"' : '' ?>>Vendor Price List History</option>
+                  <option value="History Rate Card History" <?= $desktop_landing_subtab_config['value']=='History Rate Card History' ? 'selected="selected"' : '' ?>>Rate Card History</option>
+                  <option value="History Purchase Order History" <?= $desktop_landing_subtab_config['value']=='History Purchase Order History' ? 'selected="selected"' : '' ?>>Purchase Order History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>
                   <option value="Estimate Stats" <?= $desktop_landing_subtab_config['value']=='Estimate Stats' ? 'selected="selected"' : '' ?>>Estimate Stats</option>
                   <option value="Estimate Alerts" <?= $desktop_landing_subtab_config['value']=='Estimate Alerts' ? 'selected="selected"' : '' ?>>Estimate Alerts</option>
+                  <option value="Estimate Forecasting" <?= $desktop_landing_subtab_config['value']=='Estimate Forecasting' ? 'selected="selected"' : '' ?>>Estimate Forecasting</option>
               </optgroup>
 
             </select>

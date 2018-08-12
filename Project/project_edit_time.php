@@ -23,7 +23,7 @@ if(!empty($_POST['submit']) && $_GET['src'] == 'checklist') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `ticket_timer` SET `start_time`='$start',`end_time`='$end',`created_by`='$staff',`created_date`='$date',`timer`=SEC_TO_TIME($hours) WHERE `tickettimerid`='$id'");
 } else if($_GET['src'] == 'tickets') {
-	$timer = $dbc->query("SELECT *, TIME_TO_SEC(`timer`) / 3600 `hours` FROM `ticket_timer` WHERE `tickettimerid`='$id'")->fetch_assoc();
+	$timer = $dbc->query("SELECT *, TIME_TO_SEC(`timer`) / 3600 `hours` FROM `ticket_timer` WHERE `tickettimerid`='$id' AND `deleted` = 0")->fetch_assoc();
 	$start = $timer['start_time'];
 	$end = $timer['end_time'];
 	$staff = $timer['created_by'];

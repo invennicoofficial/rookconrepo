@@ -53,7 +53,9 @@ if(isset($_POST['complete_form'])) {
 	if($action == 'sales') {
 		$salesid = $_POST['salesid'];
 		if($salesid == 'NEW_SALES') {
-			mysqli_query($dbc, "INSERT INTO `sales` (`created_date`,`lead_created_by`) VALUES ('".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
+			$primary_staff = filter_var($_POST['sales_primary_staff'],FILTER_SANITIZE_STRING);
+			$share_lead = filter_var(implode(',', $_POST['sales_share_lead']),FILTER_SANITIZE_STRING);
+			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
 			$salesid = mysqli_insert_id($dbc);
 		}
 		mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
@@ -237,12 +239,20 @@ if(isset($_POST['complete_form'])) {
 				$('select[name="tickettype"]').trigger('change.select2');
 			}
 		}
+		function selectSales(sel) {
+			if(sel.value == 'NEW_SALES') {
+				$('.new_sales').show();
+			} else {
+				$('.new_sales').hide();
+			}
+		}
 		function initSelectOnChange() {
 			$('select[name="contact_category"]').on('change', function() { selectCategory(this); });
 			$('select[name="projecttype"]').on('change', function() { selectProjectType(this); });
 			$('select[name="projectid"]').on('change', function() { selectProject(this); });
 			$('select[name="ticket_type"]').on('change', function() { selectTicketType(this); });
 			$('select[name="ticketid"]').on('change', function() { selectTicket(this); });
+			$('select[name="salesid"]').on('change', function() { selectSales(this); });
 		}
 	</script>
 </head>
@@ -419,6 +429,36 @@ if(isset($_POST['complete_form'])) {
 								echo "<option value='".$sales['salesid']."'>".$sales_label."</option>";
 							}
 							?>
+						</select>
+					</div>
+					<?php $limit_staff_cat = array_filter(explode(',',get_config($dbc, 'sales_limit_staff_cat')));
+					$cat_query = '';
+					if(!empty($limit_staff_cat)) {
+					    $cat_query = [];
+					    foreach($limit_staff_cat as $staff_cat) {
+					        $cat_query[] = "CONCAT(',',`staff_category`,',') LIKE ('%,".$staff_cat.",%')";
+					    }
+					    $cat_query = " AND (".implode(' OR ', $cat_query).")";
+					}
+					$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted` = 0 AND `category` iN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status` > 0".$cat_query)); ?>
+					<br>
+					<div class="gap-left new_sales" style="display:none;">
+						<p>Primary Staff:</p>
+						<select name="sales_primary_staff" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
+							<option></option>
+							<?php foreach($staff_list as $staff) {
+								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
+							} ?>
+						</select>
+					</div>
+					<br>
+					<div class="gap-left new_sales" style="display:none;">
+						<p>Share Lead:</p>
+						<select name="sales_share_lead[]" multiple="" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
+							<option></option>
+							<?php foreach($staff_list as $staff) {
+								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
+							} ?>
 						</select>
 					</div>
 				<?php } ?>

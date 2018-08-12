@@ -313,6 +313,12 @@ function go_to_dashboard(target) {
 			//	}
 			//}
 			?>
+			<?php if(START_DAY != '') { ?>
+			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment"><?= START_DAY ?></td>
+				<?php echo security_tile_config_function('start_day_button', get_privileges($dbc, 'start_day_button',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
 			<?php if(strpos($on_security, ',archiveddata,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('archiveddata', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Archived Data</td>
@@ -877,7 +883,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',drop_off_analysis,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('drop_off_analysis', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Dropoff Analysis</td>
+				<td data-title="Comment">Drop Off Analysis</td>
 				<?php echo security_tile_config_function('drop_off_analysis', get_privileges($dbc, 'drop_off_analysis',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -1195,7 +1201,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',promotion,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('promotion', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Promotions</td>
+				<td data-title="Comment">Promotions & Coupons</td>
 				<?php echo security_tile_config_function('promotion', get_privileges($dbc, 'promotion',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>

@@ -341,10 +341,10 @@ $(document).ready(function() {
         $sections.each(function(){
             var divPosition = $(this).offset().top;
             if( divPosition - 1 < currentScroll ){
-                $currentSection = $(this);
-				var id = $currentSection.attr('id');
 				$('.tile-sidebar li').removeClass('active');
-				$('.tile-sidebar [href=#'+id+'] li').addClass('active');
+				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+            } else if(divPosition < currentScroll + $('.main-screen .tile-container').height()) {
+				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             }
         });
     });
@@ -353,7 +353,7 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='salespath' ) {
             echo 'window.location.replace("?p=salespath&id='.$_GET['id'].'");';
         } ?>
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
 
@@ -361,7 +361,7 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=staffinfo");';
         } ?>
-        $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
 
@@ -370,7 +370,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_services').click(function() {<?php
@@ -378,7 +378,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=services");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_products').click(function() {<?php
@@ -386,7 +386,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=products");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_leadsource').click(function() {<?php
@@ -394,7 +394,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadsource");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_refdocs').click(function() {<?php
@@ -402,7 +402,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=refdocs");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_marketing').click(function() {<?php
@@ -410,7 +410,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=marketing");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_infogathering').click(function() {<?php
@@ -418,7 +418,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=infogathering");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_estimate').click(function() {<?php
@@ -426,7 +426,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=estimate");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_quote').click(function() {<?php
@@ -434,7 +434,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=quote");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_nextaction').click(function() {<?php
@@ -442,7 +442,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=nextaction");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_leadstatus').click(function() {<?php
@@ -450,7 +450,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadstatus");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_leadnotes').click(function() {<?php
@@ -458,7 +458,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadnotes");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_tasks').click(function() {<?php
@@ -466,7 +466,15 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=tasks");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_time, #nav_history').removeClass('active');
+    });
+
+    $('#nav_time').click(function() {<?php
+        if ( isset($_GET['p']) && $_GET['p']!='details' ) {
+            echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=time");';
+        } ?>
+        $(this).addClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
 
     $('#nav_history').click(function() {<?php
@@ -474,7 +482,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=history");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time').removeClass('active');
     });
 
     <?php
@@ -492,6 +500,7 @@ $(document).ready(function() {
         if ( isset($_GET['a']) && $_GET['a']=='leadstatus' ) { echo "$('#nav_leadstatus').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='leadnotes' ) { echo "$('#nav_leadnotes').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='tasks' ) { echo "$('#nav_tasks').trigger('click');"; }
+        if ( isset($_GET['a']) && $_GET['a']=='time' ) { echo "$('#nav_time').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='history' ) { echo "$('#nav_history').trigger('click');"; }
     ?>
 
@@ -588,6 +597,9 @@ $(document).ready(function() {
                         }
                         if (strpos($value_config, ',Tasks,') !== false) { ?>
                             <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a><?php
+                        }
+                        if (strpos($value_config, ',Time,') !== false) { ?>
+                            <a href="#time"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_time" id="nav_time">Time Tracking</li></a><?php
                         }
                         if (strpos($value_config, ',History,') !== false) { ?>
                             <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a><?php
