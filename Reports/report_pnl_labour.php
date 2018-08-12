@@ -55,7 +55,8 @@ if(isset($_POST['printpdf'])) {
     ?>
 
 	<script>
-		window.location.replace('<?php echo $pdf_name; ?>');
+		//window.location.replace('<?php echo $pdf_name; ?>');
+        window.open('<?= $pdf_name; ?>', 'fullscreen=yes');
 	</script>
     <?php
     $labour_category = $lc;
@@ -140,22 +141,25 @@ function work_tickets($dbc, $labour_type, $labour_category, $table_style = '', $
     $report_data .= '<th>Actual Hours</th>';
     $report_data .=  "</tr>";
 
+    $odd_even = 0;
     while($row = mysqli_fetch_array( $result ))
     {
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td data-title="Type">' . $row['labour_type'] . '</td>';
-        $report_data .= '<td data-title="Category">' . $row['category'] . '</td>';
-        $report_data .= '<td data-title="Heading">' . $row['heading'] . '</td>';
-        $report_data .= '<td data-title="Salary">' . $row['salary'] . '</td>';
-        $report_data .= '<td data-title="Min. Billable">' . $row['minimum_billable'] . '</td>';
-        $report_data .= '<td data-title="Est. Hours">' . $row['estimated_hours'] . '</td>';
-        $report_data .= '<td data-title="Actual Hours">' . $row['actual_hours'] . '</td>';
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td data-title="Type">' . $row['labour_type'] . '</td>';
+            $report_data .= '<td data-title="Category">' . $row['category'] . '</td>';
+            $report_data .= '<td data-title="Heading">' . $row['heading'] . '</td>';
+            $report_data .= '<td data-title="Salary">' . $row['salary'] . '</td>';
+            $report_data .= '<td data-title="Min. Billable">' . $row['minimum_billable'] . '</td>';
+            $report_data .= '<td data-title="Est. Hours">' . $row['estimated_hours'] . '</td>';
+            $report_data .= '<td data-title="Actual Hours">' . $row['actual_hours'] . '</td>';
         $report_data .=  "</tr>";
 
 		$total_salary += (float)$row['salary'];
 		$total_minimum_billable += (float)$row['minimum_billable'];
 		$total_estimated_hours += (float)$row['estimated_hours'];
 		$total_actual_hours += (float)$row['actual_hours'];
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';

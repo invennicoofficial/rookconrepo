@@ -13,7 +13,12 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'approval', 'posid', $poside);
+	$before_change .= capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET approval = 'Approved', status = 'Receiving' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('approval', 'Approved');
+	$history .= capture_after_change('status', 'Receiving');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved.");
 	window.location.replace("pending.php"); </script>';
 }
@@ -36,7 +41,12 @@ if (isset($_POST['send_drive_logs_approve'])) {
 	$message = "Please see the attached Purchase Order below.";
 	$meeting_attachment .= 'download/purchase_order_'.$poside.'.pdf';
 	send_email([$_POST['email_address']=>$_POST['email_name']], $to, '', '', $_POST['email_subject'], $message, $meeting_attachment);
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'approval', 'posid', $poside);
+	$before_change .= capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET approval = 'Approved', status = 'Receiving' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('approval', 'Approved');
+	$history .= capture_after_change('status', 'Receiving');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' approved and sent to '.$email_list.'.");
 	window.location.replace("pending.php"); </script>';
 	} else {
@@ -301,6 +311,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 			$search_any = $_POST['search_any'];
 			$search .= "AND (inv.posid = '$search_any' OR c.name = '$search_any' OR inv.delivery_type = '$search_any' OR inv.total_price LIKE '%" . $search_any . "%' OR inv.payment_type LIKE '%" . $search_any . "%' OR inv.invoice_date LIKE '%" . $search_any . "%' OR inv.status LIKE '%" . $search_any . "%' OR inv.comment LIKE '%" . $search_any . "%') ";
 		}
+        if(!empty($_GET['vendorid']) && !isset($_POST['search_vendor'])) {
+            $_POST['search_vendor'] = $_GET['vendorid'];
+        }
 		if(!empty($_POST['search_vendor'])) {
 			$search_vendor = $_POST['search_vendor'];
 			$search .= " AND c.contactid='$search_vendor'";
@@ -457,6 +470,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 			if (strpos($value_config, ','."Customer".',') !== FALSE) {
 				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Vendor</th>';
 			}
+			if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Equipment as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Equipment</th>';
+			}
 			if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 				echo '<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Total Price</th>';
 			}
@@ -540,6 +556,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']);
 		}
 		if (strpos($value_config, ','."Customer".',') !== FALSE) {
 			echo '<td data-title="Vendor">' . get_client($dbc, $contactid) . '</td>';
+		}
+		if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+			echo '<td data-title="Equipment">' . $dbc->query("SELECT CONCAT(`category`,': ',`make`,' ',`model`,' ',`unit_number`) `label` FROM `equipment` WHERE `equipmentid`='".$roww['equipmentid']."'")->fetch_assoc()['label'] . '</td>';
 		}
 		if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 			echo '<td data-title="Total Price">' . $roww['total_price'] . '</td>';

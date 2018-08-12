@@ -8,10 +8,10 @@ checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 
-if (isset($_POST['printpdf'])) {
+if (isset($_EquipmentT['printpdf'])) {
 
-    $starttimepdf = $_POST['starttimepdf'];
-    $endtimepdf = $_POST['endtimepdf'];
+    $starttimepdf = $_EquipmentT['starttimepdf'];
+    $endtimepdf = $_EquipmentT['endtimepdf'];
     DEFINE('REPORT_LOGO', get_config($dbc, 'report_logo'));
     DEFINE('REPORT_HEADER', html_entity_decode(get_config($dbc, 'report_header')));
     DEFINE('REPORT_FOOTER', html_entity_decode(get_config($dbc, 'report_footer')));
@@ -30,7 +30,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'Inventory History';
+            $footer_text = 'Equipment History';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 
 		}
@@ -83,13 +83,13 @@ if (isset($_POST['printpdf'])) {
 
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/inventory_history_'.$today_date.'.pdf', 'F');
-    track_download($dbc, 'history_inventory_history', 0, WEBSITE_URL.'/Reports/Download/inventory_history_'.$today_date.'.pdf', 'Inventory History Report');
+	$pdf->Output('Download/equipment_history_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'history_equipment_history', 0, WEBSITE_URL.'/Reports/Download/equipment_history_'.$today_date.'.pdf', 'Equipment History Report');
 
     ?>
 
 	<script type="text/javascript" language="Javascript">
-	window.open('Download/inventory_history_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
+	window.open('Download/equipment_history_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
 	</script>
     <?php
     $starttime = $starttimepdf;
@@ -101,9 +101,9 @@ if (isset($_POST['printpdf'])) {
             <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
             <?php
-            if (isset($_POST['search_email_submit'])) {
-                $starttime = $_POST['starttime'];
-                $endtime = $_POST['endtime'];
+            if (isset($_EquipmentT['search_email_submit'])) {
+                $starttime = $_EquipmentT['starttime'];
+                $endtime = $_EquipmentT['endtime'];
             }
 
             if($starttime == 0000-00-00) {
@@ -153,13 +153,13 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     <th width="15%">Changed Date</th>
     </tr>';
 
-	$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM inventory_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
+	$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM equipment_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
     $odd_even = 0;
 	foreach($query as $rowid) {
         $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
-        $changed_by = $rowid[2];
-        $changed_date = $rowid[1];
-        $change_details = $rowid[3];
+        $changed_by = $rowid[7];
+        $changed_date = $rowid[6];
+        $change_details = $rowid[8];
         $cid = $row['contactid'];
 
         $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
@@ -168,7 +168,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
             $report_data .= '<td>'.$changed_by.'</td>';
             $report_data .= '<td>'.$changed_date.'</td>';
         $report_data .= "</tr>";
-    
+
         $odd_even++;
     }
 
@@ -191,7 +191,7 @@ function AddPlayTime2($times) {
 }
 
 function AddPlayTime($times) {
-    // loop tinventoryought all the times
+    // loop tequipmentought all the times
     foreach ($times as $time) {
         list($hour, $minute) = explode(':', $time);
         $minutes += $hour * 60;

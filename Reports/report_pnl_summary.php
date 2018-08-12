@@ -22,7 +22,7 @@ if ( isset($_POST['printpdf']) ) {
 		public function Header() {
             if ( REPORT_LOGO != '' ) {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -286,16 +286,16 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                 <td data-title="Total Revenue" style="text-align:right; '. $table_row_style .'">$'. number_format($total_revenue, 2, '.', ',') .'</td>
             </tr>
             <tr>
-                <td data-title="" style="'. $table_row_style .'">Total Receivables:</td>
-                <td data-title="Total Receivables" style="text-align:right; '. $table_row_style .'">$'. number_format($total_receivable, 2, '.', ',') .'</td>
+                <td data-title="" style="background-color:#e6e6e6; '. $table_row_style .'">Total Receivables:</td>
+                <td data-title="Total Receivables" style="background-color:#e6e6e6; text-align:right; '. $table_row_style .'">$'. number_format($total_receivable, 2, '.', ',') .'</td>
             </tr>
             <tr>
                 <td data-title="" style="'. $table_row_style .'">Total Compensation:</td>
                 <td data-title="Total Compensation" style="text-align:right; '. $table_row_style .'">$'. number_format($total_compensation, 2, '.', ',') .'</td>
             </tr>
             <tr>
-                <td data-title="" style="'. $table_row_style .'">Total Expenses:</td>
-                <td data-title="Total Expenses" style="text-align:right; '. $table_row_style .'">$'. number_format($total_expense, 2, '.', ',') .'</td>
+                <td data-title="" style="background-color:#e6e6e6; '. $table_row_style .'">Total Expenses:</td>
+                <td data-title="Total Expenses" style="background-color:#e6e6e6; text-align:right; '. $table_row_style .'">$'. number_format($total_expense, 2, '.', ',') .'</td>
             </tr>
             <tr>
                 <td data-title="" style="'. $table_row_style .'">Total Costs:</td>

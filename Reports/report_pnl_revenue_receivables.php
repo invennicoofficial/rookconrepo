@@ -224,7 +224,9 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                     $startmonth = ($startyear == $year ? intval(explode('-', $search_start)[1]) - 1 : 0);
                     $endmonth   = ($endyear == $year ? intval(explode('-', $search_end)[1]) - 1 : 11);
 
+                    $odd_even = 0;
                     while($row = mysqli_fetch_array($revenues)) {
+                        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
                         if($tile_name != $row['type']) {
                             $tile_name = $row['type'];
                             $report_data .= '<tr><td colspan="13" style="font-size:1.1em; font-weight:bold; '. $table_row_style .'">'. strtoupper($tile_name) .'</td></tr>';
@@ -233,7 +235,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                             $category = $row['category'];
                             $report_data .= '<tr><td colspan="13" style="padding-left:1em; font-size:1.1em; font-weight:bold; '. $table_row_style .'">'. $category .'</td></tr>';
                         }
-                        $report_data .= '<tr><td style="padding-left:1em; '. $table_row_style .'" data-title="Revenue Item">'. $row['heading'] .'</td>';
+                        $report_data .= '<tr style="'.$bg_class.'"><td style="padding-left:1em; '. $table_row_style .'" data-title="Revenue Item">'. $row['heading'] .'</td>';
                         for($month = 0; $month < 12; $month++) {
                             $dateObj = DateTime::createFromFormat('!m', $month+1);
                             $amt = $row[strtoupper($dateObj->format('M'))];
@@ -242,6 +244,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                             $report_data .= '</td>';
                         }
                         $report_data .= '</tr>';
+                        $odd_even++;
                     }
 
                     $report_data .= '<tr style="font-weight:bold;">
