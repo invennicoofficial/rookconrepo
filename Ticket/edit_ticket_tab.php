@@ -1,4 +1,5 @@
-<?php include_once('../include.php');
+<?php $include_folder = '';
+include_once('../include.php');
 include_once('../Ticket/field_list.php');
 if(!isset($strict_view)) {
 	$strict_view = strictview_visible_function($dbc, 'ticket');
