@@ -1,4 +1,7 @@
-<?php include_once($include_folder.'../include.php');
+<?php if(!isset($include_folder)) {
+    $include_folder = '';
+}
+include_once($include_folder.'../include.php');
 include_once($include_folder.'../Ticket/field_list.php');
 if(isset($_GET['ticketid']) && empty($ticketid)) {
 	ob_clean();
