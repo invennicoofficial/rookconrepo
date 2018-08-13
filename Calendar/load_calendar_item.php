@@ -384,7 +384,8 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$calendar_table[$calendar_date][$projectid]['warnings'] = "The following ".TICKET_TILE." are either out of the Calendar time-frame, has a time conflict, or there are too many ".TICKET_TILE.": ".$ticket_urls;
 	}
 } else if($_GET['type'] == 'schedule' && $_GET['block_type'] == 'equipment') {
-	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, CONCAT(`category`, ' #', `unit_number`) label, `classification`, `next_service_date`, `follow_up_date` FROM `equipment` WHERE `equipmentid` = '$contact_id'"));
+    $equip_options = explode(',',get_config($dbc, 'equip_options'));
+	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, CONCAT(`category`, ' #', `unit_number`) `label`, `region`, `classification`, `next_service_date`, `follow_up_date` FROM `equipment` WHERE `equipmentid` = '$contact_id'"));
 
 	$calendar_table[$calendar_date][$equipment['equipmentid']]['region'] = explode('*#*',$equipment['region'])[0];
 	// Equipment Blocks
@@ -425,6 +426,13 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
         }
         $team_name = rtrim($team_name, '<br />');
 
+        // Display Region, optionally
+        $region_label = '';
+        if(in_array('region_sort',$equip_options) && !empty($equipment['region'])) {
+            $region_label = ' <small>('.str_replace('*#*', ', ', $equipment['region']).')</small>';
+        }
+
+        // Display Classification
 		$equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
 		$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
 		$classification_label = '';
@@ -436,10 +444,17 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	    unset($query['equipment_assignmentid']);
 	    unset($query['teamid']);
 	    unset($query['unbooked']);
-		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] = '<div class="equip_assign_block" data-equip-label="'.$equipment['label'].'" data-date="'.$calendar_date.'" data-equip="'.$equipment['equipmentid'].'" data-equip-assign="'.$equip_assign['equipment_assignmentid'].'">'.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$equipment['label'].$classification_label.(!empty($client) ? ' - '.$client : '').($edit_access == 1 ? '</a>' : '').'<br />'.$team_name.'</div>';
+		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] = '<div class="equip_assign_block" data-equip-label="'.$equipment['label'].'" data-date="'.$calendar_date.'" data-equip="'.$equipment['equipmentid'].'" data-equip-assign="'.$equip_assign['equipment_assignmentid'].'">'.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$equipment['label'].$region_label.$classification_label.(!empty($client) ? ' - '.$client : '').($edit_access == 1 ? '</a>' : '').'<br />'.$team_name.'</div>';
 	} else {
 		$team_name = '(No Team Assigned)';
 
+        // Display Region, optionally
+        $region_label = '';
+        if(in_array('region_sort',$equip_options) && !empty($equipment['region'])) {
+            $region_label = ' <small>('.str_replace('*#*', ', ', $equipment['region']).')</small>';
+        }
+
+        // Display Classification
 		$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equipment['classification']))));
 		$classification_label = '';
 		if($equip_display_classification == 1 && !empty($equip_classifications)) {
@@ -450,7 +465,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	    unset($query['equipment_assignmentid']);
 	    unset($query['teamid']);
 	    unset($query['unbooked']);
-		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] = '<div class="equip_assign_block" data-date="'.$calendar_date.'" data-equip="'.$equipment['equipmentid'].'">'.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid=NEW&equipmentid='.$equipment['equipmentid'].'&region='.$_GET['region'].'&start_date='.$calendar_date.'&end_date='.$calendar_date.'\'); return false;">' : '').$equipment['label'].$classification_label.($edit_access == 1 ? '</a>' : '').'<br />'.$team_name.'</div>';
+		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] = '<div class="equip_assign_block" data-date="'.$calendar_date.'" data-equip="'.$equipment['equipmentid'].'">'.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid=NEW&equipmentid='.$equipment['equipmentid'].'&region='.$_GET['region'].'&start_date='.$calendar_date.'&end_date='.$calendar_date.'\'); return false;">' : '').$equipment['label'].$region_label.$classification_label.($edit_access == 1 ? '</a>' : '').'<br />'.$team_name.'</div>';
 	}
 	// Add Sorting and Mapping icons
 	if(get_config($dbc, 'scheduling_calendar_sort_auto') == 'map_sort' && $edit_access == 1) {
@@ -633,6 +648,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$calendar_table[$calendar_date][$contact_id]['warnings'] = implode('<br />', $calendar_table[$calendar_date][$contact_id]['warnings']);
 } else if($_GET['type'] == 'schedule' && $_GET['block_type'] == 'dispatch_staff') {
 	// Contact Blocks - Tickets
+    $equip_options = explode(',',get_config($dbc, 'equip_options'));
 	$teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contact_id' AND `deleted` = 0"));
 	if(!empty($teams['teams_list'])) {
 		$teams_query = 'OR `teamid` IN ('.$teams['teams_list'].')';
@@ -650,7 +666,13 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	    unset($query['equipment_assignmentid']);
 	    unset($query['teamid']);
 	    unset($query['unbooked']);
-		$calendar_table[$calendar_date][$contact_id]['title'] .= '<br>('.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$equipment_staff['label'].($edit_access == 1 ? '</a>' : '').')';
+        
+        // Get Region Label
+        $region_label = '';
+        if(in_array('region_sort') && !empty($equipment_staff['region'])) {
+            $region_label = ' <small>('.implode(', ',explode('*#*',$equipment_staff['region'])).')</small>';
+        }
+		$calendar_table[$calendar_date][$contact_id]['title'] .= '<br>('.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid='.$equip_assign['equipment_assignmentid'].'&region='.$_GET['region'].'\'); return false;">' : '').$equipment_staff['label'].$region_label.($edit_access == 1 ? '</a>' : '').')';
 	} else {
 		$calendar_table[$calendar_date][$contact_id]['title'] .= '<br>(No Assignment)';
 	}
