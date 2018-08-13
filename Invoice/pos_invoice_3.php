@@ -448,7 +448,7 @@ $html .= '
 
 $html .= '<br />';
 
-$html .= $comment.'<br>';
+$html .= html_entity_decode($comment).'<br>';
 
 if (!file_exists('download')) {
 	mkdir('download', 0777, true);

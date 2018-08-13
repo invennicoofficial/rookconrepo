@@ -674,6 +674,11 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
           <?php } ?>
 
+        <div class="form-group patient  <?= (in_array('reference',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Reference:</label>
+            <div class="col-sm-7"><input type="text" name="reference" class="form-control" /></div>
+        </div>
+
               <div class="form-group patient  <?= (in_array('injury',$field_config) ? 'patient_type_fields' : '" style="display:none;') ?>">
                 <label for="site_name" class="col-sm-2 control-label">
                 <span class="popover-examples list-inline">
@@ -1005,7 +1010,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 				$col3 = 2;
 				$col4 = 1;
 				$col5 = 1;
-				$col6 = 1;
+				$col6 = 2;
 				$col7 = 2;
 				if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
 					$col1 = $col2 = $col3 = $col4 = 2;
@@ -1013,7 +1018,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 					$col1 = $col2 = $col3 = $col4 = 2;
 					$col5 = 0;
 				} else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
-					$col1 = $col2 = $col3 = $col5 = 2;
+					$col1 = 1;
+					$col2 = $col3 = $col5 = 2;
 					$col4 = 0;
 				} else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
 					$col1 = $col3 = $col4 = $col5 = 2;
@@ -1030,7 +1036,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 					$col4 = 2;
 					$col2 = $col5 = 0;
 				} else if(in_array('inventory_cat',$field_config) && in_array('inventory_price',$field_config)) {
-					$col1 = $col3 = 3;
+					//$col1 = $col3 = 3;
+					$col3 = 3;
 					$col5 = 2;
 					$col2 = $col4 = 0;
 				} else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {

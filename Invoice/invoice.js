@@ -123,7 +123,7 @@ $(document).ready(function() {
 	$("#form1").submit(function( event ) {
 		if($('[name=invoice_type]:checked').val() == 'Patient') {
 			if ($('#patientid').val() == '') {
-				alert("Please select a Patient.");
+				alert("Please select a Customer.");
 				return false;
 			}
 			//if ($('#injuryid').closest('.form-group').is(':visible') && $('#injuryid').val() == '') {
