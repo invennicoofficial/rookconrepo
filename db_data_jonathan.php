@@ -229,6 +229,12 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `site_work_driving_inspect` ADD `final_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `begin_hours`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		if(!mysqli_query($dbc, "ALTER TABLE `driving_log_safety_inspect` ADD `begin_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `final_odo_kms`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `driving_log_safety_inspect` ADD `final_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `begin_hours`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

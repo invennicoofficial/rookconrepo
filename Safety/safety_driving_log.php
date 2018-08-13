@@ -107,9 +107,14 @@ if(isset($_POST['submit'])) {
 	$html .= "<td>$drive_date</td></tr>";
 	$html .= "<tr><td>Equipment:</td>";
 	$html .= "<td>";
+    $equip_hr_km = false;
 	foreach($_POST['equipment'] as $id) {
 		$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='$id'"));
 		$html .= "Unit #".$equipment['unit_number'].': '.(empty($equipment['model']) ? '' : $equipment['model'].': ').$equipment['label']."<br />";
+        if($id > 0 $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
+            mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$id'");
+            $equip_hr_km = true;
+        }
 	}
 	$html .= "</td></tr>";
 	$equipment = implode(',',$_POST['equipment']);
@@ -396,6 +401,31 @@ if(!empty($_GET['log_id'])) {
 					</select>
 				</div>
 			</div>
+            <script>
+            $(document).ready(function() {
+                $('[name="equipment[]"]').change(function() {
+                    var service_details = '';
+                    $(this).find('option:selected').each(function() {
+                        $.ajax({
+                            url: '../Equipment/equipment_service_details.php?view='+this.value,
+                            method: 'GET',
+                            success: function(response) {
+                                service_details = service_details+' '+response;
+                                $('.service_details').html(service_details);
+                            }
+                        });
+                    });
+                });
+            });
+            </script>
+			<div class="form-group"><label class="col-sm-4 control-label"></label><div class="col-sm-8 service_details"><?php if(count($equipment) > 0) {
+                foreach($equipment as $equip_id) {
+                    if($equip_id > 0) {
+                        $_GET['view'] = $equip_id;
+                        include('../Equipment/equipment_service_details.php');
+                    }
+                }
+            } ?></div></div>
 		<?php } ?>
 		<div class="form-group"><label class="col-sm-4 control-label">Log Comments:</label>
 			<div class="col-sm-8">
@@ -542,10 +572,22 @@ if(!empty($_GET['log_id'])) {
         <?php if('pre' == $checklist) { ?>
             <script>
             $(document).ready(function() {
-                $('[name="equipmentid[]"').change(function() {
+                $('[name="equipment[]"').change(function() {
+                    var hours = kms = 0;
                     $(this).find('option:selected[data-mileage]').each(function() {
-                        
+                        if($(this).data('mileage') > 0 && !(kms > 0)) {
+                            kms = $(this).data('mileage');
+                        }
+                        if($(this).data('hours') > 0 && !(hours > 0)) {
+                            hours = $(this).data('hours');
+                        }
                     });
+                    if($('[name=begin_hours]').data('manual') == 0) {
+                        $('[name=begin_hours]').val(hours);
+                    }
+                    if($('[name=begin_odo_kms]').data('manual') == 0) {
+                        $('[name=begin_odo_kms]').val(kms);
+                    }
                 });
             });
             </script>
@@ -575,14 +617,14 @@ if(!empty($_GET['log_id'])) {
 			</div>
 			<div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
 				<label class="show-on-mob">Post-Trip Status</label>
-				<input type="number" name="final_odo_kms" data-manual="0" onchange="$(this).data('manual',1);" value="<?= $final_odo_kms ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+				<input type="number" name="final_odo_kms" value="<?= $final_odo_kms ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
 			<?php } ?></div>
 		</div>
         <div class="form-group">
             <label class="col-sm-6 control-label">Operating Hours:</label>
             <div class="col-sm-3 text-center pretrip">
                 <label class="pretrip show-on-mob">Pre-Trip Status</label>
-                <input type="number" name="begin_hours" value="<?= $begin_hours ?>" class="form-control" <?= ('pre' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+                <input type="number" name="begin_hours" data-manual="0" onchange="$(this).data('manual',1);" value="<?= $begin_hours ?>" class="form-control" <?= ('pre' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
             </div>
             <div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
                 <label class="show-on-mob">Post-Trip Status</label>
