@@ -22,6 +22,9 @@ if(!empty($_GET['export'])) {
 	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
 		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 	}
+	if(!empty($_GET['value_config'])) {
+		$value_config = explode(',',$_GET['value_config']);
+	}
 	$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 	$timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
 	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
@@ -36,7 +39,7 @@ if(!empty($_GET['export'])) {
 	$search_end_date = $_GET['search_end_date'];
 
 	if($layout == 'position' || $layout == 'ticket_task') {
-		echo '<script type="text/javascript">window.location.href = "'.WEBSITE_URL.'/Timesheet/reporting.php?export=pdf&search_staff='.$search_staff.'&search_site='.$search_site.'&search_project='.$search_project.'&search_start_date='.$search_start_date.'&search_end_date='.$search_end_date.'"; </script>';
+		echo '<script type="text/javascript">window.location.href = "'.WEBSITE_URL.'/Timesheet/reporting.php?export=pdf&search_staff='.$search_staff.'&search_site='.$search_site.'&search_project='.$search_project.'&search_start_date='.$search_start_date.'&search_end_date='.$search_end_date.'&value_config='.$_GET['value_config'].'"; </script>';
 	} else {
 		// Get Staff Schedule
 		$schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT `scheduled_hours`, `schedule_days` FROM `contacts` WHERE `contactid`='$search_staff'"));
@@ -407,7 +410,7 @@ if(!empty($_GET['export'])) {
 					$sig_height = $pdf->getStringHeight($comment_width, '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="width: auto; height: 20px;">');
 					$comment_height = $comment_height > $sig_height ? $comment_height : $sig_height;
 				}
-				$ticket_labels = get_ticket_labels($dbc, $date, $search_staff, $layout, $timecardid);
+				$ticket_labels = get_ticket_labels($dbc, $date, $search_staff, $layout, $timecardid, 'pdf');
 				$ticket_labels_height = $pdf->getStringHeight(22, $ticket_labels);
 				if(in_array('ticketid',$value_config) && $ticket_labels_height > $comment_height) {
 					$comment_height = $ticket_labels_height;
@@ -757,9 +760,39 @@ function addSignature(chk) {
 		}
 	});
 }
+function displayPDFOptions(a) {
+	var href = $(a).prop('href');
+	$('#dialog-pdf-options').dialog({
+		resizable: false,
+		height: "auto",
+		width: ($(window).width() <= 500 ? $(window).width() : 500),
+		modal: true,
+		open: function() {
+			$('[name="pdf_options"]').prop('checked',true);
+		},
+		buttons: {
+			"Submit": function() {
+				$(this).dialog('close');
+				var value_config = [];
+				$('[name="pdf_options"]:checked').each(function() {
+					value_config.push(this.value);
+				});
+				value_config = value_config.join(',');
+				href += '&value_config='+value_config;
+				window.open(href, '_blank');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+		}
+	});
+}
 </script>
 
 <div class="container triple-pad-bottom" id="timesheet_div">
+	<div id="dialog-pdf-options" title="Select PDF Fields" style="display: none;">
+		<?php echo get_pdf_options($dbc); ?>
+	</div>
 	<div id="dialog-signature" title="Signature Box" style="display: none;">
 		<?php $output_name = 'time_cards_signature';
 		include('../phpsign/sign_multiple.php'); ?>
@@ -953,7 +986,7 @@ function addSignature(chk) {
 			$vacation_taken = $year_to_date['VACA_HRS'];
 			$sick_taken = $year_to_date['SICK_HRS']; ?>
 
-			<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+			<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
 			- <a href="time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a></div>
 			<div class="clearfix"></div>
 

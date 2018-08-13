@@ -69,8 +69,40 @@ $config['tabs'] = $ordered_tabs;
 
 $config['hours_types'] = ['REG_HRS','DIRECT_HRS','INDIRECT_HRS','EXTRA_HRS','RELIEF_HRS','SLEEP_HRS','SICK_ADJ','SICK_HRS','STAT_AVAIL','STAT_HRS','VACA_AVAIL','VACA_HRS','TRACKED_HRS','BREAKS'];
 
-
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+
+$config['pdf_options'] = [
+	'schedule' => 'Schedule',
+	'scheduled' => 'Scheduled Hours',
+	'ticketid' => TICKET_NOUN,
+	'show_hours' => 'Hours',
+	'total_tracked_hrs' => 'Total Tracked Hours',
+	'start_time' => 'Start Time',
+	'end_time' => 'End Time',
+	'start_time_editable' => 'Start Time',
+	'end_time_editable' => 'End Time',
+	'planned_hrs' => 'Planned Hours',
+	'tracked_hrs' => 'Tracked Hours',
+	'total_tracked_time' => 'Total Tracked Time',
+	'total_tracked_hrs' => 'Time Tracked',
+	'reg_hrs' => 'Regular Hours',
+	'payable_hrs' => 'Payable Hours',
+	'start_day_tile_separate' => $timesheet_start_tile,
+	'extra_hrs' => 'Extra Hours',
+	'relief_hrs' => 'Relief Hours',
+	'sleep_hrs' => 'Sleep Hours',
+	'training_hrs' => 'Training Hours',
+	'sick_hrs' => 'Sick Time Adjustment',
+	'sick_used' => 'Sick Hours Taken',
+	'stat_hrs' => 'Stat Hours',
+	'stat_used' => 'Stat Hours Taken',
+	'vaca_hrs' => 'Vacation Hours',
+	'vaca_used' => 'Vacation Hours Taken',
+	'breaks' => 'Breaks',
+	'comment_box' => 'Comments',
+	'signature' => 'Parent/Guardian Signature',
+	'total_per_day' => 'Day Totals'
+];
 
 /* Time Cards */
 $config['settings']['Choose Fields for Time Sheets']['config_field'] = 'time_cards';
@@ -133,7 +165,8 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Approve All Checkbox', 'hidden', 'approve_all'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
 			array('Editable Dates', 'hidden', 'editable_dates'),
-			array('Combine Staff on Report', 'tab', 'staff_combine')
+			array('Combine Staff on Report', 'tab', 'staff_combine'),
+			array('Day Totals', 'hidden', 'total_per_day')
 		)
 );
 
@@ -744,7 +777,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	}
 }
 
-function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
+function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id, $format = '') {
 	$ticket_labels = [];
 	$sql = "SELECT `ticketid` FROM `time_cards` WHERE `date` = '$date' AND `staff` = '$staff'";
 	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
@@ -755,7 +788,11 @@ function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$row['ticketid']}'"));
 		$ticket_label = get_ticket_label($dbc, $ticket);
 		if(!empty($ticket_label) && $ticket_label != '-') {
-			$ticket_labels[] = get_ticket_label($dbc, $ticket);
+			if($format == 'pdf') {
+				$ticket_labels[] = get_ticket_label($dbc, $ticket);
+			} else {
+				$ticket_labels[] = '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;">'.get_ticket_label($dbc, $ticket).'</a>';
+			}
 		}
 	}
 	$ticket_labels = implode('<br />', $ticket_labels);
@@ -839,4 +876,24 @@ function is_training_hrs($dbc, $time_cards_id) {
 		}
 	}
 	return $training_hrs;
+}
+
+function get_pdf_options($dbc) {
+	global $config;
+	$layout = get_config($dbc, 'timesheet_layout');
+	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
+	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
+	    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	}
+
+	$options_html = '';
+	foreach($value_config as $value) {
+		foreach($config['pdf_options'] as $key => $label) {
+			if($key == $value) {
+				$options_html .= '<label class="form-checkbox"><input type="checkbox" name="pdf_options" value="'.$key.'" checked>'.$label.'</input></label>';
+			}
+		}
+	}
+
+	return $options_html;
 }
