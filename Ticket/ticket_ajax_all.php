@@ -467,7 +467,7 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
-    
+
     //Insert into Time Sheet tile
     // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
@@ -998,7 +998,7 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 	}
-    
+
 } else if($_GET['action'] == 'validate_address') {
 	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';
@@ -2985,5 +2985,15 @@ if($_GET['action'] == 'update_fields') {
 	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
 	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
 	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
+} else if($_GET['action'] == 'checklist_tile') {
+	$checklistid = filter_var($_GET['checklistid'],FILTER_SANITIZE_STRING);
+	$checked = filter_var($_GET['checked'],FILTER_SANITIZE_STRING);
+    if($checked = 'true') {
+        $checked = 1;
+    } else {
+        $checked = 0;
+    }
+    echo "my my";
+	$all_rev = $dbc->query("UPDATE checklist SET checklist_tile = $checked WHERE checklistid = '$checklistid'");
 }
 ?>

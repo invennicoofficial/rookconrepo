@@ -111,7 +111,17 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'budget': return ['link'=>"Budget/budget.php",'name'=>'Budget']; break;
 			case 'profit_loss': return ['link'=>"ProfitLoss/profit_loss.php",'name'=>'Profit & Loss']; break;
 			case 'gao': return ['link'=>"Gao/gao.php",'name'=>'Goals & Objectives']; break;
-			case 'checklist': return ['link'=>"Checklist/checklist.php",'name'=>'Checklist']; break;
+
+			case 'checklist':
+            $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
+            if($get_checklist['checklistid'] > 0) {
+               $checklist_url = 'checklist_tile.php';
+            } else {
+               $checklist_url = 'checklist.php';
+            }
+
+            return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
+
 			case 'tasks': return ['link'=>"Tasks/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
