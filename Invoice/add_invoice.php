@@ -304,10 +304,10 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
         <div class="col-sm-9"><h1 class="triple-pad-bottom"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
-		<?php if(config_visible_function($dbc, 'check_out') == 1 || config_visible_function($dbc, 'posadvanced') == 1) { ?>
-			<a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
-		<?php } ?>
 		<a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="pull-right override-theme-color-icon"></a></h1></div>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
 
 		<div class="clearfix"></div>
 
@@ -1222,7 +1222,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 </div>
             </div>
 
-            <div class="form-group misc_option" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>
+            <div class="form-group misc_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="additional_note" class="col-sm-2 control-label">
                 <span class="popover-examples list-inline">
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add items from unbilled <?= TICKET_TILE ?> here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>

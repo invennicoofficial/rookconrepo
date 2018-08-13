@@ -186,6 +186,9 @@ function waiting_on_collection(sel) {
         <div class="col-md-12">
         <h2>Patient Accounts Receivable</h2>
         
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
 		<?php include('tile_tabs.php'); ?>
         
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">

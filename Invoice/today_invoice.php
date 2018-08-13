@@ -172,9 +172,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
     -->
 	<div class="row hide_on_iframe">
         <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>: Invoices</h1>
-        <?php
-            echo '<a href="field_config_invoice.php" class="btn mobile-block pull-right gap-top"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
-        ?>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
         <div class="clearfix"></div>
 		<?php include('tile_tabs.php'); ?>
 

@@ -95,9 +95,9 @@ if (isset($_POST['submit_btn'])) {
     <div class="row">
 
         <h1 class="pull-left">Refund / Adjustments</h1>
-        <?php if(config_visible_function($dbc, 'check_out') == 1 || config_visible_function($dbc, 'posadvanced') == 1) { ?>
-            <a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
-        <?php } ?>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
         <div class="clearfix"></div>
 		<?php include('tile_tabs.php'); ?>
 

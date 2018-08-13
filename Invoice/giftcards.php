@@ -19,12 +19,10 @@ if(FOLDER_NAME == 'posadvanced') {
 	<div class="container triple-pad-bottom">
 		<div class="row">
 
-			<div class="col-sm-10"><h1>Gift Cards	Dashboard</h1></div>
-			<div class="col-sm-2 double-gap-top"><?php
-				if (config_visible_function($dbc, 'posadvanced') == 1) {
-					echo '<a href="field_config_invoice.php" class="mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
-				} ?>
-			</div>
+		<h1>Gift Cards	Dashboard</h1>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
 
 			<div class="clearfix"></div>
 			<?php include('tile_tabs.php'); ?>

@@ -75,6 +75,9 @@ function waiting_on_collection(sel) {
 <div class="container triple-pad-bottom">
     <div class="row">
         <h2>UI Invoice Report</h2>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
         
 		<?php include('tile_tabs.php'); ?>
         

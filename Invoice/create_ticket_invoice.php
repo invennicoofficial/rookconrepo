@@ -80,4 +80,45 @@ if(!tile_visible($dbc, 'check_out')) {
 		$tile_target = 'POSAdvanced';
 	}
 }
+$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
+// PDF
+$invoice_design = get_config($dbc, 'invoice_design');
+switch($invoice_design) {
+    case 1:
+        include('pos_invoice_1.php');
+        break;
+    case 2:
+        include('pos_invoice_2.php');
+        break;
+    case 3:
+        include('pos_invoice_3.php');
+        break;
+    case 4:
+        include ('patient_invoice_pdf.php');
+        if($insurerid != '') {
+            include ('insurer_invoice_pdf.php');
+        }
+        break;
+    case 5:
+        include ('pos_invoice_small.php');
+        break;
+    case 'service':
+        include ('pos_invoice_service.php');
+        break;
+    case 'pink':
+        include ('pos_invoice_pink.php');
+        break;
+    case 'cnt1':
+        include ('pos_invoice_contractor_1.php');
+        break;
+    case 'cnt2':
+        include ('pos_invoice_contractor_2.php');
+        break;
+    case 'cnt3':
+        include ('pos_invoice_contractor_3.php');
+        break;
+    default:
+        include('pos_invoice_1.php');
+        break;
+}
 echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid; ?>
