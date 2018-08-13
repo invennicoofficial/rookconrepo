@@ -114,6 +114,7 @@ if($calendar_ticket_diff_label == 1) {
     $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
 }
 $calendar_ticket_status_icon = get_config($dbc, 'calendar_ticket_status_icon');
+$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
 if($_GET['type'] == '' || $_GET['view'] == '') {
     $default = get_config($dbc, 'calendar_default');
     $user_default = mysqli_fetch_array(mysqli_query($dbc, "SELECT IFNULL(`calendar_view`,'default') view FROM `user_settings` WHERE `contactid`='{$_SESSION['contactid']}'"))['view'];
@@ -341,8 +342,8 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'scheduling_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'scheduling_monthly_days'));
         $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-        if (!empty($equipment_category)) {
-            $equipment_category = 'Truck';
+        if (empty($equipment_category)) {
+            $equipment_category = 'Equipment';
         }
         echo '<input type="hidden" name="equipment_category_label" value="'.$equipment_category.'">';
         $dispatch_filters = get_config($dbc, 'scheduling_filters');
@@ -376,9 +377,15 @@ switch($_GET['type']) {
             $mobile_calendar_view = 'Staff';
         }
         $combine_warehouses = get_config($dbc, 'scheduling_combine_warehouse');
+        $combine_pickups = get_config($dbc, 'scheduling_combine_pickup');
         $combine_time = get_config($dbc, 'scheduling_combine_time');
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
+        $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $service_followup = get_config($dbc, 'scheduling_service_followup');
+        $service_date = get_config($dbc, 'scheduling_service_date');
+        $passed_service = get_config($dbc, 'scheduling_passed_service');
+        $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -426,6 +433,8 @@ switch($_GET['type']) {
         $staff_split_security = get_config($dbc, 'ticket_staff_split_security');
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
+        $staff_summary = get_config($dbc, 'ticket_staff_summary');
+        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';

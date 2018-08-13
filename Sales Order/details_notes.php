@@ -3,7 +3,8 @@
     <div class="accordion-block-details-heading"><h4>Notes</h4></div>
     <div class="row">
 		<?php $notes = mysqli_query($dbc, "SELECT * FROM `sales_order_notes` WHERE `sales_order_id`='$sotid' AND `deleted`=0");
-		if(mysqli_num_rows($notes) > 0) { ?>
+		if(mysqli_num_rows($notes) > 0) {
+            $odd_even = 0; ?>
 			<div id="no-more-tables" class="col-sm-12">
 				<table class="table table-bordered">
 					<tr class="hidden-sm hidden-xs">
@@ -12,11 +13,13 @@
 						<th>Created</th>
 					</tr>
 					<?php while($note = mysqli_fetch_assoc($notes)) { ?>
-						<tr>
+                        <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+						<tr class="<?= $bg_class ?>">
 							<td data-title="Note"><?= html_entity_decode($note['note']) ?></td>
 							<td data-title="Assigned To"><?= $note['email_comment'] > 0 ? get_contact($dbc, $note['email_comment']) : '' ?></td>
 							<td data-title="Created"><?= get_contact($dbc, $note['created_by']).($note['created_by'] > 0 ? '<br />' : '') ?><?= $note['created_date'] ?></td>
 						</tr>
+                        <?php $odd_even++; ?>
 					<?php } ?>
 				</table>
 			</div>

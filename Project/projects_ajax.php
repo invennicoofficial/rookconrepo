@@ -115,6 +115,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$pid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
 	if($field == 'flag_colour') {
 		$colours = [];
 		$labels = [];
@@ -131,17 +132,18 @@ if($_GET['action'] == 'mark_favourite') {
 		echo $new_colour.html_entity_decode($label);
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
 	} else if($field == 'flag_manual') {
+		$colour = filter_var($_POST['colour'],FILTER_SANITIZE_STRING);
 		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
 		$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
 		$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
 		if($table == 'tickets') {
-			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$colour',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
 			if(!empty($label)) {
 				mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$label',DATE(NOW()),'".$_SESSION['contactid']."')");
 			}
 		} else {
-			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$colour',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
 		}
 	} else if($field == 'work_time') {
 		if($table == 'tasklist') {
@@ -152,8 +154,8 @@ if($_GET['action'] == 'mark_favourite') {
 		} else if($table == 'tasklist_time') {
 			$hours = (strtotime($value) - strtotime('00:00:00')) / 3600;
 			$result = mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$id', '$value', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
-			mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$projectid','".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','$hours','0','Time Added on Task #$id')");
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$id on Project #$projectid - Added Time: $value");
+			mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$pid','".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','$hours','0','Time Added on Task #$id')");
+			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$id on Project #$pid - Added Time: $value");
 			$note = '<em>Time added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$value.'</em>';
 			echo '<p><small>'.profile_id($dbc, $_SESSION['contactid'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.$note.'<em class="block-top-5">Added by '.get_contact($dbc, $_SESSION['contactid']).' at '.date('Y-m-d').'</em></span></small></p>';
 			$ref = filter_var($_POST['ref'],FILTER_SANITIZE_STRING);
@@ -1056,6 +1058,8 @@ if($_GET['action'] == 'mark_favourite') {
 	$staff = $_SESSION['contactid'];
     $today_date = date('Y-m-d');
 	mysqli_query($dbc, "INSERT INTO `project_timer` (`projectid`, `staff`, `today_date`, `timer_value`) VALUES ('$projectid', '$staff', '$today_date', '$timer_value')");
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`projectid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$projectid','$staff','$today_date','Regular Hrs.','".((strtotime($timer_value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Project #$projectid')");
+	insert_day_overview($dbc, $staff, 'Project', $today_date, '', "Updated Project #$projectid - Added Time : $timer_value");
 } else if($_GET['action'] == 'load_sales_scope') {
 	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);

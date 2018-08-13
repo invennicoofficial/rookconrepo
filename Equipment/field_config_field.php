@@ -4,7 +4,7 @@ $security = get_security($dbc, 'equipment');
 
 if (isset($_POST['inv_field'])) {
 	$tab_field = filter_var($_POST['tab_field'],FILTER_SANITIZE_STRING);
-	$accordion = filter_var($_POST['accordion'],FILTER_SANITIZE_STRING);
+	$accordion = filter_var(urldecode($_POST['accordion']),FILTER_SANITIZE_STRING);
 	$equipment = implode(',',$_POST['equipment']);
 	$order = filter_var($_POST['order'],FILTER_SANITIZE_STRING);
 
@@ -17,7 +17,7 @@ if (isset($_POST['inv_field'])) {
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
 
-	echo '<script type="text/javascript"> window.location.replace("?settings=field&tab='.$tab_field.'&accr='.$accordion.'"); </script>';
+	echo '<script type="text/javascript"> window.location.replace("?settings=field&tab='.$tab_field.'&accr='.urlencode($accordion).'"); </script>';
 }
 ?>
 <script type="text/javascript">
@@ -79,7 +79,7 @@ $(document).ready(function() {
 				<option <?php if ($accr == "Purchase Info") { echo " selected"; } ?> value="Purchase Info"><?php echo get_field_config_equipment($dbc, 'Purchase Info', 'order', $invtype); ?> : Purchase Info</option>
 				<option <?php if ($accr == "Product Cost") { echo " selected"; } ?> value="Product Cost"><?php echo get_field_config_equipment($dbc, 'Product Cost', 'order', $invtype); ?> : Product Cost</option>
 				<option <?php if ($accr == "Pricing") { echo " selected"; } ?> value="Pricing"><?php echo get_field_config_equipment($dbc, 'Pricing', 'order', $invtype); ?> : Pricing</option>
-				<option <?php if ($accr == "Service & Alerts") { echo " selected"; } ?> value="Service & Alerts"><?php echo get_field_config_equipment($dbc, 'Service & Alerts', 'order', $invtype); ?> : Service & Alerts</option>
+				<option <?php if ($accr == "Service & Alerts") { echo " selected"; } ?> value="<?= urlencode('Service & Alerts') ?>"><?php echo get_field_config_equipment($dbc, 'Service & Alerts', 'order', $invtype); ?> : Service &amp; Alerts</option>
 				<option <?php if ($accr == "Location") { echo " selected"; } ?> value="Location"><?php echo get_field_config_equipment($dbc, 'Location', 'order', $invtype); ?> : Location</option>
 				<option <?php if ($accr == "Status") { echo " selected"; } ?> value="Status"><?php echo get_field_config_equipment($dbc, 'Status', 'order', $invtype); ?> : Status</option>
 				<option <?php if ($accr == "Registration") { echo " selected"; } ?> value="Registration"><?php echo get_field_config_equipment($dbc, 'Registration', 'order', $invtype); ?> : Registration</option>
@@ -235,7 +235,7 @@ $(document).ready(function() {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_6" >
-						Service & Alerts<span class="glyphicon glyphicon-plus"></span>
+						Profit &amp; Loss<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -243,6 +243,30 @@ $(document).ready(function() {
 			<div id="collapse_6" class="panel-collapse collapse">
 				<div class="panel-body">
 
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billing Rate".',') !== FALSE) { echo " checked"; } ?> value="Billing Rate" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Billing Rate
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billed Hours".',') !== FALSE) { echo " checked"; } ?> value="Billed Hours" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Billed Time
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Billed Total".',') !== FALSE) { echo " checked"; } ?> value="Billed Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Billed Amount
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Expense Total".',') !== FALSE) { echo " checked"; } ?> value="Expense Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Expenses
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Profit Total".',') !== FALSE) { echo " checked"; } ?> value="Profit Total" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Profit
+
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_7" >
+						Service & Alerts<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_7" class="panel-collapse collapse">
+				<div class="panel-body">
+
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Follow Up Date".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Date" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Follow Up Date
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Follow Up Staff".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Staff" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Follow Up Staff
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Date".',') !== FALSE) { echo " checked"; } ?> value="Next Service Date" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Date
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Hours".',') !== FALSE) { echo " checked"; } ?> value="Next Service Hours" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Hours
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Next Service Description".',') !== FALSE) { echo " checked"; } ?> value="Next Service Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Next Service Description
@@ -270,13 +294,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_7" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_8" >
 						Location<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_7" class="panel-collapse collapse">
+			<div id="collapse_8" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Classification Dropdown".',') !== FALSE) { echo " checked"; } ?> value="Classification Dropdown" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Classification Dropdown
@@ -337,13 +361,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_8" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_9" >
 						Status<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_8" class="panel-collapse collapse">
+			<div id="collapse_9" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Status".',') !== FALSE) { echo " checked"; } ?> value="Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Status
@@ -357,13 +381,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_9" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_10" >
 						Quote Description<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_9" class="panel-collapse collapse">
+			<div id="collapse_10" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Quote Description
@@ -375,13 +399,13 @@ $(document).ready(function() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_10" >
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_11" >
 						General<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_10" class="panel-collapse collapse">
+			<div id="collapse_11" class="panel-collapse collapse">
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Volume".',') !== FALSE) { echo " checked"; } ?> value="Volume" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Equipment Volume (<?= get_config($dbc, 'volume_units') ?>)

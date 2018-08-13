@@ -499,6 +499,52 @@ if ( $_GET['fill']=='checklistArchive' ) {
 if($_GET['action'] == 'lead_time') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$time = filter_var($_POST['time'],FILTER_SANITIZE_STRING);
-	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
+	$dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`date`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',DATE(NOW()),TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
+}
+
+if($_GET['action'] == 'setting_tile') {
+	set_config($dbc, filter_var($_POST['field'],FILTER_SANITIZE_STRING), filter_var($_POST['value'],FILTER_SANITIZE_STRING));
+}
+if($_GET['action'] == 'setting_fields') {
+	$ticket_fields = ','.filter_var($_GET['ticket_fields'],FILTER_SANITIZE_STRING);
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        echo $query_update_employee = "UPDATE `field_config` SET `sales`=concat(ifnull(sales,''), '$ticket_fields') WHERE `fieldconfigid`=1";
+        $result_update_employee = mysqli_query($dbc, $query_update_employee);
+    } else {
+        $query_insert_config = "INSERT INTO `field_config` (`sales`) VALUES ('$ticket_fields')";
+        $result_insert_config = mysqli_query($dbc, $query_insert_config);
+    }
+
+	set_config($dbc, 'sales_lead_source', filter_var($_GET['sales_lead_source'],FILTER_SANITIZE_STRING));
+}
+if($_GET['action'] == 'setting_fields_dashboard') {
+	$sales_dashboard = ','.filter_var($_GET['ticket_fields'],FILTER_SANITIZE_STRING);
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        echo $query_update_employee = "UPDATE `field_config` SET `sales_dashboard`=concat(ifnull(sales_dashboard,''), $sales_dashboard) WHERE `fieldconfigid`=1";
+        $result_update_employee = mysqli_query($dbc, $query_update_employee);
+    } else {
+        $query_insert_config = "INSERT INTO `field_config` (`sales_dashboard`) VALUES ('$sales_dashboard')";
+        $result_insert_config = mysqli_query($dbc, $query_insert_config);
+    }
+
+	set_config($dbc, 'sales_dashboard_users', filter_var($_GET['dashboard_users'],FILTER_SANITIZE_STRING));
+
+}
+if($_GET['action'] == 'setting_next_action') {
+	set_config($dbc, 'sales_next_action', filter_var($_GET['sales_next_action'],FILTER_SANITIZE_STRING));
+}
+if($_GET['action'] == 'setting_lead_status') {
+	set_config($dbc, 'sales_lead_status', filter_var($_GET['sales_lead_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_won', filter_var($_GET['lead_status_won'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
+}
+if($_GET['action'] == 'setting_auto_archive') {
+	set_config($dbc, 'sales_auto_archive', filter_var($_GET['sales_auto_archive'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'sales_auto_archive_days', filter_var($_GET['sales_auto_archive_days'],FILTER_SANITIZE_STRING));
 }
 ?>

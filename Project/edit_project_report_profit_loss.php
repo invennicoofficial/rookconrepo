@@ -92,7 +92,7 @@ $purchase_orders = mysqli_query($dbc, "SELECT `posid`, `po_category`, `status`, 
 while($po = mysqli_fetch_array($purchase_orders)) {
 	$items[] = ['Purchase Order','PO #'.$po['posid'], implode(': ',array_filter([$po['po_category'],$po['status']])), $po['total_price']];
 }
-$tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `ticket_timer`.`start_time`, `ticket_timer`.`end_time`, `hourly` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `staff_rate_table` ON CONCAT(',',`staff_rate_table`.`staff_id`,',') LIKE CONCAT('%,',`ticket_timer`.`created_by`,',%') AND `staff_rate_table`.`deleted`=0 WHERE `tickets`.`projectid`='$projectid' GROUP BY `ticket_timer`.`tickettimerid` ORDER BY `tickettimerid`");
+$tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `ticket_timer`.`start_time`, `ticket_timer`.`end_time`, `hourly` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` AND `ticket_timer`.`deleted` = 0 LEFT JOIN `staff_rate_table` ON CONCAT(',',`staff_rate_table`.`staff_id`,',') LIKE CONCAT('%,',`ticket_timer`.`created_by`,',%') AND `staff_rate_table`.`deleted`=0 WHERE `tickets`.`projectid`='$projectid' GROUP BY `ticket_timer`.`tickettimerid` ORDER BY `tickettimerid`");
 while($ticket = mysqli_fetch_array($tickets)) {
 	$end = $ticket['end_time'];
 	if(empty($end)) {

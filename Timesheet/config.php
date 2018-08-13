@@ -91,6 +91,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Start Time (Editable)', 'time', 'start_time_editable'),
 			array('End Time (Editable)', 'time', 'end_time_editable'),
 			array($timesheet_start_tile, 'time', 'start_day_tile'),
+			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
 			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
 			array('Type of Time', 'dropdown', 'type_of_time'),
 			array('Address', 'text', 'address'),
@@ -248,6 +249,39 @@ $config['settings']['Choose Fields for Pay Period Dashboard']['data'] = array(
 			array('End Date', 'date', 'end_date'),
 			array('Last Month Tab', 'tab', 'pay_period_last_month.php'),
 			array('Current Month Tab', 'tab', 'pay_period_current_month.php'),
+		)
+);
+
+$config['settings']['Choose Fields for Total Hours Tracked Layout']['config_field'] = 'time_cards_total_hrs_layout';
+$config['settings']['Choose Fields for Total Hours Tracked Layout']['data'] = array(
+	'General' => array(
+			array('View '.TICKET_NOUN, 'hidden', 'view_ticket'),
+			array('Start Time', 'time', 'start_time'),
+			array('End Time', 'time', 'end_time'),
+			array('Total Tracked Hrs', 'hidden', 'total_tracked_hrs'),
+			array('Planned Hours ('.TICKET_TILE.')', 'hidden', 'planned_hrs'),
+			array('Tracked Hours ('.TICKET_TILE.')', 'hidden', 'tracked_hrs'),
+			array('Total Tracked Time ('.TICKET_TILE.')', 'hidden', 'total_tracked_time'),
+			array('Payable Hours', 'hidden', 'payable_hrs'),
+			array('Regular Hours', 'hidden', 'reg_hrs'),
+			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
+			array('Over Time Hours', 'hidden', 'overtime_hrs'),
+			array('Double Time Hours', 'hidden', 'doubletime_hrs'),
+			array('Direct Hours', 'hidden', 'direct_hrs'),
+			array('Indirect Hours', 'hidden', 'indirect_hrs'),
+			array('Extra Hours', 'hidden', 'extra_hrs'),
+			array('Relief Hours', 'hidden', 'relief_hrs'),
+			array('Sleep Hours', 'hidden', 'sleep_hrs'),
+			array('Training Hours', 'hidden', 'training_hrs'),
+			array('Sick Time', 'hidden', 'sick_hrs'),
+			array('Sick Taken', 'hidden', 'sick_used'),
+			array('Stat Hours', 'hidden', 'stat_hrs'),
+			array('Stat Taken', 'hidden', 'stat_used'),
+			array('Breaks', 'hidden', 'breaks'),
+			array('Vacation Hrs', 'hidden', 'vaca_hrs'),
+			array('Vacation Taken', 'hidden', 'vaca_used'),
+			array('Comments', 'hidden', 'comment_box'),
+			array('Combine Staff on Report', 'tab', 'staff_combine')
 		)
 );
 
@@ -746,7 +780,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$ticket_labels = [];
 	$sql = "SELECT `ticketid` FROM `time_cards` WHERE `date` = '$date' AND `staff` = '$staff'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
 		$sql .= " AND `time_cards_id` = '$time_cards_id'";
 	}
 	$query = mysqli_query($dbc, $sql);

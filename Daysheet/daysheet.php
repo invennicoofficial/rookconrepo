@@ -10,7 +10,7 @@ if(empty($_GET['tab'])) {
 
 //Insert config settings if none exist
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_fields_config', 'Reminders,Tickets,Tasks,Checklists' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_fields_config') num WHERE num.rows = 0");
-mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_button_config', 'My Projects,My Tickets,My Checklists,My Tasks' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_button_config') num WHERE num.rows = 0");
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_button_config', 'My Projects,My Tickets,My Checklists,My Tasks,My Time Sheets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_button_config') num WHERE num.rows = 0");
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) SELECT 'daysheet_weekly_config', '1,2,3,4,5,6,7' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name` = 'daysheet_weekly_config') num WHERE num.rows = 0");
 
 //Configs
@@ -43,13 +43,25 @@ hr {
 <script type="text/javascript" src="../Profile/profile.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){        
-        $(window).resize(function() {
-            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#daysheet_div .tile-container').offset().top;
-            if(available_height > 200) {
-                $('#daysheet_div .tile-sidebar, #daysheet_div .tile-sidebar ul, #daysheet_div .tile-content').height(available_height);
-                $('#daysheet_div .main-screen-details .sidebar').height(available_height);
-            }
-        }).resize();
+        if($(window).width() >= 768) {
+            $(window).resize(function() {
+                var screen_height = $(window).height() > 500 ? $(window).height() : 500;
+                $('.main-screen .set-section-height').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
+                $('ul.sidebar').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
+                $('div.sidebar').not('.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen-details').offset().top - 1);
+                if($('div.sidebar.weekly').length > 0) {
+                    $('div.sidebar.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 1);
+                }
+                if($('[name="daysheet_notepad"]').length > 0) {
+                    $('[name="daysheet_notepad"]').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 170 - 1);
+                }
+            }).resize();
+        } else {
+            $(window).resize(function() {
+                $('div.sidebar').css('height', '100%');
+                $('div.tile-content').height($(window).height() - $('#footer:visible').height() - $('div.tile-content').offset().top - 1);
+            }).resize();
+        }
     });
 </script>
 <body>

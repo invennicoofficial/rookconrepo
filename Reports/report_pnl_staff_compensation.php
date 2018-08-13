@@ -22,7 +22,7 @@ if ( isset($_POST['printpdf']) ) {
 		public function Header() {
             if ( REPORT_LOGO != '' ) {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -67,7 +67,7 @@ if ( isset($_POST['printpdf']) ) {
 	$pdf->AddPage('L', 'LETTER');
     $pdf->SetFont('helvetica', '', 9);
 
-    $html .= report_pnl_display($dbc, $search_start_pdf, $search_end_pdf, 'padding:3px; border:1px solid black;', 'border:1px solid black', '');
+    $html .= report_pnl_display($dbc, $search_start_pdf, $search_end_pdf, 'padding:3px; border:1px solid black;', 'border:1px solid black;', 'border:1px solid black;');
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
@@ -146,19 +146,21 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
 		//$stat_holidays = explode(',',get_config($dbc, 'stat_holiday'));
         $totals = [0,0,0,0,0,0,0,0,0,0,0,0];
 
-        $report_data2 = '<table class="table table-bordered" style="'. $table_style .'">
+        $report_data2 = '<table width="100%" class="table table-bordered" style="'. $table_style .'">
             <thead>
                 <tr class="hidden-xs hidden-sm">
-                    <th style="'. $table_row_style .'">Staff Member</th>';
+                    <th width="10%" style="'. $table_row_style .'">Staff Member</th>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
-                        $report_data2 .= '<th style="width:8em; '. $table_row_style .'">'. $dateObj->format('F') .'</th>';
+                        $report_data2 .= '<th width="7.5%" style="vertical-align:middle; '. $table_row_style .'">'. $dateObj->format('F') .'</th>';
                     }
                 $report_data2 .= '</tr>
             </thead>
             <tbody>';
+                $odd_even = 0;
                 foreach($contactlist as $contactid) {
-                    $report_data2 .= '<tr><td data-title="Staff" style="'. $table_row_style .'">'. get_contact($dbc, $contactid) .'</td>';
+                    $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+                    $report_data2 .= '<tr style="'.$bg_class.'"><td width="10%" data-title="Staff" style="'. $table_row_style .'">'. get_contact($dbc, $contactid) .'</td>';
                     $startmonth   = 0;
                     $endmonth     = 12;
 
@@ -171,7 +173,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
 
                     for($month = 0; $month < $startmonth; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
-                        $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">-</td>';
+                        $report_data2 .= '<td width="7.5%" data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">-</td>';
                     }
 
                     for($month = $startmonth; $month < $endmonth; $month++) {
@@ -234,22 +236,23 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                         $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">-</td>';
                     }
                     $report_data2 .= '</tr>';
+                    $odd_even++;
                 }
 
                 $report_data2 .= '<tr style="font-size:1.25em; font-weight:bold;">
-                    <td style="'. $table_row_style .'">Monthly Total</td>';
+                    <td width="10%" style="'. $table_row_style .'">Monthly Total</td>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
-                        $report_data2 .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right;">$'. number_format($totals[$month], 2, '.', ',') . '</td>';
+                        $report_data2 .= '<td width="7.5%" data-title="'. $dateObj->format('F') .'" style="text-align:right; '.$table_row_style.'">$'. number_format($totals[$month], 2, '.', ',') . '</td>';
                     }
                 $report_data2 .= '</tr>
-                <tr style="font-size:1.5em; font-weight:bold;">
-                    <td colspan="10" style="border-right: none;">Total Compensation for ';
+                <tr style="font-size:1.5em; font-weight:bold; '.$grand_total_style.'">
+                    <td width="77.5%" colspan="10" style="border-right: none;">Total Compensation for ';
                     $report_data2 .= ($year == $startyear) ? $starttime : $year.'-01-01';
                     $report_data2 .= ' to ';
                     $report_data2 .= ($year == $endyear ) ? $endtime : $year.'-12-31';
                     $report_data2 .= '</td>
-                    <td data-title="Total" colspan="3" style="text-align:right; border-left:none;">$';
+                    <td width="22.5%" data-title="Total" colspan="3" style="text-align:right; border-left:none;">$';
                     $report_data2 .= number_format(array_sum($totals), 2, '.', ',');
                     $report_data2 .= '</td>
                 </tr>

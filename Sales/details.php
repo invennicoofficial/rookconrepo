@@ -16,6 +16,9 @@
     $next_action            = '';
     $new_reminder           = '';
     $status                 = '';
+    $flag_colour = $flag_label = '';
+    $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+    $flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
 
     if ( !empty($_GET['businessid']) ) {
         $businessid = $_GET['businessid'];
@@ -43,16 +46,149 @@
         $region                 = $get_contact['region'];
         $location               = $get_contact['location'];
         $classification         = $get_contact['classification'];
+		if(!empty($get_contact['flag_label'])) {
+			$flag_colour = $get_contact['flag_colour'];
+			$flag_label = $get_contact['flag_label'];
+		} else if(!empty($get_contact['flag_colour'])) {
+			$flag_colour = $get_contact['flag_colour'];
+			$flag_label = $flag_labels[array_search($get_contact['flag_colour'], $flag_colours)];
+		}
         
         $get_lead_source = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `businessid`, `referred_contactid` FROM `contacts` WHERE (`referred_contactid` IN ($contactid) OR `referred_contactid` IN ($businessid))"));
         $lead_source_cid = $get_lead_source['contactid'];
         $lead_source_bid = $get_lead_source['businessid']; ?>
         <input type="hidden" id="salesid" name="salesid" value="<?= $salesid ?>" /><?php
     } ?>
+    <script>
+    function flagLead(sel) {
+        $.ajax({
+            url: 'sales_ajax_all.php?action=flag_colour',
+            method: 'POST',
+            data: {
+                field: 'flag_colour',
+                value: $('.flag-label').data('colour'),
+                table: 'sales',
+                id: '<?= $salesid ?>',
+                id_field: 'salesid'
+            },
+            success: function(response) {
+                $('.flag-label').data('colour',response.substr(0,6));
+                $('.standard-body-title').css('background-color','#'+response.substr(0,6));
+                $('.flag-label').html(response.substr(6));
+            }
+        });
+    }
+
+    function flagLeadManual(sel) {
+        $('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+        $('[name=flag_cancel]').off('click').click(function() {
+            $('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+            return false;
+        });
+        $('[name=flag_off]').off('click').click(function() {
+            $('[name=colour]').val('FFFFFF');
+            $('[name=label]').val('');
+            $('[name=flag_start]').val('');
+            $('[name=flag_end]').val('');
+            $('[name=flag_it]').click();
+            return false;
+        });
+        $('[name=flag_it]').off('click').click(function() {
+            $.ajax({
+                url: 'sales_ajax_all.php?action=manual_flag_colour',
+                method: 'POST',
+                data: {
+                    field: 'manual_flag_colour',
+                    value: $('[name=colour]').val(),
+                    table: 'sales',
+                    label: $('[name=label]').val(),
+                    start: $('[name=flag_start]').val(),
+                    end: $('[name=flag_end]').val(),
+                    id: '<?= $salesid ?>',
+                    id_field: 'salesid'
+                }
+            });
+            $('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+            $('.flag_label').data('colour',$('[name=colour]').val());
+            $('.standard-body-title').css('background-color','#'+$('[name=colour]').val());
+            $('.flag-label').text($('[name=label]').val());
+            return false;
+        });
+    }
+
+    function setReminder(sel) {
+        $('.reminders').show();
+        $('.send').click(function() {
+            $.post('sales_ajax_all.php?action=set_reminder', {
+                    user: $('.reminders select').val().join(','),
+                    date: $('.reminders input.datepicker').val(),
+                    id: '<?= $salesid ?>'
+                });
+            $('.reminders').hide();
+            $('.reminders input.datepicker').val('');
+            $('.reminders option').removeAttr('selected');
+            $('.reminders select').trigger('change.select2');
+        });
+        $('.cancel').click(function() {
+            $('.reminders').hide();
+            $('.reminders input').val('');
+            $('.reminders select').val('').trigger('change.select2');
+        });
+    }
+
+    function sendEmail(sel) {
+        var salesid = '<?= $salesid ?>';
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales&salesid='+salesid,'auto',false,true)
+    }
+    </script>
 
     <div class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
-        <div class="standard-body-title">
-            <h3><?= ( !empty($salesid) ) ? 'Edit' : 'Add'; ?> <?= SALES_NOUN ?> #<?= $salesid ?></h3>
+        <div class="standard-body-title" style="<?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?> ">
+            <h3><?= ( !empty($salesid) ) ? 'Edit' : 'Add'; ?> <?= SALES_NOUN ?> #<?= $salesid ?>
+                <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
+                <?php if(in_array('reminder',$quick_actions)) { ?>
+                    <a href="Schedule Reminder" onclick="setReminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img pull-right black-color" title="Schedule Reminder" /></a>
+                <?php } ?>
+                <?php if(in_array('email',$quick_actions)) { ?>
+                    <a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img pull-right black-color" title="Send Email" /></a>
+                <?php } ?>
+                <?php if(in_array('flag_manual',$quick_actions)) { ?>
+                    <a href="Flag This!" onclick="flagLeadManual(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img pull-right black-color" title="Flag This!" /></a>
+                <?php } ?>
+                <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
+                    <a href="Flag This!" onclick="flagLead(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img pull-right black-color" title="Flag This!" /></a>
+                <?php } ?>
+                <div class="clearfix"></div>
+                <?php if(in_array('flag_manual',$quick_actions)) {
+                    $colours = $flag_colours; ?>
+                    <span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+                    <div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
+                    <div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+                            <option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+                            <?php foreach($colours as $colour) { ?>
+                                <option <?= $flag_colour == $colour ? 'selected' : '' ?> value="<?= $colour ?>" style="background-color:#<?= $colour ?>;"></option>
+                            <?php } ?>
+                        </select></div>
+                    <div class="col-sm-3"><input type='text' name='flag_start' value='<?= $ticket['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+                    <div class="col-sm-3"><input type='text' name='flag_end' value='<?= $ticket['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+                    <button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+                    <button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+                    <button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+                    <div class="clearfix"></div>
+                <?php } ?>
+                <div class="reminders" style="display:none;">
+                    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+                    <?php foreach(sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")) as $staff) { ?>
+                        <option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
+                    <?php } ?>
+                    </select>
+                    <input type="text" class="datepicker form-control">
+                    <button class="btn brand-btn pull-right send">Submit</button>
+                    <button class="btn brand-btn pull-right cancel">Cancel</button>
+                    <div class="clearfix"></div>
+                </div>
+                <span class="flag-label" data-colour="<?= $flag_colour ?>"><?= $flag_label ?></span>
+            </h3>
         </div>
 
         <div class="standard-body-content"><?php
@@ -107,6 +243,12 @@
             }
             if (strpos($value_config, ',Tasks,') !== false) { 
                 include('details_tasks.php');
+				echo "<hr>";
+            }
+            if (strpos($value_config, ',Time,') !== false) { 
+				echo "<div>";
+                include('details_time.php');
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',History,') !== false) { 
                 include('details_history.php');

@@ -56,6 +56,10 @@ function archive_sales_lead(sel) {
 
 function saveNote(sel) {
     var salesid = $(sel).data('salesid');
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, true);
+    
+    /* Function before notes slider
+    var salesid = $(sel).data('salesid');
     var note = sel.value;
     if (note!='') {
         $.ajax({
@@ -65,7 +69,7 @@ function saveNote(sel) {
                 alert("Note saved.");
             }
         });
-    }
+    } */
 }
 
 function flagLead(sel) {
@@ -144,25 +148,8 @@ function addDocument(sel) {
 
 function sendEmail(sel) {
 	var item = $(sel).closest('.info-block-detail');
-	item.find('.select_users').show();
-	item.find('.send').click(email_action);
-	item.find('.cancel').click(function() {
-		item.find('.select_users').hide();
-		item.find('.select_users select').val('').trigger('change.select2');
-	});
-}
-function email_action() {
-	var item = $(this).closest('.info-block-detail');
-	$.ajax({
-		url: 'sales_ajax_all.php?action=send_email',
-		method: 'POST',
-		data: {
-			value: item.find('.select_users select').val(),
-			id: item.data('id')
-		}
-	});
-	item.find('.select_users').hide();
-	item.find('.select_users select').val('').trigger('change.select2');
+	var salesid = item.data('id');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales&salesid='+salesid,'auto',false,true)
 }
 
 function createProject(sel) {
@@ -251,18 +238,86 @@ function openProjectDialog(sel) {
         }
     });
 }
+function businessFilter(sel) {
+    var business = sel.value;
+    var dialog = $(sel).closest('.dialog');
+    dialog.find('[name=clientid] option').each(function() {
+        if($(this).data('business') != business && business > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+    dialog.find('[name=projectid] option').each(function() {
+        if($(this).data('business') != business && business > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+}
+$(document).on('change', '.dialog select[name=businessid]', function() { businessFilter(this); });
+function contactFilter(sel) {
+    var dialog = $(sel).closest('.dialog');
+    var business = $(sel).find('option:selected').data('business');
+    var contact = sel.value;
+    dialog.find('[name=businessid]').val(business).trigger('change.select2');
+    dialog.find('[name=projectid] option').each(function() {
+        if($(this).data('client') != undefined && $(this).data('client').indexOf(','+contact+',') < 0 && contact > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+}
+$(document).on('change', '.dialog select[name=clientid]', function() { contactFilter(this); });
 </script>
 <!-- Dialog -->
-<div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" style="display:none;">
+<div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" class="dialog" style="display:none;">
+    <?php $project_fields = ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='ALL'"))[0].',';
+    $project_configs = mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project");
+    while($project_config = mysqli_fetch_array($project_configs)[0]) {
+        $project_fields .= $project_config.',';
+    }
+    $project_fields = explode(',',$project_fields);
+    if(in_array('Information Business', $project_fields)) { ?>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= BUSINESS_CAT ?>:</label>
+            <div class="col-sm-8">
+                <select name="businessid" data-placeholder="Select <?= BUSINESS_CAT ?>" class="chosen-select-deselect form-control"><option />
+                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON `contacts`.`contactid`=`project`.`businessid` WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $bus_row) { ?>
+                        <option value="<?= $bus_row['contactid'] ?>"><?= $bus_row['full_name'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    <?php }
+    if(in_array('Information Contact', $project_fields)) { ?>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= CONTACTS_NOUN ?>:</label>
+            <div class="col-sm-8">
+                <select name="clientid" data-placeholder="Select <?= CONTACTS_NOUN ?>" class="chosen-select-deselect form-control"><option />
+                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`businessid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON CONCAT(',',`project`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $cont_row) { ?>
+                        <option data-business="<?= $cont_row['businessid'] ?>" value="<?= $cont_row['contactid'] ?>"><?= $cont_row['full_name'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    <?php } ?>
     <div class="form-group">
         <label class="col-sm-4 control-label"><?= PROJECT_TILE ?>:</label>
         <div class="col-sm-8">
             <select name="projectid" data-placeholder="Select <?= PROJECT_NOUN ?>" class="chosen-select-deselect form-control">
                 <option></option><?php
-                $get_projects = mysqli_query($dbc, "SELECT projectid, project_name FROM project WHERE project_name<>'' AND deleted=0 ORDER BY project_name");
+                $get_projects = mysqli_query($dbc, "SELECT `projectid`, `businessid`, `clientid`, `project_name` FROM project WHERE project_name<>'' AND deleted=0 ORDER BY project_name");
                 if ($get_projects->num_rows>0) {
                     while ($row_project=mysqli_fetch_assoc($get_projects)) { ?>
-                        <option value="<?=$row_project['projectid']?>"><?=$row_project['project_name']?></option><?php
+                        <option data-business="<?= $row_project['businessid'] ?>" data-client=",<?= $row_project['clientid'] ?>," value="<?=$row_project['projectid']?>"><?=$row_project['project_name']?></option><?php
                     }
                 } ?>
             </select>
@@ -296,7 +351,10 @@ function openProjectDialog(sel) {
 								$flag_label = $row['flag_label'];
 							} else if(!empty($row['flag_colour'])) {
 								$flag_colour = $row['flag_colour'];
-								$flag_label = $flag_labels[array_search($row['flag_colour'], $flag_colours)];
+                                $flag_label_row = array_search($row['flag_colour'], $flag_colours);
+                                if($flag_label_row !== FALSE) {
+                                    $flag_label = $flag_labels[$flag_label_row];
+                                }
 							}
 							$lead_count++; ?>
                             <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
@@ -319,40 +377,7 @@ function openProjectDialog(sel) {
                                     </div>
                                 </div></a>
 
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Status:</div>
-                                    <div class="col-sm-7">
-										<?php if($approvals > 0 || $status != 'Pending') { ?>
-											<select name="status" class="chosen-select-deselect form-control" id="ssid_<?= $row['salesid'] ?>">
-												<option value=""></option><?php
-												foreach ( explode(',', $statuses) as $status_list ) {
-													$selected = ($status_list==$status) ? 'selected="selected"' : '';
-													echo '<option '. $selected .' value="'. $status_list .'">'. $status_list .'</li>';
-												} ?>
-											</select>
-										<?php } else {
-											echo $status;
-										} ?>
-                                    </div>
-                                </div>
-
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Next Action:</div>
-                                    <div class="col-sm-7">
-                                        <select name="next_action" class="chosen-select-deselect form-control" id="nsid_<?= $row['salesid'] ?>">
-                                            <option value=""></option><?php
-                                            foreach ( explode(',', $next_actions) as $next_action ) {
-                                                $selected = ($next_action==$row['next_action']) ? 'selected="selected"' : '';
-                                                echo '<option '. $selected .' value="'. $next_action .'">'. $next_action .'</li>';
-                                            } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="row set-row-height">
-                                    <div class="col-sm-5">Follow Up:</div>
-                                    <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
-                                </div>
+                                <div class="clearfix"></div>
 
                                 <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="sales_notes" data-salesid="<?= $row['salesid']; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
 								<?php if(in_array('flag_manual',$quick_actions)) {
@@ -402,7 +427,7 @@ function openProjectDialog(sel) {
 								</div>
 								<input type="text" name="time_add" style="display:none; margin-top: 2em;" class="form-control timepicker">
 								<input type="text" name="time_track" class="datetimepicker form-control" style="display:none;">
-                                <div class="double-gap-top action-icons">
+                                <div class="gap-bottom action-icons">
 									<?php if($project_security['edit'] > 0) { ?>
                                         <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="cursor-hand inline-img" title="Assign To A <?= PROJECT_NOUN ?>" id="<?=$row['salesid']?>" onclick="openProjectDialog(this); return false;" /><?php
                                     } ?>
@@ -419,7 +444,8 @@ function openProjectDialog(sel) {
 										<a href="Attach File" onclick="addDocument(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img black-color" title="Attach File" /></a>
 									<?php } ?>
 									<?php if(in_array('reply',$quick_actions)) { ?>
-										<a href="Add Note" onclick="$(this).closest('.info-block-detail').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>
+										<!--<a href="Add Note" onclick="$(this).closest('.info-block-detail').find('[name=notes]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>-->
+										<a href="#" onclick="saveNote(this);" data-salesid="<?= $row['salesid']; ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>
 									<?php } ?>
 									<?php if(in_array('email',$quick_actions)) { ?>
 										<a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img black-color" title="Send Email" /></a>
@@ -436,6 +462,43 @@ function openProjectDialog(sel) {
 									<?php if(in_array('archive',$quick_actions)) { ?>
 										<a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the Sales Lead" /></a>
 									<?php } ?>
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Status:</div>
+                                    <div class="col-sm-7">
+										<?php if($approvals > 0 || $status != 'Pending') { ?>
+											<select name="status" class="chosen-select-deselect form-control" id="ssid_<?= $row['salesid'] ?>">
+												<option value=""></option><?php
+												foreach ( explode(',', $statuses) as $status_list ) {
+													$selected = ($status_list==$status) ? 'selected="selected"' : '';
+													echo '<option '. $selected .' value="'. $status_list .'">'. $status_list .'</li>';
+												} ?>
+											</select>
+										<?php } else {
+											echo $status;
+										} ?>
+                                    </div>
+                                </div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Next Action:</div>
+                                    <div class="col-sm-7">
+                                        <select name="next_action" class="chosen-select-deselect form-control" id="nsid_<?= $row['salesid'] ?>">
+                                            <option value=""></option><?php
+                                            foreach ( explode(',', $next_actions) as $next_action ) {
+                                                $selected = ($next_action==$row['next_action']) ? 'selected="selected"' : '';
+                                                echo '<option '. $selected .' value="'. $next_action .'">'. $next_action .'</li>';
+                                            } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row set-row-height">
+                                    <div class="col-sm-5">Follow Up:</div>
+                                    <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
                             </div><?php
                         } ?>

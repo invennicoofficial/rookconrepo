@@ -36,8 +36,8 @@ if($_GET['view'] == 'weekly') {
 
 	$weekly_days = explode(',',get_config($dbc, 'scheduling_weekly_days'));
 
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	}
 	if(!empty($_GET['equipment_id'])) {
 		$equipment_id = $_GET['equipment_id'];
@@ -179,12 +179,30 @@ if($_GET['view'] == 'weekly') {
 
 			<div id="collapse_equipment" class="panel-collapse collapse in">
 				<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+					<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
+                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
+					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
 					if(empty($equipment_id)) {
 						$equipment_id = $equip_list[0]['equipmentid'];
 					}
+                    $region = false;
+                    $region_list = explode(',',get_config($dbc, '%_region', true));
+                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
 					foreach($equip_list as $equipment) {
+                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
+                            $region = $equipment['region'];
+                            $region_colour = '';
+                            if($region == '') {
+                                $region_label = 'No Region';
+                            } else {
+                                $region_label = implode(', ',explode('*#*',$region));
+                                $region_key = array_search($region, $region_list);
+                                if($region_key !== false) {
+                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
+                                }
+                            }
+                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
+                        }
 						echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
 					} ?>
 				</div>
@@ -256,7 +274,7 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
-				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
 				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'contractors') {
 						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-contractor='1'>";
@@ -342,8 +360,8 @@ if($_GET['view'] == 'weekly') {
 	if($calendar_type == 'ticket_multi') {
 		$calendar_type = 'ticket';
 	}
-	if (!empty($equipment_category)) {
-		$equipment_category = 'Truck';
+	if (empty($equipment_category)) {
+		$equipment_category = 'Equipment';
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
@@ -477,7 +495,7 @@ if($_GET['view'] == 'weekly') {
 			<div id="collapse_equipment" class="panel-collapse collapse in">
 				<div class="panel-body" style="overflow-y: auto; padding: 0;">
 					<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, `location`, `classification`, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0 $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
+					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT `equipmentid`, `unit_number`, `make`, `model`, `category`, `region`, `location`, `classification`, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
 					foreach($equip_list as $equipment) {
 						echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
 					} ?>
@@ -550,7 +568,7 @@ if($_GET['view'] == 'weekly') {
 				<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
 				$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 				$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
-				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
+				$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
 				foreach ($staff_list as $staff_row) {
 					if($_GET['mode'] == 'contractors') {
 						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($staff_row['contactid'],$active_staff) ? 'active' : '')."' data-blocktype='staff' data-staff='".$staff_row['contactid']."' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-contractor='1'>";

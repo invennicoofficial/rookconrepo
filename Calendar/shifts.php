@@ -481,6 +481,9 @@ function changeShiftAvailability() {
 <h3 class="gap-left"><?= $shift_heading ?></h3>
 
 <div class="block-group" style="height: calc(100% - 4.5em); overflow-y: auto;">
+    <div id="dialog-confirm" title="Edit Recurring Shift" style="display: none;">
+        Would you like to update only this Shift, all recurring Shifts, or following recurring Shifts?
+    </div>
     <div id="dialog-confirm-delete" title="Delete Shift" style="display: none;">
         Would you like to delete all recurring Shifts or just the Shift for <?= $shift_current_date ?>?
     </div>
@@ -677,9 +680,9 @@ function changeShiftAvailability() {
             <?php } ?>
 
             <div class="pull-right" style="padding-top: 1em;">
-                <?php if($recurring == 'yes' && ($startdate > $lock_date || $startdate == '')) { ?>
+                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '')) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
-                <?php } else if($startdate > $lock_date || $startdate == '') { ?>
+                <?php } else if($startdate >= $lock_date || $startdate == '') { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
                 <?php } ?>
                 <?php
@@ -697,7 +700,7 @@ function changeShiftAvailability() {
                     unset($page_query['add_reminder']);
                 ?>
                 <a href="?<?= http_build_query($page_query) ?>" class="btn brand-btn mobile-anchor">Cancel</a>
-                <?php if(!empty($shiftid)) { ?>
+                <?php if(!empty($shiftid) && $startdate >= $lock_date) { ?>
                     <a href="#" onclick="deleteShift(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
                 <?php } ?>
             </div>

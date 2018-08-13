@@ -76,6 +76,7 @@ if($_GET['action_mode'] == 1) {
 <?php } ?>
 <?php $current_heading = '';
 $current_heading_closed = true;
+$value_config = ','.$value_config.',';
 $sort_order = array_filter($sort_order);
 foreach($sort_order as $sort_field) { ?>
 	<?php //Add higher level heading
@@ -354,6 +355,14 @@ foreach($sort_order as $sort_field) { ?>
 
 	<?php if (strpos($value_config, ','."Custom Notes".',') !== FALSE && $sort_field == 'Custom Notes') { ?>
 		<a href="" data-tab-target="custom_view_ticket_comment"><li class="<?= $_GET['tab'] == 'custom_view_ticket_comment' ? 'active blue' : '' ?>"><?= get_config($dbc, 'ticket_custom_notes_heading') ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') { ?>
+		<a href="" data-tab-target="internal_communication"><li class="<?= $_GET['tab'] == 'internal_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') { ?>
+		<a href="" data-tab-target="external_communication"><li class="<?= $_GET['tab'] == 'external_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></li></a>
 	<?php } ?>
 
 	<?php if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') { ?>

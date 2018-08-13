@@ -330,7 +330,38 @@ function send_reminder(task) {
 	});
 
 }
-
+function send_reply(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
 function send_reply(task) {
 	task_id = $(task).parents('span').data('task');
 	var type = 'task';
@@ -363,7 +394,7 @@ function send_reply(task) {
 			})
 		}
 	});
-}
+} */
 
 function quick_add_time(task) {
 	task_id = $(task).parents('span').data('task');
@@ -375,13 +406,14 @@ function quick_add_time(task) {
 				method: 'POST',
 				url: 'task_ajax_all.php?fill=task_quick_time',
 				data: { id: task_id, time: time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
-			});
-            $.ajax({
-				method: 'POST',
-				url: 'task_ajax_all.php?fill=taskreply',
-				data: { taskid: task_id, reply: 'Time added '+time+':00' },
-				complete: function(result) { console.log(result.responseText); window.location.reload(); }
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
 			});
 		}
 	});
@@ -872,7 +904,9 @@ function checklist_attach_file(checklist) {
 									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left gap-left" src="../img/icons/ROOK-edit-icon.png">
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
+									<img class="small cursor-hand no-gap-top inline-img pull-right" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>');" src="../img/time-machine.png">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
+
 									<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
 									<input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
 								<!--
@@ -1042,16 +1076,18 @@ function checklist_attach_file(checklist) {
                                     if ( $comments->num_rows > 0 ) { ?>
                                         <div class="form-group clearfix full-width">
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                                while ( $row_comment=mysqli_fetch_assoc($comments) ) { ?>
-                                                    <div class="note_block row">
+                                                $odd_even = 0;
+                                                while ( $row_comment=mysqli_fetch_assoc($comments) ) {
+                                                    $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                                                    <div class="note_block row <?= $bg_class ?>">
                                                         <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
                                                         <div class="col-xs-11" style="<?= $style_strikethrough ?>">
                                                             <div><?= html_entity_decode($row_comment['comment']); ?></div>
                                                             <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
                                                         </div>
                                                         <div class="clearfix"></div>
-                                                    </div>
-                                                    <hr class="margin-vertical" /><?php
+                                                    </div><?php
+                                                    $odd_even++;
                                                 } ?>
                                             </div>
                                             <div class="clearfix"></div>

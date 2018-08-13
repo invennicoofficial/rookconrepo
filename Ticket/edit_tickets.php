@@ -31,7 +31,7 @@ if(!empty($_GET['calendar_view'])) {
 }
 
 $ticket_layout = get_config($dbc, 'ticket_layout');
-$value_config = get_field_config($dbc, 'tickets');
+$value_config = ','.get_field_config($dbc, 'tickets').',';
 $sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
 $ticket_tab_locks = get_config($dbc, 'ticket_tab_locks');
 $client_accordion_category = get_config($dbc, 'client_accordion_category');
@@ -169,7 +169,7 @@ if(!empty($_GET['edit'])) {
 	$login_id = $_SESSION['contactid'];
 	// AND timer_type='Break' AND end_time IS NULL
 
-	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id')"));
+	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id' AND `deleted` = 0)"));
 
 	$created_date = $get_ticket['created_date'];
 	$created_by = $get_ticket['created_by'];
@@ -395,11 +395,11 @@ if($admin_group->num_rows > 0) {
 	}
 	$value_config_all = $value_config;
 	if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-		$value_config = $admin_group['unlocked_fields'];
+		$value_config = ','.$admin_group['unlocked_fields'].',';
 	}
 } else {
 	$admin_group = [];
-}		
+}
 
 //Get Security Permissions
 $ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
@@ -1474,18 +1474,14 @@ var setHeading = function() {
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
-
-							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_general">
-
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory">
 								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?><span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
 
-
-					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
-
+					<div id="collapse_ticket_inventory" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory">
 							Loading...
 						</div>
 					</div>
@@ -1496,18 +1492,14 @@ var setHeading = function() {
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
-
-							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_detailed">
-
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_inventory_general">
 								<?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?><span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
 
-
-					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
-
+					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
 							Loading...
 						</div>
 					</div>
@@ -1994,6 +1986,42 @@ var setHeading = function() {
 
 					<div id="collapse_custom_view_ticket_comment" class="panel-collapse collapse">
 						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=custom_view_ticket_comment">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_internal_communication">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_internal_communication" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=internal_communication">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<?php if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_external_communication">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_external_communication" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=external_communication">
 							Loading...
 						</div>
 					</div>
@@ -2829,6 +2857,16 @@ var setHeading = function() {
 				if (strpos($value_config, ','."Custom Notes".',') !== FALSE && $sort_field == 'Custom Notes') {
 					$_GET['tab'] = 'custom_view_ticket_comment';
 					$acc_label = 'Notes';
+					include('edit_ticket_tab.php');
+				}
+				if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') {
+					$_GET['tab'] = 'internal_communication';
+					$acc_label = 'Internal Communication';
+					include('edit_ticket_tab.php');
+				}
+				if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') {
+					$_GET['tab'] = 'external_communication';
+					$acc_label = 'External Communication';
 					include('edit_ticket_tab.php');
 				}
 				if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') {

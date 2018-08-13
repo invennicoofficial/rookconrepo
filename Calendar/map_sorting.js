@@ -133,8 +133,10 @@ function get_day_map(date, equipmentid) {
 			equipment: equipmentid
 		},
 		success: function(response) {
-			var waypoints = response.split("\n");
-			window.open('https://www.google.com/maps/dir/'+waypoints.join('/').replace(/ /g,'+'),'','postwindow');
+            if(response != '') {
+                var waypoints = response.split("\n");
+                window.open('https://www.google.com/maps/dir/'+waypoints.join('/').replace(/ /g,'+'),'','postwindow');
+            }
 		}
 	});
 }

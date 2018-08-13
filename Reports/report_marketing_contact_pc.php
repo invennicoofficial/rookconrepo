@@ -88,7 +88,7 @@ if (isset($_POST['printpdf'])) {
 	</script>
     <?php
 } ?>
-
+        <br>
         <?php
         $select_query = "select distinct(category) from contacts";
         $select_result = mysqli_query($dbc, $select_query);
@@ -101,7 +101,7 @@ if (isset($_POST['printpdf'])) {
             <?php else: ?>
                 <?php $active = ''; ?>
             <?php endif; ?>
-            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
+            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&report=<?= $_GET['report'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
           <?php endif; ?>
         <?php } ?>
         <br><br><br>

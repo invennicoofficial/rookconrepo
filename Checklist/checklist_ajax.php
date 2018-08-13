@@ -486,6 +486,7 @@ if($_GET['fill'] == 'checklist_quick_time') {
 	$time = $_POST['time'];
 	$query_time = "INSERT INTO `checklist_name_time` (`checklist_id`, `work_time`, `contactid`, `timer_date`) VALUES ('$checklistid', '$time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')";
 	$result = mysqli_query($dbc, $query_time);
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".((strtotime($_POST['time']) - strtotime('00:00:00')) / 3600)."','0','Time Added on Checklist #$checklistid')");
 	insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', "Updated Checklist Item #$checklistid - Added Time : $time");
 }
 if($_GET['fill'] == 'subtab_change') {

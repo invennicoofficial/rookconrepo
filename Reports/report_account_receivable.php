@@ -25,7 +25,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -172,22 +172,26 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $report_service = mysqli_query($dbc,"SELECT patientid, SUM(patient_price) as `all_payment` FROM invoice_patient WHERE (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ('On Account','')) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') GROUP BY patientid ORDER BY patientid");
 
     $total3 = 0;
+    $odd_even = 0;
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 
         $patientid = $row_report['patientid'];
-
         $total_due = $row_report['all_payment'];
 
-        $report_data .= '<tr nobr="true">';
-		$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
-        $report_data .= '<td>$'.$total_due.'</td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
+            $report_data .= '<td align="right">$'.$total_due.'</td>';
         $report_data .= '</tr>';
 
         $total3 += $total_due;
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td><b>$'.number_format($total3, 2).'</b></td>';
+    $report_data .= '<td><b>Total</b></td><td align="right"><b>$'.number_format($total3, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

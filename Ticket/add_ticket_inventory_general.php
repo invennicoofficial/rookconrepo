@@ -34,7 +34,7 @@ function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
 	var i = 0;
 	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		if($(this).val() != first_piece.get(i).value) {
+		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
 			$(this).val(first_piece.get(i).value).change();
 		}
 		i++;
@@ -332,12 +332,12 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid" data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 								<?php if(!isset($site_list)) {
 									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 								}
 								foreach($site_list as $site_row) { ?>
-									<option <?= $general_inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+									<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
 								<?php } ?>
 							</select>
 						</div></div>
@@ -383,7 +383,7 @@ do {
 						<div class="col-sm-8"><div class="col-sm-12">
 							<select name="po_line" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option />
 								<?php $line_num = $dbc->query("SELECT MAX(`po_line`) FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory_general'")->fetch_array(MYSQLI_NUM)[0]; ?>
-								<?php for($i = 10; $i <= $line_num + 20; $i += 10) { ?>
+								<?php for($i = 10; $i <= 550; $i += 10) { ?>
 									<option <?= $general_inventory['po_line'] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
 								<?php } ?>
 							</select>

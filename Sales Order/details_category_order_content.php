@@ -80,8 +80,10 @@ if(!empty($so_type)) {
                             <div class="col-sm-1"></div>
                         </div><?php
                         
-                        while ( $row=mysqli_fetch_assoc($result) ) { ?>
-                            <div class="row pad-top-5 sortable_row" data-id="<?= $row['sotid'] ?>" id="row_<?= $row["sotid"]; ?>">
+                        $odd_even = 0;
+                        while ( $row=mysqli_fetch_assoc($result) ) {
+                            $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                            <div class="row pad-top-5 sortable_row <?= $bg_class ?>" data-id="<?= $row['sotid'] ?>" id="row_<?= $row["sotid"]; ?>">
                                 <div class="visible-xs-block col-xs-4"><b><?= $item_from == 'Labour' ? 'Labour Type' : 'Category' ?>: </b></div><div class="col-xs-9 col-sm-<?= $include_hours ? '3' : '4' ?>"><?= $row['item_category']; ?></div>
                                 <div class="visible-xs-block col-xs-4"><b>Product: </b></div><div class="col-sm-<?= $include_hours ? '4' : '5' ?>"><?= $row['item_name']; ?></div>
                                 <?php if($include_hours) { ?>
@@ -91,6 +93,7 @@ if(!empty($so_type)) {
                                 <!-- <div class="visible-xs-block col-xs-3"><b>Quantity: </b></div><div class="col-sm-2"><?= $row['quantity']; ?></div> -->
                                 <div class="pull-right col-sm-1"><a href="javascript:void(0);" onclick="deleteRow(this, 'row_'); return false;" id="delete_<?= $row['sotid']; ?>"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a><img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img sortable_handle gap-left" title="Drag me to reorder item."></div>
                             </div><?php
+                            $odd_even++;
                         } ?>
                     </div>
                 <?php }

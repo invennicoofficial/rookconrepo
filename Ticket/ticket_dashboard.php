@@ -413,7 +413,10 @@ function setActions() {
 		}).click();
 	});
 	$('.reply-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
+        var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
 		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
 			$(this).off('blur');
 			$.ajax({
@@ -434,7 +437,7 @@ function setActions() {
 			} else if(e.which == 27) {
 				$(this).off('blur').hide();
 			}
-		});
+		}); */
 	});
 
 	$('.emailpdf-icon').off('click').click(function() {
@@ -663,8 +666,12 @@ IF(!IFRAME_PAGE) { ?>
 							ticket_type: '<?= $type ?>',
 							ticket_tile: '<?= $_GET['tile_name'] ?>'
 						},
-						success: function(response) {  console.log(response.split('###*###')[1]);
-							ticket_list['<?= $type ?>'] = JSON.parse(response.split('###*###')[0]);
+						success: function(response) {
+							response = response.split('###*###');
+							if(response[1] != '' && response[1] != undefined) {
+								console.log(response[1]);
+							}
+							ticket_list['<?= $type ?>'] = JSON.parse(response[0]);
 							loadTickets();
 						}
 					});
@@ -685,7 +692,7 @@ IF(!IFRAME_PAGE) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_creator_<?= $type ?>">Created By<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_creator_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, COUNT(*) `count` FROM `contacts` LEFT JOIN `tickets` ON `contacts`.`contactid`=`tickets`.`created_by` WHERE `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') AND `tickets`.`ticketid` > 0 AND (`contacts`.`first_name` != '' OR `contacts`.`last_name` != '') AND `contacts`.`contactid` > 0 $filter GROUP BY `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`")) as $row) { ?>
-										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
+										<li><a href="" data-creator="<?= $row['contactid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets();"><?= $row['first_name'].' '.$row['last_name'] ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
 									<?php } ?>
 								</ul>
 							</li>
@@ -868,6 +875,7 @@ IF(!IFRAME_PAGE) { ?>
 							}
 							$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
 						}
+                        $filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
 						foreach($project_type_list as $type_id => $type_name) {
 							if(in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields)) {
 								if(!empty($type_name)) { ?>
@@ -875,9 +883,8 @@ IF(!IFRAME_PAGE) { ?>
 										<ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
 								<?php } ?>
 								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) {
-									$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
 									$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type_id) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".$type_id."')" : '';
-									$piece_count = $dbc->query("SELECT COUNT(DISTINCT `ticket_attached`.`id`) numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IFNULL(NULLIF(IFNULL(IFNULL(`ticket_attached`.`siteid`,`piece`.`siteid`),`tickets`.`siteid`),0),'na'),',top_25,') LIKE '%,".$site['contactid'].",%' $filter_inv $ticket_filter $filter_proj")->fetch_assoc(); ?>
+                                    $piece_count = $dbc->query("SELECT COUNT(DISTINCT ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`" : "`ticket_attached`.`id`").") numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,".$site['contactid'].",%' $filter_inv $ticket_filter $filter_proj")->fetch_assoc(); ?>
 									<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && ($_GET['type'] == $type_id || empty($type_name)) && $_GET['site'] == $site['contactid'] ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=<?= $site['contactid'] ?>&type=<?= $type_id ?>"><?= $site['full_name'] ?><span class="pull-right"><?= $piece_count['numrows'] ?></span></a></li>
 								<?php }
 								if(!empty($type_name)) { ?>
@@ -1226,7 +1233,7 @@ IF(!IFRAME_PAGE) { ?>
 		$total_length = 0;
 		if(in_array('Time Graph',$db_summary)) {
 			$total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
-			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
+			$total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
 			if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
 				if($total_tracked_time['seconds'] > $total_estimated_time['seconds']) {
 					$total_estimated_time['seconds'] = $total_tracked_time['seconds'];
@@ -1277,7 +1284,7 @@ IF(!IFRAME_PAGE) { ?>
 			$total_length += 68;
 		}
 		if(in_array('Tracked',$db_summary)) {
-			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc()['time'];
+			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc()['time'];
 			$blocks[] = [68, '<div class="overview-block">
 				<h4>Today\'s Tracked Time: '.$total_tracked_time.'</h4>
 			</div>'];

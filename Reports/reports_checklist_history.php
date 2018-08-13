@@ -154,19 +154,22 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     </tr>';
 
 	$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM checklist_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
-	foreach($query as $rowid) {
+	$odd_even = 0;
+    foreach($query as $rowid) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $changed_by = $rowid[2];
         $changed_date = $rowid[1];
         $change_details = $rowid[3];
         $cid = $row['contactid'];
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>'.html_entity_decode($rowid[4]).'</td>';
-        $report_data .= '<td>'.html_entity_decode($change_details).'</td>';
-        $report_data .= '<td>'.$changed_by.'</td>';
-        $report_data .= '<td>'.$changed_date.'</td>';
-
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>'.html_entity_decode($rowid[4]).'</td>';
+            $report_data .= '<td>'.html_entity_decode($change_details).'</td>';
+            $report_data .= '<td>'.$changed_by.'</td>';
+            $report_data .= '<td>'.$changed_date.'</td>';
         $report_data .= "</tr>";
+        
+        $odd_even++;
     }
 
     $report_data .= "</table>";

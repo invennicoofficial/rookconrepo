@@ -346,67 +346,66 @@ $(document).ready(function() {
 									<th>History</th>
 									<th>Status</th>
 								</tr>
+                                <tr>
+                                    <td data-title="Comment">All Software Guide</td>
+                                    <?php echo tile_config_function($dbc, 'how_to_guide'); ?>
+                                </tr>
 								<tr>
-                                        <td data-title="Comment">Certificates</td>
-                                        <?php echo tile_config_function($dbc, 'certificate'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Employee Handbook</td>
-                                        <?php echo tile_config_function($dbc, 'emp_handbook'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Goals & Objectives</td>
-                                        <?php echo tile_config_function($dbc, 'gao'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">How To Checklist</td>
-                                        <?php echo tile_config_function($dbc, 'how_to_checklist'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">How to Guide</td>
-                                        <?php echo tile_config_function($dbc, 'how_to_guide'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">HR</td>
-                                        <?php echo tile_config_function($dbc, 'hr'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Manuals</td>
-                                        <?php echo tile_config_function($dbc, 'manual'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Operations Manual</td>
-                                        <?php echo tile_config_function($dbc, 'ops_manual'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Orientation</td>
-                                        <?php echo tile_config_function($dbc, 'orientation'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Performance Reviews</td>
-                                        <?php echo tile_config_function($dbc, 'preformance_review'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Policies & Procedures</td>
-                                        <?php echo tile_config_function($dbc, 'policy_procedure'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Safety Manual</td>
-                                        <?php echo tile_config_function($dbc, 'safety_manual'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Software Guide</td>
-                                        <?php echo tile_config_function($dbc, 'software_guide'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Staff</td>
-                                        <?php echo tile_config_function($dbc, 'staff'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Training & Quizzes</td>
-                                        <?php echo tile_config_function($dbc, 'training_quiz'); ?>
-                                    </tr>
-
+                                    <td data-title="Comment">Certificates</td>
+                                    <?php echo tile_config_function($dbc, 'certificate'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Employee Handbook</td>
+                                    <?php echo tile_config_function($dbc, 'emp_handbook'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Goals & Objectives</td>
+                                    <?php echo tile_config_function($dbc, 'gao'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">How To Checklist</td>
+                                    <?php echo tile_config_function($dbc, 'how_to_checklist'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">HR</td>
+                                    <?php echo tile_config_function($dbc, 'hr'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Manuals</td>
+                                    <?php echo tile_config_function($dbc, 'manual'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Operations Manual</td>
+                                    <?php echo tile_config_function($dbc, 'ops_manual'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Orientation</td>
+                                    <?php echo tile_config_function($dbc, 'orientation'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Performance Reviews</td>
+                                    <?php echo tile_config_function($dbc, 'preformance_review'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Policies & Procedures</td>
+                                    <?php echo tile_config_function($dbc, 'policy_procedure'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Safety Manual</td>
+                                    <?php echo tile_config_function($dbc, 'safety_manual'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Software Guide</td>
+                                    <?php echo tile_config_function($dbc, 'software_guide'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Staff</td>
+                                    <?php echo tile_config_function($dbc, 'staff'); ?>
+                                </tr>
+                                <tr>
+                                    <td data-title="Comment">Training & Quizzes</td>
+                                    <?php echo tile_config_function($dbc, 'training_quiz'); ?>
+                                </tr>
 							</table>
 						</div>
 					</div>
@@ -939,7 +938,7 @@ $(document).ready(function() {
 										<?php echo tile_config_function($dbc, 'calllog'); ?>
 									</tr>
                                     <tr>
-                                        <td data-title="Drop Off Analysis">Dropoff Analysis</td>
+                                        <td data-title="Drop Off Analysis">Drop Off Analysis</td>
                                         <?php echo tile_config_function($dbc, 'drop_off_analysis'); ?>
                                     </tr>
 									<tr>
@@ -1292,7 +1291,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'pos'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Promotions</td>
+                                        <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion'); ?>
                                     </tr>
                                     <tr>

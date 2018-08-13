@@ -1,4 +1,5 @@
-<?php include_once('../include.php');
+<?php $include_folder = '';
+include_once('../include.php');
 include_once('../Ticket/field_list.php');
 if(!isset($strict_view)) {
 	$strict_view = strictview_visible_function($dbc, 'ticket');
@@ -146,6 +147,10 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'Service Staff Checklist';
 } else if($_GET['tab'] == 'ticket_service_extra_billing.php') {
 	$sort_field = 'Service Extra Billing';
+} else if($_GET['tab'] == 'internal_communication') {
+	$sort_field = 'Internal Communication';
+} else if($_GET['tab'] == 'external_communication') {
+	$sort_field = 'External Communication';
 }
 
 if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
@@ -328,7 +333,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 		$created_date = date('Y-m-d');
 		$login_id = $_SESSION['contactid'];
 
-		$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id')"));
+		$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id' AND `deleted` = 0)"));
 
 		$created_date = $get_ticket['created_date'];
 		$created_by = $get_ticket['created_by'];
@@ -792,6 +797,14 @@ if($generate_pdf) {
 			$_GET['tab'] = 'view_ticket_comment';
 		} else if($_GET['tab'] == 'ticket_checkout_staff') {
 			$_GET['tab'] = 'ticket_checkout';
+		} else if($_GET['tab'] == 'internal_communication') {
+			$communication_type = 'Internal';
+			$communication_method = 'email';
+			$_GET['tab'] = 'communication';
+		} else if($_GET['tab'] == 'external_communication') {
+			$communication_type = 'External';
+			$communication_method = 'email';
+			$_GET['tab'] = 'communication';
 		}
 
 		if(substr($sort_field, 0, strlen('FFMCUST_')) === 'FFMCUST_') {

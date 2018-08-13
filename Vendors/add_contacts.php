@@ -74,10 +74,16 @@ if (isset($_POST['add_list'])) {
     if(empty($_POST['order_id'])) {
         $query_insert_vendor = "INSERT INTO `order_lists` (`order_title`, `tile`, `include_in_pos`, `include_in_po`, `include_in_so`, `contactid`) VALUES ('$title', 'VPL', '$include_in_pos', '$include_in_po', '$include_in_so', '$contactid')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
+				$before_change = '';
+				$history = "New Order list added. <br />";
+				add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
     } else {
         $productid = $_POST['productid'];
         $query_update_vendor = "UPDATE `order_lists` SET `order_title` = '$title', `include_in_pos` = '$include_in_pos',`include_in_so` = '$include_in_so', `include_in_po` = '$include_in_po', `contactid` = '$contactid' WHERE `order_id` = '$order_id'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+				$before_change = '';
+				$history = "Order list is been updated. <br />";
+				add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript">window.location.replace("add_contacts.php?contactid='.$contactid.'&subtab=Order Lists"); </script>';

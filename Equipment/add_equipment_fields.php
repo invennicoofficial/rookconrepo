@@ -661,6 +661,75 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Billing Rate".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Billing Rate:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_hours / $total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Hours".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Hours:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= round($total_hours,3) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Amount:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Expense Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Expenses:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Profit Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Profit:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed - $total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { ?>
+<div class="form-group clearfix completion_date">
+    <label for="first_name" class="col-sm-4 control-label text-right">Follow Up Date:</label>
+    <div class="col-sm-8">
+        <input name="follow_up_date" value="<?php echo $follow_up_date; ?>" type="text" class="form-control datepicker"></p>
+    </div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Follow Up Staff".',') !== FALSE) { ?>
+<div class="form-group clearfix completion_date">
+    <label for="first_name" class="col-sm-4 control-label text-right">Follow Up Staff:</label>
+    <div class="col-sm-8">
+        <select name="follow_up_staff[]" multiple class="chosen-select-deselect">
+          <option></option>
+          <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"));
+          foreach($staff_list as $staff) {
+            echo '<option value="'.$staff['contactid'].'" '.(strpos(','.$follow_up_staff.',', ','.$staff['contactid'].',') !== false ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+          } ?>
+        </select>
+    </div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Service Date".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">Next Service Date:</label>

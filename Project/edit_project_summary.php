@@ -29,7 +29,7 @@ if(in_array('Summary Estimated',$tab_config)) {
 	$total_length += 68;
 }
 if(in_array('Summary Tracked',$tab_config)) {
-	$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer`) `time_list` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0)")->fetch_assoc()['time'];
+	$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer` WHERE `deleted` = 0) `time_list` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0)")->fetch_assoc()['time'];
 	$blocks[] = [68, '<div class="overview-block">
 		<h4>Total Tracked Time: '.$total_tracked_time.'</h4>
 	</div>'];
@@ -169,7 +169,7 @@ if(in_array('Summary Reporting',$tab_config)) {
 			$block .= '<a href="?edit=6&amp;tab=gantt"><label class="cursor-hand control-label">Gantt Chart</label></a><br />';
 			$block_length += 23;
 		}
-		$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer`) `time_list` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0)")->fetch_assoc()['time'];
+		$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer` WHERE `deleted` = 0) `time_list` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid' AND `deleted`=0)")->fetch_assoc()['time'];
 		$block .= '<label class="control-label">Total Time Spent:</label> '.$total_tracked_time;
 		$block_length += 23;
 

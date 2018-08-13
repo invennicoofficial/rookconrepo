@@ -2,7 +2,6 @@
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $show_tasks = tile_enabled($dbc, 'tasks');
-$show_tickets = tile_enabled($dbc, 'ticket');
 $show_forms = tile_enabled($dbc, 'intake');
 $show_checklists = tile_enabled($dbc, 'checklist');
 $sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
@@ -218,6 +217,15 @@ function task_send_reply(task) {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+    
+    /* Function before notes slider
+    task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task board';
+		task_id = task_id.substring(5);
+	}
 	$('[name=reply_'+task_id+']').show().focus();
 	$('[name=reply_'+task_id+']').keyup(function(e) {
 		if(e.which == 13) {
@@ -242,7 +250,7 @@ function task_send_reply(task) {
                 }
 			})
 		}
-	});
+	}); */
 }
 
 function task_quick_add_time(task) {
@@ -685,8 +693,6 @@ function checklist_attach_file(checklist) {
 						$label = $milestone_row['label'] ?: 'Tasks';
 						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' ORDER BY tasklistid DESC");
 						$task_count = mysqli_num_rows($task_result) ?: 0;
-						$ticket_result = mysqli_query($dbc, "SELECT * FROM tickets WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `status` NOT IN ('Archive','Archived','Done') AND `clientid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') ORDER BY ticketid DESC");
-						$ticket_count = mysqli_num_rows($ticket_result) ?: 0;
 						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
 						$form_count = mysqli_num_rows($form_result) ?: 0;
 						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
@@ -705,7 +711,7 @@ function checklist_attach_file(checklist) {
 								<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
 								<input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
 								<div class="small">
-									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_tickets) { ?><?= ' '.strtoupper(TICKET_TILE) ?>: <?= $ticket_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
+									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
 								</div>
 								<div class="clearfix"></div>
 							<div class="clearfix"></div>
@@ -814,8 +820,8 @@ function checklist_attach_file(checklist) {
 									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
 										while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
 											<div class="note_block row">
-												<div class="col-xs-2"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-												<div class="col-xs-10" style="<?= $style_strikethrough ?>">
+												<div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
+												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
 													<div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
 													<div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
 												</div>
@@ -828,19 +834,21 @@ function checklist_attach_file(checklist) {
 								</div><?php
 							}
 							$comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
-							if ( $comments->num_rows > 0 ) { ?>
+							if ( $comments->num_rows > 0 ) {
+                                $odd_even = 0; ?>
 								<div class="form-group clearfix">
 									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-										while ( $row_comment=mysqli_fetch_assoc($comments) ) { ?>
-											<div class="note_block row">
-												<div class="col-xs-2"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-												<div class="col-xs-10" style="<?= $style_strikethrough ?>">
+										while ( $row_comment=mysqli_fetch_assoc($comments) ) {
+                      $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+											<div class="note_block row <?= $bg_class ?>">
+												<div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
+												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
 													<div><?= html_entity_decode($row_comment['comment']); ?></div>
 													<div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
 												</div>
 												<div class="clearfix"></div>
-											</div>
-											<hr class="margin-vertical" /><?php
+											</div><?php
+                                            $odd_even++;
 										} ?>
 									</div>
 									<div class="clearfix"></div>
