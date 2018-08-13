@@ -200,11 +200,6 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_role` TEXT AFTER `software_user_name`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
-        
-        // August 10, 2018
-		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `equipmentid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `siteid`")) {
-			echo "Error: ".mysqli_error($dbc)."<br />\n";
-		}
 		
 		// August 7, 2018
 		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `newsboard_seen` (
@@ -215,9 +210,48 @@
 		)")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        // August 10, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `equipmentid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `siteid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
         
         // August 11, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `newsboard_seen` ADD `newsboard_src` VARCHAR(2) DEFAULT NULL AFTER `newsboardid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+        // August 13, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `last_oil_filter_change_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `last_oil_filter_change`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `next_oil_filter_change_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `next_oil_filter_change`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `last_insp_tune_up_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `last_insp_tune_up`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `next_insp_tune_up_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `next_insp_tune_up`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `last_tire_rotation_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `last_tire_rotation`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `next_tire_rotation_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `next_tire_rotation`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `current_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `mileage`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `site_work_driving_inspect` ADD `begin_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `final_odo_kms`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `site_work_driving_inspect` ADD `final_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `begin_hours`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `driving_log_safety_inspect` ADD `begin_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `final_odo_kms`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `driving_log_safety_inspect` ADD `final_hours` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `begin_hours`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		

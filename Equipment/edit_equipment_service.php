@@ -6,20 +6,28 @@ if(isset($_POST['submit'])) {
 	$equipmentid = $_GET['edit'];
 	$last_oil_filter_change_date = filter_var($_POST['last_oil_filter_change_date'],FILTER_SANITIZE_STRING);
 	$last_oil_filter_change = filter_var($_POST['last_oil_filter_change'],FILTER_SANITIZE_STRING);
+	$last_oil_filter_change_hrs = filter_var($_POST['last_oil_filter_change_hrs'],FILTER_SANITIZE_STRING);
 	$next_oil_filter_change_date = filter_var($_POST['next_oil_filter_change_date'],FILTER_SANITIZE_STRING);
 	$next_oil_filter_change = filter_var($_POST['next_oil_filter_change'],FILTER_SANITIZE_STRING);
+	$next_oil_filter_change_hrs = filter_var($_POST['next_oil_filter_change_hrs'],FILTER_SANITIZE_STRING);
 	$last_insp_tune_up_date = filter_var($_POST['last_insp_tune_up_date'],FILTER_SANITIZE_STRING);
 	$last_insp_tune_up = filter_var($_POST['last_insp_tune_up'],FILTER_SANITIZE_STRING);
+	$last_insp_tune_up_hrs = filter_var($_POST['last_insp_tune_up_hrs'],FILTER_SANITIZE_STRING);
 	$next_insp_tune_up_date = filter_var($_POST['next_insp_tune_up_date'],FILTER_SANITIZE_STRING);
 	$next_insp_tune_up = filter_var($_POST['next_insp_tune_up'],FILTER_SANITIZE_STRING);
+	$next_insp_tune_up_hrs = filter_var($_POST['next_insp_tune_up_hrs'],FILTER_SANITIZE_STRING);
 	$last_tire_rotation_date = filter_var($_POST['last_tire_rotation_date'],FILTER_SANITIZE_STRING);
 	$last_tire_rotation = filter_var($_POST['last_tire_rotation'],FILTER_SANITIZE_STRING);
+	$last_tire_rotation_hrs = filter_var($_POST['last_tire_rotation_hrs'],FILTER_SANITIZE_STRING);
 	$next_tire_rotation_date = filter_var($_POST['next_tire_rotation_date'],FILTER_SANITIZE_STRING);
 	$next_tire_rotation = filter_var($_POST['next_tire_rotation'],FILTER_SANITIZE_STRING);
+	$next_tire_rotation_hrs = filter_var($_POST['next_tire_rotation_hrs'],FILTER_SANITIZE_STRING);
+	$mileage = filter_var($_POST['mileage'],FILTER_SANITIZE_STRING);
 	$status = filter_var($_POST['status'],FILTER_SANITIZE_STRING);
+	$hours_operated = filter_var($_POST['hours_operated'],FILTER_SANITIZE_STRING);
 	$service_staff = filter_var($_POST['service_staff'],FILTER_SANITIZE_STRING);
-
-	$sql = "UPDATE `equipment` SET `last_oil_filter_change_date`='$last_oil_filter_change_date', `last_oil_filter_change`='$last_oil_filter_change', `next_oil_filter_change_date`='$next_oil_filter_change_date', `next_oil_filter_change`='$next_oil_filter_change', `next_oil_filter_change`='$next_oil_filter_change', `last_insp_tune_up_date`='$last_insp_tune_up_date', `last_insp_tune_up`='$last_insp_tune_up', `next_insp_tune_up_date`='$next_insp_tune_up_date', `next_insp_tune_up`='$next_insp_tune_up', `last_tire_rotation_date`='$last_tire_rotation_date', `last_tire_rotation`='$last_tire_rotation', `next_tire_rotation_date`='$next_tire_rotation_date', `next_tire_rotation`='$next_tire_rotation', `status`='$status', `service_staff`='$service_staff' WHERE `equipmentid`='$equipmentid'";
+	
+	$sql = "UPDATE `equipment` SET `last_oil_filter_change_date`='$last_oil_filter_change_date', `last_oil_filter_change`='$last_oil_filter_change', `last_oil_filter_change_hrs`='$last_oil_filter_change_hrs', `next_oil_filter_change_date`='$next_oil_filter_change_date', `next_oil_filter_change`='$next_oil_filter_change', `next_oil_filter_change_hrs`='$next_oil_filter_change_hrs', `last_insp_tune_up_date`='$last_insp_tune_up_date', `last_insp_tune_up`='$last_insp_tune_up', `last_insp_tune_up_hrs`='$last_insp_tune_up_hrs', `next_insp_tune_up_date`='$next_insp_tune_up_date', `next_insp_tune_up`='$next_insp_tune_up', `next_insp_tune_up_hrs`='$next_insp_tune_up_hrs', `last_tire_rotation_date`='$last_tire_rotation_date', `last_tire_rotation`='$last_tire_rotation', `last_tire_rotation_hrs`='$last_tire_rotation_hrs', `next_tire_rotation_date`='$next_tire_rotation_date', `next_tire_rotation`='$next_tire_rotation', `next_tire_rotation_hrs`='$next_tire_rotation_hrs', `hours_operated`='$hours_operated', `mileage`='$mileage', `status`='$status', `service_staff`='$service_staff' WHERE `equipmentid`='$equipmentid'";
 	mysqli_query($dbc, $sql);
 
 	$before_change = '';
@@ -58,16 +66,24 @@ $make = $get_equipment['make'];
 $model = $get_equipment['model'];
 $last_oil_filter_change_date = $get_equipment['last_oil_filter_change_date'];
 $last_oil_filter_change = $get_equipment['last_oil_filter_change'];
+$last_oil_filter_change_hrs = $get_equipment['last_oil_filter_change_hrs'];
 $next_oil_filter_change_date = $get_equipment['next_oil_filter_change_date'];
 $next_oil_filter_change = $get_equipment['next_oil_filter_change'];
+$next_oil_filter_change_hrs = $get_equipment['next_oil_filter_change_hrs'];
 $last_insp_tune_up_date = $get_equipment['last_insp_tune_up_date'];
 $last_insp_tune_up = $get_equipment['last_insp_tune_up'];
+$last_insp_tune_up_hrs = $get_equipment['last_insp_tune_up_hrs'];
 $next_insp_tune_up_date = $get_equipment['next_insp_tune_up_date'];
 $next_insp_tune_up = $get_equipment['next_insp_tune_up'];
+$next_insp_tune_up_hrs = $get_equipment['next_insp_tune_up_hrs'];
 $last_tire_rotation_date = $get_equipment['last_tire_rotation_date'];
 $last_tire_rotation = $get_equipment['last_tire_rotation'];
+$last_tire_rotation_hrs = $get_equipment['last_tire_rotation_hrs'];
 $next_tire_rotation_date = $get_equipment['next_tire_rotation_date'];
 $next_tire_rotation = $get_equipment['next_tire_rotation'];
+$next_tire_rotation_hrs = $get_equipment['next_tire_rotation_hrs'];
+$mileage = $get_equipment['mileage'];
+$hours_operated = $get_equipment['hours_operated'];
 $status = $get_equipment['status'];
 $service_staff = $get_equipment['service_staff']; ?>
 
@@ -108,28 +124,28 @@ $service_staff = $get_equipment['service_staff']; ?>
 
 				<div id="tab_section_oil" class="tab-section col-sm-12">
 					<h4>Oil Change</h4>
-					<?php $value_config = ',Last Oil Filter Change (date),Last Oil Filter Change (km),Next Oil Filter Change (date),Next Oil Filter Change (km),';
+					<?php $value_config = ',Last Oil Filter Change (date),Last Oil Filter Change (km),Last Oil Filter Change (hrs),Next Oil Filter Change (date),Next Oil Filter Change (km),Next Oil Filter Change (hrs),';
 					include('add_equipment_fields.php'); ?>
 					<div class="clearfix"></div><hr>
 				</div>
 
 				<div id="tab_section_tire" class="tab-section col-sm-12">
 					<h4>Tire Rotation</h4>
-					<?php $value_config = ',Last Tire Rotation (date),Last Tire Rotation (km),Next Tire Rotation (date),Next Tire Rotation (km),';
+					<?php $value_config = ',Last Tire Rotation (date),Last Tire Rotation (km),Last Tire Rotation (hrs),Next Tire Rotation (date),Next Tire Rotation (km),Next Tire Rotation (hrs),';
 					include('add_equipment_fields.php'); ?>
 					<div class="clearfix"></div><hr>
 				</div>
 
 				<div id="tab_section_tune" class="tab-section col-sm-12">
 					<h4>Tune Up</h4>
-					<?php $value_config = ',Last Inspection & Tune Up (date),Last Inspection & Tune Up (km),Next Inspection & Tune Up (date),Next Inspection & Tune Up (km),';
+					<?php $value_config = ',Last Inspection & Tune Up (date),Last Inspection & Tune Up (km),Last Inspection & Tune Up (hrs),Next Inspection & Tune Up (date),Next Inspection & Tune Up (km),Next Inspection & Tune Up (hrs),';
 					include('add_equipment_fields.php'); ?>
 					<div class="clearfix"></div><hr>
 				</div>
 
 				<div id="tab_section_status" class="tab-section col-sm-12">
-					<h4>Status</h4>Status
-					<?php $value_config = ',Status,';
+					<h4>Status</h4>
+					<?php $value_config = ',Hours Operated,Mileage,Status,';
 					include('add_equipment_fields.php'); ?>
 					<div class="clearfix"></div><hr>
 				</div>
