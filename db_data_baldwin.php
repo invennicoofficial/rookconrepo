@@ -452,5 +452,27 @@
     }
     //2018-08-07 - Ticket #8518 - Equipment Follow Up
 
+    //2018-08-09 - Ticket #8583 - Payroll: By Staff
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config` ADD `time_cards_total_hrs_layout` text AFTER `time_cards_dashboard`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    $updated_already = get_config($dbc, 'updated_ticket8583_timesheet');
+    if(empty($updated_already)) {
+        $value_config = ','.get_field_config($dbc, 'time_cards').',';
+        $new_value_config = ',reg_hrs,overtime_hrs,doubletime_hrs,';
+        if(strpos($value_config, ',view_ticket,') !== FALSE) {
+            $new_value_config .= 'view_ticket,';
+        }
+        if(strpos($value_config, ',total_tracked_hrs,') !== FALSE) {
+            $new_value_config .= 'total_tracked_hrs,';
+        }
+        if(strpos($value_config, ',staff_combine,') !== FALSE) {
+            $new_value_config .= 'staff_combine,';
+        }
+        set_field_config($dbc, 'time_cards_total_hrs_layout', $new_value_config);
+        set_config($dbc, 'updated_ticket8583_timesheet', 1);
+    }
+    //2018-08-09 - Ticket #8583 - Payroll: By Staff
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

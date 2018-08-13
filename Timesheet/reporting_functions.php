@@ -589,28 +589,41 @@
 } ?>
 
 <?php function get_egs_hours_report($dbc, $see_staff, $search_start_date, $search_end_date,$staff,$report_format, $tab) {
-	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
+	global $config;
+	$value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
+	if(empty(array_filter($value_config))) {
+		$value_config = ['reg_hrs','overtime_hrs','doubletime_hrs'];
+	}
+	$layout = get_config($dbc, 'timesheet_layout');
 	$timesheet_payroll_fields = '';
+	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$timesheet_payroll_layout = get_config($dbc, 'timesheet_payroll_layout');
 	$timesheet_payroll_overtime = get_config($dbc, 'timesheet_payroll_overtime');
 	$timesheet_payroll_doubletime = get_config($dbc, 'timesheet_payroll_doubletime');
-	$total_columns = 5;
+	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
+	if($tab == 'payroll' && $report_format != 'to_array') {
+		$total_columns = 3;
+	} else {
+		$total_columns = 2;
+	}
 	if($tab == 'payroll') {
 		$timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
 		$total_columns += count(array_filter(array_unique(explode(',',$timesheet_payroll_fields))));
 	}
-	if(in_array('view_ticket',$value_config)) {
-		$total_columns++;
+	$total_columns += count(array_filter(array_unique($value_config)));
+	if(in_array('staff_combine',$value_config)) {
+		$total_columns -= 1;
 	}
 	$col_width = 100 / $total_columns;
 
     $pass_var = '';
-    foreach (explode(',',$see_staff) as $search_staff_pass) {
+    foreach (array_unique(array_filter($see_staff)) as $search_staff_pass) {
         $pass_var .= 'search_staff%5B%5D='.$search_staff_pass.'&';
     }
 
-    if($report_format != 'report') {
+    if($report_format != 'to_array') {
         echo '<a href="payroll.php?'.$pass_var.'search_start_date='.$search_start_date.'&search_end_date='.$search_end_date.'&search_user_submit=Search" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Go Back</a>';
     }
 
@@ -631,7 +644,6 @@
     $report = '';
 	$report_blocks = [];
 	$report_name = [];
-
 	foreach($staff_list as $staff) {
         $search_staff = $staff['contactid'];
 
@@ -642,22 +654,37 @@
         $report .= '<table cellpadding="3" border="0" class="table table-bordered" style="text-align:left; border:1px solid #ddd;">
                 <tr class="hidden-xs hidden-sm">
                     <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Date</div></th>'.
-                    (in_array('total_tracked_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Tracked Hours</div></th>' : '').
                     (in_array('view_ticket',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>'.TICKET_NOUN.'</div></th>' : '').
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Expenses Owed</div></th>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage</div></th>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage Rate</div></th>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Mileage Total</div></th>' : '').
-                    '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Reg. Time</div></th>
-                    <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Over Time</div></th>
-                    <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Double Time</div></th>
-                    <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total</div></th>
+                    (in_array('start_time',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Start Time</div></th>' : '').
+                    (in_array('end_time',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>End Time</div></th>' : '').
+                    (in_array('total_tracked_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Tracked Hours</div></th>' : '').
+                    (in_array('planned_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Tracked Hours</div></th>' : '').
+                    (in_array('tracked_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Tracked Hours</div></th>' : '').
+                    (in_array('total_tracked_time',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Tracked Hours</div></th>' : '').
+                    (in_array('reg_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Reg. Time</div></th>' : '').
+                    (in_array('start_day_tile_separate',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>'.$timesheet_start_tile.'</div></th>' : '').
+                    (in_array('payable_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Payable Hours</div></th>' : '').
+                    (in_array('overtime_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Over Time</div></th>' : '').
+                    (in_array('doubletime_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Double Time</div></th>' : '').
+                    (in_array('extra_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Extra Hours</div></th>' : '').
+                    (in_array('relief_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Relief Hours</div></th>' : '').
+                    (in_array('sleep_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Sleep Hours</div></th>' : '').
+                    (in_array('training_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Training Hours</div></th>' : '').
+                    (in_array('sick_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Sick Time Adjustment</div></th>' : '').
+                    (in_array('sick_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Sick Hours Taken</div></th>' : '').
+                    (in_array('stat_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Stat Hours</div></th>' : '').
+                    (in_array('stat_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Stat Hours Taken</div></th>' : '').
+                    (in_array('vaca_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Vacation Hours</div></th>' : '').
+                    (in_array('vaca_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Vacation Hours Taken</div></th>' : '').
+                    (in_array('breaks',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Breaks</div></th>' : '').
+                    '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total</div></th>
                     '.($tab == 'payroll' && $report_format != 'to_array' ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Unapprove</div></th>' : '').'
                 </tr>';
-                $total = 0;
-                $total_reg = 0;
-                $total_overtime = 0;
-                $total_doubletime = 0;
+                $grand_total = 0;
                 $mileage_total = 0;
                 $mileage_rate_total = 0;
                 $mileage_cost_total = 0;
@@ -668,20 +695,69 @@
                 if($tab == 'payroll') {
                 	$limits .= " AND (`approv` = 'Y' OR `approv` = 'P')";
                 }
-                $limits .= " AND `type_of_time` != 'Vac Hrs.'";
-                $result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
+                // $result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
+                $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
+			        SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
+			        SUM(IF(`type_of_time`='Relief Hrs.',`total_hrs`,0)) RELIEF_HRS, SUM(IF(`type_of_time`='Sleep Hrs.',`total_hrs`,0)) SLEEP_HRS,
+			        SUM(IF(`type_of_time`='Sick Time Adj.',`total_hrs`,0)) SICK_ADJ, SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)) SICK_HRS,
+			        SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)) STAT_AVAIL, SUM(IF(`type_of_time`='Stat Hrs.Taken',`total_hrs`,0)) STAT_HRS,
+			        SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
+			        SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
+			        GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name`
+			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `time_cards_id` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
+		        $result = mysqli_fetch_all(mysqli_query($dbc, $sql),MYSQLI_ASSOC);
                 $date = $search_start_date;
                 $i = 0;
 				$bgcolor = 'white';
+			    $total = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0,'TRACKED_HRS'=>0];
                 while(strtotime($date) <= strtotime($search_end_date)) {
-                	$milage = 0;
+                	$mileage = 0;
                 	$mileage_rate = 0;
                 	$mileage_cost = 0;
                     if($result[$i]['date'] == $date) {
                         $row = $result[$i++];
-                        $row['row_hours'] = $row['hours'];
-                        $total_reg += $row['hours'];
-                        $total += $row['hours'];
+			            $hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>$row['REG_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS'],'TRACKED_HRS'=>$row['TRACKED_HRS']];
+			            foreach($hrs as $key => $hr) {
+			            	if($hr > 0) {
+			                    switch($timesheet_rounding) {
+			                        case 'up':
+			                            $hrs[$key] = ceil($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                        case 'down':
+			                            $hrs[$key] = floor($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                        case 'nearest':
+			                            $hrs[$key] = round($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                    }
+				            	$total[$key] += $hrs[$key];
+				            	if($key != 'TRACKED_HRS') {
+					            	$hrs['ROW_HRS'] += $hrs[$key];
+					            	$grand_total += $hrs[$key];
+					            }
+				            }
+			            }
+
+			            if(in_array('training_hrs',$value_config) && $row['time_cards_id'] > 0) {
+			                if(is_training_hrs($dbc, $row['time_cards_id'])) {
+			                    $hrs['TRAINING'] = $hrs['REG'];
+			                    $hrs['REG'] = 0;
+			                    $total['REG'] -= $hrs['TRAINING'];
+			                    $total['TRAINING'] += $hrs['TRAINING'];
+			                } else {
+			                    $hrs['TRAINING'] = 0;
+			                }
+			            } else {
+			                $hrs['TRAINING'] = 0;
+			            }
+			            if(in_array('start_day_tile_separate',$value_config) && !($row['ticketid'] > 0)) {
+			                $hrs['DRIVE'] = $hrs['REG'];
+			                $hrs['REG'] = 0;
+			                $total['REG'] -= $hrs['DRIVE'];
+			                $total['DRIVE'] += $hrs['DRIVE'];
+			            } else {
+			                $hrs['DRIVE'] = 0;
+			            }
 
                         //Mileage
                         $mileage_start = $date.' 00:00:00';
@@ -698,12 +774,21 @@
                         //Mileage Calculated Cost
                         $mileage_cost = $mileage * $mileage_rate;
                         $mileage_cost_total += $mileage_cost;
+	                    $planned_hrs = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $row['time_cards_id']);
+				        $tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $row['time_cards_id']);
+				        $total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $row['time_cards_id']);
                     } else {
+			            $hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'TRACKED_HRS'=>0];
                         $row = '';
                         $mileage = 0;
                         $mileage_rate = 0;
                         $mileage_cost = 0;
+                        $planned_hrs = '';
+                        $tracked_hrs = '';
+                        $total_tracked_time = '';
                     }
+                    $start_times = [!empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : ''];
+                    $end_times = [!empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : ''];
                     $ticketids = [$row['ticketid']];
                     $mileages = [];
                     $mileage_rates = [];
@@ -716,11 +801,56 @@
                     if($timesheet_payroll_layout == 'group_days') {
                     	$multidays = false;
                     	while($result[$i]['date'] == $date) {
-                    		$row['hours'] += $result[$i]['hours'];
-                    		$row['row_hours'] += $result[$i]['hours'];
-                    		$total += $result[$i]['hours'];
-                    		$total_reg += $result[$i]['hours'];
+                    		$next_row = $result[$i];
+                    		$next_hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>$next_row['REG_HRS'],'EXTRA'=>$next_row['EXTRA_HRS'],'RELIEF'=>$next_row['RELIEF_HRS'],'SLEEP'=>$next_row['SLEEP_HRS'],'SICK_ADJ'=>$next_row['SICK_ADJ'],'SICK'=>$next_row['SICK_HRS'],'STAT_AVAIL'=>$next_row['STAT_AVAIL'],'STAT'=>$next_row['STAT_HRS'],'VACA_AVAIL'=>$next_row['VACA_AVAIL'],'VACA'=>$next_row['VACA_HRS'],'BREAKS'=>$next_row['BREAKS'],'TRACKED_HRS'=>$next_row['TRACKED_HRS']];
+				            foreach($next_hrs as $key => $hr) {
+				            	if($hr > 0) {
+				                    switch($timesheet_rounding) {
+				                        case 'up':
+				                            $next_hrs[$key] = ceil($next_hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+				                            break;
+				                        case 'down':
+				                            $next_hrs[$key] = floor($next_hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+				                            break;
+				                        case 'nearest':
+				                            $next_hrs[$key] = round($next_hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+				                            break;
+				                    }
+					            	$total[$key] += $next_hrs[$key];
+					            	if($key != 'TRACKED_HRS') {
+						            	$hrs[$key] += $next_hrs[$key];
+						            	$grand_total += $next_hrs[$key];
+						            }
+					            }
+				            }
+
+				            if(in_array('training_hrs',$value_config) && $result[$i]['time_cards_id'] > 0) {
+				                if(is_training_hrs($dbc, $result[$i]['time_cards_id'])) {
+				                    $hrs['TRAINING'] = $hrs['REG'];
+				                    $hrs['REG'] = 0;
+				                    $total['REG'] -= $hrs['TRAINING'];
+				                    $total['TRAINING'] += $hrs['TRAINING'];
+				                } else {
+				                    $hrs['TRAINING'] = 0;
+				                }
+				            } else {
+				                $hrs['TRAINING'] = 0;
+				            }
+				            if(in_array('start_day_tile_separate',$value_config) && !($result[$i]['ticketid'] > 0)) {
+				                $hrs['DRIVE'] = $hrs['REG'];
+				                $hrs['REG'] = 0;
+				                $total['REG'] -= $hrs['DRIVE'];
+				                $total['DRIVE'] += $hrs['DRIVE'];
+				            } else {
+				                $hrs['DRIVE'] = 0;
+				            }
+
+		                    $start_times[] = !empty($result[$i]['start_time']) ? date('h:i a', strtotime($result[$i]['start_time'])) : '';
+		                    $end_times[] = !empty($result[$i]['end_times']) ? date('h:i a', strtotime($result[$i]['end_times'])) : '';
                     		$ticketids[] = $result[$i]['ticketid'];
+		                    $planned_hrs[] = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
+					        $tracked_hrs[] = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
+					        $total_tracked_time[] = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
                     		$multidays = true;
 
 	                        //Mileage
@@ -747,34 +877,39 @@
 
                     		$i++;
                     	}
+		                $planned_hrs = get_ticket_planned_hrs($dbc, $date, $search_staff);
+				        $tracked_hrs = get_ticket_tracked_hrs($dbc, $date, $search_staff);
+				        $total_tracked_time = get_ticket_total_tracked_time($dbc, $date, $search_staff);
                     }
                     if(empty($mileages)) {
                     	$mileages = [''];
-                    	$milage_rates = [''];
+                    	$mileage_rates = [''];
                     	$mileage_costs = [''];
                     }
-	                if($timesheet_payroll_doubletime > 0 && $row['hours'] > $timesheet_payroll_doubletime) {
-	                	$row['doubletime_hours'] = $row['hours'] - $timesheet_payroll_doubletime;
-	                	$row['hours'] -= $row['doubletime_hours'];
-	                	$total_reg -= $row['doubletime_hours'];
-	                	$total_doubletime += $row['doubletime_hours'];
+	                if($timesheet_payroll_doubletime > 0 && $hrs['REG'] > $timesheet_payroll_doubletime) {
+	                	$hrs['DOUBLETIME'] = $hrs['REG'] - $timesheet_payroll_doubletime;
+	                	$hrs['REG'] -= $hrs['DOUBLETIME'];
+	                	$total['REG'] -= $hrs['DOUBLETIME'];
+	                	$total['DOUBLETIME'] += $hrs['DOUBLETIME'];
 	                }
-	                if($timesheet_payroll_overtime > 0 && $row['hours'] > $timesheet_payroll_overtime) {
-	                	$row['overtime_hours'] = $row['hours'] - $timesheet_payroll_overtime;
-	                	$row['hours'] -= $row['overtime_hours'];
-	                	$total_reg -= $row['overtime_hours'];
-	                	$total_overtime += $row['overtime_hours'];
+	                if($timesheet_payroll_overtime > 0 && $hrs['REG'] > $timesheet_payroll_overtime) {
+	                	$hrs['OVERTIME'] = $hrs['REG'] - $timesheet_payroll_overtime;
+	                	$hrs['REG'] -= $hrs['OVERTIME'];
+	                	$total['REG'] -= $hrs['OVERTIME'];
+	                	$total['OVERTIME'] += $hrs['OVERTIME'];
 	                }
+                    $start_times = implode('<br />',$start_times);
+                    $end_times = implode('<br />',$end_times);
                     $ticketids = array_filter(array_unique($ticketids));
 
 	                $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
-                    if($row['hours'] > 0 || ($expenses_owed > 0 && strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE)) {
+                    if($hrs['ROW_HRS'] > 0 || ($expenses_owed > 0 && strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE)) {
 						$show_row = true;
                     	$view_ticket = [];
                     	foreach($ticketids as $ticketid) {
 	                    	if($ticketid > 0) {
 	                    		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$ticketid}'"));
-	                    		if($report_format == 'report') {
+	                    		if($report_format == 'to_array') {
 	                    			$view_ticket[] = get_ticket_label($dbc, $ticket);
 	                    		} else {
 		                    		$view_ticket[] = '<a href="" onclick="viewTicket(this); return false;">'.get_ticket_label($dbc, $ticket).'</a>';
@@ -799,13 +934,30 @@
 			                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage">'.$mileage_html.'</td>' : '').
 			                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage Rate">'.$mileage_rate_html.'</td>' : '').
-			                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage Total">'.$mileage_cost_html.'</td>' : '');
-
-                        $report .= (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Time Tracked">'.$row['timer'].'</td>' : '').'
-                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Hours">'.(empty($row['hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['hours'],2) : time_decimal2time($row['hours']))).' h</td>
-                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Over Time">'.(empty($row['overtime_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['overtime_hours'],2) : time_decimal2time($row['overtime_hours']))).' h</td>
-                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Double Time">'.(empty($row['doubletime_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['doubletime_hours'],2) : time_decimal2time($row['doubletime_hours']))).' h</td>
-                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total">'.(empty($row['row_hours']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($row['row_hours'],2) : time_decimal2time($row['row_hours']))).' h</td>';
+			                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Mileage Total">'.$mileage_cost_html.'</td>' : '').
+			                (in_array('start_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Start Time">'.$start_times.'</td>' : '').
+			                (in_array('end_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="End Time">'.$end_times.'</td>' : '').
+			                (in_array('planned_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Planned Hours">'.$planned_hrs.'</td>' : '').
+			                (in_array('tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Tracked Hours">'.$tracked_hrs.'</td>' : '').
+			                (in_array('total_tracked_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Tracked Time">'.$total_tracked_time.'</td>' : '').
+			                (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Time Tracked">'.(empty($hrs['TRACKED_HRS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($hrs['TRACKED_HRS']))).' h</td>' : '').
+                            (in_array('reg_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Hours">'.(empty($hrs['REG']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).' h</td>' : '').
+                            (in_array('start_day_tile_separate',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="'.$timesheet_start_tile.'">'.(empty($hrs['DRIVE']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).' h</td>' : '').
+                            (in_array('payable_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Payable Hours">'.(empty($hrs['REG']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).' h</td>' : '').
+                            (in_array('overtime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Over Time">'.(empty($hrs['OVERTIME']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['OVERTIME'],2) : time_decimal2time($hrs['OVERTIME']))).' h</td>' : '').
+                            (in_array('doubletime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Double Time">'.(empty($hrs['DOUBLETIME']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['DOUBLETIME'],2) : time_decimal2time($hrs['DOUBLETIME']))).' h</td>' : '').
+                            (in_array('extra_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Extra Hours">'.(empty($hrs['EXTRA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).' h</td>' : '').
+                            (in_array('relief_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Relief Hours">'.(empty($hrs['RELIEF']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['RELIEF'],2) : time_decimal2time($hrs['RELIEF']))).' h</td>' : '').
+                            (in_array('sleep_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Sleep Hours">'.(empty($hrs['SLEEP']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['SLEEP'],2) : time_decimal2time($hrs['SLEEP']))).' h</td>' : '').
+                            (in_array('training_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Training Hours">'.(empty($hrs['TRAINING']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRAINING'],2) : time_decimal2time($hrs['TRAINING']))).' h</td>' : '').
+                            (in_array('sick_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Sick Time Adjustment">'.(empty($hrs['SICK_ADJ']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK_ADJ'],2) : time_decimal2time($hrs['SICK_ADJ']))).' h</td>' : '').
+                            (in_array('sick_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Sick Hours Taken">'.(empty($hrs['SICK']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK'],2) : time_decimal2time($hrs['SICK']))).' h</td>' : '').
+                            (in_array('stat_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Stat Hours">'.(empty($hrs['STAT_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT_AVAIL'],2) : time_decimal2time($hrs['STAT_AVAIL']))).' h</td>' : '').
+                            (in_array('stat_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Stat Hours Taken">'.(empty($hrs['STAT']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT'],2) : time_decimal2time($hrs['STAT']))).' h</td>' : '').
+                            (in_array('vaca_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Vacation Hours">'.(empty($hrs['VACA_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA_AVAIL'],2) : time_decimal2time($hrs['VACA_AVAIL']))).' h</td>' : '').
+                            (in_array('vaca_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Vacation Hours Taken">'.(empty($hrs['VACA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).' h</td>' : '').
+                            (in_array('breaks',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Breaks">'.(empty($hrs['BREAKS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).' h</td>' : '').'
+                            <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total">'.(empty($hrs['ROW_HRS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($hrs['ROW_HRS'],2) : time_decimal2time($hrs['ROW_HRS']))).' h</td>';
                             if($tab == 'payroll' && $report_format != 'to_array') {
 		                    	$report .= '<td align="center" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Unapprove">';
 		                    	$report .= '<a href="" onclick="unapproveTimeSheet(this); return false;"'.($timesheet_payroll_layout ? ' data-type="day" data-date="'.$date.'"' : ' data-type="id" data-timesheetid="'.$row['id'].'"').' data-staff="'.$search_staff.'">Unapprove</a>';
@@ -831,16 +983,34 @@
 
                 $report .= '<tr>
                     <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="">Totals</td>'.
-                    (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
                     (in_array('view_ticket',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').
 	                (strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').
-                    '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Regular">'.($timesheet_time_format == 'decimal' ? number_format($total_reg,2) : time_decimal2time($total_reg)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Over Time">'.($timesheet_time_format == 'decimal' ? number_format($total_overtime,2) : time_decimal2time($total_overtime)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data="Total Double Time">'.($timesheet_time_format == 'decimal' ? number_format($total_doubletime,2) : time_decimal2time($total_doubletime)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Hours">'.($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)).' h</td>
+                    (in_array('start_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
+                    (in_array('end_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
+                    (in_array('planned_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
+                    (in_array('tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
+                    (in_array('total_tracked_time',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '' ).
+                    (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS'])).' h</td>' : '' ).
+                    (in_array('reg_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Regular">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).' h</td>' : '' ).
+                    (in_array('start_day_tile_separate',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total '.$timesheet_start_tile.'">'.(empty($total['DRIVE']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE']))).' h</td>' : '').
+                    (in_array('payable_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Payable">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).' h</td>' : '' ).
+                    (in_array('overtime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Over Time">'.($timesheet_time_format == 'decimal' ? number_format($total['OVERTIME'],2) : time_decimal2time($total['OVERTIME'])).' h</td>' : '' ).
+                    (in_array('doubletime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data="Total Double Time">'.($timesheet_time_format == 'decimal' ? number_format($total['DOUBLETIME'],2) : time_decimal2time($total['DOUBLETIME'])).' h</td>' : '' ).
+                    (in_array('extra_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Extra Hours">'.(empty($total['EXTRA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA']))).' h</td>' : '').
+                    (in_array('relief_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Relief Hours">'.(empty($total['RELIEF']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['RELIEF'],2) : time_decimal2time($total['RELIEF']))).' h</td>' : '').
+                    (in_array('sleep_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Sleep Hours">'.(empty($total['SLEEP']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SLEEP'],2) : time_decimal2time($total['SLEEP']))).' h</td>' : '').
+                    (in_array('training_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Training Hours">'.(empty($total['TRAINING']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['TRAINING'],2) : time_decimal2time($total['TRAINING']))).' h</td>' : '').
+                    (in_array('sick_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Sick Time Adjustment">'.(empty($total['SICK_ADJ']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SICK_ADJ'],2) : time_decimal2time($total['SICK_ADJ']))).' h</td>' : '').
+                    (in_array('sick_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Sick Hours Taken">'.(empty($total['SICK']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SICK'],2) : time_decimal2time($total['SICK']))).' h</td>' : '').
+                    (in_array('stat_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Stat Hours">'.(empty($total['STAT_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['STAT_AVAIL'],2) : time_decimal2time($total['STAT_AVAIL']))).' h</td>' : '').
+                    (in_array('stat_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Stat Hours Taken">'.(empty($total['STAT']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['STAT'],2) : time_decimal2time($total['STAT']))).' h</td>' : '').
+                    (in_array('vaca_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Vacation Hours">'.(empty($total['VACA_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['VACA_AVAIL'],2) : time_decimal2time($total['VACA_AVAIL']))).' h</td>' : '').
+                    (in_array('vaca_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Vacation Hours Taken">'.(empty($total['VACA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['VACA'],2) : time_decimal2time($total['VACA']))).' h</td>' : '').
+                    (in_array('breaks',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Breaks">'.(empty($total['BREAKS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS']))).' h</td>' : '').'
+                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Total Hours">'.($timesheet_time_format == 'decimal' ? number_format($grand_total,2) : time_decimal2time($grand_total)).' h</td>
                     '.($tab == 'payroll' && $report_format != 'to_array' ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title=""></td>' : '').'
                 </tr>
             </table>';
@@ -865,22 +1035,32 @@
 		$report_block = '<div class="clearfix"></div><br style="display:none;" /><h3 class="triple-gap-top">'.$report_name[$i].'</h3>'.$report_block;
 	}
 	if($report_format == 'to_array') {
-		return $report_blocks;
+		return implode('',$report_blocks);
 	}
 	return implode('',$report_blocks);
 } ?>
 
 <?php function get_egs_main_hours_report($dbc, $staff, $search_start_date, $search_end_date, $report_format = '', $tab) {
+	global $config;
+	$value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
+	if(empty(array_filter($value_config))) {
+		$value_config = ['reg_hrs','overtime_hrs','doubletime_hrs'];
+	}
+	$layout = get_config($dbc, 'timesheet_layout');
 	$timesheet_payroll_fields = '';
+	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$timesheet_payroll_layout = get_config($dbc, 'timesheet_payroll_layout');
 	$timesheet_payroll_overtime = get_config($dbc, 'timesheet_payroll_overtime');
 	$timesheet_payroll_doubletime = get_config($dbc, 'timesheet_payroll_doubletime');
-	$total_columns = 5;
+	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
+	$total_columns = 2;
 	if($tab == 'payroll') {
 		$timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
 		$total_columns += count(array_diff(array_filter(array_unique(explode(',',$timesheet_payroll_fields))),['Mileage','Mileage Rate','Mileage Total']));
 	}
+	$total_columns += count(array_diff(array_filter(array_unique($value_config)),['view_ticket','start_time','end_time','planned_hrs','tracked_hrs','total_tracked_time','staff_combine']));
 	$col_width = 100 / $total_columns;
 
     if($staff == '' || count(array_filter($staff)) == 0) {
@@ -907,10 +1087,7 @@
 		$start_of_year = date('Y-01-01', strtotime($search_start_date));
         $total_colspan = 2;
 
-                $total = 0;
-                $total_reg = 0;
-                $total_overtime = 0;
-                $total_doubletime = 0;
+                $grand_total = 0;
                 $limits = "AND `staff`='$search_staff'";
                 if($search_site > 0) {
                     $limits .= " AND `business` LIKE '%$search_site%'";
@@ -918,41 +1095,80 @@
                 if($tab == 'payroll') {
                 	$limits .= " AND (`approv` = 'Y' OR `approv` = 'P')";
                 }
-                $limits .= " AND `type_of_time` != 'Vac Hrs.'";
-                $result = get_time_sheet($search_start_date, $search_end_date, $limits, ', `staff`, `date`, `time_cards_id`');
+
+                $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
+			        SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
+			        SUM(IF(`type_of_time`='Relief Hrs.',`total_hrs`,0)) RELIEF_HRS, SUM(IF(`type_of_time`='Sleep Hrs.',`total_hrs`,0)) SLEEP_HRS,
+			        SUM(IF(`type_of_time`='Sick Time Adj.',`total_hrs`,0)) SICK_ADJ, SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)) SICK_HRS,
+			        SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)) STAT_AVAIL, SUM(IF(`type_of_time`='Stat Hrs.Taken',`total_hrs`,0)) STAT_HRS,
+			        SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
+			        SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
+			        GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name`
+			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `time_cards_id` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
+		        $result = mysqli_fetch_all(mysqli_query($dbc, $sql),MYSQLI_ASSOC);
                 $date = $search_start_date;
                 $i = 0;
+			    $total = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0,'TRACKED_HRS'=>0];
+	            $hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'TRACKED_HRS'=>0];
                 while(strtotime($date) <= strtotime($search_end_date)) {
                     if($result[$i]['date'] == $date) {
                         $row = $result[$i++];
-                        $total_reg += $row['hours'];
-                        $total += $row['hours'];
+			            $hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>$row['REG_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS'],'TRACKED_HRS'=>$row['TRACKED_HRS']];
+			            foreach($hrs as $key => $hr) {
+			            	if($hr > 0) {
+			                    switch($timesheet_rounding) {
+			                        case 'up':
+			                            $hrs[$key] = ceil($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                        case 'down':
+			                            $hrs[$key] = floor($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                        case 'nearest':
+			                            $hrs[$key] = round($hrs[$key] / $timesheet_rounded_increment) * $timesheet_rounded_increment;
+			                            break;
+			                    }
+				            	$total[$key] += $hrs[$key];
+				            	if($key != 'TRACKED_HRS') {
+					            	$grand_total += $hrs[$key];
+					            }
+				            }
+			            }
+
+			            if(in_array('training_hrs',$value_config) && $row['time_cards_id'] > 0) {
+			                if(is_training_hrs($dbc, $row['time_cards_id'])) {
+			                    $hrs['TRAINING'] = $hrs['REG'];
+			                    $hrs['REG'] = 0;
+			                    $total['REG'] -= $hrs['TRAINING'];
+			                    $total['TRAINING'] += $hrs['TRAINING'];
+			                } else {
+			                    $hrs['TRAINING'] = 0;
+			                }
+			            } else {
+			                $hrs['TRAINING'] = 0;
+			            }
+			            if(in_array('start_day_tile_separate',$value_config) && !($row['ticketid'] > 0)) {
+			                $hrs['DRIVE'] = $hrs['REG'];
+			                $hrs['REG'] = 0;
+			                $total['REG'] -= $hrs['DRIVE'];
+			                $total['DRIVE'] += $hrs['DRIVE'];
+			            } else {
+			                $hrs['DRIVE'] = 0;
+			            }
                     } else {
                         $row = '';
                     }
 
-                    if($timesheet_payroll_layout == 'group_days') {
-                    	while($result[$i]['date'] == $date) {
-                    		$row['hours'] += $result[$i]['hours'];
-                    		$row['row_hours'] += $result[$i]['hours'];
-                    		$total += $result[$i]['hours'];
-                    		$total_reg += $result[$i]['hours'];
-                    		$ticketids[] = $result[$i]['ticketid'];
-                    		$multidays = true;
-                    		$i++;
-                    	}
-                    }
-	                if($timesheet_payroll_doubletime > 0 && $row['hours'] > $timesheet_payroll_doubletime) {
-	                	$row['doubletime_hours'] = $row['hours'] - $timesheet_payroll_doubletime;
-	                	$row['hours'] -= $row['doubletime_hours'];
-	                	$total_reg -= $row['doubletime_hours'];
-	                	$total_doubletime += $row['doubletime_hours'];
+	                if($timesheet_payroll_doubletime > 0 && $hrs['REG'] > $timesheet_payroll_doubletime) {
+	                	$hrs['DOUBLETIME'] = $hrs['REG'] - $timesheet_payroll_doubletime;
+	                	$hrs['REG'] -= $hrs['DOUBLETIME'];
+	                	$total['REG'] -= $hrs['DOUBLETIME'];
+	                	$total['DOUBLETIME'] += $hrs['DOUBLETIME'];
 	                }
-	                if($timesheet_payroll_overtime > 0 && $row['hours'] > $timesheet_payroll_overtime) {
-	                	$row['overtime_hours'] = $row['hours'] - $timesheet_payroll_overtime;
-	                	$row['hours'] -= $row['overtime_hours'];
-	                	$total_reg -= $row['overtime_hours'];
-	                	$total_overtime += $row['overtime_hours'];
+	                if($timesheet_payroll_overtime > 0 && $hrs['REG'] > $timesheet_payroll_overtime) {
+	                	$hrs['OVERTIME'] = $hrs['REG'] - $timesheet_payroll_overtime;
+	                	$hrs['REG'] -= $hrs['OVERTIME'];
+	                	$total['REG'] -= $hrs['OVERTIME'];
+	                	$total['DOUBLETIME'] += $hrs['OVERTIME'];
 	                }
 
                     if($date != $row['date']) {
@@ -965,17 +1181,29 @@
 
                 $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` BETWEEN '$search_start_date' AND '$search_end_date'"))['expenses_owed'];
 
-                if($total > 0) {
                 $report .= '<tr>
-                    <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Staff"><a href="'.$base_url.'&see_staff='.$search_staff.'">'.$staff['first_name'].' '.$staff['last_name'].'</a></td>'.
+                    <td style="border-top:1px solid #ddd; border-right:1px solid #ddd;font-weight:bold;" data-title="Staff">'.($report_format != 'to_array' ? '<a href="'.$base_url.'&see_staff='.$search_staff.'">'.$staff['first_name'].' '.$staff['last_name'].'</a>' : $staff['first_name'].' '.$staff['last_name']).'</td>'.
 	                (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').
-	                '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Reg.">'.($timesheet_time_format == 'decimal' ? number_format($total_reg,2) : time_decimal2time($total_reg)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Over">'.($timesheet_time_format == 'decimal' ? number_format($total_overtime,2) : time_decimal2time($total_overtime)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Double">'.($timesheet_time_format == 'decimal' ? number_format($total_doubletime,2) : time_decimal2time($total_doubletime)).' h</td>
-                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Time">'.($timesheet_time_format == 'decimal' ? number_format($total,2) : time_decimal2time($total)).' h</td>
+	                (in_array('total_tracked_hrs',$value_config) ? '<td style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Time Tracked">'.(empty($total['TRACKED_HRS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS']))).' h</td>' : '').
+	                (in_array('reg_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Reg.">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).' h</td>' : '').
+                    (in_array('start_day_tile_separate',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total '.$timesheet_start_tile.'">'.(empty($total['DRIVE']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE']))).' h</td>' : '').
+                    (in_array('payable_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Payable Hours">'.(empty($total['REG']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG']))).' h</td>' : '').
+                    (in_array('overtime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Over">'.($timesheet_time_format == 'decimal' ? number_format($$total['OVERTIME'],2) : time_decimal2time($$total['OVERTIME'])).' h</td>' : '').
+                    (in_array('doubletime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Double">'.($timesheet_time_format == 'decimal' ? number_format($$total['DOUBLETIME'],2) : time_decimal2time($$total['DOUBLETIME'])).' h</td>' : '').
+                    (in_array('extra_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Extra Hours">'.(empty($total['EXTRA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA']))).' h</td>' : '').
+                    (in_array('relief_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Relief Hours">'.(empty($total['RELIEF']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['RELIEF'],2) : time_decimal2time($total['RELIEF']))).' h</td>' : '').
+                    (in_array('sleep_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Sleep Hours">'.(empty($total['SLEEP']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SLEEP'],2) : time_decimal2time($total['SLEEP']))).' h</td>' : '').
+                    (in_array('training_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Training Hours">'.(empty($total['TRAINING']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['TRAINING'],2) : time_decimal2time($total['TRAINING']))).' h</td>' : '').
+                    (in_array('sick_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Sick Time Adjustment">'.(empty($total['SICK_ADJ']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SICK_ADJ'],2) : time_decimal2time($total['SICK_ADJ']))).' h</td>' : '').
+                    (in_array('sick_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Sick Hours Taken">'.(empty($total['SICK']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SICK'],2) : time_decimal2time($total['SICK']))).' h</td>' : '').
+                    (in_array('stat_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Stat Hours">'.(empty($total['STAT_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['STAT_AVAIL'],2) : time_decimal2time($total['STAT_AVAIL']))).' h</td>' : '').
+                    (in_array('stat_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Stat Hours Taken">'.(empty($total['STAT']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['STAT'],2) : time_decimal2time($total['STAT']))).' h</td>' : '').
+                    (in_array('vaca_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Vacation Hours">'.(empty($total['VACA_AVAIL']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['VACA_AVAIL'],2) : time_decimal2time($total['VACA_AVAIL']))).' h</td>' : '').
+                    (in_array('vaca_used',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Vacation Hours Taken">'.(empty($total['VACA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['VACA'],2) : time_decimal2time($total['VACA']))).' h</td>' : '').
+                    (in_array('breaks',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Breaks">'.(empty($total['BREAKS']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS']))).' h</td>' : '').'
+                    <td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Time">'.($timesheet_time_format == 'decimal' ? number_format($grand_total,2) : time_decimal2time($grand_total)).' h</td>
                 </tr>
             ';
-            }
 
         $tb_field = $value['config_field'];
 
@@ -983,16 +1211,27 @@
 		$report = '';
 	}
 
-	if($report_format == 'to_array') {
-		return $report_output;
-	}
 	return '<table cellpadding="3" border="0" class="table table-bordered" style="text-align:left; border:1px solid #ddd;">
             <tr class="hidden-xs hidden-sm">
                 <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Staff</div></th>'.
                 (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Expenses Owed</div></th>' : '').
-                '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Reg. Time</div></th>
-                <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Over Time</div></th>
-                <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Double Time</div></th>
-                <th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Time</div></th>
+                (in_array('total_tracked_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Tracked Hours</div></th>' : '').
+                (in_array('reg_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Reg. Time</div></th>' : '').
+                (in_array('start_day_tile_separate',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total '.$timesheet_start_tile.'</div></th>' : '').
+                (in_array('payable_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Payable Hours</div></th>' : '').
+                (in_array('overtime_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Over Time</div></th>' : '').
+                (in_array('doubletime_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Double Time</div></th>' : '').
+                (in_array('extra_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Extra Hours</div></th>' : '').
+                (in_array('relief_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Relief Hours</div></th>' : '').
+                (in_array('sleep_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Sleep Hours</div></th>' : '').
+                (in_array('training_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Training Hours</div></th>' : '').
+                (in_array('sick_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Sick Time Adjustment</div></th>' : '').
+                (in_array('sick_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Sick Hours Taken</div></th>' : '').
+                (in_array('stat_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Stat Hours</div></th>' : '').
+                (in_array('stat_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Stat Hours Taken</div></th>' : '').
+                (in_array('vaca_hrs',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Vacation Hours</div></th>' : '').
+                (in_array('vaca_used',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Vacation Hours Taken</div></th>' : '').
+                (in_array('breaks',$value_config) ? '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Breaks</div></th>' : '').
+                '<th style="border-right: 1px solid #ddd; text-align:center; width:'.$col_width.'%;font-weight:bold;"><div>Total Time</div></th>
             </tr>'.implode('',$report_output).'</table>';
 } ?>

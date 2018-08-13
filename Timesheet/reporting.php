@@ -38,7 +38,7 @@ if($_GET['export'] == 'pdf_egs') {
 	include_once('../tcpdf/tcpdf.php');
 
 	$file_name = 'payroll_summary_'.date('Y_m_d_h_t').'.pdf';
-	$search_staff = filter_var($_GET['search_staff'],FILTER_SANITIZE_STRING);
+	$search_staff = $_GET['search_staff'];
 	$search_start_date = filter_var($_GET['search_start_date'],FILTER_SANITIZE_STRING);
 	$search_end_date = filter_var($_GET['search_end_date'],FILTER_SANITIZE_STRING);
     $search_position = filter_var($_GET['search_position'],FILTER_SANITIZE_STRING);
@@ -67,7 +67,11 @@ if($_GET['export'] == 'pdf_egs') {
                 </tr>
                 ';
 
-	$report .= get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff,$report_format = 'report',$_GET['tab']);
+    if(!empty($_GET['see_staff'])) {
+		$report .= get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff,$report_format = 'to_array',$_GET['tab']);
+    } else {
+		$report .= get_egs_main_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$report_format = 'to_array',$_GET['tab']);
+	}
 
 	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->AddPage();
