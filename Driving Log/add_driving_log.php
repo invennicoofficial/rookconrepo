@@ -247,9 +247,8 @@ if (isset($_POST['submit_checklist'])) {
     $safety37 = $_POST['safety37'];
     $safety38 = $_POST['safety38'];
     $repair_note = filter_var($_POST['repair_note'],FILTER_SANITIZE_STRING);
-    if($vehicleid > 0 $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
+    if($vehicleid > 0 && $final_hours > 0 && $final_odo_kms > 0) {
         mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$vehicleid'");
-        $equip_hr_km = true;
     }
 
     if (empty($safetyinspectid)) {

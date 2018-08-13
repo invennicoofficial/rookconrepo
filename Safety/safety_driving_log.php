@@ -111,7 +111,7 @@ if(isset($_POST['submit'])) {
 	foreach($_POST['equipment'] as $id) {
 		$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='$id'"));
 		$html .= "Unit #".$equipment['unit_number'].': '.(empty($equipment['model']) ? '' : $equipment['model'].': ').$equipment['label']."<br />";
-        if($id > 0 $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
+        if($id > 0 && $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
             mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$id'");
             $equip_hr_km = true;
         }
