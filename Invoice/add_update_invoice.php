@@ -25,6 +25,7 @@ if($invoice_mode != 'Adjustment') {
 	$misc_patient_price = 0;
 	$misc_insurer_price = [];
 
+    $reference = isset($_POST['reference']) ? filter_var(htmlentities($_POST['reference']),FILTER_SANITIZE_STRING) : '';
 	$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
 
 	$pricing = $_POST['pricing'];
@@ -758,6 +759,11 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
 		$patientid = $_POST['patientid'];
 	}
+
+    //Update Reference (similar to POS Basic. SEA Alberta is using this)
+    if ( !empty($reference) ) {
+        mysqli_query($dbc, "UPDATE `contacts` SET `referred_by`='$reference' WHERE `contactid`='$patientid'");
+    }
         
     //Update promotion times_used
     if ( !empty($promotionid) ) {

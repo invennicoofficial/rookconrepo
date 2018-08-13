@@ -13,7 +13,7 @@ $coupon_value	= $point_of_sell['coupon_value'];
 	// $edited = '_' . $edit_id;
 // }
 
-$customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT name, first_name, last_name, office_phone, home_phone, cell_phone, email_address, business_address, city, state, country, zip_code FROM contacts WHERE contactid='$contactid'"));
+$customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT name, first_name, last_name, office_phone, home_phone, cell_phone, email_address, business_address, city, state, country, zip_code, referred_by FROM contacts WHERE contactid='$contactid'"));
 
 $customer_phone = '';
 
@@ -493,7 +493,7 @@ if($pdf_tax != '') {
 if($point_of_sell['invoice_date'] !== '') {
 				$tdduedate = '</tr><tr><td width="25%">Due Date : '.date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")).'</td>';
 			} else { $tdduedate = '';  }
-$html .= 'Comments: '.$comment.'<br><br><br>
+$html .= 'Comments: '.html_entity_decode($comment).'<br><br><br>
 <table> <tr><td width="25%">Date: '.$point_of_sell['invoice_date'].'</td><td width="25%"></td>'.$tdduedate.'<td width="25%"></td><td width="25%"></td></tr><tr><td width="25%">Created By: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'</td><td width="25%"></td><td width="25%"></td><td width="25%"></td></tr></table>
 <br><br><br>
 <table width="400px" style="border-bottom:1px solid black;"><tr><td>
