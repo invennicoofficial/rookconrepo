@@ -97,11 +97,27 @@ function viewTicket(a) {
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
+            <input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
+            <input type="hidden" name="subtab" value="<?= $_GET['subtab'] ?>">
             <?php echo get_tabs('Payroll', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
+            <?php if(get_config($dbc,'timesheet_payroll_styling') == 'Both') {
+                $query_string = $_GET;
+                unset($query_string['subtab']); ?>
+                <br>
+                <div>
+                    <a href="payroll.php?<?= http_build_query($query_string) ?>&subtab=Summary"><button type="button" class="btn brand-btn mobile-block <?= (empty($_GET['subtab']) || $_GET['subtab'] == 'Summary' ? 'active_tab' : '') ?>">Summary</button></a>
+                    <a href="payroll.php?<?= http_build_query($query_string) ?>&subtab=Detailed"><button type="button" class="btn brand-btn mobile-block <?= ($_GET['subtab'] == 'Detailed' ? 'active_tab' : '') ?>">Detailed</button></a>
+                </div>
+            <?php } ?>
             <br><br>
             <?php
                 $timesheet_payroll_styling = get_config($dbc,'timesheet_payroll_styling');
+                if($timesheet_payroll_styling == 'Both') {
+                    $timesheet_payroll_styling = 'EGS';
+                }
+                if($_GET['subtab'] == 'Detailed') {
+                    $timesheet_payroll_styling = 'Default';
+                }
 
                 $highlight = get_config($dbc, 'timesheet_highlight');
                 $mg_highlight = get_config($dbc, 'timesheet_manager');
@@ -169,7 +185,7 @@ function viewTicket(a) {
 			<?php } ?>
 
             <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
-                <label class="control-label">Search By Staff:</label>
+                <label class="control-label">Search By Staff:</1label>
             </div>
             <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
                 <?php if($timesheet_payroll_styling == 'EGS') { ?>
@@ -262,19 +278,21 @@ function viewTicket(a) {
             
             <div class="form-group gap-top">
                 <div class="text-right">
-					<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
-					<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $_GET['search_staff'][0] ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
+                    <?php $search_staff_query = "search_staff%5B%5D=".implode('&search_staff%5B%5D=', $search_staff_list); ?>
+					<a href="?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&<?= $search_staff_query ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
+					<a href="?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&<?= $search_staff_query ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
                     
-                    if($timesheet_payroll_styling == 'EGS') { ?>
-                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?= is_array($search_staff_list) ? implode(',',$search_staff_list) : $search_staff_list ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=payroll" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
+                    if($timesheet_payroll_styling == 'EGS') {
+                        $search_staff_query = implode('&search_staff%5B%5D=', $search_staff_list); ?>
+                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff%5B%5D=<?php echo $search_staff_query; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=payroll&see_staff=<?= $_GET['see_staff'] ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
                     } ?>
                 </div>
             </div>
         </form>
 
-    <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
+    <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
 
     <div id="no-more-tables">
 

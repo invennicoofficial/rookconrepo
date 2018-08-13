@@ -74,6 +74,27 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
         }
     }
 
+    if(in_array('Key Number', $daysheet_ticket_fields) && $ticket['siteid'] > 0) {
+        $site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `key_number` FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+        if(!empty($site['key_number'])) {
+            $label .= '<br />Key Number: '.$site['key_number'];
+        }
+    }
+
+    if(in_array('Door Code Number', $daysheet_ticket_fields) && $ticket['siteid'] > 0) {
+        $site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `door_code_number` FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+        if(!empty($site['door_code_number'])) {
+            $label .= '<br />Door Code Number: '.$site['door_code_number'];
+        }
+    }
+
+    if(in_array('Alarm Code Number', $daysheet_ticket_fields) && $ticket['siteid'] > 0) {
+        $site = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `alarm_code_number` FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."' AND '".$ticket['siteid']."' > 0"));
+        if(!empty($site['alarm_code_number'])) {
+            $label .= '<br />Alarm Code Number: '.$site['alarm_code_number'];
+        }
+    }
+
     //Timer stuff
     $total_minutes = 0;
     $ticket_timer = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_timer` WHERE `ticketid` = '".$ticket['ticketid']."' AND `created_by` = '".$contactid."' AND `timer_type` != 'Break' AND `deleted` = 0"),MYSQLI_ASSOC);

@@ -18,6 +18,9 @@ if($type == 'Ticket') {
 	$data = 'data-id="'.$item['ticketid'].'" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid"';
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
+    if(!empty($item['flag_label'])) {
+        $flag_label = $item['flag_label'];
+    }
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$doc_table = "ticket_document";
 	$doc_folder = "../Ticket/download/";
@@ -251,6 +254,9 @@ if($type == 'Ticket') {
 	}
 	$flag_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 	$flag_label = $ticket_flag_names[$colour];
+    if(!empty($item['flag_label'])) {
+        $flag_label = $item['flag_label'];
+    }
 	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Tasks/download/";
@@ -309,6 +315,9 @@ if($type == 'Ticket') {
 	}
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$flag_label = $ticket_flag_names[$colour];
+    if(!empty($item['flag_label'])) {
+        $flag_label = $item['flag_label'];
+    }
 	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Intake/download/";
@@ -348,6 +357,9 @@ if($type == 'Ticket') {
 	$data = 'data-id="'.$item['checklistid'].'" data-table="checklist" data-name="project_milestone" data-id-field="checklistid"';
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
+    if(!empty($item['flag_label'])) {
+        $flag_label = $item['flag_label'];
+    }
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$actions = '<a target="_parent" href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$item['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit"></a>'.
 		'<input type="file" name="attach_checklist_board_'.$item['checklistid'].'" style="display:none;" />'.

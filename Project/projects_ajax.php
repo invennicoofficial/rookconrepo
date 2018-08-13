@@ -132,17 +132,18 @@ if($_GET['action'] == 'mark_favourite') {
 		echo $new_colour.html_entity_decode($label);
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
 	} else if($field == 'flag_manual') {
+		$colour = filter_var($_POST['colour'],FILTER_SANITIZE_STRING);
 		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
 		$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
 		$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
 		if($table == 'tickets') {
-			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$colour',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
 			if(!empty($label)) {
 				mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$label',DATE(NOW()),'".$_SESSION['contactid']."')");
 			}
 		} else {
-			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$colour',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
 		}
 	} else if($field == 'work_time') {
 		if($table == 'tasklist') {

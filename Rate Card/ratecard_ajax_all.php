@@ -8,20 +8,31 @@ if($_GET['fill'] == 'rate_card_config') {
 
     if($action == 'show_hide') {
         $ratecardid = $_GET['id'];
+        $before_change = capture_before_change($dbc, 'rate_card', 'hide', 'ratecardid', $ratecardid);
         $query_rate_card = "UPDATE `rate_card` SET `hide` = '$value' WHERE `ratecardid` = '$ratecardid'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('hide', $value);
+				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
 
     if($action == 'archive') {
         $ratecardid = $_GET['id'];
           $date_of_archival = date('Y-m-d');
-      $query_rate_card = "UPDATE `rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ratecardid` = '$ratecardid'";
-        $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+          $before_change = capture_before_change($dbc, 'rate_card', 'deleted', 'ratecardid', $ratecardid);
+          $before_change .= capture_before_change($dbc, 'rate_card', 'date_of_archival', 'ratecardid', $ratecardid);
+          $query_rate_card = "UPDATE `rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `ratecardid` = '$ratecardid'";
+          $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+          $history = capture_after_change('deleted', 1);
+          $history .= capture_after_change('date_of_archival', $date_of_archival);
+				  add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
     if($action == 'on_off') {
         $ratecardid = $_GET['id'];
+        $before_change = capture_before_change($dbc, 'rate_card', 'on_off', 'ratecardid', $ratecardid);
         $query_rate_card = "UPDATE `rate_card` SET `on_off` = '$value' WHERE `ratecardid` = '$ratecardid'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('on_off', $value);
+        add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
 }
 //Packages

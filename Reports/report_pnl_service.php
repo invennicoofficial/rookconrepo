@@ -23,7 +23,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -173,10 +173,12 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 
         $combined = combineStringArrayWithDuplicates($serviceid, $sorted_arr2);
 
+        $odd_even = 0;
         foreach ($combined as $key => $value) {
+            $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
             $key_invid_qty = explode(':', $key);
             $sid = $key_invid_qty[0];
-            $report_data .= '<tr nobr="true">';
+            $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
             $base_pay_inv_perc = $base_pay[1];
 
             $report_data .= '<td>'.get_all_from_service($dbc, $sid, 'heading').'</td>';
@@ -192,6 +194,8 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
             $total_base_inv += $client_price;
             $total_appt += $key_invid_qty[1];
             $final_total += $final_price;
+            
+            $odd_even++;
         }
     }
 

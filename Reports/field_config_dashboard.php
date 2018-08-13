@@ -519,6 +519,18 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Security History".',') !== FALSE) { echo " checked"; } ?> value="History Security History" name="reports_dashboard[]"> Security History</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Equipment History".',') !== FALSE) { echo " checked"; } ?> value="History Equipment History" name="reports_dashboard[]"> Equipment History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Vendor Price List History".',') !== FALSE) { echo " checked"; } ?> value="History Vendor Price List History" name="reports_dashboard[]"> Vendor Price List History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Rate Card History".',') !== FALSE) { echo " checked"; } ?> value="History Rate Card History" name="reports_dashboard[]"> Rate Card History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Purchase Order History".',') !== FALSE) { echo " checked"; } ?> value="History Purchase Order History" name="reports_dashboard[]"> Purchase Order History</label>
+	</div>
   <div class="clearfix"></div>
 
   <h3>Estimates</h3>

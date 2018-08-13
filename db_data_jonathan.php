@@ -200,7 +200,26 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `support` ADD `software_role` TEXT AFTER `software_user_name`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		
+		// August 7, 2018
+		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `newsboard_seen` (
+			`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`newsboardid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`contactid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+			`seen_date` DATETIME DEFAULT CURRENT_TIMESTAMP
+		)")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // August 10, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `purchase_orders` ADD `equipmentid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `siteid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
         
+        // August 11, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `newsboard_seen` ADD `newsboard_src` VARCHAR(2) DEFAULT NULL AFTER `newsboardid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
         // August 13, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `last_oil_filter_change_hrs` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `last_oil_filter_change`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
