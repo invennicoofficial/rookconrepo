@@ -23,7 +23,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -160,20 +160,23 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     $report_service = mysqli_query($dbc,"SELECT SUM(patient_price) as `all_payment`, patientid FROM invoice_patient WHERE (paid != 'On Account' AND paid != '' AND paid IS NOT NULL) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') GROUP BY patientid");
 
     $total1 = 0;
+    $odd_even = 0;
 
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6';
         $patientid = $row_report['patientid'];
 
-        $report_data .= '<tr nobr="true">';
-		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $patientid). '</a></td>';
-        $report_data .= '<td><a href="../Invoice/all_invoice.php?patientid='.$patientid.'&from='.$starttime.'&to='.$endtime.'">$'.$row_report['all_payment'].'</a></td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $patientid). '</a></td>';
+            $report_data .= '<td align="right"><a href="../Invoice/all_invoice.php?patientid='.$patientid.'&from='.$starttime.'&to='.$endtime.'">$'.$row_report['all_payment'].'</a></td>';
         $report_data .= '</tr>';
 
         $total1 += $row_report['all_payment'];
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td><b>$'.number_format($total1, 2).'</b></td>';
+    $report_data .= '<td><b>Total</b></td><td align="right"><b>$'.number_format($total1, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

@@ -97,7 +97,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_marketing" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=marketing&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -114,7 +114,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_compensation" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=compensation&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -131,7 +131,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_pnl" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=pnl&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -148,7 +148,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_customer" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=customer&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -165,7 +165,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=staff&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -182,7 +182,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=history&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -199,7 +199,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff1" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=estimates&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -319,6 +319,20 @@ function reports_tiles_content($dbc) {
                 }
             });
         });
+        
+        function customer_invoices_subtab(btn){
+            var panel = $(btn).closest('.panel').find('.panel-body');
+            if($(btn).attr('href') != '') {
+                $.ajax({
+                    url: $(btn).attr('href')+'&mobile_view=true',
+                    method: 'POST',
+                    response: 'html',
+                    success: function(response) {
+                        panel.html(response);
+                    }
+                });
+            }
+        }
         </script>
     <?php } ?>
     <div class="form-group form-horizontal">
@@ -428,11 +442,17 @@ function reports_tiles_content($dbc) {
                 if(!empty($sorted_reports)) {
                     ksort($sorted_reports);
                     foreach($sorted_reports as $key => $report) {
-                        echo '<option data-file="'.$report[0].'" value="?type='.$report[2].'&report='.$report[1].'" '.($_GET['report'] == $report[1] ? 'selected' : '').'>'.$key.'</option>';
+                        echo '<option data-file="'.$report[0].'" value="?type='.$report[2].'&report='.$report[1].($report[2]=='customer' && $report[1]=='Customer Patient Invoices' ? '&subtab=unpaid' : '').'" '.($_GET['report'] == $report[1] ? 'selected' : '').'>'.$key.'</option>';
                     }
                 }
                 ?>
         </select>
-    </div><div class="clearfix"></div>
-    <?php include('../Reports/'.$report_list[$_GET['report']][0]);
+    </div><div class="clearfix"></div><?php
+    if ( $_GET['type'] == 'customer' && isset($_GET['subtab']) && $_GET['subtab'] == 'paid' ) {
+        include('../Reports/report_patient_paid_invoices.php');
+    } elseif ( $_GET['type'] == 'customer' && isset($_GET['subtab']) && $_GET['subtab'] == 'unpaid' ) {
+        include('../Reports/report_patient_unpaid_invoices.php');
+    } else {
+        include('../Reports/'.$report_list[$_GET['report']][0]);
+    }
 }

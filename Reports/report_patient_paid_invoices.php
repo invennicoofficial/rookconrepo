@@ -26,7 +26,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -84,25 +84,17 @@ if (isset($_POST['printpdf'])) {
     $paid_date = $paid_datepdf;
     } ?>
 
-<script type="text/javascript">
+        <div class="notice double-gap-bottom popover-examples">
+            <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+            <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+            How many invoices are paid and not paid per Customer.</div>
+            <div class="clearfix"></div>
+        </div>
+        
+        <a href="report_tiles.php?<?= $_SERVER['QUERY_STRING'] ?>&subtab=unpaid" <?= $_GET['mobile_view']=='true' ? 'onclick="customer_invoices_subtab(this); return false;"' : '' ?>><button type="button" class="btn brand-btn mobile-block <?= $_GET['subtab']=='unpaid' ? 'active_tab' : '' ?>">Unpaid Invoices</button></a>&nbsp;&nbsp;
+        <a href="report_tiles.php?<?= $_SERVER['QUERY_STRING'] ?>&subtab=paid" <?= $_GET['mobile_view']=='true' ? 'onclick="customer_invoices_subtab(this); return false;"' : '' ?>><button type="button" class="btn brand-btn mobile-block <?= $_GET['subtab']=='paid' ? 'active_tab' : '' ?>">Paid Invoices</button></a>&nbsp;&nbsp;
 
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-        <a href='report_patient_unpaid_invoices.php?type=sales'><button type="button" class="btn brand-btn mobile-block" >Unpaid Invoices</button></a>&nbsp;&nbsp;
-        <a href='report_patient_paid_invoices.php?type=sales'><button type="button" class="btn brand-btn mobile-block active_tab" >Paid Invoices</button></a>&nbsp;&nbsp;
-
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal triple-gap-top" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
             <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
@@ -166,11 +158,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table_style, $table_row_style, $grand_total_style, $paid_date, $starttime_paid_date, $endtime_paid_date) {
 
@@ -223,23 +210,27 @@ function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table
     </tr>';
 
     $amt_to_bill = 0;
+    $odd_even = 0;
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6';
         $patient_price = $row_report['patient_price'];
         $invoiceid = $row_report['invoiceid'];
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid.'</td>';
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-        $report_data .= '<td>'.$row_report['paid_date'].'</td>';
-        $report_data .= '<td>'.get_contact($dbc, $row_report['patientid']).'</td>';
-        $report_data .= '<td>'.$row_report['paid'].'</td>';
-        $report_data .= '<td>$'.$patient_price.'</td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>#'.$invoiceid.'</td>';
+            $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
+            $report_data .= '<td>'.$row_report['paid_date'].'</td>';
+            $report_data .= '<td>'.get_contact($dbc, $row_report['patientid']).'</td>';
+            $report_data .= '<td>'.$row_report['paid'].'</td>';
+            $report_data .= '<td align="right">$'.$patient_price.'</td>';
         $report_data .= '</tr>';
         $amt_to_bill += $patient_price;
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td></td><td></td><td></td><td></td><td><b>$'.number_format($amt_to_bill, 2).'</b></td>';
+    $report_data .= '<td colspan="5"><b>Total</b></td><td align="right"><b>$'.number_format($amt_to_bill, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 
