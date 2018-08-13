@@ -108,6 +108,9 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 						<?php } ?>
 					</div>
 
+
+
+
 					<div class="pull-right hide-titles-mob">
 						<a href="" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5" onclick="$('.not_filter').toggle(); $('.filter_box').toggle().focus(); $(this).text($(this).text() == 'Filter Checklists' ? 'Close Filter Options' : 'Filter Checklists'); filter_checklists(''); return false;">Filter Checklists</a>
 					</div>
@@ -118,6 +121,13 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 							<span class="popover-examples list-inline pull-right" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
 						</div>
 					<?php } ?>
+
+                    <?php
+                    $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE checklist_tile=1"));
+                    if($get_checklist['checklistid'] > 0) {
+                       echo 	'<a href="checklist_tile.php" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5">Back to Dashboard</a>';
+                    }
+                    ?>
 
 					<label class="filter_box" style="display:none;">Type to Filter Checklists by Name, User, <?= $_GET['subtabid'] == 'project' ? 'Project, ' : '' ?>or Category:</label>
 					<input type="text" class="filter_box form-control pull-right" style="display:none;" onkeyup="filter_checklists(this.value);" />
