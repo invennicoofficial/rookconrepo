@@ -438,7 +438,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
 				while($invoice = mysqli_fetch_array( $result ))
 				{
-					$invoice_pdf = 'Download/invoice_'.$invoice['invoiceid'].'.pdf';
+					$invoice_pdf = 'download/invoice_'.$invoice['invoiceid'].'.pdf';
 					$style = '';
 					if($invoice['status'] == 'Posted Past Due') {
 						$style = 'color:green;';
