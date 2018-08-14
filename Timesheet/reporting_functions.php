@@ -1,5 +1,13 @@
+<?php $layout = get_config($dbc, 'timesheet_layout');
+$value_config = explode(',',get_field_config($dbc, 'time_cards'));
+define('COLSPAN', 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0)
+    + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? 1 : 0) + (in_array('start_time',$value_config) || in_array('start_time_editable',$value_config) ? 1 : 0)
+    + (in_array('end_time',$value_config) || in_array('end_time_editable',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0)
+    + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0) + (in_array('start_day_tile',$value_config) ? 1 : 0) + ($layout == 'ticket_task')
+    + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0)
+    + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0));
 
-<?php function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '', $hours_types) {
+function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '', $hours_types) {
   $filter_query = '';
   if(!empty($search_project)) {
     $filter_query .= " AND `projectid` = '$search_project'";
@@ -104,7 +112,8 @@
 		if(in_array($layout,['','multi_line','position_dropdown','ticket_task'])):
 			$report_block .= '<table class="table table-bordered" style="width:100%;">
 				<tr class="hidden-xs hidden-sm">
-					<td colspan="'.(1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? 1 : 0) + (in_array('start_time',$value_config) ? 1 : 0) + (in_array('end_time',$value_config) ? 1 : 0) + (in_array('start_time_editable',$value_config) ? 1 : 0) + (in_array('end_time_editable',$value_config) ? 1 : 0) + (in_array('planned_hrs',$value_config) ? 1 : 0) + (in_array('tracked_hrs',$value_config) ? 1 : 0) + (in_array('total_tracked_time',$value_config) ? 1 : 0) + ($layout == 'ticket_task') + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0) + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0)).'">Balance Forward Y.T.D.</td>
+					<td colspan="'.COLSPAN.'">Balance Forward Y.T.D.</td>
+					'.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td></td>' : '').'
 					'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td></td>' : '').'
 					'.(in_array('start_day_tile_separate',$value_config) ? '<td></td>' : '').'
 					'.(in_array('extra_hrs',$value_config) ? '<td></td>' : '').'
@@ -119,7 +128,7 @@
 					'.(in_array('vaca_used',$value_config) ? '<td>'.$vacation_taken.'</td>' : '').'
 					'.(in_array('breaks',$value_config) ? '<td></td>' : '').'
 					'.(in_array('view_ticket',$value_config) && $report_format != 'to_array' ? '<td></td>' : '').'
-					'.(in_array('show_hours',$value_config) ? '<td></td>' : '').'
+					'.(in_array('comment_box',$value_config) ? '<td></td>' : '').'
 				</tr>
 				<tr class="hidden-xs hidden-sm">
 					<th><div>Date</div></th>
@@ -128,14 +137,16 @@
 					'.(in_array('ticketid',$value_config) ? '<th><div>'.TICKET_NOUN.'</div></th>' : '').'
 					'.(in_array('show_hours',$value_config) ? '<th><div>Hours</div></th>' : '').'
 					'.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? '<th><div>Total Tracked<br />Hours</div></th>' : '').'
-					'.(in_array('start_time',$value_config) ? '<th><div>Start<br />Time</div></th>' : '').'
-					'.(in_array('end_time',$value_config) ? '<th><div>End<br />Time</div></th>' : '').'
+					'.(in_array('start_time',$value_config) || in_array('start_time_editable',$value_config) ? '<th><div>Start<br />Time</div></th>' : '').'
+					'.(in_array('end_time',$value_config) || in_array('end_time_editable',$value_config) ? '<th><div>End<br />Time</div></th>' : '').'
 					'.(in_array('planned_hrs',$value_config) ? '<th><div>Planned<br />Hours</div></th>' : '').'
 					'.(in_array('tracked_hrs',$value_config) ? '<th><div>Tracked<br />Hours</div></th>' : '').'
 					'.(in_array('total_tracked_time',$value_config) ? '<th><div>Total Tracked<br />Time</div></th>' : '').'
+					'.(in_array('start_day_tile',$value_config) ? '<th><div>'.$timesheet_start_tile.'</div></th>' : '').'
 					'.(in_array($layout,['ticket_task']) ? '<th><div>'.TICKET_NOUN.'</div></th><th><div>Task</div></th>' : '').'
 					'.(in_array($layout,['position_dropdown']) ? '<th><div>Position</div></th>' : '').'
 					'.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? '<th><div>Total Tracked<br />Hours</div></th>' : '').'
+					'.(in_array($layout,['position_dropdown','ticket_task']) ? '<th><div>Hours</div></th>' : '').'
 					'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<th><div>'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').'<br />Hours</div></th>' : '').'
 					'.(in_array('start_day_tile_separate',$value_config) ? '<th><div>'.$timesheet_start_tile.'</div></th>' : '').'
 					'.(in_array('extra_hrs',$value_config) ? '<th><div>Extra<br />Hours</div></th>' : '').'
@@ -150,7 +161,7 @@
 					'.(in_array('vaca_used',$value_config) ? '<th><div>Vacation<br />Hrs. Taken</div></th>' : '').'
 					'.(in_array('breaks',$value_config) ? '<th><div>Breaks</div></th>' : '').'
 					'.(in_array('view_ticket',$value_config) && $report_format != 'to_array' ? '<th><div>'.TICKET_NOUN.'</div></th>' : '').'
-					<th style="text-align:center; vertical-align:bottom;"><div>Comments</div></th>
+					'.(in_array('comment_box',$value_config) && $report_format != 'to_array' ? '<th><div>Comments</div></th>' : '').'
 				</tr>';
 
 				if ( empty($search_site) ) {
@@ -281,16 +292,16 @@
 						'.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
 						'.(in_array('show_hours',$value_config) ? '<td data-title="Hours">'.$hours.'</td>' : '').'
 						'.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? '<td data-title="Total Tracked Hours">'.(empty($hrs['TRACKED_HRS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($hrs['TRACKED_HRS']))).'</td>' : '').'
-						'.(in_array('start_time',$value_config) ? '<td data-title="Start Time" style="text-align:center">'.$start_time.'</td>' : '').'
-						'.(in_array('end_time',$value_config) ? '<td data-title="End Time" style="text-align:center">'.$end_time.'</td>' : '').'
-						'.(in_array('start_time_editable',$value_config) ? '<td data-title="Start Time" style="text-align:center">'.$start_time.'</td>' : '').'
-						'.(in_array('end_time_editable',$value_config) ? '<td data-title="End Time" style="text-align:center">'.$end_time.'</td>' : '').'
+						'.(in_array('start_time',$value_config) || in_array('start_time_editable',$value_config) ? '<td data-title="Start Time" style="text-align:center">'.$start_time.'</td>' : '').'
+						'.(in_array('end_time',$value_config) || in_array('end_time_editable',$value_config) ? '<td data-title="End Time" style="text-align:center">'.$end_time.'</td>' : '').'
 						'.(in_array('planned_hrs',$value_config) ? '<td data-title="Planned Hours">'.$planned_hrs.'</td>' : '').'
 						'.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours">'.$tracked_hrs.'</td>' : '').'
 						'.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time">'.$total_tracked_time.'</td>' : '').'
-						'.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Total Tracked Hours">'.(empty($hrs['TRACKED_HRS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($hrs['TRACKED_HRS']))).'</td>' : '').'
+						'.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'">'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'</td>' : '').'
 						'.(in_array($layout,['ticket_task']) ? '<td data-title="'.TICKET_NOUN.'">'.get_ticket_label($dbc, mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."'"))).'</td><td data-title="Task">'.$row['type_of_time'].'</td>' : '').'
 						'.(in_array($layout,['position_dropdown']) ? '<td data-title="Position">'.$row['type_of_time'].'</td>' : '').'
+						'.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Total Tracked Hours">'.(empty($hrs['TRACKED_HRS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($hrs['TRACKED_HRS']))).'</td>' : '').'
+						'.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Hours">'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'</td>' : '').'
 						'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours">'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'</td>' : '').'
 						'.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="'.$timesheet_start_tile.'">'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'</td>' : '').'
 						'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours">'.(empty($hrs['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).'</td>' : '').'
@@ -305,43 +316,15 @@
 						'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'</td>' : '').'
 						'.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
 						'.(in_array('view_ticket',$value_config) && $report_format != 'to_array' ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_tickets.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
-						<td data-title="Comments"><span>'.$comments.'</span></td>'.
+						'.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span></td>' : '').
 					'</tr>';
 					if(!in_array($layout,['multi_line','position_dropdown', 'ticket_task']) || $date != $row['date']) {
 						$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
 					}
 				}
-				$colspan = 2;
-				if(in_array('schedule',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('scheduled',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('ticketid',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('planned_hrs',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('tracked_hrs',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('total_tracked_time',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('start_time',$value_config)) {
-					$colspan++;
-				}
-				if(in_array('end_time',$value_config)) {
-					$colspan++;
-				}
-				if(!in_array('show_hours',$value_config)) {
-					$colspan--;
-				}
 				$report_block .= '<tr>
-					<td data-title="" colspan="'.$colspan.'">Totals</td>
-					'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title="Total Tracked Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['TRACKED_HRS'])).'</td>' : '').'
+					<td data-title="" colspan="'.COLSPAN.'">Totals</td>
+					'.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
 					'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
 					'.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="'.$timesheet_start_tile.'">'.($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE'])).'</td>' : '').'
 					'.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA'])).'</td>' : '').'
@@ -356,11 +339,11 @@
 					'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA'],2) : time_decimal2time($total['VACA'])).'</td>' : '').'
 					'.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS'])).'</td>' : '').'
 					'.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
-					<td data-title=""></td>
+					'.(in_array('comment_box',$value_config) ? '<td data-title=""></td>' : '').'
 				</tr>';
 				$report_block .= '<tr>
-					<td colspan="'.$colspan.'">Year-to-date Totals</td>
-					'.(in_array('total_tracked_hrs',$value_config) ? '<td data-title=""></td>' : '').'
+					<td colspan="'.COLSPAN.'">Year-to-date Totals</td>
+					'.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title=""></td>' : '').'
 					'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title=""></td>' : '').'
 					'.(in_array('start_day_tile_separate',$value_config) ? '<td data-title=""></td>' : '').'
 					'.(in_array('extra_hrs',$value_config) ? '<td data-title=""></td>' : '').'
@@ -375,7 +358,7 @@
 					'.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA']+$vacation_taken,2) : time_decimal2time($total['VACA']+$vacation_taken)).'</td>' : '').'
 					'.(in_array('breaks',$value_config) ? '<td data-title=""></td>' : '').'
 					'.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
-					<td></td>
+					'.(in_array('comment_box',$value_config) ? '<td data-title=""></td>' : '').'
 				</tr>
 			</table>';
 		elseif($layout == 'table_add_button'):
