@@ -125,7 +125,7 @@ if(!empty($staff_cat_query)) {
 } else {
     $staff_cat_query = "";
 }
-$get_field_config = mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` `main_table` WHERE (`tab` = 'Staff' ".$staff_cat_query.") AND `accordion` IS NOT NULL AND `subtab` = 'schedule' AND (`tab` = 'Staff' OR `accordion` NOT IN (SELECT `accordion` FROM `field_config_contacts` `other_table` WHERE `tab` = 'Staff' AND IFNULL(`accordion`,'') != '' AND `main_table`.`subtab` = `other_table`.`subtab`))");
+$get_field_config = mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` `main_table` WHERE (`tab` = 'Staff' ".$staff_cat_query.") AND `accordion` IS NOT NULL AND `subtab` = 'schedule'");
 $value_config = [];
 while($row = mysqli_fetch_assoc($get_field_config)) {
     $value_config[] = $row['contacts'];
