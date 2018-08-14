@@ -304,130 +304,14 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
         <div class="col-sm-9"><h1 class="triple-pad-bottom"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
-		<?php if(config_visible_function($dbc, 'check_out') == 1 || config_visible_function($dbc, 'posadvanced') == 1) { ?>
-			<a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
-		<?php } ?>
 		<a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="pull-right override-theme-color-icon"></a></h1></div>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
 
 		<div class="clearfix"></div>
 
-		<?php $tab_list = explode(',', get_config($dbc, 'invoice_tabs'));
-		if(in_array('sell',$tab_list)) {
-			?><div class='mobile-100-container' style="margin-bottom: 2em;"><?php
-			$tile_name = (FOLDER_NAME == 'invoice') ? 'check_out' : 'posadvanced';
-            foreach($tab_list as $tab_name) {
-                switch($tab_name) {
-					case 'checkin': ?>
-						<a href='checkin.php' class="btn brand-btn mobile-block mobile-100">Check In</a>
-						<?php break;
-                    case 'sell':
-                        if(in_array('touch',$ux_options)) {
-                            if(check_subtab_persmission($dbc, $tile_name, ROLE, 'sell') === TRUE) { ?>
-                                <a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100 active_tab">Create Invoice (Keyboard)</a>
-                                <a href='touch_main.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Touchscreen)</a><?php
-                            } else { ?>
-                                <button class="btn disabled-btn mobile-block mobile-100">Create Invoice (Keyboard)</button>
-                                <button class="btn disabled-btn mobile-block mobile-100">Create Invoice (Touchscreen)</button><?php
-                            }
-                        } else {
-                            if(check_subtab_persmission($dbc, $tile_name, ROLE, 'sell') === TRUE) { ?>
-                                <a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100 active_tab">Create Invoice</a><?php
-                            } else { ?>
-                                <button class="btn disabled-btn mobile-block mobile-100">Create Invoice</button><?php
-                            }
-                        }
-                        break;
-
-                    case 'today': ?>
-                        <span class="popover-examples list-inline">
-                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                        </span><?php
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'today') === TRUE) { ?>
-                            <a href='today_invoice.php' class="btn brand-btn mobile-block mobile-100">Today's Invoices</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Today's Invoices</button><?php
-                        }
-                        break;
-
-                    case 'all': ?>
-                        <span class="popover-examples list-inline">
-                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                        </span><?php
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'all') === TRUE) { ?>
-                            <a href='all_invoice.php' class="btn brand-btn mobile-block mobile-100">All Invoices</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">All Invoices</button><?php
-                        }
-                        break;
-
-                    case 'invoices':
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'invoices') === TRUE) { ?>
-                            <a href='invoice_list.php' class="btn brand-btn mobile-block mobile-100">Invoices</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Invoices</button><?php
-                        }
-                        break;
-
-                    case 'unpaid':
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'unpaid') === TRUE) { ?>
-                            <a href='unpaid_invoice_list.php' class="btn brand-btn mobile-block mobile-100">Accounts Receivable</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Accounts Receivable</button><?php
-                        }
-                        break;
-
-                    case 'voided':
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'voided') === TRUE) { ?>
-                            <a href='void_invoices.php' class="btn brand-btn mobile-block mobile-100">Voided Invoices</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Voided Invoices</button><?php
-                        }
-                        break;
-
-                    case 'refunds': ?>
-                        <span class="popover-examples list-inline">
-                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Find invoices in order to issue Refunds or Create Adjustment Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                        </span><?php
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'refunds') === TRUE) { ?>
-                            <a href='refund_invoices.php' class="btn brand-btn mobile-block mobile-100">Refund / Adjustments</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Refund / Adjustments</button><?php
-                        }
-                        break;
-
-                    case 'ui_report': ?>
-                        <span class="popover-examples list-inline">
-                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="In this section you can create Invoices for insurers."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                        </span><?php
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'ui_report') === TRUE) { ?>
-                            <a href='unpaid_insurer_invoice.php' class="btn brand-btn mobile-block mobile-100">Unpaid Insurer Invoice Report</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Unpaid Insurer Invoice Report</button><?php
-                        }
-                        break;
-
-                    case 'cashout': ?>
-                        <span class="popover-examples list-inline">
-                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Daily front desk Cashout."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                        </span><?php
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'cashout') === TRUE) { ?>
-                            <a href='cashout.php' class="btn brand-btn mobile-block mobile-100">Cash Out</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Cash Out</button><?php
-                        }
-                        break;
-
-                    case 'gf':
-                        if (check_subtab_persmission($dbc, $tile_name, ROLE, 'gf') === TRUE) { ?>
-                            <a href='giftcards.php' class="btn brand-btn mobile-block mobile-100">Gift Card</a><?php
-                        } else { ?>
-                            <button class="btn disabled-btn mobile-block mobile-100">Gift Card</button><?php
-                        }
-                        break;
-                }
-			}
-			?></div><?php
-		} ?>
+		<?php include('tile_tabs.php'); ?>
 
         <?php $insurer_row_id = 0;
         $paid = 'Yes';
@@ -527,6 +411,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             $payment_type = $get_invoice['payment_type'];
             $paid = $get_invoice['paid'];
             $gratuity = $get_invoice['gratuity'];
+            echo '<input type="hidden" name="ticketid[]" value="'.$get_invoice['ticketid'].'" />';
         } else {
             echo '<input type="hidden" name="set_promotion" id="set_promotion" />';
         }
@@ -1334,6 +1219,83 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 						</div>
 					<?php } ?>
                     <div id="add_here_new_misc"></div>
+                </div>
+            </div>
+
+            <div class="form-group misc_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
+                <label for="additional_note" class="col-sm-2 control-label">
+                <span class="popover-examples list-inline">
+                    <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add items from unbilled <?= TICKET_TILE ?> here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+                </span>
+                Unbilled <?= TICKET_TILE ?>:</label>
+                <div class="col-sm-7">
+					<?php $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
+					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL ".($_GET['contactid'] > 0 ? "AND (',".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",' LIKE CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''));
+					if($tickets->num_rows > 0) {
+						while($ticket = $tickets->fetch_assoc()) {
+							if($ticket['ticketid'] > 0) { ?>
+								<label class="form-checkbox form-group">
+									<?php $ticketid = $ticket['ticketid'];
+									foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+										if($service > 0) {
+											$qty = explode(',',$ticket['service_qty'])[$i];
+											$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
+											$discount = explode(',',$ticket['service_discount'])[$i];
+											$dis_type = explode(',',$ticket['service_discount_type'])[$i];
+											$price = 0;
+											$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+											foreach(explode('**',$customer_rate['services']) as $service_rate) {
+												$service_rate = explode('#',$service_rate);
+												if($service == $service_rate[0] && $service_rate[1] > 0) {
+													$price = $service_rate[1];
+												}
+											}
+											if(!($price > 0)) {
+												$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
+												$price = $service_rate['cust_price'];
+											}
+											$price_total = ($price * $qty + $fuel);
+											$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount); ?>
+											<div class="dis_service">
+												<input type="hidden" disabled name="serviceid[]" value="<?= $service ?>" class="serviceid">
+												<input type="hidden" disabled name="fee[]" value="<?= $price_total ?>" class="fee" />
+												<input type="hidden" disabled name="gst_exempt[]" value="0" class="gstexempt" />
+											</div>
+										<?php }
+									}
+									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
+									while($line = $ticket_lines->fetch_assoc()) {
+										$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
+										$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
+										$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
+										$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly']; ?>
+										<div class="dis_misc">
+											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
+											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
+											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
+											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
+										</div>
+									<?php }
+									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
+									while($line = $ticket_lines->fetch_assoc()) {
+										$description = get_contact($dbc, $line['description']);
+										$qty = $line['qty'];
+										$price = $line['rate']; ?>
+										<div class="dis_misc">
+											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
+											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
+											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
+											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
+										</div>
+									<?php } ?>
+									<input type="checkbox" name="ticketid[]" value="<?= $ticketid ?>" onclick="billTicket(this);">
+									<a href="../Ticket/index.php?edit=<?= $ticketid ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a>
+								</label>
+							<?php }
+						}
+					} else { ?>
+						<h3>No Unbilled <?= TICKET_TILE ?> Found</h3>
+					<?php } ?>
                 </div>
             </div>
 
@@ -2376,6 +2338,16 @@ function validateappo()
 
 		return true;
 	}
+}
+
+function billTicket(input) {
+	var block = $(input).closest('label');
+	if(input.checked) {
+		block.find('[disabled]').removeAttr('disabled');
+	} else {
+		block.find('[type=hidden]').prop('disabled',true);
+	}
+	setTotalPrice();
 }
 </script>
 <?php include ('../footer.php'); ?>

@@ -26,7 +26,7 @@ function saveFields() {
 				classification: $(this).find('[name=classification]').val(),
 				customer: $(this).find('[name=customer]').val(),
 				staff: $(this).find('[name=staff]').val(),
-				fields: $(this).find('[name="tickets[]"]:checked').map(function() { return this.value; }).get().join(','),
+				fields: $(this).find('.accordions_sortable input[type=checkbox]').not(':checked').length > 0 ? $(this).find('[name="tickets[]"]:checked').map(function() { return this.value; }).get().join(',') : '',
 				deleted: $(this).find('[name=deleted]').val()
 			}, function(id) {
 				$(block).find('[data-id]').data('id',id);

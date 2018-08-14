@@ -801,6 +801,10 @@ if($_GET['action'] == 'mark_favourite') {
 			$dbc->query("UPDATE `$table` SET `$field`=REPLACE(REPLACE(`$field`,',$contactid,',','),',,',',') WHERE `".($table == 'tickets' ? 'ticketid' : 'tasklistid')."`='$id'");
 		}
 	}
+	if($_POST['invoice'] == 'true' && $table == 'tickets') {
+		$_POST['ticketid'] = $id;
+		include('../Invoice/create_ticket_invoice.php');
+	}
 } else if($_GET['action'] == 'show_notes') {
     $subtab = filter_var($_GET['subtab'],FILTER_SANITIZE_STRING);
     $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `note` FROM `notes_setting` WHERE `subtab`='$subtab'"));
