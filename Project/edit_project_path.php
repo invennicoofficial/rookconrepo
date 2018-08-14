@@ -129,10 +129,10 @@ function setActions() {
 				method: 'POST',
 				data: {
 					field: 'flag_manual',
-					colour: item.data('colour'),
-					label: item.data('colour'),
-					start: item.data('colour'),
-					end: item.data('colour'),
+					colour: item.find('[name=colour]').val(),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
 					table: item.data('table'),
 					id: item.data('id'),
 					id_field: item.data('id-field')

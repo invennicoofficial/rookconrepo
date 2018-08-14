@@ -92,17 +92,23 @@ if (isset($_POST['submit'])) {
     $service_location = filter_var($_POST['service_location'],FILTER_SANITIZE_STRING);
     $last_oil_filter_change_date = filter_var($_POST['last_oil_filter_change_date'],FILTER_SANITIZE_STRING);
     $last_oil_filter_change = filter_var($_POST['last_oil_filter_change'],FILTER_SANITIZE_STRING);
+    $last_oil_filter_change_hrs = filter_var($_POST['last_oil_filter_change_hrs'],FILTER_SANITIZE_STRING);
     $next_oil_filter_change_date = filter_var($_POST['next_oil_filter_change_date'],FILTER_SANITIZE_STRING);
     $next_oil_filter_change = filter_var($_POST['next_oil_filter_change'],FILTER_SANITIZE_STRING);
+    $next_oil_filter_change_hrs = filter_var($_POST['next_oil_filter_change_hrs'],FILTER_SANITIZE_STRING);
     $last_insp_tune_up_date = filter_var($_POST['last_insp_tune_up_date'],FILTER_SANITIZE_STRING);
     $last_insp_tune_up = filter_var($_POST['last_insp_tune_up'],FILTER_SANITIZE_STRING);
+    $last_insp_tune_up_hrs = filter_var($_POST['last_insp_tune_up_hrs'],FILTER_SANITIZE_STRING);
     $next_insp_tune_up_date = filter_var($_POST['next_insp_tune_up_date'],FILTER_SANITIZE_STRING);
     $next_insp_tune_up = filter_var($_POST['next_insp_tune_up'],FILTER_SANITIZE_STRING);
+    $next_insp_tune_up_hrs = filter_var($_POST['next_insp_tune_up_hrs'],FILTER_SANITIZE_STRING);
     $tire_condition = filter_var($_POST['tire_condition'],FILTER_SANITIZE_STRING);
     $last_tire_rotation_date = filter_var($_POST['last_tire_rotation_date'],FILTER_SANITIZE_STRING);
     $last_tire_rotation = filter_var($_POST['last_tire_rotation'],FILTER_SANITIZE_STRING);
+    $last_tire_rotation_hrs = filter_var($_POST['last_tire_rotation_hrs'],FILTER_SANITIZE_STRING);
     $next_tire_rotation_date = filter_var($_POST['next_tire_rotation_date'],FILTER_SANITIZE_STRING);
     $next_tire_rotation = filter_var($_POST['next_tire_rotation'],FILTER_SANITIZE_STRING);
+    $next_tire_rotation_hrs = filter_var($_POST['next_tire_rotation_hrs'],FILTER_SANITIZE_STRING);
     $reg_renewal_date = filter_var($_POST['reg_renewal_date'],FILTER_SANITIZE_STRING);
     $insurance_renewal = filter_var($_POST['insurance_renewal'],FILTER_SANITIZE_STRING);
     $region = filter_var(implode('*#*',array_filter($_POST['region'])),FILTER_SANITIZE_STRING);
@@ -120,7 +126,7 @@ if (isset($_POST['submit'])) {
 	$volume = filter_var($_POST['volume'],FILTER_SANITIZE_STRING);
     $vehicle_access_code = filter_var($_POST['vehicle_access_code'],FILTER_SANITIZE_STRING);
     $staff = filter_var(implode(',',$_POST['staff']),FILTER_SANITIZE_STRING);
-	
+
 	if(!empty($_FILES['insurance_card']['name'])) {
 		$filename = $_FILES['insurance_card']['name'];
 		$file = $_FILES['insurance_card']['tmp_name'];
@@ -152,18 +158,27 @@ if (isset($_POST['submit'])) {
 	}
 
     if(empty($_POST['equipmentid'])) {
-        $query_insert_equipment = "INSERT INTO `equipment` (`equ_description`, `assigned_status`, `category`, `type`, `make`, `model`, `submodel`, `model_year`, `label`, `total_kilometres`, `leased`, `style`, `vehicle_size`, `color`, `trim`, `fuel_type`, `tire_type`, `drive_train`, `serial_number`, `unit_number`, `vin_number`, `licence_plate`, `nickname`, `year_purchased`, `mileage`, `hours_operated`, `cost`, `cnd_cost_per_unit`, `usd_cost_per_unit`, `finance`, `lease`, `insurance`, `insurance_contact`, `insurance_phone`, `hourly_rate`, `daily_rate`, `semi_monthly_rate`, `monthly_rate`, `field_day_cost`, `field_day_billable`, `hr_rate_work`, `hr_rate_travel`, `follow_up_date`, `follow_up_staff`, `next_service_date`, `next_service`, `next_serv_desc`, `service_location`, `last_oil_filter_change_date`, `last_oil_filter_change`, `next_oil_filter_change_date`, `next_oil_filter_change`, `last_insp_tune_up_date`, `last_insp_tune_up`, `next_insp_tune_up_date`, `next_insp_tune_up`, `tire_condition`, `last_tire_rotation_date`, `last_tire_rotation`, `next_tire_rotation_date`, `next_tire_rotation`, `reg_renewal_date`, `insurance_renewal`, `location`, `location_cookie`, `current_address`, `lsd`, `status`, `volume`, `ownership_status`, `quote_description`, `notes`, `cvip_renewal_date`, `insurance_file`, `registration_file`, `region`, `classification`, `vehicle_access_code`, `cargo`, `lessor`, `group`, `use`, `staffid`) VALUES ('$equ_description', '$assigned_status', '$category', '$type', '$make', '$model', '$submodel', '$model_year', '$label', '$total_kilometres', '$leased', '$style', '$vehicle_size', '$color', '$trim', '$fuel_type', '$tire_type', '$drive_train', '$serial_number', '$unit_number', '$vin_number', '$licence_plate', '$nickname', '$year_purchased', '$mileage', '$hours_operated', '$cost', '$cnd_cost_per_unit', '$usd_cost_per_unit', '$finance', '$lease', '$insurance', '$insurance_contact', '$insurance_phone', '$hourly_rate', '$daily_rate', '$semi_monthly_rate', '$monthly_rate', '$field_day_cost', '$field_day_billable', '$hr_rate_work', '$hr_rate_travel', '$follow_up_date', '$follow_up_staff', '$next_service_date', '$next_service', '$next_serv_desc', '$service_location', '$last_oil_filter_change_date', '$last_oil_filter_change', '$next_oil_filter_change_date', '$next_oil_filter_change', '$last_insp_tune_up_date', '$last_insp_tune_up', '$next_insp_tune_up_date', '$next_insp_tune_up', '$tire_condition', '$last_tire_rotation_date', '$last_tire_rotation', '$next_tire_rotation_date', '$next_tire_rotation', '$reg_renewal_date', '$insurance_renewal', '$location', '$location_cookie', '$current_address', '$lsd', '$status', '$volume', '$ownership_status', '$quote_description', '$notes', '$cviprenewal', '$insurance_card', '$registration_card', '$region', '$classification', '$vehicle_access_code', '$cargo', '$lessor', '$group', '$use', '$staff')";
+        $query_insert_equipment = "INSERT INTO `equipment` (`equ_description`, `assigned_status`, `category`, `type`, `make`, `model`, `submodel`, `model_year`, `label`, `total_kilometres`, `leased`, `style`, `vehicle_size`, `color`, `trim`, `fuel_type`, `tire_type`, `drive_train`, `serial_number`, `unit_number`, `vin_number`, `licence_plate`, `nickname`, `year_purchased`, `mileage`, `hours_operated`, `cost`, `cnd_cost_per_unit`, `usd_cost_per_unit`, `finance`, `lease`, `insurance`, `insurance_contact`, `insurance_phone`, `hourly_rate`, `daily_rate`, `semi_monthly_rate`, `monthly_rate`, `field_day_cost`, `field_day_billable`, `hr_rate_work`, `hr_rate_travel`, `follow_up_date`, `follow_up_staff`, `next_service_date`, `next_service`, `next_serv_desc`, `service_location`, `last_oil_filter_change_date`, `last_oil_filter_change`, `last_oil_filter_change_hrs`, `next_oil_filter_change_date`, `next_oil_filter_change`, `next_oil_filter_change_hrs`, `last_insp_tune_up_date`, `last_insp_tune_up`, `last_insp_tune_up_hrs`, `next_insp_tune_up_date`, `next_insp_tune_up`, `next_insp_tune_up_hrs`, `tire_condition`, `last_tire_rotation_date`, `last_tire_rotation`, `last_tire_rotation_hrs`, `next_tire_rotation_date`, `next_tire_rotation`, `next_tire_rotation_hrs`, `reg_renewal_date`, `insurance_renewal`, `location`, `location_cookie`, `current_address`, `lsd`, `status`, `volume`, `ownership_status`, `quote_description`, `notes`, `cvip_renewal_date`, `insurance_file`, `registration_file`, `region`, `classification`, `vehicle_access_code`, `cargo`, `lessor`, `group`, `use`, `staffid`) VALUES ('$equ_description', '$assigned_status', '$category', '$type', '$make', '$model', '$submodel', '$model_year', '$label', '$total_kilometres', '$leased', '$style', '$vehicle_size', '$color', '$trim', '$fuel_type', '$tire_type', '$drive_train', '$serial_number', '$unit_number', '$vin_number', '$licence_plate', '$nickname', '$year_purchased', '$mileage', '$hours_operated', '$cost', '$cnd_cost_per_unit', '$usd_cost_per_unit', '$finance', '$lease', '$insurance', '$insurance_contact', '$insurance_phone', '$hourly_rate', '$daily_rate', '$semi_monthly_rate', '$monthly_rate', '$field_day_cost', '$field_day_billable', '$hr_rate_work', '$hr_rate_travel', '$follow_up_date', '$follow_up_staff', '$next_service_date', '$next_service', '$next_serv_desc', '$service_location', '$last_oil_filter_change_date', '$last_oil_filter_change', '$last_oil_filter_change_hrs', '$next_oil_filter_change_date', '$next_oil_filter_change', '$next_oil_filter_change_hrs', '$last_insp_tune_up_date', '$last_insp_tune_up', '$last_insp_tune_up_hrs', '$next_insp_tune_up_date', '$next_insp_tune_up', '$next_insp_tune_up_hrs', '$tire_condition', '$last_tire_rotation_date', '$last_tire_rotation', '$last_tire_rotation_hrs', '$next_tire_rotation_date', '$next_tire_rotation', '$next_tire_rotation_hrs', '$reg_renewal_date', '$insurance_renewal', '$location', '$location_cookie', '$current_address', '$lsd', '$status', '$volume', '$ownership_status', '$quote_description', '$notes', '$cviprenewal', '$insurance_card', '$registration_card', '$region', '$classification', '$vehicle_access_code', '$cargo', '$lessor', '$group', '$use', '$staff')";
         $result_insert_equipment = mysqli_query($dbc, $query_insert_equipment);
-		$equipmentid = mysqli_insert_id($dbc);
+		    $equipmentid = mysqli_insert_id($dbc);
         $url = 'Added';
+        $before_change = '';
+        $history = "New equipment Added. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     } else {
         $equipmentid = $_POST['equipmentid'];
-        $query_update_equipment = "UPDATE `equipment` SET `equ_description` = '$equ_description', `assigned_status`='$assigned_status', `category` = '$category', `type` = '$type', `make` = '$make', `model` = '$model', `submodel` = '$submodel', `model_year` = '$model_year', `label` = '$label', `total_kilometres` = '$total_kilometres', `leased` = '$leased', `style` = '$style', `vehicle_size` = '$vehicle_size', `color` = '$color', `trim` = '$trim', `fuel_type` = '$fuel_type', `tire_type` = '$tire_type', `drive_train` = '$drive_train', `serial_number` = '$serial_number', `unit_number` = '$unit_number', `vin_number` = '$vin_number', `licence_plate` = '$licence_plate', `nickname` = '$nickname', `year_purchased` = '$year_purchased', `mileage` = '$mileage', `hours_operated` = '$hours_operated', `cost` = '$cost', `cnd_cost_per_unit` = '$cnd_cost_per_unit', `usd_cost_per_unit` = '$usd_cost_per_unit', `finance` = '$finance', `lease` = '$lease', `insurance` = '$insurance', `insurance_contact` = '$insurance_contact', `insurance_phone` = '$insurance_phone', `hourly_rate` = '$hourly_rate', `daily_rate` = '$daily_rate', `semi_monthly_rate` = '$semi_monthly_rate', `monthly_rate` = '$monthly_rate', `field_day_cost` = '$field_day_cost', `field_day_billable` = '$field_day_billable', `hr_rate_work` = '$hr_rate_work', `hr_rate_travel` = '$hr_rate_travel', `follow_up_date` = '$follow_up_date', `follow_up_staff` = '$follow_up_staff', `next_service_date` = '$next_service_date', `next_service` = '$next_service', `next_serv_desc` = '$next_serv_desc', `service_location` = '$service_location', `last_oil_filter_change_date` = '$last_oil_filter_change_date', `last_oil_filter_change` = '$last_oil_filter_change', `next_oil_filter_change_date` = '$next_oil_filter_change_date', `next_oil_filter_change` = '$next_oil_filter_change', `last_insp_tune_up_date` = '$last_insp_tune_up_date', `last_insp_tune_up` = '$last_insp_tune_up', `next_insp_tune_up_date` = '$next_insp_tune_up_date', `next_insp_tune_up` = '$next_insp_tune_up', `tire_condition` = '$tire_condition', `last_tire_rotation_date` = '$last_tire_rotation_date', `last_tire_rotation` = '$last_tire_rotation', `next_tire_rotation_date` = '$next_tire_rotation_date', `next_tire_rotation` = '$next_tire_rotation', `reg_renewal_date` = '$reg_renewal_date', `insurance_renewal` = '$insurance_renewal', `location` = '$location', `location_cookie` = '$location_cookie', `current_address` = '$current_address', `lsd` = '$lsd', `status` = '$status', `volume` = '$volume', `ownership_status` = '$ownership_status', `quote_description` = '$quote_description', `notes` = '$notes', `cvip_renewal_date` = '$cviprenewal', `insurance_file`='$insurance_card', `registration_file`='$registration_card', `region`='$region', `classification` = '$classification', `vehicle_access_code` = '$vehicle_access_code', `cargo` = '$cargo', `lessor` = '$lessor', `group` = '$group', `use` = '$use', `staffid` = '$staff' WHERE `equipmentid` = '$equipmentid'";
+        $query_update_equipment = "UPDATE `equipment` SET `equ_description` = '$equ_description', `assigned_status`='$assigned_status', `category` = '$category', `type` = '$type', `make` = '$make', `model` = '$model', `submodel` = '$submodel', `model_year` = '$model_year', `label` = '$label', `total_kilometres` = '$total_kilometres', `leased` = '$leased', `style` = '$style', `vehicle_size` = '$vehicle_size', `color` = '$color', `trim` = '$trim', `fuel_type` = '$fuel_type', `tire_type` = '$tire_type', `drive_train` = '$drive_train', `serial_number` = '$serial_number', `unit_number` = '$unit_number', `vin_number` = '$vin_number', `licence_plate` = '$licence_plate', `nickname` = '$nickname', `year_purchased` = '$year_purchased', `mileage` = '$mileage', `hours_operated` = '$hours_operated', `cost` = '$cost', `cnd_cost_per_unit` = '$cnd_cost_per_unit', `usd_cost_per_unit` = '$usd_cost_per_unit', `finance` = '$finance', `lease` = '$lease', `insurance` = '$insurance', `insurance_contact` = '$insurance_contact', `insurance_phone` = '$insurance_phone', `hourly_rate` = '$hourly_rate', `daily_rate` = '$daily_rate', `semi_monthly_rate` = '$semi_monthly_rate', `monthly_rate` = '$monthly_rate', `field_day_cost` = '$field_day_cost', `field_day_billable` = '$field_day_billable', `hr_rate_work` = '$hr_rate_work', `hr_rate_travel` = '$hr_rate_travel', `follow_up_date` = '$follow_up_date', `follow_up_staff` = '$follow_up_staff', `next_service_date` = '$next_service_date', `next_service` = '$next_service', `next_serv_desc` = '$next_serv_desc', `service_location` = '$service_location', `last_oil_filter_change_date` = '$last_oil_filter_change_date', `last_oil_filter_change` = '$last_oil_filter_change', `last_oil_filter_change_hrs` = '$last_oil_filter_change_hrs', `next_oil_filter_change_date` = '$next_oil_filter_change_date', `next_oil_filter_change` = '$next_oil_filter_change', `next_oil_filter_change_hrs` = '$next_oil_filter_change_hrs', `last_insp_tune_up_date` = '$last_insp_tune_up_date', `last_insp_tune_up` = '$last_insp_tune_up', `last_insp_tune_up_hrs` = '$last_insp_tune_up_hrs', `next_insp_tune_up_date` = '$next_insp_tune_up_date', `next_insp_tune_up` = '$next_insp_tune_up', `next_insp_tune_up_hrs` = '$next_insp_tune_up_hrs', `tire_condition` = '$tire_condition', `last_tire_rotation_date` = '$last_tire_rotation_date', `last_tire_rotation` = '$last_tire_rotation', `last_tire_rotation_hrs` = '$last_tire_rotation_hrs', `next_tire_rotation_date` = '$next_tire_rotation_date', `next_tire_rotation` = '$next_tire_rotation', `next_tire_rotation_hrs` = '$next_tire_rotation_hrs', `reg_renewal_date` = '$reg_renewal_date', `insurance_renewal` = '$insurance_renewal', `location` = '$location', `location_cookie` = '$location_cookie', `current_address` = '$current_address', `lsd` = '$lsd', `status` = '$status', `volume` = '$volume', `ownership_status` = '$ownership_status', `quote_description` = '$quote_description', `notes` = '$notes', `cvip_renewal_date` = '$cviprenewal', `insurance_file`='$insurance_card', `registration_file`='$registration_card', `region`='$region', `classification` = '$classification', `vehicle_access_code` = '$vehicle_access_code', `cargo` = '$cargo', `lessor` = '$lessor', `group` = '$group', `use` = '$use', `staffid` = '$staff' WHERE `equipmentid` = '$equipmentid'";
         $result_update_equipment	= mysqli_query($dbc, $query_update_equipment);
         $url = 'Updated';
+        $before_change = '';
+        $history = "Equipment is been updated. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     }
     if($_POST['equipment_image_delete'] == 1) {
+        $before_change = capture_before_change($dbc, 'equipment', 'equipment_image', 'equipmentid', $equipmentid);
         mysqli_query($dbc, "UPDATE `equipment` SET `equipment_image` = '' WHERE `equipmentid` = '$equipmentid'");
+        $history = capture_after_change('equipment_image', '');
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     }
     if(!empty($_FILES['equipment_image']['name'])) {
         $filename = $_FILES['equipment_image']['name'];
@@ -178,9 +193,13 @@ if (isset($_POST['submit'])) {
         }
         move_uploaded_file($file, "download/".$filename);
         $equipment_image = $filename;
+
+        $before_change = capture_before_change($dbc, 'equipment', 'equipment_image', 'equipmentid', $equipmentid);
         mysqli_query($dbc, "UPDATE `equipment` SET `equipment_image` = '$filename' WHERE `equipmentid` = '$equipmentid'");
+        $history = capture_after_change('equipment_image', $filename);
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     }
-	
+
 	if(!empty($_POST['reg_reminder_staff'])) {
 		$contactid = implode(',',$_POST['reg_reminder_staff']);
 		$reminder_date = filter_var($_POST['reg_reminder_date'],FILTER_SANITIZE_STRING);
@@ -410,17 +429,23 @@ $next_serv_desc = '';
 $service_location = '';
 $last_oil_filter_change_date = '';
 $last_oil_filter_change = '';
+$last_oil_filter_change_hrs = '';
 $next_oil_filter_change_date = '';
 $next_oil_filter_change = '';
+$next_oil_filter_change_hrs = '';
 $last_insp_tune_up_date = '';
 $last_insp_tune_up = '';
+$last_insp_tune_up_hrs = '';
 $next_insp_tune_up_date = '';
 $next_insp_tune_up = '';
+$next_insp_tune_up_hrs = '';
 $tire_condition = '';
 $last_tire_rotation_date = '';
 $last_tire_rotation = '';
+$last_tire_rotation_hrs = '';
 $next_tire_rotation_date = '';
 $next_tire_rotation = '';
+$next_tire_rotation_hrs = '';
 $registration_card = '';
 $reg_renewal_date = '';
 $insurance_renewal = '';
@@ -443,11 +468,14 @@ $group = '';
 $use = '';
 $staff = '';
 $equipment_image = '';
+$total_billed = 0;
+$total_hours = 0;
+$total_expenses = 0;
 
 if(!empty($_GET['edit']))   {
 
     $equipmentid = $_GET['edit'];
-    $get_equipment =    mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM equipment WHERE equipmentid='$equipmentid'"));
+	$get_equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.`equipmentid`='".$equipmentid."'"));
 
     $equ_description = $get_equipment['equ_description'];
     $category = $get_equipment['category'];
@@ -499,17 +527,23 @@ if(!empty($_GET['edit']))   {
     $service_location = $get_equipment['service_location'];
     $last_oil_filter_change_date = $get_equipment['last_oil_filter_change_date'];
     $last_oil_filter_change = $get_equipment['last_oil_filter_change'];
+    $last_oil_filter_change_hrs = $get_equipment['last_oil_filter_change_hrs'];
     $next_oil_filter_change_date = $get_equipment['next_oil_filter_change_date'];
     $next_oil_filter_change = $get_equipment['next_oil_filter_change'];
+    $next_oil_filter_change_hrs = $get_equipment['next_oil_filter_change_hrs'];
     $last_insp_tune_up_date = $get_equipment['last_insp_tune_up_date'];
     $last_insp_tune_up = $get_equipment['last_insp_tune_up'];
+    $last_insp_tune_up_hrs = $get_equipment['last_insp_tune_up_hrs'];
     $next_insp_tune_up_date = $get_equipment['next_insp_tune_up_date'];
     $next_insp_tune_up = $get_equipment['next_insp_tune_up'];
+    $next_insp_tune_up_hrs = $get_equipment['next_insp_tune_up_hrs'];
     $tire_condition = $get_equipment['tire_condition'];
     $last_tire_rotation_date = $get_equipment['last_tire_rotation_date'];
     $last_tire_rotation = $get_equipment['last_tire_rotation'];
+    $last_tire_rotation_hrs = $get_equipment['last_tire_rotation_hrs'];
     $next_tire_rotation_date = $get_equipment['next_tire_rotation_date'];
     $next_tire_rotation = $get_equipment['next_tire_rotation'];
+    $next_tire_rotation_hrs = $get_equipment['next_tire_rotation_hrs'];
     $registration_card = $get_equipment['registration_file'];
     $reg_renewal_date = $get_equipment['reg_renewal_date'];
     $insurance_renewal = $get_equipment['insurance_renewal'];
@@ -533,6 +567,10 @@ if(!empty($_GET['edit']))   {
     $use = $get_equipment['use'];
     $staff = $get_equipment['staffid'];
     $equipment_image = $get_equipment['equipment_image'];
+	
+	$total_billed = $get_equipment['invoiced_amt'];
+	$total_hours = $get_equipment['invoiced_hours'];
+	$total_expenses = $get_equipment['expense_total'];
 }
 
 $accordion_list = [];
@@ -567,6 +605,28 @@ while($row = mysqli_fetch_array($query)) {
 
                 <input type="hidden" id="equipmentid"   name="equipmentid" value="<?php echo $equipmentid ?>" />
                 <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
+                
+                <!-- List fields that are updated on other pages -->
+                <input name="mileage" type="hidden" value="<?= $mileage ?>" />
+                <input name="hours_operated" type="hidden" value="<?= $hours_operated ?>" />
+                <input name="last_oil_filter_change_date" type="hidden" value="<?= $last_oil_filter_change_date ?>" />
+                <input name="last_oil_filter_change" type="hidden" value="<?= $last_oil_filter_change ?>" />
+                <input name="last_oil_filter_change_hrs" type="hidden" value="<?= $last_oil_filter_change_hrs ?>" />
+                <input name="next_oil_filter_change_date" type="hidden" value="<?= $next_oil_filter_change_date ?>" />
+                <input name="next_oil_filter_change" type="hidden" value="<?= $next_oil_filter_change ?>" />
+                <input name="next_oil_filter_change_hrs" type="hidden" value="<?= $next_oil_filter_change_hrs ?>" />
+                <input name="last_insp_tune_up_date" type="hidden" value="<?= $last_insp_tune_up_date ?>" />
+                <input name="last_insp_tune_up" type="hidden" value="<?= $last_insp_tune_up ?>" />
+                <input name="last_insp_tune_up_hrs" type="hidden" value="<?= $last_insp_tune_up_hrs ?>" />
+                <input name="next_insp_tune_up_date" type="hidden" value="<?= $next_insp_tune_up_date ?>" />
+                <input name="next_insp_tune_up" type="hidden" value="<?= $next_insp_tune_up ?>" />
+                <input name="next_insp_tune_up_hrs" type="hidden" value="<?= $next_insp_tune_up_hrs ?>" />
+                <input name="last_tire_rotation_date" type="hidden" value="<?= $last_tire_rotation_date ?>" />
+                <input name="last_tire_rotation" type="hidden" value="<?= $last_tire_rotation ?>" />
+                <input name="last_tire_rotation_hrs" type="hidden" value="<?= $last_tire_rotation_hrs ?>" />
+                <input name="next_tire_rotation_date" type="hidden" value="<?= $next_tire_rotation_date ?>" />
+                <input name="next_tire_rotation" type="hidden" value="<?= $next_tire_rotation ?>" />
+                <input name="next_tire_rotation_hrs" type="hidden" value="<?= $next_tire_rotation_hrs ?>" />
 
                 <?php foreach($accordion_list as $accordion) { ?>
                     <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">

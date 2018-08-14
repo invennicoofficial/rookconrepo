@@ -167,10 +167,22 @@ function toggle_columns(type = global_type) {
 		var region_pass = true;
 		var location_pass = true;
 		var classification_pass = true;
-		var equipment_clientid = $(this).data('client').toString().split(',');
-		var equipment_region = $(this).data('region').split('*#*');
-		var equipment_classification = $(this).data('classification').split('*#*');
-		var equipment_location = $(this).data('location').split('*#*');
+		var equipment_clientid = $(this).data('client');
+        if(equipment_clientid != undefined) {
+            equipment_clientid = equipment_clientid.toString().split(',');
+        }
+		var equipment_region = $(this).data('region');
+        if(equipment_region != undefined) {
+            equipment_region = equipment_region.split('*#*');
+        }
+		var equipment_classification = $(this).data('classification');
+        if(equipment_classification != undefined) {
+            equipment_classification = equipment_classification.split('*#*');
+        }
+		var equipment_location = $(this).data('location')
+        if(equipment_location != undefined) {
+            equipment_location = equipment_location.split('*#*');
+        }
 
 		<?php if(strpos(",$scheduling_item_filters,",",Region,") !== FALSE) { ?>
 			if(regions.length > 0) {

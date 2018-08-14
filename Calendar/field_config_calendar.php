@@ -973,7 +973,7 @@ function showDefaultView(chk) {
 
 				$equip_assign_enabled = get_config($dbc, 'appt_equip_assign').get_config($dbc, 'scheduling_equip_assign').get_config($dbc, 'staff_schedule_equip_assign').get_config($dbc, 'ticket_equip_assign');
 				if ($equip_assign_enabled != '') {
-					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Equipment Assignment.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."' >Equipment Assignment</button></a></div>";
+					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Equipment.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."' >Equipment</button></a></div>";
 				}
 
 				$appt_wait_list = get_config($dbc, 'appt_wait_list').get_config($dbc, 'scheduling_wait_list').get_config($dbc, 'staff_schedule_wait_list').get_config($dbc, 'ticket_wait_list');

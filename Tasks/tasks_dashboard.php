@@ -356,6 +356,14 @@ function send_reply(task) {
 /* Function call before the slider
 function send_reply(task) {
 	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task board';
