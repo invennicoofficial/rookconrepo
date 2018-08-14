@@ -474,6 +474,12 @@
     }
     //2018-08-09 - Ticket #8583 - Payroll: By Staff
 
+    //2018-08-14 - Ticket #7563 - POS Different Types
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `type` varchar(500) AFTER `tile_name`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-14 - Ticket #7563 - POS Different Types
+
     //2018-08-14 - Ticket #8490 - Time Sheets
     if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `set_hours` int(1) NOT NULL DEFAULT 0")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
