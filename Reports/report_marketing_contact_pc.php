@@ -200,7 +200,8 @@ function report_postalcode($dbc, $contact_category, $starttime, $endtime, $posta
         while($all_post_code = mysqli_fetch_array($all_post_codes)) {
             $report_data .= '<tr nobr="true">';
             $report_data .= '<td>'.($all_post_code['postal_code'] == '' ? 'No Postal Code' : substr($all_post_code['postal_code'], 0, 3)).'</td>';
-            $report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            //$report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            $report_data .= '<td>'. substr($all_post_code['contact_count'], 0, 3).'</td>';
             $report_data .= "</tr>";
         }
     }
