@@ -480,5 +480,14 @@
     }
     //2018-08-14 - Ticket #7563 - POS Different Types
 
+    //2018-08-14 - Ticket #8490 - Time Sheets
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `set_hours` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `shiftid` int(11) NOT NULL DEFAULT 0 AFTER `salesid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-14 - Ticket #8490 - Time Sheets
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
