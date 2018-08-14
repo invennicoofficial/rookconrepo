@@ -11,7 +11,8 @@ function approve() {
 		contactid: '<?= $_SESSION['contactid'] ?>',
 		status: 1,
 		id: '<?= $id ?>',
-		date: '<?= $date ?>'
+		date: '<?= $date ?>',
+		invoice: '<?= $_GET['invoice'] ?>'
 	}, function(response) { window.location.reload(); });
 }
 </script>

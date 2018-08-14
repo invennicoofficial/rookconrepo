@@ -17,7 +17,7 @@ Change Log:
 $current_page = basename($_SERVER['SCRIPT_FILENAME']);
 $layout = get_config($dbc, 'timesheet_layout');
 $value_config = explode(',',get_field_config($dbc, 'time_cards'));
-if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
+if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
     $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 }
 $timesheet_payroll_fields = ($current_page == 'payroll.php' ? ','.get_config($dbc, 'timesheet_payroll_fields').',' : ',,');
@@ -35,9 +35,9 @@ $sql_approv = '';
 if($current_page == 'payroll.php') {
     $sql_approv = "AND (`approv`='Y' OR `approv`='P')";
 } else if($current_page != 'time_cards.php') {
-    $sql_approv = "AND `approv`='N'";
+    $sql_approv = "";
 } else {
-    $sql_approv = "AND `approv`='N'";
+    $sql_approv = "";
 }
 $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('scheduled',$value_config) ? 1 : 0) + (in_array('ticketid',$value_config) ? 1 : 0) + (in_array('show_hours',$value_config) ? 1 : 0)
     + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? 1 : 0) + (in_array('start_time',$value_config) || in_array('start_time_editable',$value_config) ? 1 : 0)
@@ -49,20 +49,21 @@ $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('schedul
 $(document).ready(function() {
     checkTimeOverlaps();
     initLines();
-    $('[name="start_time"],[name="end_time"]').off('change',checkTimeOverlaps).change(checkTimeOverlaps);
-    $('input,select').not('[class*=timepicker]').off('change',saveField).change(saveField);
-    $('.timepicker').timepicker('option','onClose',function() { saveField(this); });
-    $('.datetimepicker').datetimepicker('option','onClose',function() { saveField(this); });
+    $('[name=ticketid]').each(function() {
+        getTasks(this);
+    });
 });
 var getTasks = function(sel) {
+    var task_name = $(sel).closest('tr').find('select[name="type_of_time"]').val();
     var tasks = $(sel).find('option:selected').data('tasks');
-    var tasks_sel = $(sel).closest('tr').find('[name="type_of_time"]');
+    var tasks_sel = $(sel).closest('tr').find('select[name="type_of_time"]');
     var tasks_html = '<option></option>';
-    if(tasks != undefined) {
-        tasks.forEach(function(task) {
-            tasks_html += '<option value="'+task+'">'+task+'</option>';
-        });
+    if(tasks == undefined) {
+        return;
     }
+    tasks.forEach(function(task) {
+        tasks_html += '<option '+(task == task_name ? 'selected' : '')+' value="'+task+'">'+task+'</option>';
+    });
     $(tasks_sel).html(tasks_html).trigger('change.select2');
     if($(sel).val() != undefined && $(sel).val() != '') {
         $(sel).closest('tr').find('.view_ticket').data('ticketid', $(sel).val()).show();
@@ -82,17 +83,40 @@ var checkDrivingTime = function(chk) {
     }
 }
 var initLines = function() {
+    $('.edit-row').off('click').click(function() {
+        var line = $(this).closest('tr');
+        destroyInputs();
+        line.find('.readonly-block').removeClass('readonly-block');
+        line.find('[readonly]').removeAttr('readonly');
+        line.find('.no-datepicker').removeClass('no-datepicker').addClass('datepicker');
+        line.find('.no-datetimepicker').removeClass('no-datetimepicker').addClass('datetimepicker');
+        line.find('.no-timepicker').removeClass('no-timepicker').addClass('timepicker');
+        line.find('.edit_read').hide();
+        line.find('.editable').show();
+        initInputs();
+        initLines();
+    });
     $('.add-row').off('click').click(function() {
         var line = $(this).closest('tr');
-        destroyInputs('#no-more-tables');
+        destroyInputs();
         var new_line = line.clone();
-        new_line.find('input[name^=hours],select[name^=ticketid],select[name^=type_oof_time],input[name^=start_time],input[name^=end_time],input[name^=total_hrs]').val('');
-        new_line.find('input.driving_time').prop('checked',false);
-        new_line.find('.ticket_task_td').removeClass('readonly-block');
+        line.removeClass('theme-color-border-bottom');
+        line.find('.theme-color-border-bottom').removeClass('theme-color-border-bottom');
+        new_line.find('input[name^=hours],select[name^=ticketid],select[name^=type_oof_time],input[name^=start_time],input[name^=end_time],input[name^=total_hrs],input[name^=time_cards_id]').val('');
+        new_line.find('input[type=checkbox]').removeAttr('checked');
+        new_line.find('.readonly-block').removeClass('readonly-block');
+        new_line.find('[readonly]').removeAttr('readonly');
+        new_line.find('.no-datepicker').removeClass('no-datepicker').addClass('datepicker');
+        new_line.find('.no-datetimepicker').removeClass('no-datetimepicker').addClass('datetimepicker');
+        new_line.find('.no-timepicker').removeClass('no-timepicker').addClass('timepicker');
+        new_line.find('.edit_read').hide();
+        new_line.find('.editable').show();
         new_line.find('select').val('');
+        new_line.find('input[name!=date][type!=hidden]').val('');
+        new_line.find('[name=time_cards_id]').val('');
         new_line.find('span').remove();
         line.after(new_line);
-        initInputs('#no-more-tables');
+        initInputs();
         initLines();
     });
     $('.rem-row').off('click').click(function() {
@@ -104,6 +128,10 @@ var initLines = function() {
         var line = $(this).closest('tr');
         line.find('[name^=comment_box]').show().focus();
     });
+    $('[name="start_time"],[name="end_time"]').off('change',checkTimeOverlaps).change(checkTimeOverlaps);
+    $('input,select').not('[class*=timepicker]').off('change',saveField).change(saveField);
+    $('.timepicker').timepicker('option','onClose',function() { saveField(this); });
+    $('.datetimepicker').datetimepicker('option','onClose',function() { saveField(this); });
 }
 var checkTimeOverlaps = function() {
     <?php if(in_array('time_overlaps',$value_config)) { ?>
@@ -259,7 +287,7 @@ var useProfileSig = function(chk) {
         GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`
         FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' $sql_approv AND `deleted`=0 GROUP BY `date`";
     $post_i = '';
-    if($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') {
+    if(in_array($layout,['position_dropdown', 'ticket_task','multi_line'])) {
         $sql .= ", `time_cards_id`";
         $post_i = 0;
     }
@@ -272,6 +300,7 @@ var useProfileSig = function(chk) {
     $row = mysqli_fetch_array($result);
     $total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
     while(strtotime($date) <= strtotime($search_end_date)) {
+        $ids = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
         $attached_ticketid = 0;
         $timecardid = 0;
         $ticket_attached_id = 0;
@@ -286,7 +315,7 @@ var useProfileSig = function(chk) {
         $mileage_rate = 0;
         $mileage_cost = 0;
         $mod = '';
-        if($date < $last_period && in_array($layout,['position_dropdown', 'ticket_task'])) {
+        if($date < $last_period && $current_page == 'time_cards.php' && in_array($layout,['position_dropdown', 'ticket_task'])) {
             $mod = 'readonly';
         }
         if($row['date'] == $date) {
@@ -339,6 +368,54 @@ var useProfileSig = function(chk) {
             $start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
             $end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
             $approv = $row['approv'];
+            if($current_page == 'payroll.php' && $approv == 'P') {
+                $mod = 'readonly';
+            } else if($current_page == 'time_cards.php' && $approv != 'N') {
+                $mod = 'readonly';
+            } else if($current_page != 'time_cards.php' && $current_page != 'payroll.php' && $approv != 'N') {
+                $mod = 'readonly';
+            }
+            if(in_array($layout,['position_dropdown', 'ticket_task','multi_line'])) {
+                switch($time_type) {
+                    case 'Extra Hrs.':
+                        $ids['EXTRA'] = $timecardid;
+                        break;
+                    case 'Relief Hrs.':
+                        $ids['RELIEF'] = $timecardid;
+                        break;
+                    case 'Sleep Hrs.':
+                        $ids['SLEEP'] = $timecardid;
+                        break;
+                    case 'Sick Time Adj.':
+                        $ids['SICK_ADJ'] = $timecardid;
+                        break;
+                    case 'Sick Hrs.Taken':
+                        $ids['SICK'] = $timecardid;
+                        break;
+                    case 'Stat Hrs.':
+                        $ids['STAT_AVAIL'] = $timecardid;
+                        break;
+                    case 'Stat Hrs.Taken':
+                        $ids['STAT'] = $timecardid;
+                        break;
+                    case 'Vac Hrs.':
+                        $ids['VACA_AVAIL'] = $timecardid;
+                        break;
+                    case 'Vac Hrs.Taken':
+                        $ids['VACA'] = $timecardid;
+                        break;
+                    case 'Break':
+                        $ids['BREAKS'] = $timecardid;
+                        break;
+                    case 'Regular Hrs.':
+                    default:
+                        $ids['TRAINING'] = $timecardid;
+                        $ids['DRIVE'] = $timecardid;
+                        $ids['HOURS'] = $timecardid;
+                        $ids['REG'] = $timecardid;
+                        break;
+                }
+            }
 
             if(in_array('training_hrs',$value_config) && $timecardid > 0) {
                 if(is_training_hrs($dbc, $timecardid)) {
@@ -380,6 +457,9 @@ var useProfileSig = function(chk) {
             $mileage_cost_total += $mileage_cost;
             
             $row = mysqli_fetch_array($result);
+            if($row['date'] != $date) {
+                $show_separator = 1;
+            }
         } else {
             $hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
             $comments = '';
@@ -410,8 +490,8 @@ var useProfileSig = function(chk) {
             $ticket_options .= "<option data-tasks='".json_encode(explode(',', $ticket['task_available']))."' ".($ticket['ticketid'] == $attached_ticketid ? 'selected' : '').' value="'.$ticket['ticketid'].'">'.get_ticket_label($dbc, $ticket).'</option>';
         }			
         $task_options = '';
-        foreach(explode(',',$task_list) as $task) {
-            $task_options .= '<option '.($time_type == $task ? 'selected' : '').' value="'.$task.'">'.$task.'</option>';
+        foreach($task_list as $task) {
+            $task_options .= '<option '.($time_type == $task['description'] ? 'selected' : '').' value="'.$task['description'].'">'.$task['description'].'</option>';
         }			
         $position_options = '';
         foreach($position_list as $position) {
@@ -424,49 +504,50 @@ var useProfileSig = function(chk) {
             <input type="hidden" name="projectid" value="'.$search_project.'">
             <input type="hidden" name="clientid" value="'.$search_client.'">
             <input type="hidden" name="ticketid" value="'.$search_ticket.'">
+            <input type="hidden" name="deleted" value="0">
             <input type="hidden" name="ticketattachedid" value="'.$ticket_attached_id.'">
-            <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" value="'.$date.'" class="form-control datepicker">' : $date).'</td>
+            <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'</td>
             '.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
             '.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
             '.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
             '.(in_array('show_hours',$value_config) ? '<td data-title="Hours" style="text-align:center">'.$hours.'</td>' : '').'
             '.(in_array('total_tracked_hrs',$value_config) && in_array($layout,['', 'multi_line']) ? '<td data-title="Total Tracked Hours" style="text-align:center">'.(empty($hrs['TRACKED_HRS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRACKED_HRS'],2) : time_decimal2time($hrs['TRACKED_HRS']))).'</td>' : '').'
-            '.(in_array('start_time_editable',$value_config) ? '<td data-title="Start Time" style="text-align:center"><input type="text" name="start_time" class="form-control datetimepicker" value="'.$start_time.'" '.(in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '').'></td>' : '').'
-            '.(!in_array('start_time_editable',$value_config) && in_array('start_time',$value_config) ? '<td data-title="Start Time" style="text-align:center">'.$start_time.'</td>' : '').'
-            '.(in_array('end_time_editable',$value_config) ? '<td data-title="End Time" style="text-align:center"><input type="text" name="end_time" class="form-control datetimepicker" value="'.$end_time.'" '.(in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ).'></td>' : '').'
-            '.(!in_array('end_time_editable',$value_config) && in_array('end_time',$value_config) ? '<td data-title="End Time" style="text-align:center">'.$end_time.'</td>' : '').'
+            '.(in_array('start_time_editable',$value_config) ? '<td data-title="Start Time" style="text-align:center"><input type="text" name="start_time" class="form-control '.($mod != 'readonly' ? 'datetimepicker' : 'no-datetimepicker').' editable" '.$mod.' value="'.$start_time.'" '.(in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '').'></td>' : '').'
+            '.((!in_array('start_time_editable',$value_config) && in_array('start_time',$value_config)) ? '<td data-title="Start Time" style="text-align:center">'.$start_time.'</td>' : '').'
+            '.(in_array('end_time_editable',$value_config) ? '<td data-title="End Time" style="text-align:center"><input type="text" name="end_time" class="form-control '.($mod != 'readonly' ? 'datetimepicker' : 'no-datetimepicker').'" '.$mod.' value="'.$end_time.'" '.(in_array('calculate_hours_start_end',$value_config) ? 'onchange="calculateHoursByStartEndTimes(this);"' : '' ).'></td>' : '').'
+            '.((!in_array('end_time_editable',$value_config) && in_array('end_time',$value_config)) ? '<td data-title="End Time" style="text-align:center">'.$end_time.'</td>' : '').'
             '.(in_array('planned_hrs',$value_config) ? '<td data-title="Planned Hours" style="text-align:center">'.$planned_hrs.'</td>' : '').'
             '.(in_array('tracked_hrs',$value_config) ? '<td data-title="Tracked Hours" style="text-align:center">'.$tracked_hrs.'</td>' : '').'
             '.(in_array('total_tracked_time',$value_config) ? '<td data-title="Total Tracked Time" style="text-align:center">'.$total_tracked_time.'</td>' : '').'
-            '.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center"><input type="checkbox" '.($driving_time == 'Driving Time' ? 'checked' : '').' name="driving_time" value="1" class="" onclick="checkDrivingTime(this);"></td>' : '').'
-            '.($layout == 'ticket_task' ? '<td data-title="'.TICKET_NOUN.'" class="ticket_task_td '.(in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="ticketid" class="chosen-select-deselect" data-placeholder="Select a '.TICKET_NOUN.'" onchange="getTasks(this);"><option/>'.$ticket_options.'</select></td>
-                <td data-title="Task" class="ticket_task_td '.(in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="type_of_time" class="chosen-select-deselect" data-placeholder="Select a Task"><option/>'.$task_options.'</select></td>' : '').'
-			'.($layout == 'position_dropdown' ? '<td data-title="Position" style="text-align:center"><select name="type_of_time" class="chosen-select-deselect" data-placeholder="Select Position"><option />'.$position_options.'</select></td>' : '').'
+            '.(in_array('start_day_tile',$value_config) ? '<td data-title="'.$timesheet_start_tile.'" style="text-align:center" '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" '.($driving_time == 'Driving Time' ? 'checked' : '').' name="driving_time" value="1" class="" onclick="checkDrivingTime(this);"></td>' : '').'
+            '.($layout == 'ticket_task' ? '<td data-title="'.TICKET_NOUN.'" class="ticket_task_td '.((in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time') || $mod == 'readonly' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="ticketid" class="chosen-select-deselect" data-placeholder="Select a '.TICKET_NOUN.'" onchange="getTasks(this);"><option/>'.$ticket_options.'</select></td>
+                <td data-title="Task" class="ticket_task_td '.((in_array('start_day_tile',$value_config) && $driving_time == 'Driving Time') || $mod == 'readonly' ? 'readonly-block' : '').' '.($show_separator==1 ? 'theme-color-border-bottom' : '').'"><select name="type_of_time" class="chosen-select-deselect" data-placeholder="Select a Task"><option/>'.$task_options.'</select></td>' : '').'
+			'.($layout == 'position_dropdown' ? '<td data-title="Position" style="text-align:center" '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><select name="type_of_time" class="chosen-select-deselect" data-placeholder="Select Position"><option />'.$position_options.'</select></td>' : '').'
             '.(in_array('total_tracked_hours',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Time Tracked">'.$tracked.'</td>' : '').'
-            '.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Total Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="Extra Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Extra Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('relief_hrs',$value_config) ? '<td data-title="Relief Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Relief Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['RELIEF']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['RELIEF'],2) : time_decimal2time($hrs['RELIEF']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('sleep_hrs',$value_config) ? '<td data-title="Sleep Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Sleep Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['SLEEP']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SLEEP'],2) : time_decimal2time($hrs['SLEEP']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('training_hrs',$value_config) ? '<td data-title="Training Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['TRAINING']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRAINING'],2) : time_decimal2time($hrs['TRAINING']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('sick_hrs',$value_config) ? '<td data-title="Sick Time Adjustment" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Sick Time Adj."><input type="text" name="total_hrs" value="'.(empty($hrs['SICK_ADJ']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK_ADJ'],2) : time_decimal2time($hrs['SICK_ADJ']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('sick_used',$value_config) ? '<td data-title="Sick Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Sick Hrs.Taken"><input type="text" name="total_hrs" value="'.(empty($hrs['SICK']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK'],2) : time_decimal2time($hrs['SICK']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('stat_hrs',$value_config) ? '<td data-title="Stat Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Stat Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['STAT_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT_AVAIL'],2) : time_decimal2time($hrs['STAT_AVAIL']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('stat_used',$value_config) ? '<td data-title="Stat Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Stat Hrs.Taken"><input type="text" name="total_hrs" value="'.(empty($hrs['STAT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT'],2) : time_decimal2time($hrs['STAT']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('vaca_hrs',$value_config) ? '<td data-title="Vacation Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Vac Hrs."><input type="text" name="total_hrs" value="'.(empty($hrs['VACA_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA_AVAIL'],2) : time_decimal2time($hrs['VACA_AVAIL']))).'" class="form-control timepicker"></td>' : '').'
-            '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$timecardid.'"><input type="hidden" name="type_of_time" value="Vac Hrs.Taken"><input type="text" name="total_hrs" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control timepicker"></td>' : '').'
+            '.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Total Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['HOURS'].'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['REG'].'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['REG'],2) : time_decimal2time($hrs['REG']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="Extra Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['DRIVE'].'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['DRIVE'],2) : time_decimal2time($hrs['DRIVE']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['EXTRA'].'"><input type="hidden" name="type_of_time" value="Extra Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['EXTRA'],2) : time_decimal2time($hrs['EXTRA']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('relief_hrs',$value_config) ? '<td data-title="Relief Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['RELIEF'].'"><input type="hidden" name="type_of_time" value="Relief Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['RELIEF']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['RELIEF'],2) : time_decimal2time($hrs['RELIEF']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('sleep_hrs',$value_config) ? '<td data-title="Sleep Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['SLEEP'].'"><input type="hidden" name="type_of_time" value="Sleep Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['SLEEP']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SLEEP'],2) : time_decimal2time($hrs['SLEEP']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('training_hrs',$value_config) ? '<td data-title="Training Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['TRAINING'].'"><input type="hidden" name="type_of_time" value="Regular Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['TRAINING']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['TRAINING'],2) : time_decimal2time($hrs['TRAINING']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('sick_hrs',$value_config) ? '<td data-title="Sick Time Adjustment" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['SICK_ADJ'].'"><input type="hidden" name="type_of_time" value="Sick Time Adj."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['SICK_ADJ']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK_ADJ'],2) : time_decimal2time($hrs['SICK_ADJ']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('sick_used',$value_config) ? '<td data-title="Sick Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['SICK'].'"><input type="hidden" name="type_of_time" value="Sick Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['SICK']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['SICK'],2) : time_decimal2time($hrs['SICK']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('stat_hrs',$value_config) ? '<td data-title="Stat Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['STAT_AVAIL'].'"><input type="hidden" name="type_of_time" value="Stat Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['STAT_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT_AVAIL'],2) : time_decimal2time($hrs['STAT_AVAIL']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('stat_used',$value_config) ? '<td data-title="Stat Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['STAT'].'"><input type="hidden" name="type_of_time" value="Stat Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['STAT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['STAT'],2) : time_decimal2time($hrs['STAT']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('vaca_hrs',$value_config) ? '<td data-title="Vacation Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA_AVAIL'].'"><input type="hidden" name="type_of_time" value="Vac Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA_AVAIL'],2) : time_decimal2time($hrs['VACA_AVAIL']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
+            '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA'].'"><input type="hidden" name="type_of_time" value="Vac Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
             '.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
             '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_tickets.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
-            '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;"></td>' : '').'
-            '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="theme-color-border-bottom">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
-            '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($approv == 'P' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($approv == 'P' ? 'checked readonly' : '').' /></label></td>' : '');
+            '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right" src="../img/icons/ROOK-reply-icon.png"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right" src="../img/icons/ROOK-edit-icon.png">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img add-row pull-right" src="../img/icons/ROOK-add-icon.png"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'</td>' : '').'
+            '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
+            '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" data-uncheck="'.($current_page == 'payroll.php' ? 'Y' : 'N').'" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? ($current_page == 'payroll.php' && $approv == 'P' ? 'checked' : ($current_page != 'payroll.php' && $approv == 'Y' ? 'checked' : '')).' readonly' : '').' /></label></td>' : '');
         echo '</tr>';
-        if(($layout != 'multi_line' && $layout != 'position_dropdown' && $layout != 'ticket_task') || $date != $row['date']) {
+        if(!in_array($layout,['position_dropdown', 'ticket_task','multi_line']) || $date != $row['date']) {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
         }
         $post_i++;
@@ -553,18 +634,20 @@ var useProfileSig = function(chk) {
         echo "</tr>";
     } ?>
 </table>
-<?php $profile_sig = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$_SESSION['contactid']."'"))['stored_signature'];
-if(!empty($profile_sig)) {
-    if(!file_exists('../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png')) {
-        if(!file_exists('../Contacts/signatures')) {
-            mkdir('../Contacts/signatures', 0777, true);
+<?php if($current_page != 'time_cards.php') {
+    $profile_sig = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_description` WHERE `contactid` = '".$_SESSION['contactid']."'"))['stored_signature'];
+    if(!empty($profile_sig)) {
+        if(!file_exists('../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png')) {
+            if(!file_exists('../Contacts/signatures')) {
+                mkdir('../Contacts/signatures', 0777, true);
+            }
+            include_once('../phpsign/signature-to-image.php');
+            $signature = sigJsonToImage(html_entity_decode($profile_sig));
+            imagepng($signature, '../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png');
         }
-        include_once('../phpsign/signature-to-image.php');
-        $signature = sigJsonToImage(html_entity_decode($profile_sig));
-        imagepng($signature, '../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png');
+        echo '<label class="form-checkbox"><input type="checkbox" name="use_profile_sig" value="1" onchange="useProfileSig(this);"> Use Profile Signature</input></label>';
+        echo '<div class="profile_sig_box" style="display: none;"><img src="../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png"></div>';
     }
-    echo '<label class="form-checkbox"><input type="checkbox" name="use_profile_sig" value="1" onchange="useProfileSig(this);"> Use Profile Signature</input></label>';
-    echo '<div class="profile_sig_box" style="display: none;"><img src="../Contacts/signatures/contact_sign_'.$_SESSION['contactid'].'.png"></div>';
 }
 if($current_page == 'payroll.php') { ?>
     <div class="form-group">

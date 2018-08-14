@@ -1,14 +1,16 @@
 <!-- Estimate -->
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#add_row_estimate').on( 'click', function () {
-        var clone = $('.additional_estimate').clone();
-        clone.find('.form-control').val('');
-        clone.removeClass("additional_estimate");
-        $('#add_here_new_estimate').append(clone);
-        return false;
-    });
+    $('.add_row_estimate').on( 'click', add_estimate_row);
 });
+function add_estimate_row() {
+    var clone = $('.additional_estimate').clone();
+    clone.find('.form-control').val('');
+    clone.removeClass("additional_estimate");
+    $('#add_here_new_estimate').append(clone);
+    $('.add_row_estimate').off('click',add_estimate_row).on( 'click', add_estimate_row);
+    return false;
+}
 </script>
 
 <div class="accordion-block-details padded" id="estimate">
@@ -55,22 +57,19 @@ $(document).ready(function() {
         <div class="col-xs-12 col-sm-8 gap-md-left-15 gap-top">
             <div class="additional_estimate">
                 <div class="col-sm-7"><input name="estimate_label[]" type="text" placeholder="Estimate Label" class="form-control" /></div>
-                <div class="col-sm-5"><input name="upload_estimate[]" multiple type="file" data-filename-placement="inside" class="form-control" /></div>
+                <div class="col-sm-4"><input name="upload_estimate[]" multiple type="file" data-filename-placement="inside" class="form-control" /></div>
+                <a href="#" class="add_row_estimate"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
                 <div class="clearfix"></div>
             </div>
 
             <div id="add_here_new_estimate"></div>
-
-            <div class="col-sm-12 gap-md-left-10 gap-top">
-                <a href="#" id="add_row_estimate" class=""><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
-            </div>
         </div>
         <div class="clearfix"></div>
     </div><!-- .row -->
     
     <div class="row double-gap-top">
-        <div class="col-sm-12 gap-md-left-15 set-row-height"><?php
-            $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`estimateid`) AS `total_id` FROM `estimate` WHERE `businessid`='$businessid'"));
+        <div class="col-sm-12 gap-md-left-15 set-row-height">
+            <?php $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`estimateid`) AS `total_id` FROM `estimate` WHERE `businessid`='$businessid'"));
             if ($get_config['total_id'] > 0) {
                 echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/estimate.php?businessid='.$businessid.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="'.$businessid.'">Click to View/Add Estimate</a>';
             } else {

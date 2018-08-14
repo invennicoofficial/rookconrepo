@@ -9,16 +9,31 @@ if (isset($_POST['submit'])) {
 	$staff = $_POST['staffid'];
 	$assigned_region = $_POST['assigned_region'];
 	$assigned_location = $_POST['assigned_location'];
+
+	$before_change = capture_before_change($dbc, 'equipment', 'assigned_staff', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'assigned_region', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'assigned_location', 'equipmentid', $equipmentid);
+
 	mysqli_query($dbc, "UPDATE `equipment` SET `assigned_staff`='$staff', `assigned_region` = '$assigned_region', `assigned_location` = '$assigned_location' WHERE `equipmentid`='$equipmentid'");
+
+	$history = capture_after_change('assigned_staff', $staff);
+	$history .= capture_after_change('assigned_region', $assigned_region);
+	$history .= capture_after_change('assigned_location', $assigned_location);
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
+
 	foreach($_POST['assigned'] as $assignedid) {
 		mysqli_query($dbc, "UPDATE `equipment` SET `assign_to_equip`='$equipmentid', `history`=CONCAT(IFNULL(CONCAT(`history`,'<br /> '),''),'Assigned to Equipment ID $equipmentid by $user at ".date('Y-m-d H:i')."') WHERE `equipmentid`='$assignedid' AND `assign_to_equip`!='$equipmentid'");
 	}
+
+	$before_change = '';
+	$history = "Equipment is updated. <br />";
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
+
 	$assign_list = implode(',',$_POST['assigned']);
 	if(!isset($_POST['assigned'])) {
 		$assign_list = 0;
 	}
 	mysqli_query($dbc, "UPDATE `equipment` SET `assign_to_equip`=0, `history`=CONCAT(IFNULL(CONCAT(`history`,'<br /> '),''),'Removed from Equipment ID $equipmentid by $user at ".date('Y-m-d H:i')."') WHERE `equipmentid` NOT IN ($assign_list) AND `assign_to_equip`='$equipmentid'");
-
 	echo "<script> window.location.replace('?tab=assign_equipment'); </script>";
 } ?>
 <script type="text/javascript">
@@ -189,7 +204,7 @@ function addStaffEquipment() {
 		<div class="standard-body-content">
 
 			<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-				
+
 				<?php $equipmentid = '';
 				$category = '';
 				$label = '';
@@ -216,7 +231,7 @@ function addStaffEquipment() {
 				$get_field_config = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`equipment` SEPARATOR ',') as all_fields FROM `field_config_equipment` WHERE `tab` = '$category'"))['all_fields'].',';
 				?>
 
-	        
+
 				<div id="tab_section_equipment" class="tab-section col-sm-12">
 					<h4>Equipment Details</h4>
 					<div class="form-group">

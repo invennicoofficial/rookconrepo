@@ -4,19 +4,13 @@ Add Vendor
 */
 include ('../include.php');
 error_reporting(0);
-$back_url = 'email_communication.php?type=Internal';
+$communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Internal' : $_GET['type']) : $_POST['comm_type'];
+$back_url = 'email_communication.php?type='.$communication_type;
 if(!empty($_GET['from_url'])) {
 	$back_url = urldecode($_GET['from_url']);
 }
-else if($communication_type == 'Internal') {
-	$back_url = 'email_communication.php?type=Internal';
-}
-else if($communication_type == 'External') {
-	$back_url = 'email_communication.php?type=External';
-}
 
 if (isset($_POST['submit'])) {
-    $communication_type = $_POST['comm_type'];
     $businessid = $_POST['businessid'];
 	$contactid = $_POST['contactid'];
  	$projectid = $_POST['projectid'];
@@ -109,22 +103,22 @@ if (isset($_POST['submit'])) {
         if($email_body != '') {
             $send_body .= $_POST['email_body'];
         }
-		if($ticketid > 0) {
-			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`)")->fetch_assoc();
+		if($ticketid > 0 && $communication_type == 'External') {
+			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`) `options`")->fetch_assoc();
 			if(strpos(','.$ticket_options['field_config'].',',',External Response,') !== FALSE) {
-				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Add Response</a></p>';
+				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>';
+				$email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>');
 			}
+		} else if($ticketid > 0 && $communication_type == 'Internal') {
+            $send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>';
+            $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
 		}
 
         if (empty($from_email)) {
             $from_email = '';
         }
 		try {
-			if($meeting_attachment == '') {
-				send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, '');
-			} else {
-				send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
-			}
+            send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
 		} catch(Exception $e) {
 			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
 		}

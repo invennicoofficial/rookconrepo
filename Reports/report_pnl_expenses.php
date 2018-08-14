@@ -134,7 +134,9 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
     $startyear = intval(explode('-', $search_start)[0]);
     $endyear   = intval(explode('-', $search_end)[0]);
 
+    $odd_even = 0;
     for ($year = $startyear; $year <= $endyear; $year++) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $total_sql = "SELECT SUM(IF(`expense_date` LIKE '".$year."-01%', `total`, 0)) `JAN`,
             SUM(IF(`expense_date` LIKE '".$year."-02%', `total`, 0)) `FEB`,
             SUM(IF(`expense_date` LIKE '".$year."-03%', `total`, 0)) `MAR`,
@@ -199,8 +201,10 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             </thead>
             <tbody>';
                 $category = $source = '';
-
+                
+                $odd_even2 = 0;
                 while($row = mysqli_fetch_array($expenses)) {
+                    $bg_class2 = $odd_even2 % 2 == 0 ? '' : 'background-color:#e6e6e6;';
                     if($source != $row['source'].$row['tab']) {
                         $source = $row['source'].$row['tab'];
                         if($row['source'] != 'EXPENSE') {
@@ -213,7 +217,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                         $report_data .= '<tr><td colspan="13" style="font-size:1.1em; font-weight:bold; '. $table_row_style .'">'. $category .'</td></tr>';
                     }
 
-                    $report_data .= '<tr><td data-title="Expense" style="'. $table_row_style .'">';
+                    $report_data .= '<tr style="'.$bg_class2.'"><td data-title="Expense" style="'. $table_row_style .'">';
                     $report_data .= ( $row['source'] == 'STAFF') ? get_contact($dbc,$row['heading']) : $row['heading'];
                     $report_data .= '</td>';
 
@@ -223,9 +227,10 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                         $report_data .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">$'. number_format($amt, 2, '.', ',') .'</td>';
                     }
                     $report_data .= '</tr>';
+                    $odd_even2++;
                 }
 
-                $report_data .= '<tr>
+                $report_data .= '<tr style="'.$bg_class.'">
                     <td style="'. $table_row_style .'">Sales Tax Total</td>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
@@ -249,6 +254,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                 </tr>
             </tbody>
         </table>';
+        $odd_even++;
     }
 
     return $report_data;

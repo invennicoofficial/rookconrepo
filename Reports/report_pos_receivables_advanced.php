@@ -89,7 +89,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, '', '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -97,7 +97,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'View POS Receivables (Advanced) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'POS Receivables (Advanced) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -129,7 +129,7 @@ if (isset($_POST['printpdf'])) {
 	$pdf->AddPage('L', 'LETTER');
     $pdf->SetFont('helvetica', '', 9);
 
-    $html .= report_receivables($dbc, $starttimepdf, $endtimepdf, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
+    $html .= report_receivables($dbc, $starttimepdf, $endtimepdf, 'padding:3px; border:1px solid black;', '', 'background-color:lightgrey; color:black;');
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
@@ -145,79 +145,81 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-            <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
-            <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
+<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal triple-gap-top" role="form">
+    <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
+    <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
-            <?php
-            $contactid = '';
-            if (isset($_POST['search_email_submit'])) {
-                $starttime = $_POST['starttime'];
-                $endtime = $_POST['endtime'];
-                $contactid = $_POST['contactid'];
-            }
+    <?php
+    $contactid = '';
+    if (isset($_POST['search_email_submit'])) {
+        $starttime = $_POST['starttime'];
+        $endtime = $_POST['endtime'];
+        $contactid = $_POST['contactid'];
+    }
 
-            if($starttime == 0000-00-00) {
-                $starttime = date('Y-m-01');
-            }
+    if($starttime == 0000-00-00) {
+        $starttime = date('Y-m-01');
+    }
 
-            if($endtime == 0000-00-00) {
-                $endtime = date('Y-m-d');
-            }
-            ?>
-            <center><div class="form-group">
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">From:</label>
-					<div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
+    if($endtime == 0000-00-00) {
+        $endtime = date('Y-m-d');
+    }
+    ?>
+    <center>
+        <div class="form-group">
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">From:</label>
+                <div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
+            </div>
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">Until:</label>
+                <div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
+            </div>
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">Customer:</label>
+                <div class="col-sm-8">
+                    <select name="contactid" data-placeholder="Select a Customer..." class="chosen-select-deselect form-control1" width="380">
+                        <option value=''>Customer</option>
+                        <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE (category='Customer' OR category='Customers') AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+                        foreach($query as $rowid) {
+                            echo "<option ".($contactid == $rowid ? 'selected' : '')." value='$rowid'>".get_contact($dbc, $rowid, 'name_company')."</option>";
+                        } ?>
+                    </select>
                 </div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Until:</label>
-					<div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
-				</div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Customer:</label>
-					<div class="col-sm-8">
-						<select name="contactid" data-placeholder="Select a Customer..." class="chosen-select-deselect form-control1" width="380">
-							<option value=''>Customer</option>
-							<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE (category='Customer' OR category='Customers') AND deleted=0 AND status=1"),MYSQLI_ASSOC));
-							foreach($query as $rowid) {
-								echo "<option ".($contactid == $rowid ? 'selected' : '')." value='$rowid'>".get_contact($dbc, $rowid, 'name_company')."</option>";
-							} ?>
-						</select></div>
-				</div>
-            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button></div></center>
+            </div>
+            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
+        </div>
+    </center>
 
-            <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
-            <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
-            <input type="hidden" name="contactidpdf" value="<?php echo $contactid; ?>">
+    <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
+    <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
+    <input type="hidden" name="contactidpdf" value="<?php echo $contactid; ?>">
 
-            <!--
-            <button type="submit" name="printcsv" value="Print CSV Report" title="Print CSV Report" class="pull-right"><img title="Print CSV Report" width="15px" src="../img/csv.png"></button>
-            -->
-            <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
-            <br><br>
+    <!--
+    <button type="submit" name="printcsv" value="Print CSV Report" title="Print CSV Report" class="pull-right"><img title="Print CSV Report" width="15px" src="../img/csv.png"></button>
+    -->
+    <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
+    <br><br>
 
-            <?php
-                echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', '');
-            ?>
+    <?php echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', ''); ?>
 
-        </form>
+</form>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style, $table_row_style, $grand_total_style) {
 
-        $search_clause = '';
-        if($contactid > 0) {
-            $search_clause .= " AND `patientid`='$contactid'";
-        }
-        if($starttime != '') {
-            $search_clause .= " AND `invoice_date` >= '$starttime'";
-        }
-        if($endtime != '') {
-            $search_clause .= " AND `invoice_date` <= '$endtime'";
-        }
+    $search_clause = '';
+    if($contactid > 0) {
+        $search_clause .= " AND `patientid`='$contactid'";
+    }
+    if($starttime != '') {
+        $search_clause .= " AND `invoice_date` >= '$starttime'";
+    }
+    if($endtime != '') {
+        $search_clause .= " AND `invoice_date` <= '$endtime'";
+    }
 
-	  $report_validation = mysqli_query($dbc,"SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` = 'Net 30' OR `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC");
+    $report_validation = mysqli_query($dbc,"SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` = 'Net 30' OR `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC");
 
     $num_rows = mysqli_num_rows($report_validation);
 
@@ -233,19 +235,22 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
                         <th>Status</th>
         </tr>';
 
+        $odd_even = 0;
+        
         while($invoice = mysqli_fetch_array($report_validation)) {
+            $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 
-            $report_data .= '<tr nobr="true" '.$style.'>';
-
-            $report_data .= '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . '</td>';
-            $report_data .= '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
-            $report_data .= '<td data-title="Customer">' . get_contact($dbc, $contactid) . '</td>';
-            $report_data .= '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
-            $report_data .= '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
-            $report_data .= '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
-            $report_data .= '<td data-title="Comment">' .  $invoice['status'] . '</td>';
-
+            $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+                $report_data .= '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . ' <a href="../POSAdvanced/download/invoice_'.$invoice['invoiceid'].'.pdf" target="_blank"><img src="../img/pdf.png" alt="Invoice PDF" /></a></td>';
+                $report_data .= '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
+                $report_data .= '<td data-title="Customer">' . get_contact($dbc, $invoice['patientid']) . '</td>';
+                $report_data .= '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
+                $report_data .= '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
+                $report_data .= '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
+                $report_data .= '<td data-title="Comment">' .  $invoice['status'] . '</td>';
             $report_data .= "</tr>";
+            
+            $odd_even++;
         }
 
         $report_data .= '</table>';

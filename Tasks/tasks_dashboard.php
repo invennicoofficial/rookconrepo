@@ -340,6 +340,30 @@ function send_reply(task) {
 /* Function call before the slider
 function send_reply(task) {
 	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+/* Function call before the slider
+function send_reply(task) {
+	task_id = $(task).parents('span').data('task');
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task board';
@@ -1052,7 +1076,7 @@ function checklist_attach_file(checklist) {
                                     if ( $comments->num_rows > 0 ) { ?>
                                         <div class="form-group clearfix full-width">
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-																								$odd_even = 0;
+                                                $odd_even = 0;
                                                 while ( $row_comment=mysqli_fetch_assoc($comments) ) {
                                                     $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
                                                     <div class="note_block row <?= $bg_class ?>">
@@ -1062,7 +1086,7 @@ function checklist_attach_file(checklist) {
                                                             <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
                                                         </div>
                                                         <div class="clearfix"></div>
-																											</div><?php
+                                                    </div><?php
                                                     $odd_even++;
                                                 } ?>
                                             </div>

@@ -20,20 +20,34 @@ checkAuthorised();
 $(document).on('change', 'select[name="choose_table"]', function() { location = this.value; });
 </script>
             <form name="form_sites" method="post" action="" class="form-inline" role="form">
-                <div style="background-color:rgba(142,142,142,0.50); border-radius:10px; border:1px solid white; padding:10px;" >
-                    <h2><?php
+                <div>
+                    <h3 class="gap-left"><?php
                         if($_GET['table'] == 'balancesheet') {
                             echo "Balance Sheet";
-                        }
-                        if($_GET['table'] == 'productmovement') {
-                            echo "Product Movement Summary";
-                        }
-                        if($_GET['table'] == 'sales') {
+                        } elseif($_GET['table'] == 'sales') {
                             echo "Sales";
+                        } else {
+                            echo "Product Movement Summary";
                         } ?>
-                    </h2>
+                    </h3><br /><?php
+                    
+                    if (isset($_POST['search_email_submit'])) {
+                        $starttime = $_POST['starttime'];
+                        $endtime = $_POST['endtime'];
+                    }
+                    if (isset($_POST['display_all'])) {
+                        $starttime = $_POST['starttime'];
+                        $endtime = $_POST['endtime'];
+                    }
 
-                    <div class="form-group col-sm-5">
+                    if($starttime == 0000-00-00 || empty($starttime)) {
+                        $starttime = date('Y-m-01');
+                    }
+                    if($endtime == 0000-00-00 || empty($endtime)) {
+                        $endtime = date('Y-m-t');
+                    } ?>
+
+                    <div class="form-group col-sm-6">
                         <label for="search_email" class="col-sm-4">Report Type:</label>
                         <div class="col-sm-8">
                             <select name="choose_table" id="dynamic_select" class="chosen-select-deselect form-control" data-placeholder="Choose a Report">
@@ -43,20 +57,22 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
                             </select>
                         </div>
                     </div>
-                    <div class="form-group col-sm-5">
+                    <div class="form-group col-sm-6">
                         <label for="site_name" class="col-sm-4 control-label">From:</label>
                         <div class="col-sm-8">
                             <input name="starttime" type="text"  class="datepicker form-control" value="<?= $starttime; ?>"></p>
                         </div>
                     </div>
-                    <div class="form-group col-sm-5 until">
+                    <div class="form-group col-sm-6 until">
                         <label for="site_name" class="col-sm-4 control-label">Until:</label>
                         <div class="col-sm-8">
                             <input name="endtime" type="text" class="datepicker form-control" value="<?= $endtime; ?>"></p>
                         </div>
                     </div>
-                    <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-                    <button type="submit" name="display_all" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                    <div class="form-group col-sm-6 text-right">
+                        <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
+                        <button type="submit" name="display_all" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
             </form>

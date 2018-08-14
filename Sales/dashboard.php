@@ -238,18 +238,86 @@ function openProjectDialog(sel) {
         }
     });
 }
+function businessFilter(sel) {
+    var business = sel.value;
+    var dialog = $(sel).closest('.dialog');
+    dialog.find('[name=clientid] option').each(function() {
+        if($(this).data('business') != business && business > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+    dialog.find('[name=projectid] option').each(function() {
+        if($(this).data('business') != business && business > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+}
+$(document).on('change', '.dialog select[name=businessid]', function() { businessFilter(this); });
+function contactFilter(sel) {
+    var dialog = $(sel).closest('.dialog');
+    var business = $(sel).find('option:selected').data('business');
+    var contact = sel.value;
+    dialog.find('[name=businessid]').val(business).trigger('change.select2');
+    dialog.find('[name=projectid] option').each(function() {
+        if($(this).data('client') != undefined && $(this).data('client').indexOf(','+contact+',') < 0 && contact > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+    dialog.find('[name=clientid]').trigger('change.select2');
+}
+$(document).on('change', '.dialog select[name=clientid]', function() { contactFilter(this); });
 </script>
 <!-- Dialog -->
-<div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" style="display:none;">
+<div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" class="dialog" style="display:none;">
+    <?php $project_fields = ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='ALL'"))[0].',';
+    $project_configs = mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project");
+    while($project_config = mysqli_fetch_array($project_configs)[0]) {
+        $project_fields .= $project_config.',';
+    }
+    $project_fields = explode(',',$project_fields);
+    if(in_array('Information Business', $project_fields)) { ?>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= BUSINESS_CAT ?>:</label>
+            <div class="col-sm-8">
+                <select name="businessid" data-placeholder="Select <?= BUSINESS_CAT ?>" class="chosen-select-deselect form-control"><option />
+                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON `contacts`.`contactid`=`project`.`businessid` WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $bus_row) { ?>
+                        <option value="<?= $bus_row['contactid'] ?>"><?= $bus_row['full_name'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    <?php }
+    if(in_array('Information Contact', $project_fields)) { ?>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= CONTACTS_NOUN ?>:</label>
+            <div class="col-sm-8">
+                <select name="clientid" data-placeholder="Select <?= CONTACTS_NOUN ?>" class="chosen-select-deselect form-control"><option />
+                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`businessid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON CONCAT(',',`project`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $cont_row) { ?>
+                        <option data-business="<?= $cont_row['businessid'] ?>" value="<?= $cont_row['contactid'] ?>"><?= $cont_row['full_name'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    <?php } ?>
     <div class="form-group">
         <label class="col-sm-4 control-label"><?= PROJECT_TILE ?>:</label>
         <div class="col-sm-8">
             <select name="projectid" data-placeholder="Select <?= PROJECT_NOUN ?>" class="chosen-select-deselect form-control">
                 <option></option><?php
-                $get_projects = mysqli_query($dbc, "SELECT projectid, project_name FROM project WHERE project_name<>'' AND deleted=0 ORDER BY project_name");
+                $get_projects = mysqli_query($dbc, "SELECT `projectid`, `businessid`, `clientid`, `project_name` FROM project WHERE project_name<>'' AND deleted=0 ORDER BY project_name");
                 if ($get_projects->num_rows>0) {
                     while ($row_project=mysqli_fetch_assoc($get_projects)) { ?>
-                        <option value="<?=$row_project['projectid']?>"><?=$row_project['project_name']?></option><?php
+                        <option data-business="<?= $row_project['businessid'] ?>" data-client=",<?= $row_project['clientid'] ?>," value="<?=$row_project['projectid']?>"><?=$row_project['project_name']?></option><?php
                     }
                 } ?>
             </select>
@@ -283,7 +351,10 @@ function openProjectDialog(sel) {
 								$flag_label = $row['flag_label'];
 							} else if(!empty($row['flag_colour'])) {
 								$flag_colour = $row['flag_colour'];
-								$flag_label = $flag_labels[array_search($row['flag_colour'], $flag_colours)];
+                                $flag_label_row = array_search($row['flag_colour'], $flag_colours);
+                                if($flag_label_row !== FALSE) {
+                                    $flag_label = $flag_labels[$flag_label_row];
+                                }
 							}
 							$lead_count++; ?>
                             <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">

@@ -129,7 +129,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
     //$report_validation = mysqli_query($dbc, "SELECT payment_type, SUM(`sub_total`) AS sub_total, SUM(`discount_value`) AS discount_value, SUM(`delivery`) AS delivery, SUM(`assembly`) AS assembly, SUM(`total_before_tax`) AS total_before_tax, SUM(`gst`) AS gst, SUM(`pst`) AS pst, SUM(`total_price`) AS total_price FROM point_of_sell WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."')");
 
-    $report_validation = mysqli_query($dbc, "SELECT final_price, discount, gst_amt, pst_amt, SUM(final_price + discount - gst_amt - pst_amt - delivery - assembly) sub_total, delivery, assembly, payment_type FROM invoice WHERE deleted=0 AND status='Completed' AND (invoice_date BETWEEN '$starttime' AND '$endtime') GROUP BY invoiceid");
+    $report_validation = mysqli_query($dbc, "SELECT final_price, discount, gst_amt, pst_amt, SUM(final_price + discount - gst_amt - pst_amt - delivery - assembly) sub_total, delivery, assembly, payment_type FROM invoice WHERE deleted=0 AND (status='Completed' OR status='Posted') AND (invoice_date BETWEEN '$starttime' AND '$endtime') GROUP BY invoiceid");
 
     if ( $report_validation->num_rows >0 ) {
         $sub_total = 0;

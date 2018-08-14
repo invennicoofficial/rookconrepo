@@ -51,9 +51,11 @@ if (isset($_POST['submit'])) {
 	$sql = "INSERT INTO `equipment_inspections` (`staffid`, `type`, `date`, `equipmentid`, `good_items`, `attention_needed`, `uncomplete`, `comments`, `immediate`, `signed`, `inspection_checklist`, `timer`)
 		VALUES ('$staff', '$type', '$datetime', '$equipmentid', '$good_items', '$attention_needed', '$not_complete', '$comments', '$immediate', '$signed', '$inspection_checklist', '$timer')";
 	mysqli_query($dbc, $sql);
-	
-	$id = mysqli_insert_id($dbc);
 
+	$id = mysqli_insert_id($dbc);
+	$before_change = '';
+	$history = "New equipment inspection Added. <br />";
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	if (!empty($timer)) {
 		$timer_values = explode(':', $timer);
 		$total_hrs = floatval((($timer_values[0] * 3600) + ($timer_values[1] * 60) + $timer_values[2]) / 3600);
@@ -69,14 +71,14 @@ if (isset($_POST['submit'])) {
 		mkdir('download', 0777, true);
 	}
 	imagepng($img, 'download/sign_'.$id.'.png');
-	
+
 	//Prepare the variables
 	include('../tcpdf/tcpdf.php');
 	$filename = "download/inspection_report_".$id.".pdf";
 	$logo = get_config($dbc, 'equipment_service_logo');
 	$header = get_config($dbc, 'equipment_service_header');
 	$footer = get_config($dbc, 'equipment_service_footer');
-	
+
 	//Generate the PDF
 	DEFINE('HEADER_LOGO', $logo);
 	DEFINE('HEADER_TEXT', html_entity_decode($header));
@@ -123,7 +125,7 @@ if (isset($_POST['submit'])) {
 	$pdf->AddPage();
 	$pdf->SetFont('helvetica', '', 8);
 	$pdf->setCellHeightRatio(1);
-	
+
 	$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='$equipmentid'"));
 	$html = '<h1>Service Request</h1>
 	<p>Below are the details of the inspection:</p>
@@ -202,10 +204,10 @@ if (isset($_POST['submit'])) {
 		}
 		$html .= '</ul>';
 	}
-	
+
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($filename, 'F');
-		
+
 	if($immediate == 'Yes') {
 		//Prepare the Variables
 		$staff_list = explode(',',get_config($dbc, 'equipment_service_alert'));
@@ -219,7 +221,7 @@ if (isset($_POST['submit'])) {
 		}
 		$subject = get_config($dbc, 'equipment_service_subject');
 		$body = html_entity_decode(get_config($dbc, 'equipment_service_body')).'<br />Click <a href="'.WEBSITE_URL.'/Equipment/add_equipment.php?equipmentid='.$equipmentid.'">here</a> to view the equipment.';
-		
+
 		//Send the emails
 		$email_list = [];
 		foreach($staff_list as $staffid) {
@@ -383,7 +385,7 @@ $(document).ready(function () {
 		<div class="standard-body-content">
 			<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-				<?php		
+				<?php
 				$staff = $_SESSION['contactid'];
 				$equipmentid = '';
 				$category = '';

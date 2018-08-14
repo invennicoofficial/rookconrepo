@@ -2,7 +2,6 @@
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $show_tasks = tile_enabled($dbc, 'tasks');
-$show_tickets = tile_enabled($dbc, 'ticket');
 $show_forms = tile_enabled($dbc, 'intake');
 $show_checklists = tile_enabled($dbc, 'checklist');
 $sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
@@ -694,8 +693,6 @@ function checklist_attach_file(checklist) {
 						$label = $milestone_row['label'] ?: 'Tasks';
 						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' ORDER BY tasklistid DESC");
 						$task_count = mysqli_num_rows($task_result) ?: 0;
-						$ticket_result = mysqli_query($dbc, "SELECT * FROM tickets WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `status` NOT IN ('Archive','Archived','Done') AND `clientid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') ORDER BY ticketid DESC");
-						$ticket_count = mysqli_num_rows($ticket_result) ?: 0;
 						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
 						$form_count = mysqli_num_rows($form_result) ?: 0;
 						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
@@ -714,7 +711,7 @@ function checklist_attach_file(checklist) {
 								<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
 								<input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
 								<div class="small">
-									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_tickets) { ?><?= ' '.strtoupper(TICKET_TILE) ?>: <?= $ticket_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
+									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
 								</div>
 								<div class="clearfix"></div>
 							<div class="clearfix"></div>
