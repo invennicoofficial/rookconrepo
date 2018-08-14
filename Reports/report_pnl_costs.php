@@ -185,14 +185,17 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             <tbody>';
                 $category = '';
 
+                $odd_even = 0;
                 while($row = mysqli_fetch_array($inventory)) {
-                    $report_data .= '<tr><td data-title="Inventory" style="'. $table_row_style .'">'. $row['name'] .'</td>';
+                    $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+                    $report_data .= '<tr style="'.$bg_class.'"><td data-title="Inventory" style="'. $table_row_style .'">'. $row['name'] .'</td>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $amt = $row[strtoupper($dateObj->format('M'))];
                         $report_data .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right;'. $table_row_style .'">$'. number_format($amt, 2, '.', ',') .'</td>';
                     }
                     $report_data .= '</tr>';
+                    $odd_even++;
                 }
 
                 $report_data .= '<tr style="font-weight:bold;">
