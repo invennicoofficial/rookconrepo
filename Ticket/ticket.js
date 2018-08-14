@@ -1788,6 +1788,7 @@ function deletestartTicketStaff(button) {
         addContact();
     }
     $(button).closest('div.start-ticket-staff').remove();
+    $('div.start-ticket-staff').first().find('[name="contactid"]').change();
 }
 
 
@@ -1807,6 +1808,7 @@ function deleteinternalTicketStaff(button) {
         addContact();
     }
     $(button).closest('div.internal-ticket-staff').remove();
+    $('div.internal-ticket-staff').first().find('[name="internal_qa_contactid"]').change();
 }
 
 function customerTicketStaff() {
@@ -1825,6 +1827,7 @@ function deletecustomerTicketStaff(button) {
         addContact();
     }
     $(button).closest('div.customer-ticket-staff').remove();
+    $('div.customer-ticket-staff').first().find('[name="deliverable_contactid"]').change();
 }
 
 function addMulti(img, style, clone_location = '') {

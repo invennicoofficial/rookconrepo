@@ -41,9 +41,9 @@ function addDetail(select) {
         <div class="clearfix"></div>
     </div>
 	<?php foreach($detail_types as $config_str => $field) {
-		if(in_array($config_str, $config) || $details[$field[1]] != '') { ?>
+		if((in_array($config_str, $config) || $details[$field[1]] != '') && $details[$field[1]] != '***FFFMDELETED***') { ?>
 			<div class="form-group">
-				<label class="col-sm-4"><?= $field[0] ?>: <?php if($security['edit'] > 0) { ?><img class="inline-img" src="../img/remove.png" onclick="$(this).closest('.form-group').find('textarea').val('').change(); $(this).closest('.form-group').remove();"><?php } ?></label>
+				<label class="col-sm-4"><?= $field[0] ?>: <?php if($security['edit'] > 0) { ?><img class="inline-img" src="../img/remove.png" onclick="$(this).closest('.form-group').find('textarea').val('***FFFMDELETED***').change(); $(this).closest('.form-group').remove();"><?php } ?></label>
 				<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 					<textarea name="<?= $field[1] ?>" data-table="project_detail" data-id-field="detailid" data-id="<?= $details['detailid'] ?>" data-project="<?= $projectid ?>"><?= $details[$field[1]] ?></textarea>
 				</div>
@@ -52,14 +52,16 @@ function addDetail(select) {
 	} ?>
 	<?php foreach($custom_details as $custom) {
 		$detail_name = config_safe_str($custom);
-		$detail_value = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `projectcommid`, `comment` FROM `project_comment` WHERE `projectid`='$projectid' AND `type`='detail_$detail_name'")); ?>
-		<div class="form-group">
-			<label class="col-sm-4"><?= $custom ?>:<?php if($security['edit'] > 0) { ?><img class="inline-img" src="../img/remove.png" onclick="$(this).closest('.form-group').find('textarea').val('').change(); $(this).closest('.form-group').remove();"><?php } ?></label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<textarea name="comment" data-table="project_comment" data-id-field="projectcommid" data-id="<?= $detail_value['projectcommid'] ?>" data-type="detail_<?= $detail_name ?>" data-project="<?= $projectid ?>"><?= $detail_value['comment'] ?></textarea>
+		$detail_value = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `projectcommid`, `comment` FROM `project_comment` WHERE `projectid`='$projectid' AND `type`='detail_$detail_name'"));
+		if($detail_value['comment'] != '***FFFMDELETED***') { ?>
+			<div class="form-group">
+				<label class="col-sm-4"><?= $custom ?>:<?php if($security['edit'] > 0) { ?><img class="inline-img" src="../img/remove.png" onclick="$(this).closest('.form-group').find('textarea').val('***FFFMDELETED***').change(); $(this).closest('.form-group').remove();"><?php } ?></label>
+				<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+					<textarea name="comment" data-table="project_comment" data-id-field="projectcommid" data-id="<?= $detail_value['projectcommid'] ?>" data-type="detail_<?= $detail_name ?>" data-project="<?= $projectid ?>"><?= $detail_value['comment'] ?></textarea>
+				</div>
 			</div>
-		</div>
-	<?php } ?>
+		<?php }
+	} ?>
 	<?php if($security['edit'] > 0) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">Add New Detail:</label>
