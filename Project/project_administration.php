@@ -15,17 +15,17 @@ $filter_class = $name[4];
 $filter_site = $name[5];
 $filter_business = $name[6];
 
-
 // Get the approval settings for the current tab
 $admin_groups = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,{$_SESSION['contactid']},%'");
 for($admin_group = $admin_groups->fetch_assoc(); $admin_group['id'] != $id && !empty($admin_group['name']); $admin_group = $admin_groups->fetch_assoc());
-?>
+$ticket_db = explode(',',get_field_config($dbc, 'tickets_dashboard'));
+$approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',$admin_group['contactid']))) : 1; ?>
 <h3>Administration - <?= $admin_group['name'] ?>: <?= ucfirst($status).($admin_group['region'] != '' ? ' <em><small>'.$admin_group['region'].'</small></em>' : '').($admin_group['classification'] != '' ? ' <em><small>'.$admin_group['classification'].'</small></em>' : '').($admin_group['location'] != '' ? ' <em><small>'.$admin_group['location'].'</small></em>' : '').($admin_group['customer'] > 0 ? ' <em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h3>
 <script>
 $(document).ready(function() {
 	$('[name=approvals]').change(function() {
 		<?php if($admin_group['signature'] > 0) { ?>
-			overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date'));
+			overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date')+'&invoice='+$(this).data('invoice'));
 		<?php } else { ?>
 			$.post('../Project/projects_ajax.php?action=approvals', {
 				field: 'approvals',
@@ -33,7 +33,8 @@ $(document).ready(function() {
 				contactid: '<?= $_SESSION['contactid'] ?>',
 				status: this.checked ? 1 : 0,
 				id: this.value,
-				date: $(this).data('date')
+				date: $(this).data('date'),
+				invoice: $(this).data('invoice')
 			}).success(function(response) {
 				console.log(response);
 			});
@@ -212,7 +213,7 @@ if($tickets->num_rows > 0) { ?>
 					} else if((strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].',') !== FALSE && $project_admin_multiday_tickets != 1) || (strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].'#*#'.$ticket['ticket_date'].',') !== FALSE)) {
 						echo "In Revision";
 					} else { ?>
-						<label class="form-checkbox any-width no-pad"><input type="checkbox" name="approvals" data-table="tickets" <?= $project_admin_multiday_tickets == 1 ? 'data-date="'.$ticket['ticket_date'].'"' : '' ?> value="<?= $ticket['ticketid'] ?>"> Approve</label>
+						<label class="form-checkbox any-width no-pad"><input type="checkbox" name="approvals" data-invoice="<?= count($approved) >= $approv_count - 1 && !in_array('Invoicing',$ticket_db) ? 'true' : '' ?>" data-table="tickets" <?= $project_admin_multiday_tickets == 1 ? 'data-date="'.$ticket['ticket_date'].'"' : '' ?> value="<?= $ticket['ticketid'] ?>"> Approve</label>
 					<?php } ?></td>
 					<?php foreach($admin_group_managers as $admin_manager_id => $admin_manager_name) {
 						if($admin_manager_id != $_SESSION['contactid']) { ?>

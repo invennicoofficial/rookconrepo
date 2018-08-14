@@ -467,7 +467,7 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
-    
+
     //Insert into Time Sheet tile
     // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
@@ -1000,7 +1000,7 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
 	}
-    
+
 } else if($_GET['action'] == 'validate_address') {
 	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
 	$number = $address = $city = $postal = '';
@@ -2680,84 +2680,7 @@ if($_GET['action'] == 'update_fields') {
 		$dbc->query("UPDATE `tickets` SET `approvals`=NULL WHERE `ticketid`='$ticketid'");
 	}
 } else if($_GET['action'] == 'ticket_invoice') {
-	$ticket_list = explode(',',$_POST['ticketid']);
-	$total_price = 0;
-	$inv_services = [];
-	$inv_service_qty = [];
-	$inv_service_fee = [];
-	$services_price = 0;
-	$misc_item = [];
-	$misc_price = [];
-	$misc_qty = [];
-	$misc_total = [];
-	$price_final = 0;
-	foreach($ticket_list as $ticketid) {
-		if($ticketid > 0) {
-			$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
-			foreach(explode(',',$ticket['serviceid']) as $i => $service) {
-				$qty = explode(',',$ticket['service_qty'])[$i];
-				$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
-				$discount = explode(',',$ticket['service_discount'])[$i];
-				$dis_type = explode(',',$ticket['service_discount_type'])[$i];
-				$price = 0;
-				$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
-				foreach(explode('**',$customer_rate['services']) as $service_rate) {
-					$service_rate = explode('#',$service_rate);
-					if($service == $service_rate[0] && $service_rate[1] > 0) {
-						$price = $service_rate[1];
-					}
-				}
-				if(!($price > 0)) {
-					$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
-					$price = $service_rate['cust_price'];
-				}
-				$inv_services[] = $service;
-				$inv_service_qty[] = $qty;
-				$price_total = ($price * $qty + $fuel);
-				$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
-				$inv_service_fee[] = $price_total;
-				$total_price += $price_total;
-			}
-			$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
-			while($line = $ticket_lines->fetch_assoc()) {
-				$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
-				$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
-				$misc_item[] = $description;
-				$misc_qty[] = $qty;
-			}
-			$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
-			while($line = $ticket_lines->fetch_assoc()) {
-				$description = get_contact($dbc, $line['description']);
-				$qty = $line['qty'];
-				$price = $line['rate'];
-				$misc_item[] = $description;
-				$misc_price[] = $price;
-				$misc_qty[] = $qty;
-				$misc_total[] = $price * $qty;
-				$total_price += $price * $qty;
-			}
-			$billing_discount = $ticket['billing_discount'];
-			$billing_dis_type = $ticket['billing_discount_type'];
-			$billing_discount_total = ($billing_dis_type == '%' ? $total_price * $billing_discount / 100 : $billing_discount);
-			$price_final += $total_price - $billing_discount_total;
-		}
-	}
-	mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),GROUP_CONCAT(`clientid` SEPARATOR ','),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
-	$invoiceid = $dbc->insert_id;
-	foreach($inv_services as $i => $service) {
-		$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
-		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', '$service', 'services', '".TICKET_TILE."', '{$service['heading']}', '{$inv_service_qty[$i]}', '".($inv_service_fee[$i] / $inv_service_qty[$i])."', 'each', '".$inv_service_fee[$i]."')");
-	}
-	foreach($misc_item as $i => $misc) {
-		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."')");
-	}
-	$tile_target = 'Invoice';
-	if(!tile_visible($dbc, 'check_out')) {
-		if(tile_visible($dbc, 'posadvanced')) {
-			$tile_target = 'POSAdvanced';
-		}
-	}
-	echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid;
+	include('../Invoice/create_ticket_invoice.php');
 } else if($_GET['action'] == 'task_types') {
 	foreach($_POST['tasks'] as $sort => $data) {
 		$cat = filter_var($data['category'],FILTER_SANITIZE_STRING);
@@ -2987,5 +2910,15 @@ if($_GET['action'] == 'update_fields') {
 	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
 	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
 	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
+} else if($_GET['action'] == 'checklist_tile') {
+	$checklistid = filter_var($_GET['checklistid'],FILTER_SANITIZE_STRING);
+	$checked = filter_var($_GET['checked'],FILTER_SANITIZE_STRING);
+    if($checked = 'true') {
+        $checked = 1;
+    } else {
+        $checked = 0;
+    }
+    echo "my my";
+	$all_rev = $dbc->query("UPDATE checklist SET checklist_tile = $checked WHERE checklistid = '$checklistid'");
 }
 ?>

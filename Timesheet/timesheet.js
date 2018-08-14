@@ -68,12 +68,20 @@ function saveFieldMethod(field) {
             blocks.push($(this).closest('td'));
         });
     }
+    var saveValue = field.value;
+    if(field.type == 'checkbox' && field.checked == false) {
+        if($(field).data('uncheck') != undefined) {
+            saveValue = $(field).data('uncheck');
+        } else {
+            saveValue = '';
+        }
+    }
     var block_length = blocks.length;
     $(blocks).each(function() {
         var block = $(this);
         $.post('time_cards_ajax.php?action=update_time', {
             field: field.name,
-            value: field.value,
+            value: saveValue,
             type_of_time: block.find('[name=type_of_time]').val(),
             id: block.find('[name=time_cards_id]').val(),
             date: line.find('[name=date]').val(),

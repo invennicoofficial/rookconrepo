@@ -24,19 +24,28 @@ if (isset($_POST['submit'])) {
 	$last_tune_up_date = $_POST['last_tune_up_date'];
 	$next_tune_up_km = $_POST['next_tune_up_km'];
 	$next_tune_up_date = $_POST['next_tune_up_date'];
-	
+
 	if(empty($_POST['workorderid'])) {
 		$sql = "INSERT INTO `equipment_work_orders` (`staffid`, `date`, `date_scheduled`, `equipmentid`, `serviceid`, `misc`, `service_description`, `last_oil_km`, `last_oil_date`, `next_oil_km`, `next_oil_date`, `last_tire_rotate_km`, `last_tire_rotate_date`, `next_tire_rotate_km`, `next_tire_rotate_date`, `last_tune_up_km`, `last_tune_up_date`, `next_tune_up_km`, `next_tune_up_date`, `status`) VALUES ('$staffid', '$date', '$date_scheduled', '$equipmentid', '$serviceid', '$misc', '$service_description', '$last_oil_km', '$last_oil_date', '$next_oil_km', '$next_oil_date', '$last_tire_rotate_km', '$last_tire_rotate_date', '$next_tire_rotate_km', '$next_tire_rotate_date', '$last_tune_up_km', '$last_tune_up_date', '$next_tune_up_km', '$next_tune_up_date', 'Pending')";
 		mysqli_query($dbc, $sql);
 		$workorderid = mysqli_insert_id($dbc);
+		$before_change = '';
+		$history = "New equipment work order Added. <br />";
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 		$sql = "UPDATE `equipment_wo_checklist` SET `workorderid`='$workorderid' WHERE `workorderid`='0' AND `created_by`='".$_SESSION['contactid']."'";
 		mysqli_query($dbc, $sql);
+		$before_change = '';
+		$history = "Equipment Workorder checklist updated. <br />";
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	} else {
 		$sql = "UPDATE `equipment_work_orders` SET `staffid`='$staffid', `date`='$date', `date_scheduled`='$date_scheduled', `equipmentid`='$equipmentid', `serviceid`='$serviceid', `misc`='$misc', `service_description`='$service_description', `last_oil_km`='$last_oil_km', `last_oil_date`='$last_oil_date', `next_oil_km`='$next_oil_km', `next_oil_date`='$next_oil_date', `last_tire_rotate_km`='$last_tire_rotate_km', `last_tire_rotate_date`='$last_tire_rotate_date', `next_tire_rotate_km`='$next_tire_rotate_km', `next_tire_rotate_date`='$next_tire_rotate_date', `last_tune_up_km`='$last_tune_up_km', `last_tune_up_date`='$last_tune_up_date', `next_tune_up_km`='$next_tune_up_km', `next_tune_up_date`='$next_tune_up_date' WHERE `workorderid`='".$_POST['workorderid']."'";
 		mysqli_query($dbc, $sql);
+		$before_change = '';
+		$history = "Equipment Workorder updated. <br />";
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	}
 	mysqli_query($dbc, $sql);
-	
+
 	//Inventory
 	foreach($_POST['in_part_no'] as $i => $inventoryid) {
 		$lineid = $_POST['in_lineid'][$i];
@@ -48,14 +57,20 @@ if (isset($_POST['submit'])) {
 			if($lineid > 0) {
 				$old_qty = mysqli_fetch_array(mysqli_query($dbc, "SELECT `qty` FROM `equipment_inventory` WHERE `lineid`='$lineid'"))['qty'];
 				mysqli_query($dbc, "UPDATE `equipment_inventory` SET `workorderid`='$workorderid', `inventoryid`='$inventoryid', `qty`='$qty', `unit_cost`='$unit_cost', `unit_total`='$unit_total' WHERE `lineid`='$lineid'");
+				$before_change = '';
+				$history = "Equipment inventory updated. <br />";
+				add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			} else {
 				mysqli_query($dbc, "INSERT INTO `equipment_inventory` (`workorderid`, `inventoryid`, `qty`, `unit_cost`, `unit_total`) VALUES('$workorderid', '$inventoryid', '$qty', '$unit_cost', '$unit_total')");
+				$before_change = '';
+        $history = "New equipment inventory Added. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			}
 			$diff = $qty - $old_qty;
 			mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity` - $diff WHERE `inventoryid`='$inventoryid'");
 		}
 	}
-	
+
 	//Purchase Order
 	foreach($_POST['poid'] as $i => $poid) {
 		$detail = filter_var($_POST['po_detail'][$i],FILTER_SANITIZE_STRING);
@@ -79,8 +94,14 @@ if (isset($_POST['submit'])) {
 			}
 			if($poid > 0) {
 				mysqli_query($dbc, "UPDATE `equipment_purchase_order_items` SET `workorderid`='$workorderid', `file`='$file', `qty`='$qty', `uom`='$uom', `detail`='$detail', `unit_price`='$unit_price', `unit_tax`='$unit_tax', `unit_total`='$unit_total' WHERE `poid`='$poid'");
+				$before_change = '';
+				$history = "Equipment purchase order items updated. <br />";
+				add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			} else {
 				mysqli_query($dbc, "INSERT INTO `equipment_purchase_order_items` (`workorderid`, `file`, `qty`, `uom`, `detail`, `unit_price`, `unit_tax`, `unit_total`) VALUES ('$workorderid', '$file', '$qty', '$uom', '$detail', '$unit_price', '$unit_tax', '$unit_total')");
+				$before_change = '';
+        $history = "New equipment purchse order items Added. <br />";
+        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			}
 		}
 	}

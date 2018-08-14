@@ -88,7 +88,7 @@ if (isset($_POST['printpdf'])) {
 	</script>
     <?php
 } ?>
-
+        <br>
         <?php
         $select_query = "select distinct(category) from contacts";
         $select_result = mysqli_query($dbc, $select_query);
@@ -101,7 +101,7 @@ if (isset($_POST['printpdf'])) {
             <?php else: ?>
                 <?php $active = ''; ?>
             <?php endif; ?>
-            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
+            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&report=<?= $_GET['report'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
           <?php endif; ?>
         <?php } ?>
         <br><br><br>
@@ -200,7 +200,8 @@ function report_postalcode($dbc, $contact_category, $starttime, $endtime, $posta
         while($all_post_code = mysqli_fetch_array($all_post_codes)) {
             $report_data .= '<tr nobr="true">';
             $report_data .= '<td>'.($all_post_code['postal_code'] == '' ? 'No Postal Code' : substr($all_post_code['postal_code'], 0, 3)).'</td>';
-            $report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            //$report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            $report_data .= '<td>'. substr($all_post_code['contact_count'], 0, 3).'</td>';
             $report_data .= "</tr>";
         }
     }

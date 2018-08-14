@@ -127,6 +127,9 @@ if (isset($_POST['submit'])) {
         ) VALUES ('$code', '$category', '$sub_category', '$part_no', '$description', '$comment', '$question', '$request', '$display_website', '$vendorid', '$size', '$weight', '$type', '$name', '$date_of_purchase', '$purchase_cost', '$sell_price', '$markup', '$freight_charge', '$min_bin', '$current_stock', '$final_retail_price', '$admin_price', '$wholesale_price', '$commercial_price', '$client_price', '$purchase_order_price', '$sales_order_price', '$minimum_billable', '$estimated_hours', '$actual_hours', '$msrp', '$quote_description', '$usd_invoice', '$shipping_rate', '$shipping_cash', '$exchange_rate', '$exchange_cash', '$cdn_cpu', '$cogs_total', '$location', '$inv_variance', '$average_cost', '$asset', '$revenue', '$buying_units', '$selling_units', '$stocking_units', '$preferred_price', '$web_price', '$id_number', '$operator', '$lsd', '$quantity', '$product_name', '$cost', '$usd_cpu', '$commission_price', '$markup_perc', '$current_inventory', '$write_offs', '$min_max', '$status', '$note', '$unit_price', '$unit_cost', '$rent_price', '$rental_days', '$rental_weeks', '$rental_months', '$rental_years', '$reminder_alert', '$daily', '$weekly', '$monthly', '$annually', '$total_days', '$total_hours', '$total_km', '$total_miles', '$include_in_so', '$include_in_po', '$include_in_pos')";
         $result_insert_inventory = mysqli_query($dbc, $query_insert_inventory);
         $url = 'Added';
+        $before_change = '';
+  			$history = "New Vendor Price list added. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
 
     } else {
         $inventoryid = $_POST['inventoryid'];
@@ -136,6 +139,10 @@ if (isset($_POST['submit'])) {
         $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
 
         $url = 'Updated';
+
+        $before_change = '';
+  			$history = "Vendor price list updated. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("inventory.php?category='.$category.'"); </script>';

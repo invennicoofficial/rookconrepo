@@ -209,36 +209,38 @@ function reports_tiles($dbc) {
 
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
             <ul>
-                <?php if(in_array('operations',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=operations"><li <?= $_GET['type']=='operations' || empty($_GET['type']) ? 'class="active"' : '' ?>>Operations</li></a>
-                <?php } ?>
-                <?php if(in_array('sales',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=sales"><li <?= $_GET['type']=='sales' ? 'class="active"' : '' ?>>Sales</li></a>
-                <?php } ?>
+
                 <?php if(in_array('ar',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=ar"><li <?= $_GET['type']=='ar' ? 'class="active"' : '' ?>>Accounts Receivable</li></a>
-                <?php } ?>
-                <?php if(in_array('marketing',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=marketing"><li <?= $_GET['type']=='marketing' ? 'class="active"' : '' ?>>Marketing</li></a>
                 <?php } ?>
                 <?php if(in_array('compensation',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=compensation"><li <?= $_GET['type']=='compensation' ? 'class="active"' : '' ?>>Compensation</li></a>
                 <?php } ?>
+                <?php if(in_array('customer',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=customer"><li <?= $_GET['type']=='customer' ? 'class="active"' : '' ?>>Customer</li></a>
+                <?php } ?>
+                <?php if(in_array('estimates',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=estimates"><li <?= $_GET['type']=='estimates' ? 'class="active"' : '' ?>>Estimates</li></a>
+                <?php } ?>
+                <?php if(in_array('history',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=history"><li <?= $_GET['type']=='history' ? 'class="active"' : '' ?>>History</li></a>
+                <?php } ?>
+                <?php if(in_array('marketing',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=marketing"><li <?= $_GET['type']=='marketing' ? 'class="active"' : '' ?>>Marketing</li></a>
+                <?php } ?>
+                <?php if(in_array('operations',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=operations"><li <?= $_GET['type']=='operations' || empty($_GET['type']) ? 'class="active"' : '' ?>>Operations</li></a>
+                <?php } ?>
                 <?php if(in_array('pnl',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=pnl"><li <?= $_GET['type']=='pnl' ? 'class="active"' : '' ?>>Profit &amp; Loss</li></a>
                 <?php } ?>
-                <?php if(in_array('customer',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=customer"><li <?= $_GET['type']=='customer' ? 'class="active"' : '' ?>>Customer</li></a>
+                <?php if(in_array('sales',$report_tabs)) { ?>
+                    <a href="report_tiles.php?type=sales"><li <?= $_GET['type']=='sales' ? 'class="active"' : '' ?>>Sales</li></a>
                 <?php } ?>
                 <?php if(in_array('staff',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=staff"><li <?= $_GET['type']=='staff' ? 'class="active"' : '' ?>>Staff</li></a>
                 <?php } ?>
-                <?php if(in_array('staff',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=history"><li <?= $_GET['type']=='history' ? 'class="active"' : '' ?>>History</li></a>
-                <?php } ?>
-                <?php if(in_array('staff',$report_tabs)) { ?>
-                    <a href="report_tiles.php?type=estimates"><li <?= $_GET['type']=='estimates' ? 'class="active"' : '' ?>>Estimates</li></a>
-                <?php } ?>
+
             </ul>
     	</div>
 

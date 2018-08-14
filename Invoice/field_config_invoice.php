@@ -301,6 +301,12 @@ $(document).ready(function() {
 					<label class="form-checkbox"><input <?= (in_array('all',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="all"> All Invoices</label>
 					<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>
 					<label class="form-checkbox"><input <?= (in_array('unpaid',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unpaid"> Accounts Receivable</label>
+					<label class="form-checkbox"><input <?= (in_array('contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="contact_ar"> Contact A/R</label>
+					<label class="form-checkbox"><input <?= (in_array('third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="third_party_ar"> Third Party A/R</label>
+					<label class="form-checkbox"><input <?= (in_array('unpaid_third_party',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unpaid_third_party"> Unpaid Third Party Report</label>
+					<!--<label class="form-checkbox"><input <?= (in_array('paid_contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_contact_ar"> Contact Paid A/R Report</label>-->
+					<label class="form-checkbox"><input <?= (in_array('paid_third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_third_party_ar"> Third Party Paid A/R Report</label>
+					<label class="form-checkbox"><input <?= (in_array('clinic_master',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="clinic_master"> Clinic Master Report</label>
 					<label class="form-checkbox"><input <?= (in_array('voided',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="voided"> Voided Invoices</label>
 					<label class="form-checkbox"><input <?= (in_array('refunds',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="refunds"> Refund / Adjustments</label>
 					<label class="form-checkbox"><input <?= (in_array('ui_report',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="ui_report"> Unpaid Insurer Invoice Report</label>
@@ -670,6 +676,7 @@ $(document).ready(function() {
 					<label class="form-checkbox"><input <?= (in_array('packages_name',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="packages_name"> Packages - Name</label>
 					<label class="form-checkbox"><input <?= (in_array('packages_fee',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="packages_fee"> Packages - Fee</label>
 					<label class="form-checkbox"><input <?= (in_array('misc_items',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="misc_items"> Misc Items</label>
+					<label class="form-checkbox"><input <?= (in_array('unbilled_tickets',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets"> Unbilled <?= TICKET_TILE ?></label>
 					<label class="form-checkbox"><input <?= (in_array('deposit_paid',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="deposit_paid"> Deposit Paid</label>
 					<label class="form-checkbox"><input <?= (in_array('due_date',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="due_date"> Due Date</label>
 					<label class="form-checkbox"><input <?= (in_array('service_queue',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="service_queue"> Service Queue</label>
@@ -680,6 +687,7 @@ $(document).ready(function() {
 					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation Report</label>
 					<label class="form-checkbox"><input <?= (in_array('followup',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="followup"> Send Follow Up Email</label>
                     <label class="form-checkbox"><input <?= (in_array('giftcard',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="giftcard"> Gift Card</label>
+                    <label class="form-checkbox"><input <?= (in_array('reference',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="reference"> Reference</label>
 
                     <div class="form-group double-gap-top">
                         <div class="col-sm-6">
