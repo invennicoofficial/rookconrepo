@@ -1785,9 +1785,10 @@ function startTicketStaff() {
 }
 function deletestartTicketStaff(button) {
     if($('div.start-ticket-staff').length <= 1) {
-        addContact();
+        startTicketStaff();
     }
     $(button).closest('div.start-ticket-staff').remove();
+    $('div.start-ticket-staff').first().find('[name="contactid"]').change();
 }
 
 
@@ -1804,9 +1805,10 @@ function internalTicketStaff() {
 }
 function deleteinternalTicketStaff(button) {
     if($('div.internal-ticket-staff').length <= 1) {
-        addContact();
+        internalTicketStaff();
     }
     $(button).closest('div.internal-ticket-staff').remove();
+    $('div.internal-ticket-staff').first().find('[name="internal_qa_contactid"]').change();
 }
 
 function customerTicketStaff() {
@@ -1822,9 +1824,10 @@ function customerTicketStaff() {
 }
 function deletecustomerTicketStaff(button) {
     if($('div.customer-ticket-staff').length <= 1) {
-        addContact();
+        customerTicketStaff();
     }
     $(button).closest('div.customer-ticket-staff').remove();
+    $('div.customer-ticket-staff').first().find('[name="deliverable_contactid"]').change();
 }
 
 function addMulti(img, style, clone_location = '') {

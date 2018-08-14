@@ -5,7 +5,11 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-checkAuthorised('accounts_receivables');
+if(FOLDER_NAME == 'posadvanced') {
+    checkAuthorised('posadvanced');
+} else {
+    checkAuthorised('check_out');
+}
 
 if (isset($_POST['submit_pay'])) {
     //$cm_insurerid = $_POST['cm_insurerid'];
