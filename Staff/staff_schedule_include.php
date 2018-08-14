@@ -131,6 +131,9 @@ while($row = mysqli_fetch_assoc($get_field_config)) {
     $value_config[] = $row['contacts'];
 }
 $value_config = ','.implode(',',$value_config).',';
+if(empty(trim($value_config,','))) {
+	$value_config = ',Scheduled Days/Hours,';
+}
 ?>
 <div id="staff_div" class="container">
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
