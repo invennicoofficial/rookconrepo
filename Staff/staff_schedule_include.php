@@ -1,5 +1,8 @@
 <?php
 include_once ('../Calendar/calendar_functions_inc.php');
+if(!empty($_GET['contactid'])) {
+	$contactid = $_GET['contactid'];
+}
 ?>
 </head>
 <script type="text/javascript">
