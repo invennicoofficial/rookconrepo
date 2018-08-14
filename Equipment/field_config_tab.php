@@ -25,18 +25,21 @@ if (isset($_POST['add_tab'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('show_category_dropdown_equipment', '$value')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-	
+
 	// Set the Volume Unit field
 	set_config($dbc, 'volume_units', $_POST['volume_units']);
-	
+
 	// Use Mass Updates
 	$category = filter_var($_POST['mass_update_category'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['mass_update_field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['mass_update_value'],FILTER_SANITIZE_STRING);
 	if($category != '' && $field != '' && $value != '') {
+		$before_change = capture_before_change($dbc, 'equipment', $field, 'deleted', 0, 'category', $category);
 		mysqli_query($dbc, "UPDATE `equipment` SET `$field`='$value' WHERE `deleted`=0 AND `category`='$category'");
+		$history = capture_after_change($field, $value);
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	}
-	
+
 	// Add and update E-mail Reminder Settings
 	$remind_sender = filter_var($_POST['equipment_remind_sender'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_remind_sender' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_remind_sender') num WHERE num.rows=0");
@@ -47,7 +50,7 @@ if (isset($_POST['add_tab'])) {
 	$remind_body = filter_var(htmlentities($_POST['equipment_remind_body']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_remind_body' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_remind_body') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$remind_body' WHERE `name`='equipment_remind_body'");
-    
+
     // Update reminder recipient(s)
     if ( !empty($_POST['equipment_remind_admin']) ) {
 		$contactid  = implode( ',', $_POST['equipment_remind_admin'] );
@@ -84,7 +87,7 @@ if (isset($_POST['add_tab'])) {
         $result = mysqli_query($dbc, $query);
     }
 
-	
+
 	echo '<script type="text/javascript"> window.location.replace("?settings=tab"); </script>';
 }
 ?>

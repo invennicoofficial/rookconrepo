@@ -893,6 +893,8 @@ if($_GET['action'] == 'update_fields') {
 				}
 			}
 		}
+	} else if($table_name == 'ticket_attached' && $field_name == 'deleted' && $value > 0) {
+		mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `ticket_attached_id` = '".$id."' AND '".$id."' > 0");
 	}
 
 	// Check if we are adding a new contact

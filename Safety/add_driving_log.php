@@ -34,6 +34,8 @@ if(isset($_POST['submit'])) {
 	$inspect_date = $_POST['inspect_date'];
 	$begin_odo_kms = $_POST['begin_odo_kms'];
 	$final_odo_kms = $_POST['final_odo_kms'];
+	$begin_hours = $_POST['begin_hours'];
+	$final_hours = $_POST['final_hours'];
 	$location_of_presafety = filter_var($_POST['location_of_presafety'],FILTER_SANITIZE_STRING);
 	$location_of_postsafety = filter_var($_POST['location_of_postsafety'],FILTER_SANITIZE_STRING);
 	$safety1 = $_POST['safety1'];
@@ -108,9 +110,14 @@ if(isset($_POST['submit'])) {
 	$html .= "<td>$drive_date</td></tr>";
 	$html .= "<tr><td>Equipment:</td>";
 	$html .= "<td>";
+    $equip_hr_km = false;
 	foreach($_POST['equipment'] as $id) {
 		$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='$id'"));
 		$html .= "Unit #".$equipment['unit_number'].': '.(empty($equipment['model']) ? '' : $equipment['model'].': ').$equipment['label']."<br />";
+        if($id > 0 $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
+            mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$id'");
+            $equip_hr_km = true;
+        }
 	}
 	$html .= "</td></tr>";
 	$equipment = implode(',',$_POST['equipment']);
@@ -157,6 +164,11 @@ if(isset($_POST['submit'])) {
 			<td>Odometer Kilometers:</td>
 			<td>'.$begin_odo_kms.'</td>
 			<td>'.('pre' == $checklist ? '---' : $final_odo_kms).'</td>
+		</tr>
+		<tr>
+			<td>Operating Hours:</td>
+			<td>'.$begin_hours.'</td>
+			<td>'.('pre' == $checklist ? '---' : $final_hours).'</td>
 		</tr>
 		<tr>
 			<td>General Checklist</td>
@@ -400,14 +412,14 @@ if(!empty($_GET['log_id'])) {
 								<div class="col-sm-8">
 									<select name="equipment[]" multiple data-placeholder="Select <?= (empty($site_log_equip_cat) ? 'Equipment' : $site_log_equip_cat) ?>" class="form-control chosen-select-deselect"><option></option>
 										<?php 
-										$equip_list = mysqli_query($dbc, "SELECT `category`, `type`, `unit_number`, `make`, `model`, `label`, `equipmentid` FROM `equipment` WHERE (`category`='$site_log_equip_cat' OR '$site_log_equip_cat'='') AND `deleted` = 0 ORDER BY `category`, `type`, `unit_number`, `make`, `model`, `equipmentid`");
+										$equip_list = mysqli_query($dbc, "SELECT `category`, `type`, `unit_number`, `make`, `model`, `label`, `equipmentid`, `mileage`, `operating_hours` FROM `equipment` WHERE (`category`='$site_log_equip_cat' OR '$site_log_equip_cat'='') AND `deleted` = 0 ORDER BY `category`, `type`, `unit_number`, `make`, `model`, `equipmentid`");
 										$category = '';
 										while($equip_row = mysqli_fetch_array($equip_list)) {
 											if($category != $equip_row['category']) {
 												echo ($category != '' ? '</optgroup>' : '')."<optgroup label='".$equip_row['category']."' />";
 												$category = $equip_row['category'];
 											}
-											echo "<option data-category='".$equip_row['category']."' ".(in_array($equip_row['equipmentid'],$equipment) ? 'selected' : '')." value='".$equip_row['equipmentid']."'>Unit #".$equip_row['unit_number'].': '.(empty($equip_row['model']) ? '' : $equip_row['model'].': ').$equip_row['label']."</option>";
+											echo "<option data-category='".$equip_row['category']."' data-mileage='".$equip_row['mileage']."' data-hours='".$equip_row['operating_hours']."' ".(in_array($equip_row['equipmentid'],$equipment) ? 'selected' : '')." value='".$equip_row['equipmentid']."'>Unit #".$equip_row['unit_number'].': '.(empty($equip_row['model']) ? '' : $equip_row['model'].': ').$equip_row['label']."</option>";
 										} ?>
 									</select>
 								</div>
@@ -438,6 +450,8 @@ if(!empty($_GET['log_id'])) {
 						$inspect_date = date('Y-m-d');
 						$begin_odo_kms = 0;
 						$final_odo_kms = 0;
+						$begin_hours = 0;
+						$final_hours = 0;
 						$location_of_presafety = '';
 						$location_of_postsafety = '';
 						$safety1 = '';
@@ -485,6 +499,8 @@ if(!empty($_GET['log_id'])) {
 							$inspect_date = $checklist_details['inspect_date'];
 							$begin_odo_kms = $checklist_details['begin_odo_kms'];
 							$final_odo_kms = $checklist_details['final_odo_kms'];
+							$begin_hours = $checklist_details['begin_hours'];
+							$final_hours = $checklist_details['final_hours'];
 							$location_of_presafety = $checklist_details['location_of_presafety'];
 							$location_of_postsafety = $checklist_details['location_of_postsafety'];
 							$safety1 = $checklist_details['safety1'];
@@ -590,6 +606,17 @@ if(!empty($_GET['log_id'])) {
 							<div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
 								<label class="show-on-mob">Post-Trip Status</label>
 								<input type="number" name="final_odo_kms" value="<?= $final_odo_kms ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+							<?php } ?></div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-6 control-label">Operating Hours:</label>
+							<div class="col-sm-3 text-center pretrip">
+								<label class="pretrip show-on-mob">Pre-Trip Status</label>
+								<input type="number" name="begin_hours" value="<?= $begin_hours ?>" class="form-control" <?= ('pre' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+							</div>
+							<div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
+								<label class="show-on-mob">Post-Trip Status</label>
+								<input type="number" name="final_hours" value="<?= $final_hours ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
 							<?php } ?></div>
 						</div>
 						<div class="form-group">

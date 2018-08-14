@@ -19,8 +19,24 @@ if(isset($_POST['submit'])) {
 		move_uploaded_file($_FILES['bill_of_sale']['tmp_name'], "download/".$bill_of_sale);
 	}
 
+	$before_change = capture_before_change($dbc, 'equipment', 'purchase_date', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'purchase_amt', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'purchase_km', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'sale_date', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'sale_amt', 'equipmentid', $equipmentid);
+	$before_change .= capture_before_change($dbc, 'equipment', 'bill_of_sale', 'equipmentid', $equipmentid);
+
 	$sql = "UPDATE `equipment` SET `purchase_date`='$purchase_date', `purchase_amt`='$purchase_amt', `purchase_km`='$purchase_km', `sale_date`='$sale_date', `sale_amt`='$sale_amt', `bill_of_sale`='$bill_of_sale' WHERE `equipmentid`='$equipmentid'";
 	mysqli_query($dbc, $sql);
+
+	$history = capture_after_change('purchase_date', $purchase_date);
+	$history .= capture_after_change('purchase_amt', $purchase_amt);
+	$history .= capture_after_change('purchase_km', $purchase_km);
+	$history .= capture_after_change('sale_date', $sale_date);
+	$history .= capture_after_change('sale_amt', $sale_amt);
+	$history .= capture_after_change('bill_of_sale', $bill_of_sale);
+
+	add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 } ?>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -50,7 +66,7 @@ $(document).ready(function() {
 }
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
 $equipmentid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
-$get_equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, 0 `invoiced_hourly`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.`equipmentid`='".$equipmentid."'"));
+$get_equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT `equipment`.*, SUM(`equipment_expenses`.`total`) expense_total, `invoiced_hours`, `invoiced_amt`, 0 `invoiced_daily` FROM `equipment` LEFT JOIN (SELECT `item_id` `equipmentid`, SUM(`hours_estimated`) `invoiced_hours`, SUM(`hours_estimated` * `rate`) `invoiced_amt` FROM `ticket_attached` WHERE `src_table` LIKE 'equipment' AND `deleted`=0 GROUP BY `item_id`) `invoiced` ON `equipment`.`equipmentid`=`invoiced`.`equipmentid` LEFT JOIN `equipment_expenses` ON `equipment`.`equipmentid`=`equipment_expenses`.`equipmentid` AND `equipment_expenses`.`status` != 'Rejected' WHERE `equipment`.`equipmentid`='".$equipmentid."'"));
 
 $unit_number = $get_equipment['unit_number'];
 $category = $get_equipment['category'];
@@ -62,8 +78,7 @@ $purchase_km = $get_equipment['purchase_km'];
 $sale_date = $get_equipment['sale_date'];
 $sale_amt = $get_equipment['sale_amt'];
 $bill_of_sale = $get_equipment['bill_of_sale'];
-$invoiced_hourly = $get_equipment['invoiced_hourly'];
-$invoiced_daily = $get_equipment['invoiced_daily'];
+$invoiced_amt = $get_equipment['invoiced_amt'];
 $expense_total = $get_equipment['expense_total'];
 $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - $expense_total; ?>
 
@@ -125,7 +140,7 @@ $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - 
 
 				<div id="tab_section_financial" class="tab-section col-sm-12">
 					<h4>Equipment Financial Summary</h4>
-					<?php $value_config = ',View Purchase Amount,Invoiced Hourly,Invoiced Daily,Expenses,View Sale Amount,Profit Loss,';
+					<?php $value_config = ',View Purchase Amount,Invoiced Amt,Expenses,View Sale Amount,Profit Loss,';
 					include('add_equipment_financial.php'); ?>
 					<div class="clearfix"></div><hr>
 				</div>
@@ -141,7 +156,7 @@ $profit_loss = $invoiced_hourly + $invoiced_daily + $sale_amt - $purchase_amt - 
 						</div>
 					</div>
 				</div>
-				
+
 			</form>
 		</div>
 	</div>

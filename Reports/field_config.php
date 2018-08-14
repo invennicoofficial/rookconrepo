@@ -49,7 +49,7 @@ switch($_GET['tab']) {
         $title = 'Default Report';
         $filename = 'field_config_default.php';
         break;
-    case 'operations':  
+    case 'operations':
         $title = 'Operations Reports';
         $filename = 'field_config_operations.php';
         break;
@@ -191,9 +191,9 @@ switch($_GET['tab']) {
 
             <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
                 <ul>
-                    <a href="?tab=tabs"><li <?= (empty($_GET['tab']) || $_GET['tab'] == 'tabs' ? 'class="active"' : '') ?>>Reports Tabs</li></a>
                     <a href="?tab=logo"><li <?= $_GET['tab'] == 'logo' ? 'class="active"' : '' ?>>Logo for Reports</li></a>
                     <a href="?tab=header_footer"><li <?= $_GET['tab'] == 'header_footer' ? 'class="active"' : '' ?>>Reports Header & Footer</li></a>
+                    <a href="?tab=tabs"><li <?= (empty($_GET['tab']) || $_GET['tab'] == 'tabs' ? 'class="active"' : '') ?>>Reports Tabs</li></a>
                     <a href="?tab=dashboard"><li <?= $_GET['tab'] == 'dashboard' ? 'class="active"' : '' ?>>Dashboard Setting</li></a>
                     <a href="?tab=default"><li <?= $_GET['tab'] == 'default' ? 'class="active"' : '' ?>>Default Report</li></a>
                     <a href="?tab=operations"><li <?= $_GET['tab'] == 'operations' ? 'class="active"' : '' ?>>Operations Reports</li></a>

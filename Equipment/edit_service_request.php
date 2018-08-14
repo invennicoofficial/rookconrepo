@@ -10,6 +10,10 @@ if (isset($_POST['submit'])) {
     $query_insert_equipment = "INSERT INTO `equipment_service_request` (`equipmentid`, `defect`, `comment`) VALUES	('$equipmentid', '$defect', '$comment')";
     $result_insert_equipment = mysqli_query($dbc, $query_insert_equipment);
 
+    $before_change = '';
+    $history = "New equipment service Added. <br />";
+    add_update_history($dbc, 'equipment_history', $history, '', $before_change);
+
 
     echo '<script type="text/javascript"> window.location.replace("?tab=service_request&category=Top"); </script>';
 
@@ -157,7 +161,7 @@ $(document).on('change', 'select[name="equipmentid"]', function() { $('[name=cat
                         </div>
                     </div>
                 </div>
-            
+
     		</form>
         </div>
     </div>

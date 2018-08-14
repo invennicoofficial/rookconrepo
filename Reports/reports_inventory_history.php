@@ -30,7 +30,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'Point of Sale History';
+            $footer_text = 'Inventory History';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 
 		}
@@ -83,13 +83,13 @@ if (isset($_POST['printpdf'])) {
 
     $today_date = date('Y-m-d');
 	//$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/pos_history_'.$today_date.'.pdf', 'F');
-    track_download($dbc, 'history_pos_history', 0, WEBSITE_URL.'/Reports/Download/pos_history_'.$today_date.'.pdf', 'Point of Sale History Report');
+	$pdf->Output('Download/inventory_history_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'history_inventory_history', 0, WEBSITE_URL.'/Reports/Download/inventory_history_'.$today_date.'.pdf', 'Inventory History Report');
 
     ?>
 
 	<script type="text/javascript" language="Javascript">
-	window.open('Download/pos_history_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
+	window.open('Download/inventory_history_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
 	</script>
     <?php
     $starttime = $starttimepdf;
@@ -168,7 +168,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
             $report_data .= '<td>'.$changed_by.'</td>';
             $report_data .= '<td>'.$changed_date.'</td>';
         $report_data .= "</tr>";
-        
+    
         $odd_even++;
     }
 
@@ -191,7 +191,7 @@ function AddPlayTime2($times) {
 }
 
 function AddPlayTime($times) {
-    // loop tposought all the times
+    // loop tinventoryought all the times
     foreach ($times as $time) {
         list($hour, $minute) = explode(':', $time);
         $minutes += $hour * 60;

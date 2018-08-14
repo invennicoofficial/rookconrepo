@@ -59,12 +59,31 @@ if(isset($_POST['submit'])) {
 				$total = filter_var($_POST['bd_total_'.$id][$row],FILTER_SANITIZE_STRING);
 
 				if($bd_id > 0) {
+          $before_change = capture_before_change($dbc, 'rate_card_breakdown', 'description', 'rcbid', $bd_id);
+          $before_change .= capture_before_change($dbc, 'rate_card_breakdown', 'quantity', 'rcbid', $bd_id);
+          $before_change .= capture_before_change($dbc, 'rate_card_breakdown', 'uom', 'rcbid', $bd_id);
+          $before_change .= capture_before_change($dbc, 'rate_card_breakdown', 'cost', 'rcbid', $bd_id);
+          $before_change .= capture_before_change($dbc, 'rate_card_breakdown', 'total', 'rcbid', $bd_id);
 					$query = "UPDATE `rate_card_breakdown` SET `description`='$description', `quantity`='$quantity', `uom`='$uom', `cost`='$cost', `total`='$total' WHERE `rcbid`='$bd_id'";
+          $history = capture_after_change('description', $description);
+          $history .= capture_after_change('quantity', $quantity);
+          $history .= capture_after_change('uom', $uom);
+          $history .= capture_after_change('cost', $cost);
+          $history .= capture_after_change('total', $total);
+  				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
 				} else {
 					$query = "INSERT INTO `rate_card_breakdown` (`rate_card_type`, `rate_card_id`, `description`, `quantity`, `uom`, `cost`, `total`) VALUES ('".$_GET['card']."', '$rc_id', '$description', '$quantity', '$uom', '$cost', '$total')";
+          $before_change = '';
+          $history = "Rate card entry is been added. <br />";
+  				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
 				}
 				$result = mysqli_query($dbc, $query);
+
 			}
+
+      $before_change = '';
+      $history = "Rate card Breakdown is been updated. <br />";
+      add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
 			$_GET['id'] = $rc_id;
 		}
     }

@@ -661,6 +661,51 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Billing Rate".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Billing Rate:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_hours / $total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Hours".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Hours:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= round($total_hours,3) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Amount:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Expense Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Expenses:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Profit Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Profit:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed - $total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">Follow Up Date:</label>
@@ -740,6 +785,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Oil Filter Change (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Oil Filter Change (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_oil_filter_change_hrs" type="text" value="<?php	echo $last_oil_filter_change_hrs; ?>" class="form-control last_oil_filter_change"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Oil Filter Change (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (date):</label>
@@ -754,6 +808,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (km):</label>
 <div class="col-sm-8">
   <input name="next_oil_filter_change" type="text" value="<?php	echo $next_oil_filter_change; ?>" class="form-control next_oil_filter_change"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Oil Filter Change (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (hrs):</label>
+<div class="col-sm-8">
+  <input name="next_oil_filter_change_hrs" type="text" value="<?php	echo $next_oil_filter_change_hrs; ?>" class="form-control next_oil_filter_change"/>
 </div>
 </div>
 <?php } ?>
@@ -776,6 +839,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Inspection & Tune Up (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Inspection & Tune Up (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_insp_tune_up_hrs" type="text" value="<?php	echo $last_insp_tune_up_hrs; ?>" class="form-control last_insp_tune_up"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Inspection & Tune Up (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (date):</label>
@@ -790,6 +862,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (km):</label>
 <div class="col-sm-8">
   <input readonly name="next_insp_tune_up" type="text" value="<?php	echo $next_insp_tune_up; ?>" class="form-control next_insp_tune_up"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Inspection & Tune Up (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (hrs):</label>
+<div class="col-sm-8">
+  <input readonly name="next_insp_tune_up_hrs" type="text" value="<?php	echo $next_insp_tune_up_hrs; ?>" class="form-control next_insp_tune_up"/>
 </div>
 </div>
 <?php } ?>
@@ -821,6 +902,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Tire Rotation (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Tire Rotation (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_tire_rotation_hrs" type="text" value="<?php	echo $last_tire_rotation_hrs; ?>" class="form-control last_tire_rotation"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Tire Rotation (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (date):</label>
@@ -835,6 +925,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (km):</label>
 <div class="col-sm-8">
   <input name="next_tire_rotation" type="text" value="<?php	echo $next_tire_rotation; ?>" class="form-control"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Tire Rotation (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (hrs):</label>
+<div class="col-sm-8">
+  <input name="next_tire_rotation_hrs" type="text" value="<?php	echo $next_tire_rotation_hrs; ?>" class="form-control"/>
 </div>
 </div>
 <?php } ?>
