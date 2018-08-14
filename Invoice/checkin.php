@@ -3,7 +3,11 @@
 EIS
 */
 include ('../include.php');
-checkAuthorised('check_in');
+if(FOLDER_NAME == 'posadvanced') {
+    checkAuthorised('posadvanced');
+} else {
+    checkAuthorised('check_out');
+}
 
 ?>
 <script type="text/javascript">
