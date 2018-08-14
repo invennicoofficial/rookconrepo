@@ -776,7 +776,7 @@ function setTotalPrice() {
 	var j=0;
 	var price_on_gst = 0;
 	$('.detail_service_list').empty();
-	$('.fee').each(function () {
+	$('.fee').not(':disabled').each(function () {
 		var fee_id = this.id;
 		var arr = fee_id.split('_');
 		var gstexempt = $('#gstexempt_'+arr[1]).val();
@@ -825,7 +825,7 @@ function setTotalPrice() {
 	var sum_price = 0;
 	var sum_inv_gst = 0;
 	$('.detail_inventory_list').empty();
-	$('[name="init_price[]"]').each(function () {
+	$('[name="init_price[]"]').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 
 		if(fee_row != 0) {
@@ -847,7 +847,7 @@ function setTotalPrice() {
 			});
 		}
 	});
-	$('.sellprice').each(function () {
+	$('.sellprice').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 		var row_exempt = $(this).closest('.form-group').find('[name="inventory_gst_exempt[]"]').val();
 		sum_price += fee_row;
@@ -880,7 +880,7 @@ function setTotalPrice() {
 
 	var package_cost = 0;
 	$('.detail_package_list').empty();
-	$('.package_cost').each(function () {
+	$('.package_cost').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 		package_cost += fee_row;
 		if(fee_row != 0) {
@@ -911,7 +911,7 @@ function setTotalPrice() {
 
 	var misc_price = 0;
 	$('.detail_misc_list').empty();
-	$('.misc_total').each(function () {
+	$('.misc_total').not(':disabled').each(function () {
 		var group = $(this).closest('.form-group');
 		var price = +group.find('.misc_price').val() || 0;
 		var init_qty = +group.find('.init_qty').val() || 0;
