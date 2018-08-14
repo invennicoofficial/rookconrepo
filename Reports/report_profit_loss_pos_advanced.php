@@ -231,7 +231,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
         $total = 0;
         $costs = 0;
 
-        $report_validation = mysqli_query($dbc, "SELECT `i`.`invoiceid`, `i`.`inventoryid`, `i`.`sell_price`, `i`.`quantity`, `i`.`payment_type`, `l`.`unit_price` FROM `invoice` `i` LEFT JOIN `invoice_lines` `l` ON (`i`.`invoiceid` = `l`.`invoiceid`) WHERE (`i`.`invoice_date` BETWEEN '$starttime' AND '$endtime') AND `i`.`deleted`=0");
+        $report_validation = mysqli_query($dbc, "SELECT `i`.`invoiceid`, `i`.`inventoryid`, `i`.`sell_price`, `i`.`quantity`, `i`.`payment_type`, `l`.`unit_price` FROM `invoice` `i` LEFT JOIN `invoice_lines` `l` ON (`i`.`invoiceid` = `l`.`invoiceid`) WHERE (`i`.`invoice_date` BETWEEN '$starttime' AND '$endtime') AND `i`.`deleted`=0 GROUP BY `i`.`invoiceid`");
 
         if($report_validation->num_rows > 0) {
             $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
@@ -250,14 +250,15 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                     $sell_prices = array_filter(explode(',', $row_report['sell_price']));
                     $quantities = array_filter(explode(',', $row_report['quantity']));
                     $payment_type = explode('#*#', $row_report['payment_type']);
-                    $unit_price = $row_report['unit_price'];
+                    //$unit_price = $row_report['unit_price'];
                     $payment_type = $payment_type[0];
                     $item_count = count($inventoryids);
 
-                    /* for($i=0; $i<$item_count; $i++) {
+                    for($i=0; $i<$item_count; $i++) {
                         //$unit_price = get_inventory($dbc, $inventoryids[$i], 'final_retail_price');
                         //$total_price = number_format($sell_prices[$i] * $quantities[$i], 2);
-                        $total_price = $unit_price * $quantities[$i];
+                        //$total_price = $unit_price * $quantities[$i];
+                        $total_price = $sell_prices[$i];
                         $cdn_cpu = get_inventory($dbc, $inventoryids[$i], 'cdn_cpu');
                         $total_cdn = number_format($cdn_cpu * $quantities[$i], 2);
 
@@ -265,15 +266,16 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                             $report_data .= '<td data-title="Invoice#">' .$row_report['invoiceid'].'</td>';
                             $report_data .= '<td data-title="Inventory">' . get_inventory($dbc, $inventoryids[$i], 'category'). ': '. get_inventory($dbc, $inventoryids[$i], 'name'). '</td>';
                             $report_data .= '<td data-title="Status">' .$payment_type .'</td>';
-                            $report_data .= '<td data-title="Breakdown">qty: ' . $quantities[$i] . ' | price: ' . number_format($unit_price,2) . ' | total_price: ' . number_format($total_price,2) . ' | cdn_cpu: ' . $cdn_cpu . ' | total_cdn: ' . $total_cdn . ' = ('.number_format($total_price, 2).' - '.$total_cdn.') </td>';
+                            //$report_data .= '<td data-title="Breakdown">qty: ' . $quantities[$i] . ' | price: ' . number_format($unit_price,2) . ' | total_price: ' . number_format($total_price,2) . ' | cdn_cpu: ' . $cdn_cpu . ' | total_cdn: ' . $total_cdn . ' = ('.number_format($total_price, 2).' - '.$total_cdn.') </td>';
+                            $report_data .= '<td data-title="Breakdown">qty: ' . $quantities[$i] . ' | price: ' . number_format($sell_prices[$i]/$quantities[$i],2) . ' | total_price: ' . number_format($total_price,2) . ' | cdn_cpu: ' . $cdn_cpu . ' | total_cdn: ' . $total_cdn . ' = ('.number_format($total_price, 2).' - '.$total_cdn.') </td>';
                             $report_data .= '<td data-title="Gross Costs" align="right">$' . number_format($total_cdn,2). '</td>';
                             $report_data .= '<td data-title="Gross Profit" align="right">$' . number_format($total_price - $total_cdn,2). '</td>';
                         $report_data .= "</tr>";
                         $total += $total_price-$total_cdn;
                         $costs += $total_cdn;
-                    } */
+                    }
                     
-                    if ($i<$item_count) {
+                    /* if ($i<$item_count) {
                         $total_price = $unit_price * $quantities[$i];
                         $cdn_cpu = get_inventory($dbc, $inventoryids[$i], 'cdn_cpu');
                         $total_cdn = number_format($cdn_cpu * $quantities[$i], 2);
@@ -289,7 +291,7 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
                         $total += $total_price-$total_cdn;
                         $costs += $total_cdn;
                         $i++;
-                    }
+                    } */
                 }
 
                 $report_data .= '<tr nobr="true">';
