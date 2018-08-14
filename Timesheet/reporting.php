@@ -38,12 +38,20 @@ if($_GET['export'] == 'pdf_egs') {
 	include_once('../tcpdf/tcpdf.php');
 
 	$file_name = 'payroll_summary_'.date('Y_m_d_h_t').'.pdf';
-	$search_staff = $_GET['search_staff'];
+	$search_staff = explode(',',$_GET['search_staff']);
 	$search_start_date = filter_var($_GET['search_start_date'],FILTER_SANITIZE_STRING);
 	$search_end_date = filter_var($_GET['search_end_date'],FILTER_SANITIZE_STRING);
     $search_position = filter_var($_GET['search_position'],FILTER_SANITIZE_STRING);
     $search_project = filter_var($_GET['search_project'],FILTER_SANITIZE_STRING);
     $search_ticket = filter_var($_GET['search_ticket'],FILTER_SANITIZE_STRING);
+	$override_value_config = '';
+	if(!empty($_GET['value_config'])) {
+		$override_value_config = $_GET['value_config'];
+	}
+	$override_timesheet_payroll_fields = '';
+	if(!empty($_GET['payroll_value_config'])) {
+		$override_timesheet_payroll_fields = $_GET['payroll_value_config'];
+	}
     //$logo = get_config($dbc, 'logo_upload');
     $logo = get_config($dbc, 'timesheet_pdf_logo');
 
@@ -67,10 +75,10 @@ if($_GET['export'] == 'pdf_egs') {
                 </tr>
                 ';
 
-    if(!empty($_GET['see_staff'])) {
-		$report .= get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff,$report_format = 'to_array',$_GET['tab']);
+    if(!empty($_GET['see_staff']) || $_GET['timesheet_tab'] != 'payroll') {
+		$report .= get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff,$report_format = 'to_array',$_GET['timesheet_tab'], $override_value_config, $override_timesheet_payroll_fields);
     } else {
-		$report .= get_egs_main_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$report_format = 'to_array',$_GET['tab']);
+		$report .= get_egs_main_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$report_format = 'to_array',$_GET['timesheet_tab']);
 	}
 
 	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);

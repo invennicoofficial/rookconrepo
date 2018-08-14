@@ -130,7 +130,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
-				include('../Reports/field_list.php');
+				include('Reports/field_list.php');
 
                 $reports_url = 'report_tiles.php';
 
@@ -139,21 +139,21 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
                 } else {
                     $reports_landing_subtab_config = get_config($dbc, 'reports_desktop_landing_subtab');
                 }
-                if(array_search($reports_landing_subtab_config,$operations_reports) !== FALSE) {
+                if(array_key_exists($reports_landing_subtab_config,$operations_reports) !== FALSE) {
                 	$reports_url .= '?type=operations&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$sales_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$sales_reports) !== FALSE) {
                 	$reports_url .= '?type=sales&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$ar_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$ar_reports) !== FALSE) {
                 	$reports_url .= '?type=ar&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$pnl_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$pnl_reports) !== FALSE) {
                 	$reports_url .= '?type=pnl&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$marketing_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$marketing_reports) !== FALSE) {
                 	$reports_url .= '?type=marketing&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$compensation_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$compensation_reports) !== FALSE) {
                 	$reports_url .= '?type=compensation&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$customer_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$customer_reports) !== FALSE) {
                 	$reports_url .= '?type=customer&report='.$reports_landing_subtab_config;
-                } else if(array_search($reports_landing_subtab_config,$staff_reports) !== FALSE) {
+                } else if(array_key_exists($reports_landing_subtab_config,$staff_reports) !== FALSE) {
                 	$reports_url .= '?type=staff&report='.$reports_landing_subtab_config;
                 }
 

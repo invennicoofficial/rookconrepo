@@ -297,6 +297,8 @@ if(!empty($_GET['export'])) {
 			$pdf->SetXY(15, 86);
 			$result = mysqli_query($dbc, $sql);
 			$row = mysqli_fetch_array($result);
+		    $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
+		    $total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 			while(strtotime($date) <= strtotime($search_end_date)) {
 				$timecardid = 0;
 				$start_time = '';
@@ -338,6 +340,7 @@ if(!empty($_GET['export'])) {
 					$comments .= html_entity_decode($row['COMMENTS']);
 					foreach($total as $key => $value) {
 						$total[$key] += $hrs[$key];
+		                $date_total[$key] += $hrs[$key];
 					}
 					while(substr($comments,-6) == '<br />' || substr($comments,-4) == '<br>' || substr($comments,-1) == ' ') {
 						if(substr($comments,-6) == '<br />') {
@@ -382,6 +385,8 @@ if(!empty($_GET['export'])) {
 							$hrs['REG'] = 0;
 							$total['REG'] -= $hrs['TRAINING'];
 							$total['TRAINING'] += $hrs['TRAINING'];
+		                    $date_total['REG'] -= $hrs['TRAINING'];
+		                    $date_total['TRAINING'] += $hrs['TRAINING'];
 						} else {
 							$hrs['TRAINING'] = 0;
 						}
@@ -393,6 +398,8 @@ if(!empty($_GET['export'])) {
 						$hrs['REG'] = 0;
 						$total['REG'] -= $hrs['DRIVE'];
 						$total['DRIVE'] += $hrs['DRIVE'];
+		                $date_total['REG'] -= $hrs['DRIVE'];
+		                $date_total['DRIVE'] += $hrs['DRIVE'];
 					} else {
 						$hrs['DRIVE'] = 0;
 					}
@@ -402,6 +409,7 @@ if(!empty($_GET['export'])) {
 
 					$row = mysqli_fetch_array($result);
 				} else {
+		            $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 					$hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'TRACKED_HRS'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
 					$comments = '';
 				}
@@ -514,6 +522,72 @@ if(!empty($_GET['export'])) {
 					$pdf->MultiCell(35,$comment_height,$img,1,'C',0,0,'','',true,0,true,true,0,'B');
 				}
 				$pdf->ln();
+				if(in_array('total_per_day',$value_config) && $date != $row['date']) {
+					$pdf->SetFont('dejavusans', 'B', 8);
+					$pdf->Cell($bfytd_offset,0,"Day Totals",1,0,'L');
+					if(in_array('total_tracked_time',$value_config)) {
+						$pdf->Cell(10,0,'',1,0,'C');
+					}
+					if(in_array('total_tracked_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['TRACKED_HRS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['TRACKED_HRS'],2) : time_decimal2time($date_total['TRACKED_HRS']))),1,0,'C');
+					}
+					if(in_array('payable_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['REG'],2) : time_decimal2time($date_total['REG']))),1,0,'C');
+					}
+					if(in_array('reg_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['REG']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['REG'],2) : time_decimal2time($date_total['REG']))),1,0,'C');
+					}
+					if(in_array('start_day_tile_separate',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['DRIVE']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['DRIVE'],2) : time_decimal2time($date_total['DRIVE']))),1,0,'C');
+					}
+					if(in_array('direct_hrs',$value_config)) {;
+						$pdf->Cell(10,0,(empty($date_total['DIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['DIRECT'],2) : time_decimal2time($date_total['DIRECT']))),1,0,'C');
+					}
+					if(in_array('indirect_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['INDIRECT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['INDIRECT'],2) : time_decimal2time($date_total['INDIRECT']))),1,0,'C');
+					}
+					if(in_array('extra_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['EXTRA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['EXTRA'],2) : time_decimal2time($date_total['EXTRA']))),1,0,'C');
+					}
+					if(in_array('relief_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['RELIEF']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['RELIEF'],2) : time_decimal2time($date_total['RELIEF']))),1,0,'C');
+					}
+					if(in_array('sleep_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['SLEEP']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['SLEEP'],2) : time_decimal2time($date_total['SLEEP']))),1,0,'C');
+					}
+					if(in_array('training_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['TRAINING']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['TRAINING'],2) : time_decimal2time($date_total['TRAINING']))),1,0,'C');
+					}
+					if(in_array('sick_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['SICK_ADJ']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['SICK_ADJ'],2) : time_decimal2time($date_total['SICK_ADJ']))),1,0,'C');
+					}
+					if(in_array('sick_used',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['SICK']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['SICK'],2) : time_decimal2time($date_total['SICK']))),1,0,'C');
+					}
+					if(in_array('stat_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['STAT_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['STAT_AVAIL'],2) : time_decimal2time($date_total['STAT_AVAIL']))),1,0,'C');
+					}
+					if(in_array('stat_used',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['STAT']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['STAT'],2) : time_decimal2time($date_total['STAT']))),1,0,'C');
+					}
+					if(in_array('vaca_hrs',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['VACA_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['VACA_AVAIL'],2) : time_decimal2time($date_total['VACA_AVAIL']))),1,0,'C');
+					}
+					if(in_array('vaca_used',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['VACA'],2) : time_decimal2time($date_total['VACA']))),1,0,'C');
+					}
+					if(in_array('breaks',$value_config)) {
+						$pdf->Cell(10,0,(empty($date_total['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($date_total['BREAKS'],2) : time_decimal2time($date_total['BREAKS']))),1,0,'C');
+					}
+					if(in_array('comment_box',$value_config)) {
+						$pdf->Cell($comment_width,0,'',1,0,'C');
+					}
+					if(in_array('signature',$value_config) && !in_array('signature_pdf_hidden',$value_config)) {
+						$pdf->Cell(35,0,'',1,0,'C');
+					}
+					$pdf->ln();
+					$pdf->SetFont('dejavusans', '', 8);
+				}
 				if($layout != 'multi_line' || $date != $row['date']) {
 					$date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
 				}
@@ -753,33 +827,6 @@ function addSignature(chk) {
 						$(td).html(img);
 					}
 				});
-			},
-	        Cancel: function() {
-	        	$(this).dialog('close');
-	        }
-		}
-	});
-}
-function displayPDFOptions(a) {
-	var href = $(a).prop('href');
-	$('#dialog-pdf-options').dialog({
-		resizable: false,
-		height: "auto",
-		width: ($(window).width() <= 500 ? $(window).width() : 500),
-		modal: true,
-		open: function() {
-			$('[name="pdf_options"]').prop('checked',true);
-		},
-		buttons: {
-			"Submit": function() {
-				$(this).dialog('close');
-				var value_config = [];
-				$('[name="pdf_options"]:checked').each(function() {
-					value_config.push(this.value);
-				});
-				value_config = value_config.join(',');
-				href += '&value_config='+value_config;
-				window.open(href, '_blank');
 			},
 	        Cancel: function() {
 	        	$(this).dialog('close');

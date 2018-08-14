@@ -568,6 +568,7 @@ var useProfileSig = function(chk) {
         }
         if(!in_array($layout,['position_dropdown', 'ticket_task','multi_line']) || $date != $row['date']) {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
+            $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
         }
         $post_i++;
     }
