@@ -2430,6 +2430,10 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 	margin-left: 1em !important;
 	margin-right: 1em !important;
 }
+.margin-horiz-2 {
+	margin-left: 2em !important;
+	margin-right: 2em !important;
+}
 .margin-vertical {
 	margin-top: 1em !important;
 	margin-bottom: 1em !important;

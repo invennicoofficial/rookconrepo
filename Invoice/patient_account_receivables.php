@@ -183,12 +183,13 @@ function waiting_on_collection(sel) {
 </head>
 <body>
 <?php include_once ('../navigation.php');
-?>
+$purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
+$purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0]; ?>
 
 <div class="container triple-pad-bottom">
     <div class="row">
         <div class="col-md-12">
-        <h2>Patient Accounts Receivable</h2>
+        <h2><?= $purchaser_label ?> Accounts Receivable</h2>
         
         <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
             echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
@@ -200,7 +201,7 @@ function waiting_on_collection(sel) {
             <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            Displays patient specific receivables within the selected dates.</div>
+            Displays <?= $purchaser_label ?> specific receivables within the selected dates.</div>
             <div class="clearfix"></div>
             </div>
 
@@ -247,10 +248,10 @@ function waiting_on_collection(sel) {
 
                 <label for="site_name" class="col-sm-1 control-label">
 					<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by patient name."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-					Patient:
+					<?= $purchaser_label ?>:
 				</label>
                 <div class="col-sm-8" style="width:auto">
-                    <select data-placeholder="Choose a Patient..." name="patient" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Choose <?= $purchaser_label ?>..." name="patient" class="chosen-select-deselect form-control" width="380">
                         <option value="">Display All</option>
                         <?php
                         $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice_patient WHERE paid IN ('On Account','No') ORDER BY patientid");
