@@ -1659,6 +1659,20 @@ function reload_service_checklist() {
 			initInputs('.service_checklist');
 			initSelectOnChanges();
 			calculateTimeEstimate();
+			reload_hidden_services();
+		}
+	});
+}
+function reload_hidden_services() {
+	destroyInputs($('.hidden_services'));
+	$.ajax({
+		url: '../Ticket/add_ticket_info_service.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&reload_hidden_services=1',
+		dataType: 'html',
+		success: function(response) {
+			$('.hidden_services').html(response);
+			initInputs('.hidden_services');
+			initSelectOnChanges();
+			calculateTimeEstimate();
 		}
 	});
 }
