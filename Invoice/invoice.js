@@ -41,7 +41,10 @@ $(document).ready(function() {
 	});
 
 	$("#patientid").change(function() {
-		var type = $('[name="type"]').val();
+		var type = '';
+		if($('[name="type"]').val() != undefined) {
+			type = $('[name="type"]').val();
+		}
 		if ($(this).val()=='NEW') {
             overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         } else {
@@ -451,7 +454,10 @@ $(document).on('change', 'select[name="type"]', function() { changeInvoiceType()
 
 function changeInvoiceType() {
 	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
-	var type = $('[name="type"]').val();
+	var type = '';
+	if($('[name="type"]').val() != undefined) {
+		type = $('[name="type"]').val();
+	}
 
 	window.location.href = "?invoiceid="+invoiceid+"&type="+type;
 }
