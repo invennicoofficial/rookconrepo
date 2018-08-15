@@ -11,6 +11,10 @@ if(FOLDER_NAME == 'posadvanced') {
 }
 error_reporting(0);
 
+if (!empty($_GET['type']) && $_GET['invoiceid'] > 0) {
+    mysqli_query($dbc, "UPDATE `invoice` SET `type` = '".$_GET['type']."' WHERE `invoiceid` = '".$_GET['invoiceid']."'");
+}
+
 if (isset($_POST['save_btn'])) {
 	$invoice_mode = 'Saved';
 	if (!file_exists('download')) {
@@ -285,6 +289,30 @@ if (isset($_POST['submit_pay'])) {
 if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET['ux'] == 'touch')) { ?>
 	<script> debugger;window.location.replace('touch_main.php'); </script>
 <?php } ?>
+
+<style>
+.pay-div { padding: 0; }
+.preview_div { padding-right: 2em; }
+@media(min-width:768px) {
+	.sticky {
+		max-width: 100%;
+		position: fixed !important;
+		top: 0;
+		right: 0;
+	}
+	.preview_div {
+		position: absolute;
+		display: block;
+		right: 0;
+	}
+}
+@media(max-width:767px) {
+    .wrapper { display:flex; flex-direction:column; }
+	.preview_div { position:initial; order:2; }
+    .main-div { order:1; }
+    .control-div { margin-top:30px; order:3; }
+}
+</style>
 </head>
 
 <body>
@@ -298,7 +326,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<iframe name="edit_board" src=""></iframe>
 		</div>
 	</div>
-  <div class="row">
+    <div class="row">
 
 		<?php // if(empty($_GET['action'])) { ?>
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -311,15 +339,18 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 		<div class="clearfix"></div>
 
-		<?php include('tile_tabs.php'); ?>
+		<?php include('tile_tabs.php'); ?><br /><br />
 
-        <?php $insurer_row_id = 0;
+        <?php $invoice_type = '';
+        if(!empty($_GET['type'])) {
+            $invoice_type = $_GET['type'];
+        }
+        $insurer_row_id = 0;
         $paid = 'Yes';
         $app_type = '';
         $type = '';
         $invoiceid = 0;
 		$service_date = date('Y-m-d');
-		$field_config = explode(',',get_config($dbc, 'invoice_fields'));
 		$purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 		$payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
 
@@ -341,6 +372,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
         if(!empty($_GET['invoiceid'])) {
             $invoiceid = $_GET['invoiceid'];
             $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
+
+            $invoice_type = $get_invoice['type'];
 
 			$patient_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='{$get_invoice['patientid']}'"));
 			$billable = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `billable_dollars` FROM contacts_cost WHERE contactid = '{$get_invoice['patientid']}'"))['billable_dollars'];
@@ -418,9 +451,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 				echo '<input type="hidden" name="set_gf" id="set_gf" />';
 
-        echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />'; ?>
+        echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />';
 
-		<div class="col-sm-3 preview_div">
+        $field_config = explode(',',get_config($dbc, 'invoice_fields'));
+        if(!empty($invoice_type)) {
+            $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
+        }
+        ?>
+
+		<div class="wrapper">
+        <div class="col-sm-3 preview_div">
 			<h3>Details</h3>
 			<h4 <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>Invoice Date: <label class="detail_invoice_date pull-right"><?= date('Y-m-d') ?></label></h4>
 			<h4 <?= (in_array('customer',$field_config) ? '' : 'style="display:none;"') ?>><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>: <label class="detail_patient_name pull-right"><?= (empty($_GET['invoiceid']) ? get_contact($dbc, $_GET['contactid']) : $patient) ?></label></h4>
@@ -452,7 +492,24 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
 			<h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
 		</div>
+      
+        <div class="main-div">
+        <?php $invoice_types = array_filter(explode(',',get_config($dbc, 'invoice_types')));
+        if(!empty($invoice_types)) { ?>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Invoice Type:</label>
+                <div class="col-sm-7">
+                    <select name="type" class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php foreach($invoice_types as $invoice_type_dropdown) {
+                            echo '<option value="'.config_safe_str($invoice_type_dropdown).'" '.($invoice_type == config_safe_str($invoice_type_dropdown) ? 'selected' : '').'>'.$invoice_type_dropdown.'</option>';
 
+                        } ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
+      
 		<div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
 			<label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
 			<div class="col-sm-7">
@@ -1982,12 +2039,15 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 <div class="col-sm-6"></div>
             </div>
 
+        </div><!-- .main-div -->
+
+        <div class="control-div">
           <div class="form-group">
-            <div class="col-sm-2 clearfix">
+            <div class="col-sm-2 col-xs-4">
             	<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                 <a href="today_invoice.php" class="btn brand-btn">Back</a>
 			</div>
-            <div class="col-sm-7">
+            <div class="col-sm-7 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="Submit" class="btn brand-btn pull-right">Submit</button>
                 <span class="popover-examples list-inline pull-right" style="margin:5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to Submit the invoice after processing payment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                 <!--<button type="submit" name="save_btn" onclick="return validateappo();" id="save" value="Save" class="btn brand-btn pull-right">Save</button>-->
@@ -1998,8 +2058,9 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 -->
             </div>
           </div>
-
-
+        </div>
+          
+        </div><!-- .wrapper -->
 
         </form>
 
@@ -2011,32 +2072,6 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
     </div>
   </div>
-<style>
-.pay-div {
-	padding: 0;
-}
-@media(min-width:768px) {
-	.sticky {
-		max-width: 100%;
-		position: fixed !important;
-		top: 0;
-		right: 0;
-	}
-	.preview_div {
-		position: absolute;
-		display: block;
-		right: 0;
-	}
-}
-@media(max-width:767px) {
-	.preview_div {
-		position: relative;
-	}
-}
-.preview_div {
-	padding-right: 2em;
-}
-</style>
 <script>
 $(window).scroll(function() {
 	if ($(this).scrollTop() > $('form')[0].offsetTop) {
