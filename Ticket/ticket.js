@@ -2508,7 +2508,7 @@ function checkoutAll(button) {
 		finishing_ticket = true;
 	}
 	reload_summary();
-	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').length > 0 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '')) && ($('[name="sign_off_signature"]').length > 0 && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == ''))) {
+	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '') && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == '')) {
 		alert("A signature is required.");
 		finishing_ticket = false;
 		return false;
