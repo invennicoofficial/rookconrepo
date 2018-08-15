@@ -3,6 +3,7 @@ if($invoice_mode != 'Saved' && $_POST['request_recommendation'] == 'send') {
 	include('send_crm_recommend.php');
 }
 $receipt_payments = [];
+$inv_status = 'Completed';
 
 if($invoice_mode != 'Adjustment') {
 	$type_type = filter_var($_POST['type'],FILTER_SANITIZE_STRING);
@@ -97,6 +98,7 @@ if($invoice_mode != 'Adjustment') {
 
         if ( $type=='On Account' ) {
             $credit_balance += $_POST['payment_price'][$i];
+            $inv_status = 'Posted';
         }
 	}
 
@@ -825,6 +827,7 @@ if($invoice_mode != 'Adjustment') {
 
 			if($payment['paid'] == 'On Account') {
 				$on_account += $payment['price'];
+                $inv_status = 'Posted';
 			} else if($payment['paid'] == 'Patient Account') {
 				$patient_account += $payment['price'];
 			} else {
@@ -1106,6 +1109,7 @@ if($invoice_mode != 'Adjustment') {
                         $service_pro_bono .= $applied.',';
                     } else if($payment_types[$j] == 'On Account') {
                         $on_account += $applied;
+                        $inv_status = 'Posted';
                     } else {
                         $service_patient[$i] += $applied;
                     }
@@ -1229,6 +1233,7 @@ if($invoice_mode != 'Adjustment') {
                         $service_pro_bono .= $applied.',';
                     } else if($payment_types[$j] == 'On Account') {
                         $on_account += $applied;
+                        $inv_status = 'Posted';
                     } else {
                         $package_patient[$i] += $applied;
                     }
@@ -1359,6 +1364,7 @@ if($invoice_mode != 'Adjustment') {
 					$service_pro_bono .= $applied.',';
 				} else if($payment_types[$j] == 'On Account') {
 					$on_account += $applied;
+                    $inv_status = 'Posted';
 				} else {
 					$inv_patient[$i] += $applied;
 				}
@@ -1562,6 +1568,7 @@ if($invoice_mode != 'Adjustment') {
 
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
+            $inv_status = 'Posted';
 		}
 	}
 
@@ -1586,6 +1593,7 @@ if($invoice_mode != 'Adjustment') {
 
 		if($payment_types[$j] == 'On Account') {
 			$on_account += $applied;
+            $inv_status = 'Posted';
 		}
 	}
 
@@ -1629,6 +1637,7 @@ if($invoice_mode != 'Adjustment') {
 	if($final_refunded != -$final_amount) {
 		$payment_type_names .= 'On Account,';
 		$payment_type_amts .= $final_refunded + $final_amount;
+        $inv_status = 'Posted';
 	}
 	$payment_type = trim($payment_type_names,',').'#*#'.trim($payment_type_amts,',');
 
@@ -1813,6 +1822,7 @@ if($invoice_mode != 'Adjustment') {
 		$payment_types[] = 'On Account';
 		$payment_amts[] = -$refund_amount - $final_refunded;
 		$payment_used[] = -$refund_amount - $final_refunded;
+        $inv_status = 'Posted';
 	}
 	foreach($_POST['payment_type'] as $i => $type) {
 		if($type == 'Pro-Bono') {
@@ -2492,7 +2502,8 @@ if($invoice_mode != 'Adjustment') {
 		}
 	}
 }
-
+// Set Invoice Status
+$dbc->query("UPDATE `invoice` SET `status`='$inv_status' WHERE `invoiceid`='$invoiceid'");
 // Update the Invoice Ticket List
 $ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
 $dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");
