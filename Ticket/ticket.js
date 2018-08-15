@@ -712,7 +712,7 @@ function saveFieldMethod(field) {
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
 							async: false,
-							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
+							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 || finishing_ticket ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
 								alert(response.message);
