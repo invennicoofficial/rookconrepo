@@ -1016,19 +1016,31 @@ if($_GET['action'] == 'update_url_get_preview') {
 }
 
 if($_GET['action'] == 'update_url_send_email') {
+	$folder_name = $_POST['folder_name'];
 	$categories = $_POST['categories'];
 	$contacts = $_POST['contacts'];
 	$security_level = $_POST['security_level'];
-	$expiry_date = $_POST['expiry_dtae'];
+	$expiry_date = $_POST['expiry_date'];
 	$subject = $_POST['subject'];
 	$body = $_POST['body'];
 
-	if(!empty($categories)) {
-		$query = "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN ('".implode("','", $categories)."')";
+	if(!empty($categories) || !empty($contacts)) {
+		$tabs = explode(',',get_config($dbc, $folder_name.'_tabs'));
+		$staff = array_search('Staff',$tabs);
+        if($staff !== FALSE) {
+            unset($tabs[$staff]);
+        }
+		$query = "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN ('".implode("','", $tabs)."')";
+		if(!empty($categories)) {
+			$query .= " AND `category` IN ('".implode("','", $categories)."')";
+		}
 		if(!in_array('ALL_CONTACTS',$contacts)) {
 			$query .= " AND `contactid` IN (".implode(',', $contacts).")";
 		}
-		while($row = mysqli_fetch_assoc($query)) {
+
+		$result = sort_contacts_query(mysqli_query($dbc, $query));
+		$error = '';
+		foreach($result as $row) {
 		    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 		    $url_key = '';
@@ -1036,10 +1048,21 @@ if($_GET['action'] == 'update_url_send_email') {
 		        $rng = rand(0, strlen($alphabet));
 		        $url_key .= substr($alphabet, $rng, 1);
 		    }
-			$url_key = encryptIt($url_key);
+			$url_key = preg_replace('/[^\p{L}\p{N}\s]/u', '', encryptIt($url_key));
 			mysqli_query($dbc, "UPDATE `contacts` SET `update_url_key` = '$url_key', `update_url_expiry` = '$expiry_date', `update_url_role` = '$security_level' WHERE `contactid` = '".$row['contactid']."'");
+
+			$new_body = str_replace(['[FULL_NAME]','[EXPIRY_DATE]'],[$row['full_name'],$expiry_date],$body).'<br /><br />Click <a href="'.WEBSITE_URL.'/'.ucfirst($folder_name).'/contacts_inbox.php?edit='.$row['contactid'].'&update_url=1&url_key='.$url_key.'">here</a> to access your profile.';
+
+			$email = get_email($dbc, $row['contactid']);
+			try {
+				send_email('', $email, '', '', $subject, $new_body, '');
+			} catch (Exception $e) {
+                $error .= "Unable to send email: ".$e->getMessage()."\n";
+			}
 		}
 	}
+
+	echo (empty($error) ? 'Successfully sent.' : $error);
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {

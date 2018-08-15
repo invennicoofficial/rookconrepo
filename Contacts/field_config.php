@@ -207,6 +207,21 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_update_url">
+					Update Profile Email<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_update_url" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_update_url.php">
+				Loading...
+			</div>
+		</div>
+	</div>
 </div>
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
     <ul class=''>

@@ -20,7 +20,6 @@ function updatePreview() {
 		data: { body: body, expiry_date: expiry_date },
 		dataType: 'html',
 		success: function(response) {
-			console.log(response);
 			$('.email_preview').html(response);
 		}
 	});
@@ -30,11 +29,11 @@ function sendEmails(btn) {
 		$(btn).prop('disabled', true);
 		$(btn).text('Sending...');
 		var categories = [];
-		$('[name="categories[]"] option:selected').each(function() {
+		$('[name="category[]"] option:selected').each(function() {
 			categories.push(this.value);
 		});
 		var contacts = [];
-		$('[name="categories[]"] option:selected').each(function() {
+		$('[name="contacts[]"] option:selected').each(function() {
 			contacts.push(this.value);
 		});
 		var security_level = $('[name="security_level"]').val();
@@ -45,7 +44,7 @@ function sendEmails(btn) {
 		$.ajax({
 			url: '../Contacts/contacts_ajax.php?action=update_url_send_email',
 			method: 'POST',
-			data: { categories: categories, contacts: contacts, security_level: security_level, expiry_date: expiry_date, subject: subject, body: body },
+			data: { folder_name: '<?= FOLDER_NAME ?>', categories: categories, contacts: contacts, security_level: security_level, expiry_date: expiry_date, subject: subject, body: body },
 			success: function(response) {
 				alert(response);
 				window.location.reload();
@@ -64,7 +63,7 @@ function sendEmails(btn) {
 			    <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
 			    <div class="col-sm-11">
 			        <span class="notice-name">NOTE:</span>
-			        This will send an email to all attached Contacts with a unique URL so the user can update their profile without needing a login account. Only Contacts with Emails will appear in the Contacts dropdown.
+			        This will send an email to all attached Contacts with a unique URL so the user can update their profile without needing a login account. Only Contacts with Emails will appear in the Contacts dropdown. Make sure to choose a Security Level that has edit or view access to the Contacts tile or they won't be able to access it.
 			    </div>
 			    <div class="clearfix"></div>
 			</div>
@@ -90,7 +89,7 @@ function sendEmails(btn) {
 					<select name="contacts[]" multiple class="chosen-select-deselect">
 						<option></option>
 						<option value="ALL_CONTACTS">All Contacts</option>
-						<?php //$contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` NOT IN (".STAFF_CATS.")"));
+						<?php $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN ('".implode("','", $tabs)."')"));
 						foreach($contacts as $contact) {
 							echo '<option value="'.$contact['contactid'].'" data-category="'.$contact['category'].'">'.$contact['full_name'].'</option>';
 						} ?>
@@ -116,7 +115,7 @@ function sendEmails(btn) {
 				</div>
 			</div>
 			<?php $subject = "Please update your profile.";
-			$body = "Hi [FULL_NAME].<br /><br />You are receiving this email as a reminder to verify your profile details and update your profile in ".get_config($dbc, 'company_name').".You have until [EXPIRY_DATE] to access your profile link."; ?>
+			$body = "Hi [FULL_NAME].<br /><br />You are receiving this email as a reminder to verify your profile details and update your profile in ".get_config($dbc, 'company_name').". You have until [EXPIRY_DATE] to access your profile link."; ?>
 			<div class="form-group">
 				<label class="col-sm-4 control-label">Email Subject:</label>
 				<div class="col-sm-8">
