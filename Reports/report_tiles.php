@@ -78,7 +78,7 @@ if($_GET['mobile_view'] == 'true') {
         panel.closest('.panel-collapse').addClass('in');
         panel.closest('.panel').find('.panel-heading').addClass('active');
         panel.closest('.panel').find('.collapsed').removeClass('collapsed');
-        
+        //console.log(type+' | '+report+' | '+data);
 		panel.html('Loading...');
 		$.ajax({
 			url: panel.data('file-name')+'&report='+report,
