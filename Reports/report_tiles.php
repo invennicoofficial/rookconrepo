@@ -28,7 +28,7 @@ if($_GET['mobile_view'] == 'true') {
             
             // Search within report on mobile
             <?php if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) { ?>
-                var type = '<?= $_POST['report_type'] ?>';
+                var type = '<?= $_GET['type'] ?>';
                 var report = '<?= $_GET['report'] ?>';
                 var data = {
                     <?php
