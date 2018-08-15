@@ -17,7 +17,12 @@ DEFINE('EXTERNAL_INTAKE', $external_intake);
 $update_contact = false;
 if((basename($_SERVER['SCRIPT_FILENAME']) == 'contacts_inbox.php' || (strtolower(explode('/', $_SERVER['REQUEST_URI'])[1]) == 'staff' && basename($_SERVER['SCRIPT_FILENAME']) != 'staff.php')) && ($_GET['update_url'] == 1 || $_SESSION['update_contact'] == 1)) {
 	if($_SESSION['update_contact'] == 1) {
-		$update_contact = true;
+		$update_contactid = (basename($_SERVER['SCRIPT_FILENAME']) == 'contacts_inbox.php' ? $_GET['edit'] : $_GET['contactid']);
+		if($update_contactid != $_SESSION['contactid']) {
+			$update_contact = false;
+		} else {
+			$update_contact = true;
+		}
 	} else {
 		$update_contactid = (basename($_SERVER['SCRIPT_FILENAME']) == 'contacts_inbox.php' ? $_GET['edit'] : $_GET['contactid']);
 		$contact_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$update_contactid."'"));
@@ -29,6 +34,7 @@ if((basename($_SERVER['SCRIPT_FILENAME']) == 'contacts_inbox.php' || (strtolower
 			$_SESSION['role'] = ','.$contact_details['update_url_role'].',';
 			$_SESSION['contactid'] = $update_contactid;
 			$_SESSION['update_contact'] = 1;
+			echo '<script type="text/javascript">window.location.reload();</script>';
 		}
 	}
 } else if(!empty($_SESSION['user_name']) && $_SESSION['update_contact'] == 1) {
