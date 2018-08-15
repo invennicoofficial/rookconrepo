@@ -289,6 +289,30 @@ if (isset($_POST['submit_pay'])) {
 if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET['ux'] == 'touch')) { ?>
 	<script> debugger;window.location.replace('touch_main.php'); </script>
 <?php } ?>
+
+<style>
+.pay-div { padding: 0; }
+.preview_div { padding-right: 2em; }
+@media(min-width:768px) {
+	.sticky {
+		max-width: 100%;
+		position: fixed !important;
+		top: 0;
+		right: 0;
+	}
+	.preview_div {
+		position: absolute;
+		display: block;
+		right: 0;
+	}
+}
+@media(max-width:767px) {
+    .wrapper { display:flex; flex-direction:column; }
+	.preview_div { position:initial; order:2; }
+    .main-div { order:1; }
+    .control-div { margin-top:30px; order:3; }
+}
+</style>
 </head>
 
 <body>
@@ -302,7 +326,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<iframe name="edit_board" src=""></iframe>
 		</div>
 	</div>
-  <div class="row">
+    <div class="row">
 
 		<?php // if(empty($_GET['action'])) { ?>
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -315,7 +339,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 		<div class="clearfix"></div>
 
-		<?php include('tile_tabs.php'); ?>
+		<?php include('tile_tabs.php'); ?><br /><br />
 
         <?php $invoice_type = '';
         if(!empty($_GET['type'])) {
@@ -435,7 +459,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
         }
         ?>
 
-		<div class="col-sm-3 preview_div">
+		<div class="wrapper">
+        <div class="col-sm-3 preview_div">
 			<h3>Details</h3>
 			<h4 <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>Invoice Date: <label class="detail_invoice_date pull-right"><?= date('Y-m-d') ?></label></h4>
 			<h4 <?= (in_array('customer',$field_config) ? '' : 'style="display:none;"') ?>><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>: <label class="detail_patient_name pull-right"><?= (empty($_GET['invoiceid']) ? get_contact($dbc, $_GET['contactid']) : $patient) ?></label></h4>
@@ -467,7 +492,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
 			<h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
 		</div>
-
+      
+        <div class="main-div">
         <?php $invoice_types = array_filter(explode(',',get_config($dbc, 'invoice_types')));
         if(!empty($invoice_types)) { ?>
             <div class="form-group">
@@ -483,7 +509,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 </div>
             </div>
         <?php } ?>
-
+      
 		<div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
 			<label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
 			<div class="col-sm-7">
@@ -2013,12 +2039,15 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 <div class="col-sm-6"></div>
             </div>
 
+        </div><!-- .main-div -->
+
+        <div class="control-div">
           <div class="form-group">
-            <div class="col-sm-2 clearfix">
+            <div class="col-sm-2 col-xs-4">
             	<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                 <a href="today_invoice.php" class="btn brand-btn">Back</a>
 			</div>
-            <div class="col-sm-7">
+            <div class="col-sm-7 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="Submit" class="btn brand-btn pull-right">Submit</button>
                 <span class="popover-examples list-inline pull-right" style="margin:5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to Submit the invoice after processing payment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                 <!--<button type="submit" name="save_btn" onclick="return validateappo();" id="save" value="Save" class="btn brand-btn pull-right">Save</button>-->
@@ -2029,8 +2058,9 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 -->
             </div>
           </div>
-
-
+        </div>
+          
+        </div><!-- .wrapper -->
 
         </form>
 
@@ -2042,32 +2072,6 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
     </div>
   </div>
-<style>
-.pay-div {
-	padding: 0;
-}
-@media(min-width:768px) {
-	.sticky {
-		max-width: 100%;
-		position: fixed !important;
-		top: 0;
-		right: 0;
-	}
-	.preview_div {
-		position: absolute;
-		display: block;
-		right: 0;
-	}
-}
-@media(max-width:767px) {
-	.preview_div {
-		position: relative;
-	}
-}
-.preview_div {
-	padding-right: 2em;
-}
-</style>
 <script>
 $(window).scroll(function() {
 	if ($(this).scrollTop() > $('form')[0].offsetTop) {
