@@ -2508,6 +2508,16 @@ function checkoutAll(button) {
 		finishing_ticket = true;
 	}
 	reload_summary();
+	$('[name="summary_signature"]').each(function() {
+		if(this.value != "") {
+			$('[name="summary_signature"][value=""]').val(this.value);
+		}
+	});
+	$('[name="sign_off_signature"]').each(function() {
+		if(this.value != "") {
+			$('[name="sign_off_signature"][value=""]').val(this.value);
+		}
+	});
 	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '') && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == '')) {
 		alert("A signature is required.");
 		finishing_ticket = false;
