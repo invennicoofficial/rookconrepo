@@ -11,6 +11,10 @@ if(FOLDER_NAME == 'posadvanced') {
 }
 error_reporting(0);
 
+if (!empty($_GET['type']) && $_GET['invoiceid'] > 0) {
+    mysqli_query($dbc, "UPDATE `invoice` SET `type` = '".$_GET['type']."' WHERE `invoiceid` = '".$_GET['invoiceid']."'");
+}
+
 if (isset($_POST['save_btn'])) {
 	$invoice_mode = 'Saved';
 	if (!file_exists('download')) {
@@ -337,13 +341,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 		<?php include('tile_tabs.php'); ?><br /><br />
 
-        <?php $insurer_row_id = 0;
+        <?php $invoice_type = '';
+        if(!empty($_GET['type'])) {
+            $invoice_type = $_GET['type'];
+        }
+        $insurer_row_id = 0;
         $paid = 'Yes';
         $app_type = '';
         $type = '';
         $invoiceid = 0;
 		$service_date = date('Y-m-d');
-		$field_config = explode(',',get_config($dbc, 'invoice_fields'));
 		$purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 		$payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
 
@@ -365,6 +372,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
         if(!empty($_GET['invoiceid'])) {
             $invoiceid = $_GET['invoiceid'];
             $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
+
+            $invoice_type = $get_invoice['type'];
 
 			$patient_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='{$get_invoice['patientid']}'"));
 			$billable = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `billable_dollars` FROM contacts_cost WHERE contactid = '{$get_invoice['patientid']}'"))['billable_dollars'];
@@ -442,8 +451,14 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 				echo '<input type="hidden" name="set_gf" id="set_gf" />';
 
-        echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />'; ?>
-
+        echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />';
+      
+        $field_config = explode(',',get_config($dbc, 'invoice_fields'));
+        if(!empty($invoice_type)) {
+            $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
+        }
+        ?>
+      
 		<div class="wrapper">
         <div class="col-sm-3 preview_div">
 			<h3>Details</h3>
@@ -477,8 +492,23 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
 			<h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
 		</div>
-
+      
         <div class="main-div">
+        <?php $invoice_types = array_filter(explode(',',get_config($dbc, 'invoice_types')));
+        if(!empty($invoice_types)) { ?>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Invoice Type:</label>
+                <div class="col-sm-7">
+                    <select name="type" class="chosen-select-deselect form-control">
+                        <option></option>
+                        <?php foreach($invoice_types as $invoice_type_dropdown) {
+                            echo '<option value="'.config_safe_str($invoice_type_dropdown).'" '.($invoice_type == config_safe_str($invoice_type_dropdown) ? 'selected' : '').'>'.$invoice_type_dropdown.'</option>';
+                        } ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
+          
 		<div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
 			<label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
 			<div class="col-sm-7">

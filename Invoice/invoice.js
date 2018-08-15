@@ -41,10 +41,14 @@ $(document).ready(function() {
 	});
 
 	$("#patientid").change(function() {
+		var type = '';
+		if($('[name="type"]').val() != undefined) {
+			type = $('[name="type"]').val();
+		}
 		if ($(this).val()=='NEW') {
-            overlayIFrameSlider('add_contact.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
+            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         } else {
-            window.location = 'add_invoice.php?contactid='+this.value;
+            window.location = 'add_invoice.php?contactid='+this.value+'&type='+type;
         }
 	});
 
@@ -445,8 +449,18 @@ $(document).ready(function() {
 			$(".treatment_plan").show();
 		}
 	});
-
 });
+$(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
+
+function changeInvoiceType() {
+	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
+	var type = '';
+	if($('[name="type"]').val() != undefined) {
+		type = $('[name="type"]').val();
+	}
+
+	window.location.href = "?invoiceid="+invoiceid+"&type="+type;
+}
 
 function changeInsurance(sel) {
 	var proValue = sel.value;
