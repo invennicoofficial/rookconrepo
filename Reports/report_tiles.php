@@ -28,7 +28,7 @@ if($_GET['mobile_view'] == 'true') {
             
             // Search within report on mobile
             <?php if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) { ?>
-                var type = '<?= $_POST['report_type'] ?>';
+                var type = '<?= $_GET['type'] ?>';
                 var report = '<?= $_GET['report'] ?>';
                 var data = {
                     <?php
@@ -78,7 +78,7 @@ if($_GET['mobile_view'] == 'true') {
         panel.closest('.panel-collapse').addClass('in');
         panel.closest('.panel').find('.panel-heading').addClass('active');
         panel.closest('.panel').find('.collapsed').removeClass('collapsed');
-        
+        //console.log(type+' | '+report+' | '+data);
 		panel.html('Loading...');
 		$.ajax({
 			url: panel.data('file-name')+'&report='+report,
