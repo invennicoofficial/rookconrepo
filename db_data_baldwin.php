@@ -474,5 +474,11 @@
     }
     //2018-08-09 - Ticket #8583 - Payroll: By Staff
 
+    //2018-08-16 - Ticket #8623 - Shifts
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `security_level` varchar(500) AFTER `contactid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-16 - Ticket #8623 - Shifts
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
