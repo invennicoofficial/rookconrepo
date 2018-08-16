@@ -329,7 +329,6 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
     <div class="row">
 
 		<?php // if(empty($_GET['action'])) { ?>
-		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
         <div class="col-sm-9"><h1 class="triple-pad-bottom"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
 		<a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="pull-right override-theme-color-icon"></a></h1></div>
@@ -341,6 +340,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
 		<?php include('tile_tabs.php'); ?><br /><br />
 
+		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <?php $invoice_type = '';
         if(!empty($_GET['type'])) {
             $invoice_type = $_GET['type'];
