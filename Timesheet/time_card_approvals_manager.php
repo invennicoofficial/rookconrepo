@@ -132,7 +132,7 @@ function send_csv(a) {
 						$prev_staff = '';
 						$next_staff = '';
 						foreach($staff_members as $key => $staff_id) {
-							if(count($search_staff_list) == 1 && in_array($staff_id['contactid'], $search_staff_list)) {
+							if(count($search_staff_list) == 1 && !in_array($staff_id['contactid'], $search_staff_list)) {
 								$prev_staff = $staff_members[$key-1]['contactid'];
 								$next_staff = $staff_members[$key+1]['contactid'];
 							} ?>
