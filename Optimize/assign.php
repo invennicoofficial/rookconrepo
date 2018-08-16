@@ -101,6 +101,7 @@ function setTicketSave() {
 		console.log(this.value);
 	});
 	initInputs();
+    initTooltips();
 }
 function initOptions() {
     $('.ticket[data-table][data-id]').off('mouseenter');
