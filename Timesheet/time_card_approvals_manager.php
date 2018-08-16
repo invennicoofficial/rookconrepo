@@ -133,8 +133,9 @@ function send_csv(a) {
 						$next_staff = '';
 						foreach($staff_members as $key => $staff_id) {
 							if(in_array($staff_id['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
-								$prev_staff = $staff_members[$key-1]['contactid'];
-								$next_staff = $staff_members[$key+1]['contactid'];
+                                $keys = array_keys($staff_members);
+                                $prev_staff = $staff_members[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $staff_members[$keys[array_search($key, $keys)+1]]['contactid'];
 							} ?>
 							<option <?php if (in_array($staff_id['contactid'], $search_staff_list) || in_array('ALL_STAFF',$search_staff_list)) { echo " selected"; } ?> value='<?php echo $staff_id['contactid']; ?>'><?php echo $staff_id['full_name']; ?></option>
 							<?php if(in_array('ALL_STAFF',$search_staff_list)) {
