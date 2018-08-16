@@ -339,7 +339,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 		<div class="clearfix"></div>
 
 		<?php include('tile_tabs.php'); ?><br /><br />
-
+      
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <?php $invoice_type = '';
         if(!empty($_GET['type'])) {
@@ -452,13 +452,14 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 				echo '<input type="hidden" name="set_gf" id="set_gf" />';
 
         echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />';
-
+      
+      
         $field_config = explode(',',get_config($dbc, 'invoice_fields'));
         if(!empty($invoice_type)) {
             $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
         }
         ?>
-
+      
 		<div class="wrapper">
         <div class="col-sm-3 preview_div">
 			<h3>Details</h3>
@@ -509,7 +510,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 </div>
             </div>
         <?php } ?>
-      
+          
 		<div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
 			<label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
 			<div class="col-sm-7">
