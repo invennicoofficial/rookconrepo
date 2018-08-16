@@ -29,9 +29,10 @@ if (isset($_POST['submit'])) {
         $repeat_days = filter_var(implode(',',$_POST['shift_repeat_days']),FILTER_SANITIZE_STRING);
     }
     $notes = filter_var(htmlentities($_POST['shift_notes']),FILTER_SANITIZE_STRING);
+    $set_hours = filter_var($_POST['set_hours'],FILTER_SANITIZE_STRING);
 
     if (empty($_POST['shiftid'])) {
-        $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`) VALUES ('$contactid', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes')";
+        $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
         $result = mysqli_query($dbc, $query);
         $shiftid = mysqli_insert_id($dbc);
     } else {
@@ -48,7 +49,7 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `hide_days` = '$hide_days' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes')";
+                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`, `set_hours`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
@@ -57,7 +58,7 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `enddate` = '$end_date' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes')";
+                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
@@ -171,6 +172,10 @@ $repeat_interval = '';
 $repeat_days = '';
 $notes = '';
 $hours_type = 'Regular Hrs.';
+$set_hours = 0;
+if(isset($_GET['set_hours'])) {
+    $set_hours = $_GET['set_hours'];
+}
 if (!empty($shiftid)) {
     $get_shifts = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"));
 
@@ -193,6 +198,7 @@ if (!empty($shiftid)) {
         $shift_current_date = date('Y-m-d', strtotime($_GET['current_day']));
         $recurring = date('Y-m-d', strtotime($startdate)) == date('Y-m-d', strtotime($enddate)) ? 'no' : 'yes';
     }
+    $set_hours = $get_shifts['set_hours'];
 }
 ?>
 <script type="text/javascript">
@@ -492,6 +498,17 @@ function changeShiftAvailability() {
     </div>
     <form name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form" id="shiftform">
         <?php if($shiftid != 'IMPORT') { ?>
+            <?php if($set_hours > 0) { ?>
+                <div class="notice double-gap-bottom popover-examples">
+                    <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
+                    <div class="col-sm-11">
+                        <span class="notice-name">NOTE:</span>
+                        You are adding Set Hours. This type of Scheduling will affect your Time Sheets and will overwrite any Regular Hours with these Set Hours. Leave End Date blank to keep Set Hours ongoing.
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            <?php } ?>
+            <input type="hidden" name="set_hours" value="<?= $set_hours ?>">
             <input type="hidden" name="shiftid" value="<?= $shiftid ?>">
             <input type="hidden" name="recurring" value="<?= $recurring ?>">
             <input type="hidden" name="edit_type" value="">
