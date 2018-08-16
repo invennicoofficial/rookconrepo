@@ -1687,6 +1687,7 @@ function reload_site() {
 	});
 }
 function reload_complete() {
+	destroyInputs($('#collapse_ticket_complete,#tab_section_ticket_complete'));
 	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
