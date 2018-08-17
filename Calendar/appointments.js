@@ -156,6 +156,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 	function itemsDraggable() {
 		var initial_time = 0;
 		var initial_date = '';
+		var initial_contact = '';
 	    $( ".calendar_view table:not(#time_html)" ).sortable({
 			appendTo: ".calendar_view table:not(#time_html)",
 			beforeStop: function(e, td) {
@@ -164,9 +165,16 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 				td.helper.removeClass('popped-field');
 				if($('.highlightCell').length > 0) {
 					td_items = [];
-					if($('[name=multi_book][data-date='+initial_date+']:checked').length > 0) {
-						$('[name=multi_book][data-date='+initial_date+']:checked').each(function() {
-							td_items.push($(this).closest('.used-block'));
+					if($('[name=multi_book][data-date='+initial_date+'][data-contact='+initial_contact+']:checked').length > 0) {
+						$('[name=multi_book][data-date='+initial_date+'][data-contact='+initial_contact+']:checked').each(function() {
+							var used_block = $(this).closest('.used-block');
+							if(used_block.hasClass('combined_blocks')) {
+								used_block.find('.combined_block').each(function() {
+									td_items.push(this);
+								});
+							} else {
+								td_items.push(used_block);
+							}
 						});
 					} else if(td.item.hasClass('combined_blocks')) {
 						td.item.find('.combined_block').each(function() {
@@ -283,6 +291,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			start: function(e, td) {
 				var data_time = td.item.closest('td').data('time');
 				initial_date = td.item.closest('td').data('date');
+				initial_contact = td.item.closest('td').data('contact');
 				initial_time = data_time;
 				$('table#time_html').find('td[data-time='+data_time+']').css('height',td.item.closest('td').css('height'));
 				if(td.item.prop('rowspan') > 1) {
@@ -291,18 +300,31 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					prev_td.after('<td rowspan="'+(td.item.prop('rowspan') - 1)+'" class="temp_td"></td>');
 				}
 				td.helper.addClass('popped-field');
-				if($('[name=multi_book][data-date='+initial_date+']:checked').length > 0) {
+				if($('[name=multi_book][data-date='+initial_date+'][data-contact='+initial_contact+']:checked').length > 0) {
 					block_html = '';
+					td.helper.css('z-index', '999999');
 					var top_px = 10;
-					$('[name=multi_book][data-date='+initial_date+']:checked').each(function() {
+					var zindex = 999998;
+					$('[name=multi_book][data-date='+initial_date+'][data-contact='+initial_contact+']:checked').each(function() {
 						used_block = $(this).closest('.used-block').clone();
-						used_block.css('position', 'relative');
-						block_html += used_block[0].outerHTML;
-						top_px += 10;
+						if($(used_block).data('ticketid') != td.item.data('ticketid') || $(used_block).data('ticketscheduleid') != td.item.data('ticketscheduleid')) {
+							used_block.css('position', 'absolute');
+							used_block.css('top', top_px+'px');
+							used_block.css('left', top_px+'px');
+							used_block.css('z-index', zindex);
+							used_block.css('height', '200px');
+							used_block.addClass('popped-field');
+							block_html += used_block[0].outerHTML;
+							top_px += 10;
+							zindex--;
+						}
 					});
 					td.helper.html(td.helper[0].outerHTML + block_html);
-					td.helper.html('<div style="height: 100%;">'+td.helper.html()+'</div>');
-					console.log(td.helper.html());
+					td.helper.css('background-color', 'transparent');
+					td.helper.css('overflow', 'hidden');
+					td.helper.css('border', 'none');
+					td.helper.css('height', '100%');
+					td.helper.css('width', '100%');
 				}
 			},
 			deactivate: function(e, td) {
