@@ -1040,6 +1040,11 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
                 if($tab == 'payroll') {
                 	$limits .= " AND (`approv` = 'Y' OR `approv` = 'P')";
                 }
+                if($timesheet_payroll_layout == 'group_days') {
+                	$group_by = 'date';
+                } else {
+                	$group_by = 'time_cards';
+                }
 
                 $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
 			        SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
@@ -1049,7 +1054,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 			        SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
 			        SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 			        GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name`
-			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `time_cards_id` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
+			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `$group_by` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 		        $result = mysqli_fetch_all(mysqli_query($dbc, $sql),MYSQLI_ASSOC);
                 $date = $search_start_date;
                 $i = 0;
