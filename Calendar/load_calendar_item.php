@@ -1670,7 +1670,6 @@ if(!isset($equipment)) {
 			}
 		}
 		$calendar_table[$calendar_date][$contact_id]['shifts'] = implode('<br />', $shifts_arr);
-		$calendar_table[$calendar_date][$contact_id]['shifts'] .= 'asdf<br>asdf<br>asdf<br>asdf<br>asdf<br>asdfasdf<br>asdf<br>asdf<br>asdf<br>asdf<br><br>';
 	}
 } else {
 	$calendar_table[$calendar_date][$equipment['equipmentid']]['shifts'] = '';
