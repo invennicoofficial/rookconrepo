@@ -165,6 +165,12 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	$block_html = '';
 	$reset_active = get_config($dbc, 'scheduling_reset_active');
+    $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+    foreach(array_filter(explode(',',ROLE)) as $session_role) {
+        if(in_array($session_role,$customer_roles)) {
+            $reset_active = 1;
+        }
+    }
 	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	if($reset_active == 1) {
@@ -319,4 +325,11 @@ function getTeamTickets($dbc, $date, $teamid) {
 		}
 	}
 	return $tickets_list;
+}
+function getCustomerEquipment($dbc, $start_date, $end_date) {
+	$equipmentids = [];
+	for($calendar_date = $start_date; strtotime($calendar_date) <= strtotime($end_date); $calendar_date = date('Y-m-d', strtotime($calendar_date.' + 1 day'))) {
+		$equipmentids = array_merge($equipmentids, array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT IFNULL(`ticket_schedule`.`equipmentid`, `tickets`.`equipmentid`) `equipmentid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` WHERE `tickets`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND '".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`) AND (`tickets`.`businessid` = '".$_SESSION['contactid']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_SESSION['contactid'].",%')"),MYSQLI_ASSOC),'equipmentid'));
+	}
+	return $equipmentids;
 }
