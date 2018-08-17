@@ -577,6 +577,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_columns_group_regions' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_columns_group_regions') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_columns_group_regions."' WHERE `name`='scheduling_columns_group_regions'");
+	if (!empty($_POST['scheduling_drag_multiple'])) {
+		$scheduling_drag_multiple = $_POST['scheduling_drag_multiple'];
+	} else {
+		$scheduling_drag_multiple = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_drag_multiple' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_drag_multiple') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_drag_multiple."' WHERE `name`='scheduling_drag_multiple'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -2135,13 +2142,20 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_passed_service = get_config($dbc, 'scheduling_passed_service'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_passed_service" <?= $scheduling_passed_service == 1 ? 'checked' : '' ?> value="1"></label>
-                </div>
+				                </div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Group Columns by Region:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_columns_group_regions" <?= $scheduling_columns_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Allow Dragging Multiple:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_drag_multiple = get_config($dbc, 'scheduling_drag_multiple'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_drag_multiple" <?= $scheduling_drag_multiple == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

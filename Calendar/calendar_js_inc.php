@@ -1088,6 +1088,10 @@ function reload_resize_all() {
 	initTicketHoverStaff();
 	setAutoRefresh();
 	initIconColors();
+	
+    $('[name=multi_book]').click(function(e) {
+    	e.stopImmediatePropagation();
+    });
 }
 function scrollToToday() {
 	clearInterval(clear_today);

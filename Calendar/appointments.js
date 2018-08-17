@@ -154,6 +154,8 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 	// Draggable table cells
 	function itemsDraggable() {
+		var initial_time = 0;
+		var initial_date = '';
 	    $( ".calendar_view table:not(#time_html)" ).sortable({
 			appendTo: ".calendar_view table:not(#time_html)",
 			beforeStop: function(e, td) {
@@ -161,24 +163,30 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 				prev_td = null;
 				td.helper.removeClass('popped-field');
 				if($('.highlightCell').length > 0) {
-					target = $('.highlightCell').removeClass('highlightCell');
-					new_time = target.data('date') + ' ' + target.closest('tr').find('td').first().text();
-					new_date = target.data('date');
-					contact = target.data('contact');
-					calendar_type = target.data('calendartype');
-					equipassign = target.data('equipassign');
-					td_blocktype = target.data('blocktype');
-
 					td_items = [];
-					if(td.item.hasClass('combined_blocks')) {
+					if($('[name=multi_book][data-date='+initial_date+']:checked').length > 0) {
+						$('[name=multi_book][data-date='+initial_date+']:checked').each(function() {
+							td_items.push($(this).closest('.used-block'));
+						});
+					} else if(td.item.hasClass('combined_blocks')) {
 						td.item.find('.combined_block').each(function() {
 							td_items.push(this);
 						});
 					} else {
 						td_items.push(td.item);
 					}
+					target = $('.highlightCell').removeClass('highlightCell');
+					row_time = target.data('time');
+
 					td_items.forEach(function(td_item) {
 						td.item = $(td_item);
+						new_row_time = td.item.data('row') - initial_time + row_time;
+						new_time = target.data('date') + ' ' + $('.calendar_view tr[data-rowtype='+new_row_time+'] td').first().text();
+						new_date = target.data('date');
+						contact = target.data('contact');
+						calendar_type = target.data('calendartype');
+						equipassign = target.data('equipassign');
+						td_blocktype = target.data('blocktype');
 						old_date = td.item.closest('td').data('date');
 						old_contact = td.item.closest('td').data('contact');
 						timestamp = td.item.data('timestamp');
@@ -254,6 +262,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 							} else {
 								ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
 							}
+							$('[name=multi_book]').prop('checked', false);
 						} else {
 							// window.location.reload();
 							// reload_all_data();
@@ -265,6 +274,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			handle: ".drag-handle",
 			helper: "clone",
 			items: "div.used-block.sorting-initialize:visible",
+			revert: 1,
 			sort: function(e, block) {
 				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('td').not('.ui-sortable-helper').first();
 				$('.highlightCell').removeClass('highlightCell');
@@ -272,6 +282,8 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			},
 			start: function(e, td) {
 				var data_time = td.item.closest('td').data('time');
+				initial_date = td.item.closest('td').data('date');
+				initial_time = data_time;
 				$('table#time_html').find('td[data-time='+data_time+']').css('height',td.item.closest('td').css('height'));
 				if(td.item.prop('rowspan') > 1) {
 					prev_td = td.item.prev('td');
@@ -279,6 +291,19 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 					prev_td.after('<td rowspan="'+(td.item.prop('rowspan') - 1)+'" class="temp_td"></td>');
 				}
 				td.helper.addClass('popped-field');
+				if($('[name=multi_book][data-date='+initial_date+']:checked').length > 0) {
+					block_html = '';
+					var top_px = 10;
+					$('[name=multi_book][data-date='+initial_date+']:checked').each(function() {
+						used_block = $(this).closest('.used-block').clone();
+						used_block.css('position', 'relative');
+						block_html += used_block[0].outerHTML;
+						top_px += 10;
+					});
+					td.helper.html(td.helper[0].outerHTML + block_html);
+					td.helper.html('<div style="height: 100%;">'+td.helper.html()+'</div>');
+					console.log(td.helper.html());
+				}
 			},
 			deactivate: function(e, td) {
 				resize_calendar_view();

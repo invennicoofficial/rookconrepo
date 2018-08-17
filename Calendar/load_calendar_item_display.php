@@ -582,6 +582,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= implode('<div class="clearfix"></div>',$row_htmls);
 				$row_html .= "</span>";
 				$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div>";
+
 				$row_html .= "</div>";
 			} else if (!empty($calendar_col[$calendar_row][1])) {
 				$ticket = $calendar_col[$calendar_row][1];
@@ -707,7 +708,11 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket['scheduled_lock'] > 0) {
 					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";
 				} else {
-					$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div>";
+					$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'>";
+					if($drag_multiple == 1) {
+						$row_html .= "<br /><span style='position: relative; left: 4px;'><input type='checkbox' name='multi_book' data-date='".$calendar_date."' style='width: 1.5em; height: 1.5em;' title='Check me took book multiple ".TICKET_TILE."' class='no-slider'></span>";
+					}
+					$row_html .= "</div>";
 				}
 				$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 			}
