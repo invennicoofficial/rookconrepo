@@ -711,7 +711,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
                         $mileage_total += $mileage;
 
                         //Mileage Rate
-                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."'"))['clientid'];
+                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."' > 0"))['clientid'];
                         $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
                             SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
                         $mileage_rate_total += $mileage_rate;
@@ -805,7 +805,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	                        $mileage_total += $mileage;
 
 	                        //Mileage Rate
-	                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$result[$i]['ticketid']."' AND '".$result[$i]['ticketid']."'"))['clientid'];
+	                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$result[$i]['ticketid']."' AND '".$result[$i]['ticketid']."' > 0"))['clientid'];
 	                        $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
 	                            SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
 	                        $mileage_rate_total += $mileage_rate;
