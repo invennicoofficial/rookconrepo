@@ -17,88 +17,7 @@ if (isset($_POST['save_btn'])) {
 		mkdir('download', 0777, true);
 	}
     include('add_update_invoice.php');
-
-	//$serviceid = implode(',', $_POST['serviceid']).',';
-	//$fee = implode(',', $_POST['fee']).',';
-    //
-	//$inventoryid = implode(',', $_POST['inventoryid']).',';
-	//$sell_price = implode(',', $_POST['sell_price']).',';
-    //$invtype = implode(',', $_POST['invtype']).',';
-    //$quantity = implode(',', $_POST['quantity']).',';
-    //
-    //$insurerid = implode(',', $_POST['insurerid']);
-    //$insurer_price = implode(',', $_POST['insurance_payment']);
-    //$insurance_payment = $insurerid.'#*#'.$insurer_price;
-    //
-    //$type = implode(',', $_POST['payment_type']);
-    //$payment_price = implode(',', $_POST['payment_price']);
-    //$payment_type = $type.'#*#'.$payment_price;
-    //
-    //$payment_type = !empty($payment_type) ? "$payment_type" : "NULL";
-    //$promotionid = $_POST['promotionid'];
-	//$total_price = $_POST['total_price'];
-    //$final_price = $_POST['final_price'];
-    //$gratuity = $_POST['gratuity'];
-    //$paid = $_POST['paid'];
-    //$today_date = date('Y-m-d');
-    //
-    //$all_af = '';
-    //foreach($_POST['serviceid'] as $sid) {
-    //    $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.admin_fee FROM services s, service_rate_card r WHERE s.serviceid='$key' AND s.serviceid = r.serviceid AND '$today_date' BETWEEN r.start_date AND r.end_date"));
-    //    $all_af .= $result['admin_fee'].',';
-    //}
-    //
-    //$treatment_plan = $_POST['treatment_plan'];
-    //
-    //if(empty($_POST['invoiceid'])) {
-    //    $patientid = $_POST['patientid'];
-    //    $therapistsid = $_POST['therapistsid'];
-    //    $injuryid = $_POST['injuryid'];
-    //    $mva_claim_price = get_all_from_injury($dbc, $injuryid, 'mva_claim_price');
-    //
-    //    $query_insert_invoice = "INSERT INTO `invoice` (`invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `inventoryid`, `sell_price`, `invtype`, `quantity`,`insurerid`, `insurance_payment`, `payment_type`, `total_price`, `gratuity`, `final_price`, `service_date`, `invoice_date`, `paid`,`promotionid`) VALUES ('$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$insurerid', '$insurance_payment', '$payment_type', '$total_price', '$gratuity', '$final_price', '$today_date', '$today_date', '$paid', '$promotionid')";
-    //    $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
-    //    $invoiceid = mysqli_insert_id($dbc);
-    //} else {
-    //    $invoiceid = $_POST['invoiceid'];
-    //    $injuryid =  get_all_from_invoice($dbc, $invoiceid, 'injuryid');
-    //    $query_update_invoice = "UPDATE `invoice` SET `invoice_type`='$invoice_mode', `serviceid` = '$serviceid', `fee` = '$fee', `admin_fee` = '$all_af', `inventoryid` = '$inventoryid', `sell_price` = '$sell_price', `invtype` = '$invtype', `quantity` = '$quantity', `total_price` = '$total_price', `gratuity` = '$gratuity', `final_price` = '$final_price', `insurerid` = '$insurerid', `insurance_payment` = '$insurance_payment', `payment_type` = '$payment_type', `paid` = '$paid', `promotionid` = '$promotionid' WHERE `invoiceid` = '$invoiceid'";
-    //    $result_update_invoice = mysqli_query($dbc, $query_update_invoice);
-    //}
-
-    //if($treatment_plan != '') {
-    //    $query_update_invoice = "UPDATE `patient_injury` SET `treatment_plan` = '$treatment_plan' WHERE `injuryid` = '$injuryid'";
-    //    $result_update_invoice = mysqli_query($dbc, $query_update_invoice);
-    //}
-
-    //if($_POST['next_appointment'] == 'Yes') {
-    //    $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
-    //    $patientid = $get_invoice['patientid'];
-    //    $therapistsid = $get_invoice['therapistsid'];
-    //    $injuryid = $get_invoice['injuryid'];
-    //
-    //    $patients = get_contact($dbc, $patientid);
-    //    $staff = get_contact($dbc, $therapistsid);
-    //
-    //    include('invoice_booking.php');
-    //}
-
-    /*
-    $result_delete_client = mysqli_query($dbc, "DELETE FROM `invoice_insurer` WHERE `invoiceid` = '$invoiceid'");
-
-    for($i = 0; $i < count($_POST['insurerid']); $i++) {
-        $insurer_price = $_POST['insurance_payment'][$i];
-        $insurerid = $_POST['insurerid'][$i];
-        if($insurerid != '') {
-            $query_insert_vendor = "INSERT INTO `invoice_insurer` (`invoiceid`, `invoice_date`, `insurerid`, `insurer_price`, `paid`) VALUES ('$invoiceid', '$today_date', '$insurerid', '$insurer_price', '$paid')";
-            $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
-        }
-    }
-    */
-
     echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
-
-    //mysqli_close($dbc); //Close the DB Connection
 }
 
 if (isset($_POST['submit_btn'])) {
@@ -117,37 +36,10 @@ if (isset($_POST['submit_btn'])) {
         $final_service_date = $today_date;
     }
 
-    /*
-    $payment_type = '';
-    for($i=0; $i<count($_POST['payment_type']); $i++) {
-        $fee = $_POST['payment_price'][$i];
-        $payment_type = $_POST['payment_type'][$i];
-        $payment_price = $_POST['payment_price'][$i];
-        if($payment_type == 'Patient Account') {
-            $query_update_patient = "UPDATE `patients` SET `account_balance` = account_balance - '$payment_price' WHERE `contactid` = '$patientid'";
-            $result_update_patient = mysqli_query($dbc, $query_update_patient);
-        }
-
-    }
-    */
-
     $ins_pay = 0;
     for($i=0; $i<count($_POST['insurerid']); $i++) {
         $ins_pay += $_POST['insurance_payment'][$i];
     }
-
-    //$promotionid = $_POST['promotionid'];
-    //if($promotionid != '') {
-	//	$query_update_patient = "UPDATE `crm_promotion` SET used = 1 WHERE `promotionid` = '$promotionid'";
-	//	$result_update_patient = mysqli_query($dbc, $query_update_patient);
-    //}
-
-    /*
-    if($paid == 'No') {
-        $query_update_patient = "UPDATE `patients` SET `account_balance` = account_balance - '$final_price' WHERE `contactid` = '$patientid'";
-        $result_update_patient = mysqli_query($dbc, $query_update_patient);
-    }
-    */
 
     $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
     $patientid = $get_invoice['patientid'];
@@ -162,8 +54,6 @@ if (isset($_POST['submit_btn'])) {
     if($_POST['next_appointment'] == 'Yes') {
         include('invoice_booking.php');
     }
-
-    //include('invoice_report.php');
 
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
@@ -916,13 +806,14 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 }
 
 				//Calculate Column Widths
-				$col1 = 2;
+				$col1 = 1;
 				$col2 = 2;
 				$col3 = 2;
 				$col4 = 1;
 				$col5 = 1;
 				$col6 = 2;
 				$col7 = 2;
+				$col8 = 1;
 				if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
 					$col1 = $col2 = $col3 = $col4 = 2;
 				} else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
@@ -1133,6 +1024,24 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							<input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
 							<input name="inventory_gst_exempt[]" type="hidden" value="0" />
 						</div>
+                        <div class="col-sm-<?= $col8 ?> col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
+                            <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="30" class="cursor-hand" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
+                            <div class="pricing-div" style="display:none;">
+                                <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">
+                                    <option></option>
+                                    <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
+                                    <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
+                                    <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
+                                    <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
+                                    <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
+                                    <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
+                                    <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
+                                    <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
+                                    <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
+                                    <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
+                                </select>
+                            </div>
+                        </div>
 						<div class="col-sm-1">
 							<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_product_row();">
 							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_product_row(this);">
@@ -2160,6 +2069,15 @@ $(document).on('change', 'select[name="pricing"]', function() {
 });
 $(document).on('change', '[name="unit_price[]"]', function() {
     adminPrice(this);
+});
+$(document).on('change', 'select[name="linepricing[]"]', function() {
+    var rowid = this.id.split('_')[1];
+    if ($('#linepricing_'+rowid+' option:selected').val()=='admin_price') {
+        $('#unitprice_'+rowid).attr('readonly', false);
+    } else {
+        $('#unitprice_'+rowid).attr('readonly', true);
+    }
+    updatePricing();
 });
 $(document).on('change', 'select[name="paid"]', function() { pay_mode_selected(this.value); });
 $(document).on('change', 'select.service_category_onchange', function() { changeCategory(this); });

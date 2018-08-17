@@ -236,7 +236,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 
 	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
 	while($row = mysqli_fetch_array( $result )) {
-		$misc_product = $row['misc_product'];
+		$misc_product = $row['description'];
 		$price = $row['unit_price'];
 		$qty = $row['quantity'];
 		$returned = $row['returned_qty'];
@@ -250,7 +250,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				$html .= '<td>'.$returned.'</td>';
 			}
 			$html .=  '<td>$'.$price.'</td>';
-			$html .=  '<td style="text-align:right; background-color:rgb(232,238,238);">$'.$price * ($qty - $returned).'</td>';
+			$html .=  '<td style="text-align:right; background-color:rgb(232,238,238);">$'.number_format(($price * ($qty - $returned)), 2).'</td>';
 			$html .= '</tr>';
 		}
 	}

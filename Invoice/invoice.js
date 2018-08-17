@@ -616,7 +616,12 @@ function changeProduct(sel) {
 	var arr = proId.split('_');
 	var inventoryid = $("#inventoryid_"+arr[1]).val();
 	var invtype = $("#invtype_"+arr[1]).val();
-	var pricing = $('[name=pricing]').val();
+    var linepricing = $('#linepricing_'+arr[1]).val();
+    if (linepricing == '' || linepricing == null) {
+        var pricing = $('[name=pricing]').val();
+    } else {
+        var pricing = linepricing;
+    }
 
 	if(invtype == 'WCB') {
 		invtype = 'wcb_price';
@@ -1141,10 +1146,12 @@ function add_product_row() {
 	clone.find('.quantity').attr('id', 'quantity_'+inc_pro).val(1);
 	clone.find('.adjust').attr('id', 'adjust_'+inc_pro);
 	clone.find('.sellprice').attr('id', 'sellprice_'+inc_pro);
+	clone.find('.linepricing').attr('id', 'linepricing_'+inc_pro);
 	resetChosen(clone.find("[id^=inventoryid]"));
 	resetChosen(clone.find("[id^=inventorycat]"));
 	resetChosen(clone.find("[id^=inventorypart]"));
 	resetChosen(clone.find("[id^=invtype]"));
+	resetChosen(clone.find("[id^=linepricing]"));
 	var max_row = get_max_insurer_row();
 	clone.find('.insurer_row_id').val(max_row);
 	clone.find('[name="insurer_row_applied[]"]').val(max_row);
