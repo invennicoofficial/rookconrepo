@@ -793,9 +793,6 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 		                    $start_times[] = !empty($result[$i]['start_time']) ? date('h:i a', strtotime($result[$i]['start_time'])) : '';
 		                    $end_times[] = !empty($result[$i]['end_times']) ? date('h:i a', strtotime($result[$i]['end_times'])) : '';
                     		$ticketids[] = $result[$i]['ticketid'];
-		                    $planned_hrs[] = get_ticket_planned_hrs($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
-					        $tracked_hrs[] = get_ticket_tracked_hrs($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
-					        $total_tracked_time[] = get_ticket_total_tracked_time($dbc, $date, $search_staff, $layout, $result[$i]['time_cards_id']);
                     		$multidays = true;
 
 	                        //Mileage
