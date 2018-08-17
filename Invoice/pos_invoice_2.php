@@ -48,10 +48,16 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'pos_logo');
 $invoice_footer = get_config($dbc, 'invoice_footer');
 
-DEFINE('POS_LOGO', $pos_logo);
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('POS_LOGO', $logo);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $get_invoice['invoice_date']);
 DEFINE('INVOICEID', $invoiceid);
