@@ -1631,4 +1631,49 @@ if($ticket_summary == 1) {
 	}
 }
 
+if(!isset($equipment)) {
+	$calendar_table[$calendar_date][$contact_id]['shifts'] = '';
+	if($_GET['block_type'] == 'team') {
+		$team =	mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '$contact_id'"));
+
+		$contact_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$contact_id' AND `deleted` = 0"),MYSQLI_ASSOC);
+		$contacts_arr = [];
+		foreach ($contact_list as $contact) {
+			$shifts = checkShiftIntervals($dbc, $contact['contactid'], $day_of_week, $calendar_date, 'shifts');
+			$daysoff = checkShiftIntervals($dbc, $contact['contactid'], $day_of_week, $calendar_date, 'daysoff');
+			$shifts_arr = [];
+			if(!empty($daysoff)) {
+				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
+				foreach($daysoff as $dayoff) {
+					$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+				}
+			} else if(!empty($shifts)) {
+				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
+				foreach($shifts as $shift) {
+					$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+				}
+			}
+			$contacts_arr[] = implode('<br />', $shifts_arr);
+		}
+		$calendar_table[$calendar_date][$contact_id]['shifts'] = implode('<br />', array_filter($contacts_arr));
+	} else {
+		$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'shifts');
+		$daysoff = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'daysoff');
+		$shifts_arr = [];
+		if(!empty($daysoff)) {
+			foreach($daysoff as $dayoff) {
+				$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+			}
+		} else if(!empty($shifts)) {
+			foreach($shifts as $shift) {
+				$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+			}
+		}
+		$calendar_table[$calendar_date][$contact_id]['shifts'] = implode('<br />', $shifts_arr);
+		$calendar_table[$calendar_date][$contact_id]['shifts'] .= 'asdf<br>asdf<br>asdf<br>asdf<br>asdf<br>asdfasdf<br>asdf<br>asdf<br>asdf<br>asdf<br><br>';
+	}
+} else {
+	$calendar_table[$calendar_date][$equipment['equipmentid']]['shifts'] = '';
+}
+
 include('../Calendar/load_calendar_item_display.php');
