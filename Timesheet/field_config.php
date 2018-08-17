@@ -217,6 +217,7 @@ if($_GET['tab'] == 'approvals') {
 	<div class="panel-group" id="accordion2">
 	<?php
 	$k=0;
+	$layout = get_config($dbc, 'timesheet_layout');
 	foreach($config['settings'] as $settings => $value) {
 		if(isset($value['config_field'])) {
 			if($value['config_field'] == 'time_cards_total_hrs_layout') {
