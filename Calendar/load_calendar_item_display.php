@@ -86,6 +86,11 @@ if(!empty($equipassign_region)) {
 $column['title'] .= ($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;')."padding:0;".$highlight_today.$background_highlight_today."' data-color='".$bg_color."'><div class='resizer' style='min-width:100%; max-width:100%; padding:0.5em;'>";
 $column['title'] .= ($current_day == 0 ? $calendar_col['title'] : ($_GET['view'] == 'daily' ? $calendar_col['title'] : date('l, F d', strtotime($current_day)).'<br>'.$calendar_col['title']))."</div></th>";
 
+//Shifts
+$column['shifts'] = '';
+$column['shifts'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['shifts'].'</div>';
+$column['shifts'] .= '<a class="expand-div-link" href="" onclick="expandDiv(this); return false;"><div style="font-size: 1.5em; text-align: center;">...</div></a>';
+
 //Notes
 $column['notes'] = '';
 $column['notes'] .= "<td ".($today_date == $current_day ? 'class="today-active"' : '' )." data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' data-blocktype='".$_GET['block_type']."' data-region-group='".$region_group."' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$highlight_today."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col['notes'].'</div>';
