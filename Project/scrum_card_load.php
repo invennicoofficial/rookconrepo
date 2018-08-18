@@ -259,8 +259,8 @@ if($type == 'Ticket') {
     }
 	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
-	$doc_folder = "../Tasks/download/";
-	$actions = '<img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
+	$doc_folder = "../Tasks_Updated/download/";
+	$actions = '<img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
 		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
 		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
 		(!in_array('sync',$quick_actions) || substr($_GET['tab'],0,18) == 'path_external_path' ? '' : '<img src="'.WEBSITE_URL.'/img/icons/ROOK-sync-icon.png" data-assigned="'.$item['assign_client'].'" class="inline-img assign-icon" title="Assign to External Path">').
@@ -273,7 +273,7 @@ if($type == 'Ticket') {
 		(in_array('timer',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Track Time">' : '').
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
 	$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$status_complete.'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
-		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].'</a>: '.html_entity_decode($item['heading']).'</div>
+		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].'</a>: '.html_entity_decode($item['heading']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 	$contents = '<div class="action_notifications">';
 	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != '' ORDER BY `taskcommid` DESC");
@@ -283,7 +283,7 @@ if($type == 'Ticket') {
         $comment = explode(':',$item_comment['comment']);
 		if($comment[0] == 'document' && $comment[1] > 0 && count($comment) == 2) {
 			$document = $dbc->query("SELECT * FROM `task_document` WHERE `taskdocid`='".$comment[1]."'")->fetch_assoc();
-			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks/download/'.$document['document'].'">'.$document['document'].'</a>';
+			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks_Updated/download/'.$document['document'].'">'.$document['document'].'</a>';
 			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small><span class="clearfix"></span></div>';
 		} else {
 			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));

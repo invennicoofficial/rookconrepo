@@ -353,7 +353,7 @@ function setActions() {
 	$('.info-block-header [name=sort').off('change').change(function() {
 		$.post('projects_ajax.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), field: 'sort', value: this.value });
 	});
-    
+
     /* Timer */
     $('.start-timer-btn').on('click', function() {
         $(this).closest('div').find('.timer').timer({
@@ -375,12 +375,12 @@ function setActions() {
         if ( timer_value != '' ) {
             $.ajax({
                 type: "GET",
-                url: "../Tasks/task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
+                url: "../Tasks_Updated/task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
                 dataType: "html",
                 success: function(response) {
                     $.ajax({
                         method: 'POST',
-                        url: '../Tasks/task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
                         success: function(result) {
                         }
@@ -400,12 +400,12 @@ function setActions() {
             });
         }
     });
-    
+
     $('[name="status"]').change(function() {
         var item = $(this).closest('.dashboard-item');
         item.find('h4 div, .action_notifications p span').toggleClass('strikethrough');
     });
-    
+
 	initDragging();
 }
 function checklistChange(input) {
@@ -780,7 +780,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		// What action will happen when adding to a milestone?
 		$add_action = '';
 		if((in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) && !in_array('Tickets',$tab_config) && !in_array('Work Orders',$tab_config)) {
-			$add_action = "overlayIFrameSlider('../Tasks/add_task.php?projectid=".$projectid."&project_milestone=MILESTONE','75%',true);";
+			$add_action = "overlayIFrameSlider('../Tasks_Updated/add_task.php?projectid=".$projectid."&project_milestone=MILESTONE','75%',true);";
 		} else if(in_array('Work Orders',$tab_config) && !in_array('Tickets',$tab_config) && !in_array('Checklists',$tab_config) && !in_array('Tasks',$tab_config)) {
 			$add_action = "window.location.href='../Work Order/add_workorder.php?projectid=".$projectid."&milestone_timeline=".urlencode($milestone)."&from=".urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI'])."';";
 		} else if(!in_array('Work Orders',$tab_config) && in_array('Tickets',$tab_config) && !in_array('Checklists',$tab_config) && !in_array('Tasks',$tab_config)) {
@@ -836,7 +836,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 								<?php if($tab_id != 'path' && $_GET['tab'] != 'path_external_path') { ?>
 									<?php if(in_array('Intake',$tab_config)) { ?><a target="_parent" href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone ?>" class="btn brand-btn pull-right">New Intake</a><?php } ?>
 									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto'); return false;" class="btn brand-btn pull-right">New <?= TICKET_NOUN ?></a><?php } ?>
-									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><a target="_parent" href="../Tasks/add_task.php?projectid=<?= $projectid ?>&contactid=<?= $_SESSION['contactid'] ?>&project_milestone=<?= urlencode($milestone) ?>" onclick="overlayIFrameSlider(this.href,'75%',true); return false;" class="btn brand-btn pull-right">New Task</a><?php } ?>
+									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><a target="_parent" href="../Tasks_Updated/add_task.php?projectid=<?= $projectid ?>&contactid=<?= $_SESSION['contactid'] ?>&project_milestone=<?= urlencode($milestone) ?>" onclick="overlayIFrameSlider(this.href,'75%',true); return false;" class="btn brand-btn pull-right">New Task</a><?php } ?>
 									<?php if(in_array('Checklists In Path',$tab_config)) { ?><a target="_parent" href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&projectid=<?= $projectid ?>&project_milestone=<?= urlencode($milestone) ?>'); return false;" class="btn brand-btn pull-right">New Checklist</a><?php } ?>
 									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><?php } ?>
 								<?php } ?>

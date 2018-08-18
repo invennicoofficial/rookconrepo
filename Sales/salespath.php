@@ -18,7 +18,7 @@ function changeEndAme(sel) {
 	$(this).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
-	
+
 	var tasklistid = typeId.split(' ');
 
 	var status = tasklistid[1];
@@ -31,7 +31,7 @@ function changeEndAme(sel) {
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "../Tasks/task_ajax_all.php?fill=add_task&sales_milestone="+$(sel).data('milestone')+"&heading="+stage+"&salesid=<?=$_GET['id']?>",
+		url: "../Tasks_Updated/task_ajax_all.php?fill=add_task&sales_milestone="+$(sel).data('milestone')+"&heading="+stage+"&salesid=<?=$_GET['id']?>",
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			location.reload();
@@ -150,7 +150,7 @@ function task_sync_task(task) {
 	item.find('.assign_milestone').show().find('select').off('change').change(function() {
 		item.find('.assign_milestone').hide();
 		$.ajax({
-			url: '../Tasks/task_ajax_all.php?fill=taskexternal',
+			url: '../Tasks_Updated/task_ajax_all.php?fill=taskexternal',
 			method: 'POST',
 			data: {
 				field: 'external',
@@ -207,7 +207,7 @@ function task_send_reminder(task) {
 			choose_user('reminder', type, task_id, date);
 		}
 	});
-    
+
 }
 
 function task_send_reply(task) {
@@ -218,7 +218,7 @@ function task_send_reply(task) {
 		task_id = task_id.substring(5);
 	}
     overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
-    
+
     /* Function before notes slider
     task_id = $(task).parents('span').data('task');
 	var type = 'task';
@@ -261,13 +261,13 @@ function task_quick_add_time(task) {
 		if(time != '' && time != '00:00') {
 			$.ajax({
 				method: 'POST',
-				url: '../Tasks/task_ajax_all.php?fill=task_quick_time',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=task_quick_time',
 				data: { id: task_id, time: time+':00' },
 				complete: function(result) { console.log(result.responseText); window.location.reload(); }
 			});
             $.ajax({
 				method: 'POST',
-				url: '../Tasks/task_ajax_all.php?fill=taskreply',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
 				data: { taskid: task_id, reply: 'Time added '+time+':00' },
 				complete: function(result) { console.log(result.responseText); window.location.reload(); }
 			});
@@ -296,7 +296,7 @@ function task_attach_file(task) {
 			contentType: false,
 			processData: false,
 			type: "POST",
-			url: "../Tasks/task_ajax_all.php?fill=task_upload&type="+type+"&id="+task_id,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=task_upload&type="+type+"&id="+task_id,
 			data: fileData,
 			complete: function(result) {
 				console.log(result.responseText);
@@ -325,7 +325,7 @@ function task_manual_flag_item(task) {
 	});
 	item.find('[name=flag_it]').off('click').click(function() {
 		$.ajax({
-			url: '../Tasks/task_ajax_all.php?fill=taskflagmanual',
+			url: '../Tasks_Updated/task_ajax_all.php?fill=taskflagmanual',
 			method: 'POST',
 			data: {
 				value: item.find('[name=colour]').val(),
@@ -352,7 +352,7 @@ function task_flag_item(task) {
 	}
 	$.ajax({
 		method: "POST",
-		url: "../Tasks/task_ajax_all.php?fill=taskflag",
+		url: "../Tasks_Updated/task_ajax_all.php?fill=taskflag",
 		data: { type: type, id: task_id },
 		complete: function(result) {
 			console.log(result.responseText);
@@ -375,7 +375,7 @@ function task_archive(task) {
 	if(type == 'task' && confirm("Are you sure you want to archive this task?")) {
 		$.ajax({
 			type: "GET",
-			url: "../Tasks/task_ajax_all.php?fill=delete_task&taskid="+task_id,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=delete_task&taskid="+task_id,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				window.location.reload();
@@ -386,11 +386,11 @@ function task_archive(task) {
 	else if(confirm("Are you sure you want to archive this task board?")) {
 		$.ajax({
 			type: "GET",
-			url: "../Tasks/task_ajax_all.php?fill=delete_board&boardid="+task_id,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=delete_board&boardid="+task_id,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				var tab='<?=$_GET['tab']?>';
-				window.location = "<?= WEBSITE_URL; ?>/Tasks/index.php?category=My&tab=My";
+				window.location = "<?= WEBSITE_URL; ?>/Tasks_Updated/index.php?category=My&tab=My";
 			}
 		});
 	}
@@ -404,10 +404,10 @@ function task_mark_done(sel) {
     } else {
         status = '<?= $status_incomplete ?>';
     }
-    
+
     $.ajax({
         type: "GET",
-        url: "../Tasks/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
         dataType: "html",
         success: function(response){
             console.log(response);
@@ -648,7 +648,7 @@ function checklist_attach_file(checklist) {
 	$('[name='+file_id+']').click();
 }
 </script>
-	<?php 
+	<?php
 	$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0"));
 	?>
 	<div class="dialog_addintake" title="Select an Intake Form" style="display: none;">
@@ -697,7 +697,7 @@ function checklist_attach_file(checklist) {
 						$form_count = mysqli_num_rows($form_result) ?: 0;
 						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
 						$checklist_count = mysqli_num_rows($checklist_result) ?: 0;
-						
+
 						$status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
 
 						echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.($milestoneid > 0 ? 'full-width' : '').' '.$status.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
@@ -736,7 +736,7 @@ function checklist_attach_file(checklist) {
 
 							$businessid = $url_tab=='Business' ? $row['businessid'] : '';
 							$clientid = $url_tab=='Client' ? $row['clientid'] : '';
-							
+
 							$past = 0;
 
 							$date = new DateTime($row['task_tododate']);
@@ -749,7 +749,7 @@ function checklist_attach_file(checklist) {
 							echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
 								$mobile_url_tab = trim($_GET['tab']);
 								if (in_array('edit', $quick_actions)) { ?>
-									<span title="Edit Task" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" class="inline-img" onclick="return false;"></span><?php
+									<span title="Edit Task" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" class="inline-img" onclick="return false;"></span><?php
 								}
 								echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="task_manual_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
 								echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="task_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
@@ -799,9 +799,9 @@ function checklist_attach_file(checklist) {
 							<?php }
 							echo '</select></div><div class="clearfix"></div>'; ?>
 							<div class="row">
-								
+
 								<h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-									<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+									<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
 							<?php
 							echo '<span class="pull-right small">';
 							if ( $row['company_staff_sharing'] ) {
@@ -812,7 +812,7 @@ function checklist_attach_file(checklist) {
 								profile_id($dbc, $row['contactid']);
 							}
 							echo '</span></h4></span></div>';
-							
+
 							echo '<div class="clearfix"></div>';
 							$documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
 							if ( $documents->num_rows > 0 ) { ?>
@@ -822,7 +822,7 @@ function checklist_attach_file(checklist) {
 											<div class="note_block row">
 												<div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
 												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
-													<div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
+													<div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
 													<div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
 												</div>
 												<div class="clearfix"></div>
@@ -868,7 +868,7 @@ function checklist_attach_file(checklist) {
 
 							$businessid = $url_tab=='Business' ? $row['businessid'] : '';
 							$clientid = $url_tab=='Client' ? $row['clientid'] : '';
-							
+
 							$past = 0;
 
 							$date = new DateTime($row['to_do_date']);
@@ -899,9 +899,9 @@ function checklist_attach_file(checklist) {
 							<?php }
 							echo '</select></div><div class="clearfix"></div>'; ?>
 							<div class="row">
-								
+
 								<h4><input type="checkbox" name="status" value="<?= $row['ticketid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-									<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+									<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
 							<?php echo '</span></h4></span></div>';
 							echo '</li>';
 						}
@@ -1040,7 +1040,7 @@ function checklist_attach_file(checklist) {
 							echo '</li>';
 							}
 						} ?>
-						
+
 							<li class="no-sort">
 								<?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?>
 									<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&salesid=<?= $_GET['id'] ?>&sales_milestone=<?= $status ?>'); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Checklist</a>
@@ -1048,7 +1048,7 @@ function checklist_attach_file(checklist) {
 								<?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?>
 									<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
 								<?php } ?>
-								<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=sales&sales_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&salesid=<?=$_GET['id']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php
+								<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=sales&sales_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&salesid=<?=$_GET['id']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php
 
 						echo '</ul>';
 						$i++;
