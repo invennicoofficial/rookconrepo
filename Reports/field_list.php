@@ -180,6 +180,7 @@ $history_reports = [
 	'History Rate Card History'=>['reports_ratecard_history.php','Rate Card History','History Rate Card History','history_ratecard_history'],
 	'History Purchase Order History'=>['reports_po_history.php','Purchase Order History','History Purchase Order History','history_po_history'],
 	'History Intake History'=>['reports_intake_history.php','Intake History','History Intake History','history_intake_history'],
+	'History Services History'=>['reports_services_history.php','Services History','History Services History','history_services_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
