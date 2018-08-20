@@ -4,6 +4,7 @@
 .no-overflow-y { overflow-y:hidden !important; }
 .no-overflow-x { overflow-x:hidden !important; }
     .no-overflow-x img { height:auto; max-width:100% !important; }
+.no-overflow { overflow:hidden; }
 .set-relative { position:relative; }
 .set-favourite { position:absolute; top:5px; right:5px; }
 .flex-columns {

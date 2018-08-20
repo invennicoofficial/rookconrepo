@@ -91,7 +91,7 @@
 	</ul>
 </div>
 
-<div class="scale-to-fill has-main-screen hide-titles-mob">
+<div class="scale-to-fill has-main-screen hide-titles-mob no-overflow">
 	<div class="main-screen standard-body form-horizontal">
 		<div class="standard-body-title">
 			<h3><?= $tab_title ?></h3>
