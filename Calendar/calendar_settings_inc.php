@@ -386,6 +386,7 @@ switch($_GET['type']) {
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
         $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
+        $drag_multiple = get_config($dbc, 'scheduling_drag_multiple');
         $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
         $is_customer = false;
         foreach(array_filter(explode(',',ROLE)) as $session_role) {
@@ -441,7 +442,8 @@ switch($_GET['type']) {
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
-        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';
