@@ -8,7 +8,10 @@ include ('../include.php');
 // Form submission from details.php
 if (isset($_POST['add_sales'])) {
     echo '<script type="text/javascript"> window.location.replace("index.php");</script>';
-} ?>
+}
+
+$salesid   = preg_replace('/[^0-9]/', '', $_GET['id']);
+$lead = $dbc->query("SELECT `businessid`, `contactid`, `lead_created_by`,`created_date` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
 
 <script src="edit.js"></script>
 <script type="text/javascript">
@@ -42,7 +45,7 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='salespath' ) {
             echo 'window.location.replace("?p=salespath&id='.$_GET['id'].'");';
         } ?>
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
 
@@ -50,16 +53,36 @@ $(document).ready(function() {
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=staffinfo");';
         } ?>
-        $('#nav_salespath, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
         $(this).addClass('active');
     });
+
+    $('#nav_business').click(function() {<?php
+        if ( isset($_GET['p']) && $_GET['p']!='details' ) {
+            echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=business");';
+        } ?>
+        $(this).addClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+    });
+    
+    <?php foreach(explode(',',$lead['contactid']) as $contactid) {
+        if($contactid > 0) { ?>
+            $('#nav_leadinfo').click(function() {<?php
+                if ( isset($_GET['p']) && $_GET['p']!='details' ) {
+                    echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
+                } ?>
+                $('[id^=nav_]').removeClass('active');
+                $(this).addClass('active');
+            });
+        <?php }
+    } ?>
 
     $('#nav_leadinfo').click(function() {<?php
         if ( isset($_GET['p']) && $_GET['p']!='details' ) {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_services').click(function() {<?php
@@ -67,7 +90,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=services");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_products').click(function() {<?php
@@ -75,15 +98,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=products");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
-    });
-
-    $('#nav_leadsource').click(function() {<?php
-        if ( isset($_GET['p']) && $_GET['p']!='details' ) {
-            echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadsource");';
-        } ?>
-        $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_refdocs').click(function() {<?php
@@ -91,7 +106,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=refdocs");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_marketing').click(function() {<?php
@@ -99,7 +114,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=marketing");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_infogathering').click(function() {<?php
@@ -107,7 +122,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=infogathering");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_estimate').click(function() {<?php
@@ -115,7 +130,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=estimate");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_quote').click(function() {<?php
@@ -123,7 +138,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=quote");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_nextaction').click(function() {<?php
@@ -131,15 +146,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=nextaction");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
-    });
-
-    $('#nav_leadstatus').click(function() {<?php
-        if ( isset($_GET['p']) && $_GET['p']!='details' ) {
-            echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadstatus");';
-        } ?>
-        $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_leadnotes').click(function() {<?php
@@ -147,7 +154,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadnotes");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_tasks, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_tasks').click(function() {<?php
@@ -155,7 +162,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=tasks");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_time, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_time, #nav_history').removeClass('active');
     });
 
     $('#nav_time').click(function() {<?php
@@ -163,7 +170,7 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=time");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_history').removeClass('active');
     });
 
     $('#nav_history').click(function() {<?php
@@ -171,22 +178,22 @@ $(document).ready(function() {
             echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=history");';
         } ?>
         $(this).addClass('active');
-        $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_leadsource, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadstatus, #nav_leadnotes, #nav_tasks, #nav_time').removeClass('active');
+        $('#nav_salespath, #nav_staffinfo, #nav_business, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time').removeClass('active');
     });
 
     <?php
         if ( $_GET['p'] == 'details' && (!isset($_GET['a']) || $_GET['a']=='staffinfo') ) { echo "$('#nav_staffinfo').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='leadinfo' ) { echo "$('#nav_leadinfo').trigger('click');"; }
+        if ( isset($_GET['a']) && strpos($_GET['a'],'contact') !== FALSE ) { echo "$('#nav_".$_GET['a']."').trigger('click');"; }
+        if ( isset($_GET['a']) && $_GET['a']=='business' ) { echo "$('#nav_business').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='services' ) { echo "$('#nav_services').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='products' ) { echo "$('#nav_products').trigger('click');"; }
-        if ( isset($_GET['a']) && $_GET['a']=='leadsource' ) { echo "$('#nav_leadsource').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='refdocs' ) { echo "$('#nav_refdocs').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='marketing' ) { echo "$('#nav_marketing').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='infogathering' ) { echo "$('#nav_infogathering').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='estimate' ) { echo "$('#nav_estimate').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='quote' ) { echo "$('#nav_quote').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='nextaction' ) { echo "$('#nav_nextaction').trigger('click');"; }
-        if ( isset($_GET['a']) && $_GET['a']=='leadstatus' ) { echo "$('#nav_leadstatus').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='leadnotes' ) { echo "$('#nav_leadnotes').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='tasks' ) { echo "$('#nav_tasks').trigger('click');"; }
         if ( isset($_GET['a']) && $_GET['a']=='time' ) { echo "$('#nav_time').trigger('click');"; }
@@ -228,8 +235,7 @@ $(document).ready(function() {
                 include('tile_header.php');
             }
 
-            $page      = preg_replace('/\PL/u', '', $_GET['p']);
-            $salesid   = preg_replace('/[^0-9]/', '', $_GET['id']); ?>
+            $page      = preg_replace('/\PL/u', '', $_GET['p']); ?>
 
             <!--<div class="tile-bar">
                 <ul>
@@ -250,17 +256,25 @@ $(document).ready(function() {
                         if (strpos($value_config, ',Staff Information,') !== false) { ?>
                             <a href="#staffinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_staff_information" id="nav_staffinfo">Staff Information</li></a><?php
                         }
+                        if (strpos($value_config, ',Next Action,') !== false) { ?>
+                            <a href="#nextaction"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_next_action" id="nav_nextaction">Next Action</li></a><?php
+                        }
                         if (strpos($value_config, ',Lead Information,') !== false) { ?>
                             <a href="#leadinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_information" id="nav_leadinfo">Lead Information</li></a><?php
+                            foreach(explode(',',$lead['contactid']) as $contactid) {
+                                if($contactid > 0) { ?>
+                                    <a href="#contact_<?= $contactid ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contact_<?= $contactid ?>" id="nav_contact_<?= $contactid ?>"><?= get_contact($dbc, $contactid) ?></li></a>
+                                <?php }
+                            }
+                            if($lead['businessid'] > 0) { ?>
+                                <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a>
+                            <?php }
                         }
                         if (strpos($value_config, ',Service,') !== false) { ?>
                             <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a><?php
                         }
                         if (strpos($value_config, ',Products,') !== false) { ?>
                             <a href="#products"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_products" id="nav_products">Products</li></a><?php
-                        }
-                        if (strpos($value_config, ',Lead Source,') !== false) { ?>
-                            <a href="#leadsource"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_source" id="nav_leadsource">Lead Source</li></a><?php
                         }
                         if (strpos($value_config, ',Reference Documents,') !== false) { ?>
                             <a href="#refdocs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_refdocs">Reference Documents</li></a><?php
@@ -274,12 +288,6 @@ $(document).ready(function() {
                         if (strpos($value_config, ',Estimate,') !== false) { ?>
                             <a href="#estimate"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_estimate" id="nav_estimate">Estimate</li></a><?php
                         }
-                        if (strpos($value_config, ',Next Action,') !== false) { ?>
-                            <a href="#nextaction"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_next_action" id="nav_nextaction">Next Action</li></a><?php
-                        }
-                        if (strpos($value_config, ',Lead Status,') !== false) { ?>
-                            <a href="#leadstatus"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_status" id="nav_leadstatus">Lead Status</li></a><?php
-                        }
                         if (strpos($value_config, ',Lead Notes,') !== false) { ?>
                             <a href="#leadnotes"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_notes" id="nav_leadnotes">Lead Notes</li></a><?php
                         }
@@ -292,6 +300,7 @@ $(document).ready(function() {
                         if (strpos($value_config, ',History,') !== false) { ?>
                             <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a><?php
                         } ?>
+                        <li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history"><?= SALES_NOUN ?> Created by <?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
                     </ul>
                 </div><!-- .tile-sidebar -->
 

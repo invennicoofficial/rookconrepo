@@ -615,7 +615,7 @@ if($_GET['action'] == 'update_fields') {
             $target_field = filter_var($_POST['target'],FILTER_SANITIZE_STRING);
             $dbc->query("UPDATE `sales` SET `$target_field`='".$dbc->insert_id."' WHERE `salesid`='$salesid'");
         } else {
-            $dbc->query("INSERT INTO `$table` (`$field`,`created_date`,`".($table == 'sales' ? 'lead_' : '')."created_by`,`salesid`) VALUES ('$value',DATE(NOW()),'".($table == 'sales' ? get_contact($dbc, $_SESSION['contactid']) : $_SESSION['contactid'])."','$salesid')");
+            $dbc->query("INSERT INTO `$table` (`$field`,".($table == 'sales' ? '' : '`created_date`,')."`".($table == 'sales' ? 'lead_' : '')."created_by`,`salesid`) VALUES ('$value',".($table == 'sales' ? '' : 'DATE(NOW()),')."'".($table == 'sales' ? get_contact($dbc, $_SESSION['contactid']) : $_SESSION['contactid'])."','$salesid')");
             echo $dbc->insert_id;
         }
     }

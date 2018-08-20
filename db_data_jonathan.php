@@ -262,6 +262,9 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `sales_notes` ADD `deleted` TINYINT NOT NULL DEFAULT 0")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		if(!mysqli_query($dbc, "ALTER TABLE `sales` CHANGE `created_date` `created_date` DATETIME NULL DEFAULT CURRENT_TIMESTAMP")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

@@ -10,9 +10,6 @@ if(!empty($limit_staff_cat)) {
 } ?>
 <div class="accordion-block-details padded" id="staffinfo">
     <div class="accordion-block-details-heading"><h4>Staff Information</h4></div>
-    <div class="row">
-        <div class="col-sm-12 gap-md-left-15 set-row-height">Lead Created by: <?= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']); ?></div>
-    </div>
     <div class="row set-row-height">
         <div class="col-xs-12 col-sm-4 gap-md-left-15">Primary Staff:</div>
         <div class="col-xs-12 col-sm-5">
@@ -24,6 +21,9 @@ if(!empty($limit_staff_cat)) {
                 } ?>
             </select>
         </div>
+            <div class="col-sm-1">
+                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="view_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
+            </div>
         <div class="clearfix"></div>
     </div>
     <?php foreach(explode(',',$share_lead) as $share_lead_id) { ?>
@@ -39,10 +39,12 @@ if(!empty($limit_staff_cat)) {
                 </select>
             </div>
             <div class="col-sm-1">
+                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="view_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
                 <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
                 <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
             </div>
             <div class="clearfix"></div>
         </div>
     <?php } ?>
+    <div class="clearfix"></div>
 </div>

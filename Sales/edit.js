@@ -50,14 +50,20 @@ function saveFieldMethod(field) {
             });
             save_value = save_value.join($(field).data('concat'));
         }
+        var id = $(field).data('id') != undefined ? $(field).data('id') : $('[name=salesid]').val();
+        var field_name = field.name;
+        if($(field).data('field') != undefined) {
+            field_name = $(field).data('field');
+            id = $(field).closest('.accordion-block-details').find('[name=contactid]').val();
+        }
         $.ajax({
             url: 'sales_ajax_all.php?action=update_fields',
             method: 'POST',
             data: {
                 salesid: $('[name=salesid]').val(),
-                id: $(field).data('id') != undefined ? $(field).data('id') : $('[name=salesid]').val(),
+                id: id,
                 table: $(field).data('table'),
-                field: field.name,
+                field: field_name,
                 value: save_value,
                 target: $(field).data('target'),
                 business: $('[name=businessid]').val()
@@ -113,4 +119,14 @@ function rem_doc(img) {
 }
 function add_note() {
     overlayIFrameSlider('../sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
+}
+
+// Open the profile for the nearest contact
+function view_profile(img, tile) {
+    var contactid = $(img).closest('.row').find('select').val();
+    if(contactid > 0) {
+        overlayIFrameSlider('../'+tile+contactid,'auto',true,true);
+    } else {
+        alert('Please select a contact before attempting to view the Profile.');
+    }
 }

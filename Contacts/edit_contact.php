@@ -54,7 +54,7 @@ foreach(explode(',',get_config($dbc, $folder_name.'_classification', true, ','))
 	$classification_regions[] = $class_regions[$i];
 }
 $contact_security = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_security` WHERE `contactid`='$contactid'"));
-include('../Contacts/edit_fields.php');
+include_once('../Contacts/edit_fields.php');
 // if(in_array_starts('acc_',$field_config)) {
 	// foreach($tab_list as $tab_data) {
 		// $field_config[] = 'acc_'.$tab_data[1];
