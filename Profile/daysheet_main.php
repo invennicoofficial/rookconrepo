@@ -239,8 +239,6 @@ if ( !empty($note) ) { ?>
                     include('daysheet_tasks.php');
                 } else if ($side_content == 'my_checklists') {
                     include('daysheet_checklists.php');
-                } else if ($side_content == 'my_communications') {
-                    include('daysheet_communications.php');
                 } else if ($side_content == 'my_timesheets') {
                     include('daysheet_timesheets.php');
                 } else if ($side_content == 'my_support') {

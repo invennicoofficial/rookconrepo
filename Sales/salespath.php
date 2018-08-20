@@ -1,10 +1,20 @@
-<div class="form-horizontal"><?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+<div class="form-horizontal">
+<?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+$flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
 $show_tasks = tile_enabled($dbc, 'tasks');
 $show_forms = tile_enabled($dbc, 'intake');
 $show_checklists = tile_enabled($dbc, 'checklist');
-$sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
+$sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+
+if(!empty($sales_lead['flag_label'])) {
+    $flag_colour = $sales_lead['flag_colour'];
+    $flag_label = $sales_lead['flag_label'];
+} else if(!empty($sales_lead['flag_colour'])) {
+    $flag_colour = $sales_lead['flag_colour'];
+    $flag_label = $flag_labels[array_search($sales_lead['flag_colour'], $flag_colours)];
+} ?>
 <script>
 $(document).ready(function() {
 	milestoneActions();
@@ -666,8 +676,11 @@ function checklist_attach_file(checklist) {
 		</div>
 	</div>
 	<div id="sales_path_div" class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
-		<div class="standard-body-title">
-			<h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?></h3>
+		<div class="standard-body-title" data-id="<?= $salesid ?>" style="<?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>position:absolute;z-index:1;width:100%;">
+			<h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?>
+                <div class="pull-right"><?php include('quick_actions.php'); ?></div>
+                <span class="flag-label" data-colour="<?= $flag_colour ?>"><?= $flag_label ?></span>
+            </h3>
 		</div>
 		<div class="standard-body-content">
 			<div class="double_scroll_div" style="overflow-x: auto; overflow-y: hidden;"><div style="width: 2240px; padding-top: 1px;">&nbsp;</div></div>

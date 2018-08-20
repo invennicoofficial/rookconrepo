@@ -323,20 +323,24 @@ if (isset($_POST['add_sales'])) {
 <script type="text/javascript">
 $(document).ready(function() {
     $(window).resize(function() {
-		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
-		if(available_height > 200) {
-            $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
-            $('#sales_div .main-screen-white').height(available_height - 6);
-		}
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
+        if(available_height > 200) {
+            $('#sales_div .tile-sidebar').height(available_height);
+            $('#sales_div .main-screen-white').height(available_height);
+            $('.tile-content').height('auto');
+            $('.tile-content').css('overflow-x','hidden');
+            $('#sales_div .main-screen-white').height('auto');
+            $('#sales_div .main-screen-white .standard-body-content').height(available_height - $('#sales_div .main-screen-white .standard-body-title').height());
+            $('#sales_div .main-screen-white .standard-body-content').css('overflow-x','hidden');
+            $('#sales_div .main-screen-white .standard-body-content').css('overflow-y','auto');
+            $('#sales_div .main-screen-white .standard-body-content').css('margin-top',$('#sales_div .main-screen-white .standard-body-title').height()+'px');
+        }
 	}).resize();
 
-    $('.main-screen').height($('#sales_div').height());
-    $('.tile-sidebar, .tile-content').height($('#sales_div').height() - $('.tile-header').height() + 15);
-    //$('.main-screen-white').height($('.tile-content').height() - 96);
     $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
-    $('.main-screen-white').on('scroll', function(){
-        var currentScroll = $('.main-screen .tile-container').offset().top + $('.main-screen-white').find('.preview-block-header').height();
+    $('.standard-body-content').on('scroll', function(){
+        var currentScroll = $('.main-screen .tile-container').offset().top + $('.standard-body-content').find('.preview-block-header').height();
         var $currentSection;
         $sections.each(function(){
             var divPosition = $(this).offset().top;
