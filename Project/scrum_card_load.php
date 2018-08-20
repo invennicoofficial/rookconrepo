@@ -12,7 +12,14 @@ if(!isset($item)) {
 	$security = get_security($dbc, 'project');
 	$ticket_field_config = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets_dashboard` FROM field_config"))['tickets_dashboard']));
 }
-$type = $item[0];
+
+if($fromTasks == 1) {
+	$type = 'Task';
+}
+else {
+	$type = $item[0];
+}
+
 if($type == 'Ticket') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='".$item[1]."'"));
 	$data = 'data-id="'.$item['ticketid'].'" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid"';
@@ -241,7 +248,7 @@ if($type == 'Ticket') {
 		}
 	}
 	// $contents .= '</div>';
-} else if($item[0] == 'Task') {
+} else if($type == 'Task') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='".$item[1]."'"));
 	$item_external = $item['external'];
 	if($item['status'] == $status_complete) {
@@ -305,7 +312,7 @@ if($type == 'Ticket') {
 		}
 	}
 	$contents .= '</div><!-- .action_notifications -->';
-} else if($item[0] == 'Intake') {
+} else if($type == 'Intake') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$item[1]."'"));
 	$intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$item['intakeformid']."'"));
 	$data = 'data-id="'.$item['intakeid'].'" data-table="intake" data-name="project_milestone" data-id-field="intakeid"';
@@ -352,7 +359,7 @@ if($type == 'Ticket') {
 		<label class="col-sm-4">Last Updated Date:</label>
 		<div class="col-sm-8">'.$item['received_date'].'</div>
 	</div>';
-} else if($item[0] == 'Checklist') {
+} else if($type == 'Checklist') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '".$item[1]."'"));
 	$data = 'data-id="'.$item['checklistid'].'" data-table="checklist" data-name="project_milestone" data-id-field="checklistid"';
 	$colour = $item['flag_colour'];

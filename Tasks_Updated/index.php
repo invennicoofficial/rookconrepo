@@ -631,6 +631,9 @@ function popUpClosed() {
                                     $projectid = $_GET['edit'];
                                     $projecttype = $project['projecttype'];
                                     $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
+                                    $fromTasks = 1;
+                                    $tab_config = array('Tasks');
+                                    $security['edit'] = 1;
                                     include('../Project/edit_project_path.php');
                                 } else if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
                                     include('tasks_dashboard.php'); // Private Task,
