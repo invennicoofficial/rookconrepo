@@ -2212,7 +2212,7 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<label class="col-sm-4 control-label">Split Contractors By Security Level:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_contractor_split_security" <?= $scheduling_contractor_split_security != '' ? 'checked' : '' ?> value="1"></label>
