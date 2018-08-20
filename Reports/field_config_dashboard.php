@@ -145,43 +145,6 @@ if (isset($_POST['submit'])) {
         </div>
     <div class="clearfix"></div>
 
-    <h3>History</h3>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Staff History".',') !== FALSE) { echo " checked"; } ?> value="History Staff History" name="reports_dashboard[]"> Staff History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Checklist History".',') !== FALSE) { echo " checked"; } ?> value="History Checklist History" name="reports_dashboard[]"> Checklist History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Sales History".',') !== FALSE) { echo " checked"; } ?> value="History Sales History" name="reports_dashboard[]"> Sales History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History HR History".',') !== FALSE) { echo " checked"; } ?> value="History HR History" name="reports_dashboard[]"> HR History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Point of Sale History".',') !== FALSE) { echo " checked"; } ?> value="History Point of Sale History" name="reports_dashboard[]"> Point of Sale History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Inventory History".',') !== FALSE) { echo " checked"; } ?> value="History Inventory History" name="reports_dashboard[]"> Inventory History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Project History".',') !== FALSE) { echo " checked"; } ?> value="History Project History" name="reports_dashboard[]"> Project History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Contact History".',') !== FALSE) { echo " checked"; } ?> value="History Contact History" name="reports_dashboard[]"> Contact History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Security History".',') !== FALSE) { echo " checked"; } ?> value="History Security History" name="reports_dashboard[]"> Security History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Services History".',') !== FALSE) { echo " checked"; } ?> value="History Services History" name="reports_dashboard[]"> Services History</label>
-        </div>
-      <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Expenses History".',') !== FALSE) { echo " checked"; } ?> value="History Expenses History" name="reports_dashboard[]"> Expenses History</label>
-        </div>
-    <div class="clearfix"></div>
-
-
     <h3>Marketing</h3>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."CRM Recommendations - By Customer".',') !== FALSE) { echo " checked"; } ?> value="CRM Recommendations - By Customer" name="reports_dashboard[]"> CRM Recommendations - By Customer</label>
@@ -590,6 +553,9 @@ if (isset($_POST['submit'])) {
 	</div>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Services History".',') !== FALSE) { echo " checked"; } ?> value="History Services History" name="reports_dashboard[]"> Services History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Estimates History".',') !== FALSE) { echo " checked"; } ?> value="History Estimates History" name="reports_dashboard[]"> Estimates History</label>
 	</div>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Expenses History".',') !== FALSE) { echo " checked"; } ?> value="History Expenses History" name="reports_dashboard[]"> Expenses History</label>
