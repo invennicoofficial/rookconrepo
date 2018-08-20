@@ -41,10 +41,14 @@ $(document).ready(function() {
 	});
 
 	$("#patientid").change(function() {
+		var type = '';
+		if($('[name="type"]').val() != undefined) {
+			type = $('[name="type"]').val();
+		}
 		if ($(this).val()=='NEW') {
-            overlayIFrameSlider('add_contact.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
+            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         } else {
-            window.location = 'add_invoice.php?contactid='+this.value;
+            window.location = 'add_invoice.php?contactid='+this.value+'&type='+type;
         }
 	});
 
@@ -445,8 +449,18 @@ $(document).ready(function() {
 			$(".treatment_plan").show();
 		}
 	});
-
 });
+$(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
+
+function changeInvoiceType() {
+	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
+	var type = '';
+	if($('[name="type"]').val() != undefined) {
+		type = $('[name="type"]').val();
+	}
+
+	window.location.href = "?invoiceid="+invoiceid+"&type="+type;
+}
 
 function changeInsurance(sel) {
 	var proValue = sel.value;
@@ -616,7 +630,12 @@ function changeProduct(sel) {
 	var arr = proId.split('_');
 	var inventoryid = $("#inventoryid_"+arr[1]).val();
 	var invtype = $("#invtype_"+arr[1]).val();
-	var pricing = $('[name=pricing]').val();
+    var linepricing = $('#linepricing_'+arr[1]).val();
+    if (linepricing == '' || linepricing == null) {
+        var pricing = $('[name=pricing]').val();
+    } else {
+        var pricing = linepricing;
+    }
 
 	if(invtype == 'WCB') {
 		invtype = 'wcb_price';
@@ -1141,10 +1160,12 @@ function add_product_row() {
 	clone.find('.quantity').attr('id', 'quantity_'+inc_pro).val(1);
 	clone.find('.adjust').attr('id', 'adjust_'+inc_pro);
 	clone.find('.sellprice').attr('id', 'sellprice_'+inc_pro);
+	clone.find('.linepricing').attr('id', 'linepricing_'+inc_pro);
 	resetChosen(clone.find("[id^=inventoryid]"));
 	resetChosen(clone.find("[id^=inventorycat]"));
 	resetChosen(clone.find("[id^=inventorypart]"));
 	resetChosen(clone.find("[id^=invtype]"));
+	resetChosen(clone.find("[id^=linepricing]"));
 	var max_row = get_max_insurer_row();
 	clone.find('.insurer_row_id').val(max_row);
 	clone.find('[name="insurer_row_applied[]"]').val(max_row);

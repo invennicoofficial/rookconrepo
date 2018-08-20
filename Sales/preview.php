@@ -4,7 +4,11 @@ $lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$
 <div class="main-screen standard-body gap-bottom overflow-y">
     <div class="standard-body-title pad-left">
         <h3><?= SALES_NOUN ?> #<?= $salesid ?>
-            <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+            <?php if(IFRAME_PAGE) { ?>
+                <div class="pull-right"><input type="button" onclick="javascript:window.top.location = '<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo';" value="Open Full Window" class="btn brand-btn btn-small" /></div>
+            <?php } else { ?>
+                <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+            <?php } ?>
             <div class="clearfix"></div>
         </h3>
     </div>
