@@ -1158,7 +1158,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
                 if($timesheet_payroll_layout == 'group_days') {
                 	$group_by = 'date';
                 } else {
-                	$group_by = 'time_cards';
+                	$group_by = 'time_cards_id';
                 }
 
                 $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
