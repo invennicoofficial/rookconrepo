@@ -2877,7 +2877,7 @@ if($_GET['fill'] == 'check_ticket_last_updated') {
 	} else {
 		$last_updated = mysqli_fetch_array(mysqli_query($dbc, "SELECT `last_updated_time` FROM `tickets` WHERE `ticketid` = '$ticketid'"))['last_updated_time'];
 	}
-	if(strtotime($last_updated) > strtotime($timestamp)) {
+	if(strtotime($last_updated) - 30 > strtotime($timestamp)) {
 		echo 1;
 	} else {
 		echo 0;
