@@ -1,10 +1,10 @@
 <?php $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
 if(!($estimateid > 0)) {
 	mysqli_query($dbc, "INSERT INTO `estimate` (`created_date`,`created_by`) VALUES ('".date('Y-m-d')."','".$_SESSION['contactid']."')");
+	$estimateid = mysqli_insert_id($dbc);
 	$before_change = '';
 	$history = "Estimates entry has been added. <br />";
 	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
-	$estimateid = mysqli_insert_id($dbc);
 	echo "<script> window.location.replace('?edit=$estimateid'); </script>";
 	$_GET['edit'] = $estimateid;
 } else {

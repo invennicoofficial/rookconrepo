@@ -350,7 +350,7 @@ if($_GET['action'] == 'save_template_field') {
 	} else if($table == 'estimate' && $field == 'status') {
 		mysqli_query($dbc, "UPDATE `estimate` SET `status_date`=DATE(NOW())");
 		$before_change = '';
-		$history = "Set estimate date for all the entries to".DATE(NOW())." <br />";
+		$history = "Set estimate date for all the entries. <br />";
 		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	mysqli_query($dbc, "UPDATE `$table` SET `$field`='$value' WHERE `$id_field`='$id'");
