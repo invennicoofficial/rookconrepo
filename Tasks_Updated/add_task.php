@@ -236,10 +236,51 @@ if (isset($_POST['tasklist'])) {
 <script type="text/javascript">
 
 $(document).ready(function () {
-    $('.project_section_display').hide();
-    $('.contact_section_display').hide();
-    $('.sales_section_display').hide();
-    $('.taskpath_section_display').hide();
+
+    if ($('[name=tasklistid]').val() != '' ) {
+        //alert(1);
+        var id_value = $('[name=tasklistid]').val();
+        //alert(id_value);
+        var task_board_type = $('[name=task_board_type]').val();
+        if(task_board_type == 'Private') {
+            $('.hide_task_board_name').show();
+            $('.project_section_display').hide();
+            $('.contact_section_display').hide();
+            $('.sales_section_display').hide();
+            $('.taskpath_section_display').show();
+        } else if(task_board_type == 'Company') {
+            $('.hide_task_board_name').show();
+            $('.project_section_display').hide();
+            $('.contact_section_display').hide();
+            $('.sales_section_display').hide();
+            $('.taskpath_section_display').show();
+        } else if(task_board_type == 'Project') {
+            $('.hide_task_board_name').hide();
+            $('.project_section_display').show();
+            $('.contact_section_display').hide();
+            $('.sales_section_display').hide();
+            $('.taskpath_section_display').show();
+        } else if(task_board_type == 'Client') {
+            $('.hide_task_board_name').show();
+            $('.project_section_display').hide();
+            $('.contact_section_display').hide();
+            $('.sales_section_display').hide();
+            $('.taskpath_section_display').show();
+        } else { //Sales
+            $('.hide_task_board_name').hide();
+            $('.project_section_display').hide();
+            $('.contact_section_display').hide();
+            $('.sales_section_display').show();
+            $('.taskpath_section_display').hide();
+        }
+    } else {
+               // alert(2);
+
+        $('.project_section_display').hide();
+        $('.contact_section_display').hide();
+        $('.sales_section_display').hide();
+        $('.taskpath_section_display').hide();
+    }
 
     $('[name=task_projectid]').on('change', function(){
         var task_projectid = $(this).val();
@@ -731,6 +772,12 @@ function mark_done(sel) {
 
                 $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
                 $board_security = $get_taskboard['board_security'];
+                if($task_salesid > 0) {
+                    $board_security = 'Sales';
+                }
+                if($task_projectid > 0) {
+                    $board_security = 'Project';
+                }
                 if ( $board_security=='Client' ) {
                     $contact_section_display = 'display:block;';
                 } else if ( $board_security=='Project' ) {

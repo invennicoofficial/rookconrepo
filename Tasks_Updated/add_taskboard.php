@@ -111,12 +111,13 @@ $(document).ready(function() {
 	});
 
     var taskboard = $("#taskboard").val();
+    //alert(taskboard);
     if(taskboard == 'Private') {
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
         $( "#company_staff_sharing" ).hide();
         $('.task-board-name').show();
-    } else if(taskboard == 'Shared') {
+    } else if(taskboard == 'Company') {
         $( "#company_staff_sharing" ).show();
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
