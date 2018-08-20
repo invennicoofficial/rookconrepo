@@ -115,7 +115,7 @@ function flagLeadManual(sel) {
 		return false;
 	});
 	item.find('[name=flag_off]').off('click').click(function() {
-		item.find('[name=colour]').val('FFFFFF');
+		item.find('[name=colour]').val('');
 		item.find('[name=label]').val('');
 		item.find('[name=flag_start]').val('');
 		item.find('[name=flag_end]').val('');
@@ -386,7 +386,7 @@ if ( $leads->num_rows > 0 ) {
 						<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
 						<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
 						<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
-								<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+								<option value="" style="background-color:#FFFFFF;">No Flag</option>
 								<?php foreach($colours as $flag_colour) { ?>
 									<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
 								<?php } ?>
