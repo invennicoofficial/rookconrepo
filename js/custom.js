@@ -221,6 +221,7 @@ $(document).ready(function() {
 });
 
 function initTooltips() {
+    $('.tooltip.fade').remove();
 	if($(".popover-examples a,.no-toggle[title]").is(':ui-tooltip')) {
 		$(".popover-examples a,.no-toggle[title]").tooltip('destroy');
 	}
