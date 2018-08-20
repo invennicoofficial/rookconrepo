@@ -664,9 +664,6 @@ checkAuthorised('tasks');
                         } else { ?>
                             <div class="dashboard-item"><?php
                                 if(!empty($_GET['pathid'])) {
-                                    $projectid = $_GET['edit'];
-                                    $projecttype = $project['projecttype'];
-                                    $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
                                     include('../Project/edit_project_path.php');
                                 } else if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
                                     include('tasks_dashboard.php');
