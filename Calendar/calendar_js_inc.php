@@ -276,7 +276,10 @@ function checkTicketLastUpdated(ticket_table, ticketid, ticket_scheduleid, times
 		data: { ticket_table: ticket_table, ticketid: ticketid, ticket_scheduleid: ticket_scheduleid, timestamp: timestamp }
 	});
 }
+var reset_active = $.Deferred();
+reset_active.resolve();
 function changeDate(date, type = '') {
+	reset_active.resolve();
 	scroll_to_today = true;
 	var summary_view = $('#retrieve_summary').val();
 	var view = $('#calendar_view').val();
@@ -290,14 +293,14 @@ function changeDate(date, type = '') {
 		method: 'POST',
 		data: { view: view, date: date, type: type, config_type: config_type },
 		success: function(response) {
+			response_arr = JSON.parse(response);
+			$('#calendar_start').val(response_arr[0]);
+			$('#calendar_date_heading').html('&nbsp;&nbsp;'+response_arr[1]);
+			$('#calendar_dates').val(JSON.stringify(response_arr[2]));
+			$('#calendar_dates_month').val(JSON.stringify(response_arr[2]));
 			reset_active = $.Deferred();
 			reload_equipment_assignment();
 			$.when(reset_active).done(function(){
-				response_arr = JSON.parse(response);
-				$('#calendar_start').val(response_arr[0]);
-				$('#calendar_date_heading').html('&nbsp;&nbsp;'+response_arr[1]);
-				$('#calendar_dates').val(JSON.stringify(response_arr[2]));
-				$('#calendar_dates_month').val(JSON.stringify(response_arr[2]));
 				if(summary_view == 1) {
 					retrieve_whole_month();
 				} else if(view == 'monthly') {
@@ -355,7 +358,9 @@ function changeView(view, anchor) {
 
 	//When all ajax promises are done, reload the calendar data
 	$.when.apply(null, promises).done(function(){
-		initDraggable();
+		if(typeof initDraggable == 'function') {
+			initDraggable();
+		}
 		var calendar_start = $('#calendar_start').val();
 		changeDate(calendar_start);
 	});
@@ -599,10 +604,21 @@ function loadShiftView() {
 	<?php } ?>
 }
 
-var reset_active = $.Deferred();
 //RETRIEVE DATA AND LOAD ITEMS
 function reload_equipment_assignment(equipmentid = '') {
-	<?php if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly') { ?>
+	<?php if($_GET['type'] == 'schedule' && $is_customer) { ?>
+		var view = $('#calendar_view').val();
+		var date = $('#calendar_start').val();
+		$.ajax({
+			url: '../Calendar/schedule_sidebar.php?<?= http_build_query($_GET) ?>&date='+date+'&view='+view,
+			success: function(response) {
+				$('.collapsible').html(response);
+				$('.sidebar.panel-group').css('padding-right','0');
+				setTimeout(function() { toggle_columns() },500);
+				reset_active.resolve();
+			}
+		});
+	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly') { ?>
 		var equipmentids = [];
 		if(equipmentid != '') {
 			equipmentids.push(equipmentid);
