@@ -581,7 +581,7 @@ if (empty($equipment_category)) {
 								</a>
 							</h4>
 						</div>
-
+            
 						<div id="collapse_contractors" class="panel-collapse collapse <?= $_GET['mode'] == 'contractors' ? 'in' : '' ?>">
 							<div class="panel-body" style="overflow-y: auto; padding: 0;">
 							<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));

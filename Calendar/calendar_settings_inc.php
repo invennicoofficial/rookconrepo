@@ -410,6 +410,14 @@ switch($_GET['type']) {
         $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
         $staff_split_security = get_config($dbc, 'scheduling_staff_split_security');
         $contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security');
+        $drag_multiple = get_config($dbc, 'scheduling_drag_multiple');
+        $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+        $is_customer = false;
+        foreach(array_filter(explode(',',ROLE)) as $session_role) {
+            if(in_array($session_role,$customer_roles)) {
+                $is_customer = true;
+            }
+        }
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -458,7 +466,8 @@ switch($_GET['type']) {
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
-        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';

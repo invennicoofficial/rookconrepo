@@ -112,8 +112,10 @@ function setUrlWithCurrentDate() {
 <?php $calendar_ticket_hover_staff = get_config($dbc, 'calendar_ticket_hover_staff'); ?>
 function initTicketHoverStaff() {
 	<?php if($calendar_ticket_hover_staff == 1 && $_GET['type'] != 'schedule' && $_GET['type'] != 'event') { ?>
-		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseover').on('mouseover', function() {
-			displayTicketStaff(this);
+		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseover').on('mouseover', function(e) {
+			if(!$(e.target).hasClass('drag-handle') && !$(e.target).hasClass('ui-resizable-handle')) {
+				displayTicketStaff(this);
+			}
 		});
 		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseout').on('mouseout', function() {
 			hideTicketStaff();
@@ -963,6 +965,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		//If column already exists, replace html here
 		filter_query += '[data-contact='+contact+'][data-date='+date+'][data-blocktype='+block_type+']';
 		contact_title.replaceWith(item_row['title']);
+		$('.calendar_view table:not(#time_html) tr[data-rowtype=shifts] td'+filter_query).replaceWith(item_row['shifts']);
 		$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).replaceWith(item_row['notes']);
 		$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).replaceWith(item_row['reminders']);
 		$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td'+filter_query).replaceWith(item_row['warnings']);
@@ -985,6 +988,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		if(first_title.length > 0) {
 			//If column doesn't exist but there is a column, prepend it
 			first_title.before(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=shifts] td'+filter_query).first().before(item_row['shifts']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).first().before(item_row['notes']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).first().before(item_row['reminders']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td'+filter_query).first().before(item_row['warnings']);
@@ -997,6 +1001,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		} else {
 			//If no columns exist, append to the beginning of the table
 			$('.calendar_view table:not(#time_html) th').first().after(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=shifts] td').first().after(item_row['shifts']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td').first().after(item_row['notes']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td').first().after(item_row['reminders']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td').first().after(item_row['warnings']);
@@ -1018,6 +1023,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		}
 		if(last_title.length > 0) {
 			last_title.after(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=shifts] td'+filter_query).last().after(item_row['shifts']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td'+filter_query).last().after(item_row['notes']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td'+filter_query).last().after(item_row['reminders']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td'+filter_query).last().after(item_row['warnings']);
@@ -1030,6 +1036,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		} else {
 			//If no columns exist, append to the end of the table
 			$('.calendar_view table:not(#time_html) th').last().after(item_row['title']);
+			$('.calendar_view table:not(#time_html) tr[data-rowtype=shifts] td').last().after(item_row['shifts']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=notes] td').last().after(item_row['notes']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=reminders] td').last().after(item_row['reminders']);
 			$('.calendar_view table:not(#time_html) tr[data-rowtype=warnings] td').last().after(item_row['warnings']);
@@ -1104,6 +1111,10 @@ function reload_resize_all() {
 	initTicketHoverStaff();
 	setAutoRefresh();
 	initIconColors();
+	
+    $('[name=multi_book]').click(function(e) {
+    	e.stopImmediatePropagation();
+    });
 }
 function scrollToToday() {
 	clearInterval(clear_today);
@@ -1197,6 +1208,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
 		var calendar_view = $('#calendar_view').val();
+		var calendar_mode = $('#calendar_mode').val();
 		if(teamid != '' && teamid > 0) {
 			block_type = 'team';
 			contact = teamid;
@@ -1220,7 +1232,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 			calendar_dates.forEach(function(calendar_date) {
 				//For each date of this contact, retrieve items
 				var load_request = $.ajax({
-					url: '../Calendar/monthly_display_load.php?<?= http_build_query($_GET) ?>&type='+type+'&block_type='+block_type+'&view='+calendar_view,
+					url: '../Calendar/monthly_display_load.php?<?= http_build_query($_GET) ?>&type='+type+'&block_type='+block_type+'&view='+calendar_view+'&mode='+calendar_mode,
 					method: 'POST',
 					data: {
 						contact_id: contact,
