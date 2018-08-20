@@ -994,8 +994,8 @@ if($_GET['fill'] == 'move_appt') {
 						mysqli_query($dbc, $sql);
 					}
 
-					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
-						SELECT `contactid`, `clientid`, '$start_date', '$start_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
+						SELECT `contactid`, `security_level`, `clientid`, '$start_date', '$start_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 					if($online) {
 						mysqli_query($dbc, $sql);
 					}
@@ -1013,7 +1013,7 @@ if($_GET['fill'] == 'move_appt') {
 					}
 
 					$end_date = $shift['enddate'];
-					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days`) SELECT `contactid`, `clientid`, '$start_date', '$end_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level` `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days`) SELECT `contactid`, `security_level`, `clientid`, '$start_date', '$end_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 					if($online) {
 						mysqli_query($dbc, $sql);
 					}
@@ -1049,7 +1049,7 @@ if($_GET['fill'] == 'move_appt') {
 					mysqli_query($dbc, $sql);
 				}
 
-				$sql = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`) SELECT ".($_POST['mode'] == 'client' ? '`contactid`' : "'$contact'").", ".($_POST['mode'] == 'client' ? "'$contact'" : "`clientid`").", '$start_date', '$start_date', '$start_time', '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+				$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`) SELECT ".($_POST['mode'] == 'client' ? '`contactid`' : "'$contact'").", `security_level`, ".($_POST['mode'] == 'client' ? "'$contact'" : "`clientid`").", '$start_date', '$start_date', '$start_time', '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -1928,8 +1928,8 @@ if($_GET['fill'] == 'move_appt_month') {
 				mysqli_query($dbc, $sql);
 			}
 
-			$sql = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
-				SELECT '$contactid', `clientid`, '$new_date', '$new_date', `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+			$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
+				SELECT '$contactid', `security_level`, `clientid`, '$new_date', '$new_date', `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 			if($online) {
 				mysqli_query($dbc, $sql);
 			}
@@ -2877,7 +2877,7 @@ if($_GET['fill'] == 'check_ticket_last_updated') {
 	} else {
 		$last_updated = mysqli_fetch_array(mysqli_query($dbc, "SELECT `last_updated_time` FROM `tickets` WHERE `ticketid` = '$ticketid'"))['last_updated_time'];
 	}
-	if(strtotime($last_updated) > strtotime($timestamp)) {
+	if(strtotime($last_updated) - 30 > strtotime($timestamp)) {
 		echo 1;
 	} else {
 		echo 0;
