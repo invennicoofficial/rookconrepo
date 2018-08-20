@@ -742,13 +742,20 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_staff_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_staff_summary') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_staff_summary."' WHERE `name`='ticket_staff_summary'");
-	if (!empty($_POST['ticket_ticket_summary'])) {
-		$ticket_ticket_summary = $_POST['ticket_ticket_summary'];
+	if (!empty($_POST['ticket_ticket_summary_tab'])) {
+		$ticket_ticket_summary_tab = $_POST['ticket_ticket_summary_tab'];
 	} else {
-		$ticket_ticket_summary = '';
+		$ticket_ticket_summary_tab = '';
 	}
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary."' WHERE `name`='ticket_ticket_summary'");
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary_tab."' WHERE `name`='ticket_ticket_summary_tab'");
+	if (!empty($_POST['ticket_client_tab'])) {
+		$ticket_client_tab = $_POST['ticket_client_tab'];
+	} else {
+		$ticket_client_tab = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_tab."' WHERE `name`='ticket_client_tab'");
 
 	// Shift Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_day_start') num WHERE num.rows=0");
@@ -2491,8 +2498,15 @@ function showDefaultView(chk) {
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Enable <?= TICKET_NOUN ?> Summary Tab:</label>
 								<div class="col-sm-8">
-									<?php $ticket_ticket_summary = get_config($dbc, 'ticket_ticket_summary'); ?>
-									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary" <?= $ticket_ticket_summary != '' ? 'checked' : '' ?> value="1"></label>
+									<?php $ticket_ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary_tab" <?= $ticket_ticket_summary_tab != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Client Tab:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_tab = get_config($dbc, 'ticket_client_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_tab" <?= $ticket_client_tab != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

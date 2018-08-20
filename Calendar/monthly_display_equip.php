@@ -168,37 +168,7 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$column .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$column .= '<b>'.get_ticket_label($dbc, $row_ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $row_ticket['location_description'] : '').($row_ticket['sub_label'] != '' ? '-'.$row_ticket['sub_label'] : '').'</b>'.($row_ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time is locked for this '.TICKET_NOUN.'" src="../img/icons/lock.png">' : '').
-						(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$row_ticket['projectid'].' '.$row_ticket['project_name'].'<br />' : '').
-						(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $row_ticket['businessid'], 'name') : '').
-						(in_array('time',$calendar_ticket_card_fields) ? '<br />'."(".$max_time.") ".$start_time." - ".$end_time : '');
-					if(in_array('available',$calendar_ticket_card_fields)) {
-						if($row_ticket['pickup_start_available'].$row_ticket['pickup_end_available'] != '') {
-							$column .= '<br />'."Available ";
-							if($row_ticket['pickup_end_available'] == '') {
-								$column .= "After ".$row_ticket['pickup_start_available'];
-							} else if($row_ticket['pickup_start_available'] == '') {
-								$column .= "Before ".$row_ticket['pickup_end_available'];
-							} else {
-								$column .= "Between ".$row_ticket['pickup_start_available']." and ".$row_ticket['pickup_end_available'];
-							}
-						}
-					}
-					$column .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$row_ticket['pickup_name'].($row_ticket['pickup_name'] != '' ? '<br />' : ' ').$row_ticket['client_name'].($row_ticket['client_name'] != '' ? '<br />' : ' ').$row_ticket['pickup_address'].($row_ticket['pickup_address'] != '' ? '<br />' : ' ').$row_ticket['pickup_city'] : '');
-					$column .= '<br />'."Status: ".$status;
-					if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-						$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$row_ticket['ticketid']."' AND `deleted` = 0");
-						if(mysqli_num_rows($ticket_notes) > 0) {
-							$column .= "<br />Notes: ";
-							while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-								$column .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-								$column .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-							}
-						}
-					}
-					if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($row_ticket['delivery_notes'])) {
-						$column .= '<br />Delivery Notes: '.html_entity_decode($row_ticket['delivery_notes']);
-					}
+					$column .= calendarTicketLabel($dbc, $row_ticket, $max_time, $start_time, $end_time);
 					// $column .= TICKET_NOUN." #".$row_ticket['heading'].'<br />'.(!empty($row_ticket['businessid']) ? get_client($dbc,$row_ticket['businessid']).'<br />' : '').date('h:i a', strtotime($row_ticket['to_do_start_time']))." - ".date('h:i a', strtotime($row_ticket['to_do_end_time']));
 					$column .= "</b></a>";
 		        }
@@ -421,37 +391,7 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 						$column .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
 					// $column .= TICKET_NOUN." #".$row_ticket['heading'].'<br />'.(!empty($row_ticket['businessid']) ? get_client($dbc,$row_ticket['businessid']).'<br />' : '').date('h:i a', strtotime($row_ticket['to_do_start_time']))." - ".date('h:i a', strtotime($row_ticket['to_do_end_time']));
-					$column .= '<b>'.get_ticket_label($dbc, $row_ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $row_ticket['location_description'] : '').($row_ticket['sub_label'] != '' ? '-'.$row_ticket['sub_label'] : '').'</b>'.($row_ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time is locked for this '.TICKET_NOUN.'" src="../img/icons/lock.png">' : '').
-						(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$row_ticket['projectid'].' '.$row_ticket['project_name'].'<br />' : '').
-						(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $row_ticket['businessid'], 'name') : '').
-						(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
-					if(in_array('available',$calendar_ticket_card_fields)) {
-						if($row_ticket['pickup_start_available'].$row_ticket['pickup_end_available'] != '') {
-							$column .= '<br />'."Available ";
-							if($row_ticket['pickup_end_available'] == '') {
-								$column .= "After ".$row_ticket['pickup_start_available'];
-							} else if($row_ticket['pickup_start_available'] == '') {
-								$column .= "Before ".$row_ticket['pickup_end_available'];
-							} else {
-								$column .= "Between ".$row_ticket['pickup_start_available']." and ".$row_ticket['pickup_end_available'];
-							}
-						}
-					}
-					$column .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$row_ticket['pickup_name'].($row_ticket['pickup_name'] != '' ? '<br />' : ' ').$row_ticket['client_name'].($row_ticket['client_name'] != '' ? '<br />' : ' ').$row_ticket['pickup_address'].($row_ticket['pickup_address'] != '' ? '<br />' : ' ').$row_ticket['pickup_city'] : '');
-					$column .= '<br />'."Status: ".$status;
-					if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-						$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$row_ticket['ticketid']."' AND `deleted` = 0");
-						if(mysqli_num_rows($ticket_notes) > 0) {
-							$column .= "<br />Notes: ";
-							while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-								$column .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-								$column .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-							}
-						}
-					}
-					if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($row_ticket['delivery_notes'])) {
-						$column .= '<br />Delivery Notes: '.html_entity_decode($row_ticket['delivery_notes']);
-					}
+					$column .= calendarTicketLabel($dbc, $row_ticket, $max_time, $start_time, $end_time);
 					$column .= "</b></a>";
 		        }
 		        if($ticket_summary != '') {

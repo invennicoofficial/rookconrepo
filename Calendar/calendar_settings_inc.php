@@ -434,7 +434,8 @@ switch($_GET['type']) {
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
-        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';
