@@ -577,6 +577,23 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_columns_group_regions' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_columns_group_regions') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_columns_group_regions."' WHERE `name`='scheduling_columns_group_regions'");
+	if (!empty($_POST['scheduling_staff_split_security'])) {
+		$scheduling_staff_split_security = $_POST['scheduling_staff_split_security'];
+	} else {
+		$scheduling_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_staff_split_security."' WHERE `name`='scheduling_staff_split_security'");
+	if (!empty($_POST['scheduling_contractor_split_security'])) {
+		$scheduling_contractor_split_security = $_POST['scheduling_contractor_split_security'];
+	} else {
+		$scheduling_contractor_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_contractor_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_contractor_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_contractor_split_security."' WHERE `name`='scheduling_contractor_split_security'");
+	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
 	if (!empty($_POST['scheduling_drag_multiple'])) {
 		$scheduling_drag_multiple = $_POST['scheduling_drag_multiple'];
 	} else {
@@ -947,6 +964,7 @@ function showDefaultView(chk) {
 			$active_equip_assign = '';
 			$active_workorder = '';
 			$active_unbooked = '';
+			$active_security = '';
 
 			if($_GET['type'] == 'general' || empty($_GET['type'])) {
 				$active_general = 'active_tab';
@@ -971,6 +989,9 @@ function showDefaultView(chk) {
 			}
 			if($_GET['type'] == 'unbooked') {
 				$active_unbooked = 'active_tab';
+			}
+			if($_GET['type'] == 'security') {
+				$active_security = 'active_tab';
 			}
 		?>
 
@@ -999,6 +1020,8 @@ function showDefaultView(chk) {
 				}
 
 				echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Unbooked Lists.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=unbooked'><button type='button' class='btn brand-btn mobile-block ".$active_unbooked."' >Unbooked List</button></a></div>";
+
+				echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your security settings for your Calendars.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=security'><button type='button' class='btn brand-btn mobile-block ".$active_security."' >Security</button></a></div>";
 				?>
 			</div>
 
@@ -2181,6 +2204,20 @@ function showDefaultView(chk) {
 									</select>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_staff_split_security = get_config($dbc, 'scheduling_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_staff_split_security" <?= $scheduling_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_contractor_split_security" <?= $scheduling_contractor_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -3083,6 +3120,10 @@ function showDefaultView(chk) {
 
 			<?php if($_GET['type'] == 'unbooked') {
 				include('field_config_unbooked.php');
+			} ?>
+
+			<?php if($_GET['type'] == 'security') {
+				include('field_config_security.php');
 			} ?>
 
 		</form>
