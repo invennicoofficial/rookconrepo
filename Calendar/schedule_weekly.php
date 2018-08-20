@@ -21,7 +21,7 @@ $(window).load(function() {
 	reload_all_data();
 
 	//Display active blocks when collapsed
-	displayActiveBlocks();
+	displayActiveBlocksAuto();
 	$('.collapsible .sidebar .panel').on('hidden.bs.collapse', function() {
 		$(this).next('.active_blocks').show();
 	});
@@ -480,17 +480,7 @@ function toggle_columns(type = global_type) {
 	$('.calendar_view table tbody tr').first().find('td').css('padding-top',$('.calendar_view table thead tr').outerHeight() + 8);
 	resize_calendar_view();
 
-	displayActiveBlocks();
-}
-function displayActiveBlocks() {
-	$('.active_blocks').each(function() {
-		var accordion = $(this).data('accordion');
-		if($('#'+accordion).hasClass('in')) {
-			$(this).hide();
-		} else {
-			$(this).show();
-		}
-	});
+	displayActiveBlocksAuto();
 }
 </script>
 <div class="calendar-screen set-height">

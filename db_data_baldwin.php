@@ -474,5 +474,24 @@
     }
     //2018-08-09 - Ticket #8583 - Payroll: By Staff
 
+    //2018-08-20 - Ticket #8609 - Calendar Security
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_calendar_security` (
+        `fieldconfigid` int(11) NOT NULL,
+        `calendar_type` varchar(500) NOT NULL,
+        `role` varchar(500) NOT NULL,
+        `allowed_roles` text NOT NULL,
+        `allowed_ticket_types` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        ADD PRIMARY KEY (`reminderid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        MODIFY `reminderid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-20 - Ticket #8609 - Calendar Security
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

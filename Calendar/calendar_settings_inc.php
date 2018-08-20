@@ -386,6 +386,7 @@ switch($_GET['type']) {
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
         $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
+        $staff_split_security = get_config($dbc, 'scheduling_staff_split_security');
         break;
     case 'estimates':
         $config_type = 'estimates';
