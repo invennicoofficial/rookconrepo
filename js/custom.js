@@ -221,6 +221,7 @@ $(document).ready(function() {
 });
 
 function initTooltips() {
+    $('.tooltip.fade').remove();
 	if($(".popover-examples a,.no-toggle[title]").is(':ui-tooltip')) {
 		$(".popover-examples a,.no-toggle[title]").tooltip('destroy');
 	}
@@ -302,6 +303,7 @@ function initIconColors() {
             !src.match('/ROOK-status-approved.png') &&
             !src.match('/ROOK-status-paid.png') &&
             !src.match('/ROOK-status-rejected.jpg') &&
+            !src.match('/ROOK-trash-icon.png') &&
             !src.match('/ROOK-status-error.png')) {
 	        if ( src.match('/ROOK-') ||
 	            src.match('/drag_handle.png') ||

@@ -387,6 +387,13 @@ switch($_GET['type']) {
         $passed_service = get_config($dbc, 'scheduling_passed_service');
         $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
         $drag_multiple = get_config($dbc, 'scheduling_drag_multiple');
+        $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+        $is_customer = false;
+        foreach(array_filter(explode(',',ROLE)) as $session_role) {
+            if(in_array($session_role,$customer_roles)) {
+                $is_customer = true;
+            }
+        }
         break;
     case 'estimates':
         $config_type = 'estimates';

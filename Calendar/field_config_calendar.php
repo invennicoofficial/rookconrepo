@@ -584,6 +584,9 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_drag_multiple' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_drag_multiple') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_drag_multiple."' WHERE `name`='scheduling_drag_multiple'");
+	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -2156,6 +2159,19 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_drag_multiple = get_config($dbc, 'scheduling_drag_multiple'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_drag_multiple" <?= $scheduling_drag_multiple == 1 ? 'checked' : '' ?> value="1"></label>
+                </div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will display the Calendar to the selected Security Levels with a limited view to only things related to them.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Customer View Security Levels:</label>
+								<div class="col-sm-8">
+									<select name="scheduling_customer_roles[]" multiple class="chosen-select-deselect">
+										<option></option>
+										<?php $scheduling_customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+										$on_security = get_security_levels($dbc);
+										foreach($on_security as $security_label => $security_value) {
+											echo '<option value="'.$security_value.'" '.(in_array($security_value,$scheduling_customer_roles) ? 'selected' : '').'>'.$security_label.'</option>';
+										} ?>
+									</select>
 								</div>
 							</div>
 						</div>
