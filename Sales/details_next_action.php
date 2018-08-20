@@ -5,7 +5,7 @@
     <div class="row set-row-height">
         <div class="col-xs-12 col-sm-4 gap-md-left-15">Next Action:</div>
         <div class="col-xs-12 col-sm-5">
-            <select data-placeholder="Choose a Next Action..." name="next_action" class="chosen-select-deselect form-control">
+            <select data-placeholder="Choose a Next Action..." data-table="sales" name="next_action" class="chosen-select-deselect form-control">
                 <option value=""></option><?php
 				$tabs = get_config($dbc, 'sales_next_action');
 				
@@ -20,7 +20,7 @@
     
     <div class="row set-row-height">
         <div class="col-xs-12 col-sm-4 gap-md-left-15">New Reminder:</div>
-        <div class="col-xs-12 col-sm-5"><input name="new_reminder" value="<?= $new_reminder; ?>" type="text" class="datepicker form-control" /></div>
+        <div class="col-xs-12 col-sm-5"><input data-table="sales" name="new_reminder" value="<?= $new_reminder; ?>" type="text" class="datepicker form-control" /></div>
         <div class="clearfix"></div>
     </div>
     

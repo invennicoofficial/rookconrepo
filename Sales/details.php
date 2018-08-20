@@ -56,10 +56,18 @@
         
         $get_lead_source = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `businessid`, `referred_contactid` FROM `contacts` WHERE (`referred_contactid` IN ($contactid) OR `referred_contactid` IN ($businessid))"));
         $lead_source_cid = $get_lead_source['contactid'];
-        $lead_source_bid = $get_lead_source['businessid']; ?>
-        <input type="hidden" id="salesid" name="salesid" value="<?= $salesid ?>" /><?php
+        $lead_source_bid = $get_lead_source['businessid'];
     } ?>
+    <input type="hidden" id="salesid" name="salesid" value="<?= $salesid ?>" />
     <script>
+    $(document).ready(function() {
+        init_page();
+    });
+    function init_page() {
+        destroyInputs();
+        $('[data-table]').off('change',saveField).change(saveField);
+        initInputs();
+    }
     function flagLead(sel) {
         $.ajax({
             url: 'sales_ajax_all.php?action=flag_colour',
@@ -86,7 +94,7 @@
             return false;
         });
         $('[name=flag_off]').off('click').click(function() {
-            $('[name=colour]').val('FFFFFF');
+            $('[name=colour]').val('');
             $('[name=label]').val('');
             $('[name=flag_start]').val('');
             $('[name=flag_end]').val('');
@@ -164,7 +172,7 @@
                     <span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
                     <div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
                     <div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
-                            <option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+                            <option value="" style="background-color:#FFFFFF;">No Flag</option>
                             <?php foreach($colours as $colour) { ?>
                                 <option <?= $flag_colour == $colour ? 'selected' : '' ?> value="<?= $colour ?>" style="background-color:#<?= $colour ?>;"></option>
                             <?php } ?>
@@ -194,56 +202,69 @@
         <div class="standard-body-content"><?php
             
             if (strpos($value_config, ',Staff Information,') !== false) {
+				echo "<div>";
                 include('details_staff_info.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Lead Information,') !== false) {
+				echo "<div>";
                 include('details_lead_info.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Service,') !== false) {
+				echo "<div>";
                 include('details_services.php');
-                echo "<hr>";
+                echo "</div><hr>";
             }
             if (strpos($value_config, ',Products,') !== false) { 
+				echo "<div>";
                 include('details_products.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Lead Source,') !== false) { 
+				echo "<div>";
                 include('details_lead_source.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Reference Documents,') !== false) { 
+				echo "<div>";
                 include('details_ref_docs.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Marketing Material,') !== false) { 
+				echo "<div>";
                 include('details_marketing.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Information Gathering,') !== false) { 
+				echo "<div>";
                 include('details_info_gathering.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Estimate,') !== false) { 
+				echo "<div>";
                 include('details_estimate.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Next Action,') !== false) { 
+				echo "<div>";
                 include('details_next_action.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Lead Status,') !== false) { 
+				echo "<div>";
                 include('details_lead_status.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Lead Notes,') !== false) { 
+				echo "<div>";
                 include('details_lead_notes.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
-            if (strpos($value_config, ',Tasks,') !== false) { 
+            if (strpos($value_config, ',Tasks,') !== false) {
+				echo "<div>"; 
                 include('details_tasks.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Time,') !== false) { 
 				echo "<div>";
@@ -251,7 +272,9 @@
 				echo "</div><hr>";
             }
             if (strpos($value_config, ',History,') !== false) { 
+				echo "<div>";
                 include('details_history.php');
+                echo "</div>";
             } ?>
             
             <div class="pull-right gap-top gap-right gap-bottom">

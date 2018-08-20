@@ -1,41 +1,4 @@
 <!-- Lead Source -->
-<script type="text/javascript">
-$(document).ready(function() {
-    $("#lead_source_businessid").change(function() {
-		var businessid = this.value;
-		if(businessid > 0) {
-			$.ajax({
-				type: "GET",
-				url: "sales_ajax_all.php?fill=get_lead_source_contacts&businessid="+businessid,
-				dataType: "html",
-				success: function(response){
-					$('#lead_source_contactid').html(response);
-					$("#lead_source_contactid").trigger("change.select2");
-				}
-			});
-		}
-	});
-});
-function add_lead_source(type) {
-    destroyInputs('.'+type);
-    var block = $('.'+type).last();
-    var clone = $(block).clone();
-
-    clone.find('input').val('');
-    clone.find('select').val('').trigger('change.select2');
-
-    $(block).after(clone);
-    initInputs('.'+type);
-}
-function remove_lead_source(btn, type) {
-    if($('.'+type).length <= 1) {
-        add_lead_source(type);
-    }
-
-    $(btn).closest('.'+type).remove();
-}
-</script>
-
 <?php 
 $lead_source_tabs = array_filter(explode(',',get_config($dbc, 'sales_lead_source')));
 $lead_source = explode('#*#', $lead_source);
@@ -78,7 +41,7 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
             <div class="row lead_source_dropdown">
                 <div class="col-xs-12 col-sm-4 gap-md-left-15">Lead Source:</div>
                 <div class="col-xs-12 col-sm-5">
-                    <select data-placeholder="Choose a Lead Source..." name="lead_source[]" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Choose a Lead Source..." data-table="sales" data-concat="#*#" name="lead_source" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option>
                         <?php
                         foreach ($lead_source_tabs as $cat_tab) {
@@ -88,8 +51,8 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <a href="" onclick="remove_lead_source(this, 'lead_source_dropdown'); return false;"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
-                    <a href="" onclick="add_lead_source('lead_source_dropdown'); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
+                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
+                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .row -->
@@ -101,17 +64,17 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
             <div class="row lead_source_business">
                 <div class="col-xs-12 col-sm-4 gap-md-left-15">Lead Source - Business:</div>
                 <div class="col-xs-12 col-sm-5">
-                    <select data-placeholder="Select a Business..." name="lead_source_businessid[]" class="chosen-select-deselect form-control">
+                    <select data-placeholder="Select a Business..." data-table="sales" data-concat="#*#" name="lead_source" class="chosen-select-deselect form-control">
                         <option value=""></option><?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.",'Sites') AND `category` = 'Business' AND `deleted`=0"), MYSQLI_ASSOC));
+                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.",'Sites') AND `category` = 'Business' AND `deleted`=0 AND `status` > 0"), MYSQLI_ASSOC));
                         foreach($query as $id) {
                             echo '<option '. ($id==$lead_source ? 'selected' : '') .' value="'. $id .'">'. get_client($dbc, $id) .'</option>';
                         } ?>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <a href="" onclick="remove_lead_source(this, 'lead_source_business'); return false;"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
-                    <a href="" onclick="add_lead_source('lead_source_business'); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
+                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
+                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .row -->
@@ -123,7 +86,7 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
             <div class="row lead_source_contact">
                 <div class="col-xs-12 col-sm-4 gap-md-left-15">Lead Source - Contact:</div>
                 <div class="col-xs-12 col-sm-5">
-                    <select data-placeholder="Select a Contact..." name="lead_source_contactid[]" class="chosen-select-deselect form-control">
+                    <select data-placeholder="Select a Contact..." data-table="sales" data-concat="#*#" name="lead_source" class="chosen-select-deselect form-control">
                         <option value=""></option><?php
                         $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.",'Business') AND `deleted`=0 AND `status`>0"), MYSQLI_ASSOC));
                         foreach($query as $id) {
@@ -134,8 +97,8 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <a href="" onclick="remove_lead_source(this, 'lead_source_contact'); return false;"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
-                    <a href="" onclick="add_lead_source('lead_source_contact'); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
+                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
+                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .row -->
@@ -147,11 +110,11 @@ if(strpos($value_config, ','."Lead Source Dropdown".',') === FALSE && strpos($va
             <div class="row lead_source_other">
                 <div class="col-xs-12 col-sm-4 gap-md-left-15">Lead Source - Other:</div>
                 <div class="col-xs-12 col-sm-5">
-                    <input type="text" name="lead_source_other[]" value="<?= $lead_source; ?>" placeholder="Enter Lead Source..." class="form-control" />
+                    <input type="text" name="lead_source" data-table="sales" data-concat="#*#" value="<?= $lead_source; ?>" placeholder="Enter Lead Source..." class="form-control" />
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <a href="" onclick="remove_lead_source(this, 'lead_source_other'); return false;"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a>
-                    <a href="" onclick="add_lead_source('lead_source_other'); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a>
+                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
+                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .row -->
