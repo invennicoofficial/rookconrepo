@@ -1,4 +1,9 @@
 <?php include('../include.php');
+
+include('calendar_defaults.php');
+include_once('calendar_functions_inc.php');
+include_once('calendar_settings_inc.php');
+include_once('calendar_js_inc.php');
 // error_reporting(E_ALL);
 $detect = new Mobile_Detect;
 $is_mobile = ( $detect->isMobile() ) ? true : false;
@@ -7,7 +12,16 @@ if($is_mobile) {
 }
 
 // Reset active blocks
-if(strpos(','.strtolower(STAFF_CATS).',', ",'".strtolower(get_contact($dbc,$_SESSION['contactid'],'category'))."',") !== FALSE) {
+if($is_customer && $_GET['type'] == 'schedule') {
+	$new_today_date = empty($_GET['date']) ? date('Y-m-d') : $_GET['date'];
+	$result = mysqli_query($dbc, "SELECT `equipmentid` FROM `equipment_assignment` WHERE `deleted` = 0 AND DATE(`start_date`) <= '$new_today_date' AND DATE(`end_date`) >= '$new_today_date' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,$new_today_date,%'");
+	$appt_calendar_equipment = [];
+	while($row = mysqli_fetch_assoc($result)) {
+		$appt_calendar_equipment[] = $row['equipmentid'];
+	}
+	$appt_calendar_equipment = implode(',',array_unique($appt_calendar_equipment));
+	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$appt_calendar_equipment' WHERE `contactid`='".$_SESSION['contactid']."'");
+} else if(strpos(','.strtolower(STAFF_CATS).',', ",'".strtolower(get_contact($dbc,$_SESSION['contactid'],'category'))."',") !== FALSE) {
 	$calendar_reset_active = get_config($dbc, 'calendar_reset_active');
 	$calendar_blocks_last_reloaded = get_user_settings()['calendar_blocks_last_reloaded'];
 	if($_GET['type'] == 'schedule' && $_GET['retrieve_assigned'] == 1) {
@@ -62,11 +76,6 @@ if(!empty($calendar_auto_refresh)) {
 	$calendar_auto_refresh = ($calendar_auto_refresh['hour'] * 3600) + ($calendar_auto_refresh['minute'] * 60);
 }
 
-include('calendar_defaults.php');
-include_once('calendar_functions_inc.php');
-include_once('calendar_settings_inc.php');
-include_once('calendar_js_inc.php');
-
 // Calendar Main Screen ?>
 </head>
 <body>
@@ -74,7 +83,12 @@ include_once('calendar_js_inc.php');
 checkAuthorised('calendar_rook');
 $calendar_types = explode(',',get_config($dbc, 'calendar_types'));
 $edit_access = vuaed_visible_function($dbc, 'calendar_rook');
+if($is_customer) {
+	$edit_access = 0;
+}
+$ticket_view_access = tile_visible($dbc, 'ticket');
 echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
+echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_access.'">';
 ?>
 <div id="calendar_div" class="container calendar">
 	<?php
@@ -333,9 +347,9 @@ echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
 				<!-- <a href="?type=staff&mode=tickets&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'tickets' ? 'active' : '' ?>" style="float: left;"><?= TICKET_TILE ?></span></a> -->
 			<?php } else if($_GET['type'] == 'schedule' && in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) { ?>
 				<a href="?type=schedule&mode=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'schedule' ? 'active' : '' ?>" style="float: left;">Schedule</span></a>
-				<?php if($allowed_dispatch_staff > 0) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=staff"><span class="block-item <?= $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a><?php } ?>
-				<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category)) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=contractors"><span class="block-item <?= $_GET['mode'] == 'contractors' ? 'active' : '' ?>" style="float: left;">Contractors</span></a><?php } ?>
-				<?php if($scheduling_summary_view == 1) { ?><a href="?type=schedule&view=monthly&mode=summary"><span class="block-item <?= $_GET['mode'] == 'summary' ? 'active' : '' ?>" style="float: left;">Summary</span></a><?php } ?>
+				<?php if($allowed_dispatch_staff > 0 && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=staff"><span class="block-item <?= $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a><?php } ?>
+				<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=contractors"><span class="block-item <?= $_GET['mode'] == 'contractors' ? 'active' : '' ?>" style="float: left;">Contractors</span></a><?php } ?>
+				<?php if($scheduling_summary_view == 1 && !$is_customer) { ?><a href="?type=schedule&view=monthly&mode=summary"><span class="block-item <?= $_GET['mode'] == 'summary' ? 'active' : '' ?>" style="float: left;">Summary</span></a><?php } ?>
 			<?php } else if($_GET['type'] == 'shift' && $_GET['view'] != 'monthly' && in_array('Shift Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Shift Calendar')) {
 				$shift_client_type = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['contact_category'];
 				if(!empty($shift_client_type)) { ?>
