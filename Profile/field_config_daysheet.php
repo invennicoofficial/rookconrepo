@@ -178,6 +178,7 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Support', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Support">My Support Requests</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tasks', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tasks">My Tasks</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Communications', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Communications">My Communications</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Sales', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Sales">My <?= SALES_TILE ?></label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Shifts', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Shifts">My Shifts</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Time Sheets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Time Sheets">My Time Sheets</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Attached Contact Forms', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Attached Contact Forms">Attached Contact Forms (based on Match)</label>

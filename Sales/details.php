@@ -56,8 +56,7 @@
         
         $get_lead_source = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `businessid`, `referred_contactid` FROM `contacts` WHERE (`referred_contactid` IN ($contactid) OR `referred_contactid` IN ($businessid))"));
         $lead_source_cid = $get_lead_source['contactid'];
-        $lead_source_bid = $get_lead_source['businessid']; ?>
-        <input type="hidden" id="salesid" name="salesid" value="<?= $salesid ?>" /><?php
+        $lead_source_bid = $get_lead_source['businessid'];
     } ?>
 
     <div class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
@@ -71,56 +70,67 @@
         <div class="standard-body-content"><?php
             
             if (strpos($value_config, ',Staff Information,') !== false) {
+				echo "<div>";
                 include('details_staff_info.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Lead Information,') !== false) {
-                include('details_lead_info.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Service,') !== false) {
-                include('details_services.php');
-                echo "<hr>";
-            }
-            if (strpos($value_config, ',Products,') !== false) { 
-                include('details_products.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Lead Source,') !== false) { 
-                include('details_lead_source.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Reference Documents,') !== false) { 
-                include('details_ref_docs.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Marketing Material,') !== false) { 
-                include('details_marketing.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Information Gathering,') !== false) { 
-                include('details_info_gathering.php');
-				echo "<hr>";
-            }
-            if (strpos($value_config, ',Estimate,') !== false) { 
-                include('details_estimate.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Next Action,') !== false) { 
+				echo "<div>";
                 include('details_next_action.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
-            if (strpos($value_config, ',Lead Status,') !== false) { 
-                include('details_lead_status.php');
-				echo "<hr>";
+            if (strpos($value_config, ',Lead Information,') !== false) {
+				echo "<div>";
+                include('details_lead_info.php');
+				echo "</div><hr>";
+                if(count(array_filter(explode(',',$contactid))) > 0) {
+                    include('details_contacts.php');
+                }
+                if ($businessid > 0) {
+                    echo "<div>";
+                    include('details_business.php');
+                    echo "</div><hr>";
+                }
+            }
+            if (strpos($value_config, ',Service,') !== false) {
+				echo "<div>";
+                include('details_services.php');
+                echo "</div><hr>";
+            }
+            if (strpos($value_config, ',Products,') !== false) { 
+				echo "<div>";
+                include('details_products.php');
+				echo "</div><hr>";
+            }
+            if (strpos($value_config, ',Reference Documents,') !== false) { 
+				echo "<div>";
+                include('details_ref_docs.php');
+				echo "</div><hr>";
+            }
+            if (strpos($value_config, ',Marketing Material,') !== false) { 
+				echo "<div>";
+                include('details_marketing.php');
+				echo "</div><hr>";
+            }
+            if (strpos($value_config, ',Information Gathering,') !== false) { 
+				echo "<div>";
+                include('details_info_gathering.php');
+				echo "</div><hr>";
+            }
+            if (strpos($value_config, ',Estimate,') !== false) { 
+				echo "<div>";
+                include('details_estimate.php');
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Lead Notes,') !== false) { 
+				echo "<div>";
                 include('details_lead_notes.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
-            if (strpos($value_config, ',Tasks,') !== false) { 
+            if (strpos($value_config, ',Tasks,') !== false) {
+				echo "<div>"; 
                 include('details_tasks.php');
-				echo "<hr>";
+				echo "</div><hr>";
             }
             if (strpos($value_config, ',Time,') !== false) { 
 				echo "<div>";
@@ -128,7 +138,9 @@
 				echo "</div><hr>";
             }
             if (strpos($value_config, ',History,') !== false) { 
+				echo "<div>";
                 include('details_history.php');
+                echo "</div>";
             } ?>
             
             <div class="pull-right gap-top gap-right gap-bottom">

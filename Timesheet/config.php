@@ -794,17 +794,18 @@ function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$ticket_labels = implode('<br />', $ticket_labels);
 	return $ticket_labels;
 }
-
 function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$planned_hrs = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
-		$planned_hrs[] = $row['start_time'].' - '.$row['end_time'];
+		if(!empty(str_replace('00:00','',$row['start_time'])) || !empty(str_replace('00:00','',$row['end_time']))) {
+			$planned_hrs[] = $row['start_time'].' - '.$row['end_time'];
+		}
 	}
 	$planned_hrs = implode('<br />', $planned_hrs);
 	if(empty($planned_hrs)) {
@@ -813,14 +814,13 @@ function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $planned_hrs;
 	}
 }
-
 function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$tracked_hrs = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
@@ -832,15 +832,14 @@ function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $tracked_hrs;
 	}
 }
-
 function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$tracked_time = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;

@@ -32,8 +32,8 @@ $(document).on('change', 'select[name="next_action"]', function() { changeLeadNe
 </script>
 <?php
 $leads  = mysqli_query($dbc, "SELECT * FROM `sales` WHERE ".$filter.$query_mod);
-echo '<div class="main-screen-white horizontal-scroll standard-dashboard-body" style="border: none; background: none;">';
-echo '<div class="standard-dashboard-body-title"><h3>'.$page_title.'</h3></div>';
+    echo '<div class="main-screen-white horizontal-scroll standard-dashboard-body" style="border: none; background: none;">';
+    echo '<div class="standard-dashboard-body-title"><h3>'.$page_title.'</h3></div>';
 if ( $leads->num_rows > 0 ) {
     $i = 1;
     while ( $row=mysqli_fetch_assoc($leads) ) {
@@ -120,7 +120,6 @@ if ( $leads->num_rows > 0 ) {
         <h4>No Records Found.</h4>
     </div><?php
 } ?>
-
 </div>
 <div class="clearfix"></div>
 
