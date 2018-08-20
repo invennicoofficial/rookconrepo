@@ -584,9 +584,17 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_staff_split_security') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_staff_split_security."' WHERE `name`='scheduling_staff_split_security'");
+	if (!empty($_POST['scheduling_contractor_split_security'])) {
+		$scheduling_contractor_split_security = $_POST['scheduling_contractor_split_security'];
+	} else {
+		$scheduling_contractor_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_contractor_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_contractor_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_contractor_split_security."' WHERE `name`='scheduling_contractor_split_security'");
 	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
+	
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".(explode(':',$_POST['estimates_start'])[0] == '00' ? '12:'.explode(':',$_POST['estimates_start'])[1] : $_POST['estimates_start'])."' WHERE `name`='estimates_day_start'");
@@ -2178,7 +2186,15 @@ function showDefaultView(chk) {
 									<?php $scheduling_staff_split_security = get_config($dbc, 'scheduling_staff_split_security'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_staff_split_security" <?= $scheduling_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
-							</div>						</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_contractor_split_security" <?= $scheduling_contractor_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 

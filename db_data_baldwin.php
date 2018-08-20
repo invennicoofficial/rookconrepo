@@ -477,7 +477,6 @@
     //2018-08-20 - Ticket #8609 - Calendar Security
     if(!mysqli_query($dbc, "CREATE TABLE `field_config_calendar_security` (
         `fieldconfigid` int(11) NOT NULL,
-        `calendar_type` varchar(500) NOT NULL,
         `role` varchar(500) NOT NULL,
         `allowed_roles` text NOT NULL,
         `allowed_ticket_types` text NOT NULL)")) {

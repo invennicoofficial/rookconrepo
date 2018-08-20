@@ -58,12 +58,12 @@ function toggle_columns(type = global_type) {
 	} else if(type == 'team') {
 		$('#collapse_equipment').find('.block-item').removeClass('active');
 		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = 'team';
 	} else {
 		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
 		$('#collapse_teams').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = '';
 	}
 	$('.active_blocks .block-item,.active_blocks').hide();
@@ -299,8 +299,8 @@ function toggle_columns(type = global_type) {
 							retrieve_items($(block).closest('a'));
 						}
 					}
-					if($('#collapse_contractors').find('.block-item[data-staff='+contact_id+']').length > 0) {
-						var block = $('#collapse_contractors').find('.block-item[data-staff='+contact_id+']');
+					if($('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']').length > 0) {
+						var block = $('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items($(block).closest('a'));
@@ -341,7 +341,7 @@ function toggle_columns(type = global_type) {
 		$('.active_blocks_teams .block-item').filter(function() { return $(this).data('teamid') == teamid; }).show();
 	});
 	// Hide staff that are not attached to selected regions/classifications/location
-	$('[id^=collapse_staff],#collapse_contractors').find('.block-item').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item').each(function() {
 		var region_pass = true;
 		var location_pass = true;
 		var classification_pass = true;
@@ -390,7 +390,7 @@ function toggle_columns(type = global_type) {
 	});
     
 	// Filter selected staff
-	$('[id^=collapse_staff],#collapse_contractors').find('.block-item.active').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item.active').each(function() {
 		var staffid = $(this).data('staff');
 		staff.push(parseInt(staffid));
 		<?php if ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors') { ?>
