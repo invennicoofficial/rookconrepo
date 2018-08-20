@@ -1,9 +1,9 @@
 <div class="form-horizontal"><?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
-$show_tasks = tile_enabled($dbc, 'tasks');
-$show_forms = tile_enabled($dbc, 'intake');
-$show_checklists = tile_enabled($dbc, 'checklist');
+$show_tasks = $tasks_only ? true : tile_enabled($dbc, 'tasks');
+$show_forms = $tasks_only ? false : tile_enabled($dbc, 'intake');
+$show_checklists = $tasks_only ? false : tile_enabled($dbc, 'checklist');
 $sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
 <script>
 $(document).ready(function() {
@@ -665,11 +665,13 @@ function checklist_attach_file(checklist) {
 			</div>
 		</div>
 	</div>
+    <?php if($_GET['p'] == 'salespath') { ?>
 	<div id="sales_path_div" class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
 		<div class="standard-body-title">
 			<h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?></h3>
 		</div>
 		<div class="standard-body-content">
+        <?php } ?>
 			<div class="double_scroll_div" style="overflow-x: auto; overflow-y: hidden;"><div style="width: 2240px; padding-top: 1px;">&nbsp;</div></div>
 				<div id="scrum_tickets" class="scrum_tickets">
 					<?php $path = get_field_value('sales_path', 'sales', 'salesid', $salesid);
@@ -679,7 +681,7 @@ function checklist_attach_file(checklist) {
 					$timeline = explode('#*#', $tabs['timeline']);
 					$prior_sort = 0;
 					foreach($each_tab as $i => $milestone) {
-						$milestone_rows = $dbc->query("SELECT `sort` FROM `sales_path_custom_milestones` WHERE `salesid`='$salesid' AND `milestone`='$milestone'");
+						$milestone_rows = $dbc->query("SELECT `sort` FROM `sales_path_custom_milestones` WHERE `salesid`='$salesid' AND `salesid` > 0 AND `milestone`='$milestone'");
 						if($milestone_rows->num_rows > 0) {
 							$prior_sort = $milestone_rows->fetch_assoc()['sort'];
 						} else {
@@ -687,13 +689,13 @@ function checklist_attach_file(checklist) {
 						}
 					}
 					$milestoneid = ($_GET['milestone'] > 0 ? $_GET['milestone'] : 0);
-					$milestones = $dbc->query("SELECT `id`, `milestone`, `label`, `sort`, 'sales_path_custom_milestones' `table` FROM `sales_path_custom_milestones` WHERE `deleted`=0 AND `salesid`='$salesid' AND '$milestoneid' IN (`id`,0) AND `milestone` != '' UNION SELECT 0, '', '', 9999999, 'sales_path_custom_milestones' `table` ORDER BY `sort`, `id`");
+					$milestones = $dbc->query("SELECT `id`, `milestone`, `label`, `sort`, 'sales_path_custom_milestones' `table` FROM `sales_path_custom_milestones` WHERE `deleted`=0 AND `salesid`='$salesid' AND `salesid` > 0 AND '$milestoneid' IN (`id`,0) AND `milestone` != '' UNION SELECT 0, '', '', 9999999, 'sales_path_custom_milestones' `table` ORDER BY `sort`, `id`");
 					while($milestone_row = $milestones->fetch_assoc()) {
 						$cat_tab = $milestone_row['milestone'];
 						$label = $milestone_row['label'] ?: 'Tasks';
-						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' ORDER BY tasklistid DESC");
+						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0 ORDER BY tasklistid DESC");
 						$task_count = mysqli_num_rows($task_result) ?: 0;
-						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid') AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
+						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid' AND `salesid` > 0) AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
 						$form_count = mysqli_num_rows($form_result) ?: 0;
 						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
 						$checklist_count = mysqli_num_rows($checklist_result) ?: 0;
@@ -1054,7 +1056,9 @@ function checklist_attach_file(checklist) {
 						$i++;
 					} ?>
 				</div>
+            <?php if($_GET['p'] == 'salespath') { ?>
 			</div>
 		</div>
+        <?php } ?>
 	</div>
 </div>
