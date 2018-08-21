@@ -466,7 +466,16 @@ if($_GET['fill'] == 'stop_timer') {
 		$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
 		$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
-		$dbc->query("UPDATE `$table` SET `$field`='$value' WHERE `id`='$id'");
+
+        $dbc->query("UPDATE `$table` SET `$field`='$value' WHERE `id`='$id'");
+
+        if($field == 'deleted') {
+            $tm = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT taskboard, milestone FROM taskboard_path_custom_milestones WHERE `id`='$id'"));
+            $taskboard = $tm['taskboard'];
+            $milestone = $tm['milestone'];
+
+		    $dbc->query("UPDATE tasklist SET deleted = 1 WHERE task_board = '$taskboard' AND task_milestone_timeline = '$milestone'");
+        }
 	} else if($_POST['field'] == 'sort') {
 		$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);

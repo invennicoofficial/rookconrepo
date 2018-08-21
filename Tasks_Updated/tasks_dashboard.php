@@ -164,9 +164,13 @@ function milestoneActions() {
 		tasksInit();
 	});
 	$('.milestone_rem').off('click').click(function() {
-		$(this).closest('.sortable_milestone').remove();
-		DoubleScroll(document.getElementById('scrum_tickets'));
-		$.post('task_ajax_all.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), table: $(this).closest('.info-block-header').find('[name=milestone_name]').data('table'), field: 'deleted', value: 1 });
+		var result = confirm("Are you sure you want to delete this task?");
+		if (result) {
+            confirm('If you delete a column you delete all action items in the column.');
+            $(this).closest('.sortable_milestone').remove();
+            DoubleScroll(document.getElementById('scrum_tickets'));
+            $.post('task_ajax_all.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), table: $(this).closest('.info-block-header').find('[name=milestone_name]').data('table'), field: 'deleted', value: 1 });
+        }
 	});
 	$('.info-block-header [name=sort').off('change').change(function() {
 		$.post('task_ajax_all.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), table: $(this).closest('.info-block-header').find('[name=milestone_name]').data('table'), field: 'sort', value: this.value });
@@ -908,7 +912,7 @@ function checklist_attach_file(checklist) {
                                     <div class="row pull-left t_name">
                                         <h4 style="<?= $style_strikethrough ?>">
                                             <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                            <div class="pull-left gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a></div>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><span><?= $row['heading']; ?></span>
+                                            <div class="pull-left gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?>: </a></div> &nbsp;<?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><span><?= $row['heading']; ?></span>
                                         </h4>
                                     </div>
                                     <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
@@ -943,9 +947,14 @@ function checklist_attach_file(checklist) {
                                         echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="send_reminder(this); return false;"><img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-                                        echo in_array('reply', $quick_actions) ? '<span title="Comment" onclick="send_reply(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                                        echo in_array('reply', $quick_actions) ? '<span title="Add Note" onclick="send_reply(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                                        ?>
+
+									    <img class="inline-img" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>&tasklistid=<?=$row['tasklistid']?>');" src="../img/time-machine.png">
+
+                                        <?php
                                         echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
                                     echo '</span>';
 									if(in_array('flag_manual',$quick_actions)) { ?>
@@ -1119,8 +1128,8 @@ function checklist_attach_file(checklist) {
                             if(!empty($_GET['tab']) && $_GET['tab'] == 'sales') {
                                 $salesid = $_GET['category'];
                             }
-							echo '<li class="new_task_box no-sort"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to quickly add a task and then hit Enter."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>
-								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$task_board.' '.$salesid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
+							echo '<li class="new_task_box no-sort">
+								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add Task" id="add_new_task '.$status.' '.$task_path.' '.$task_board.' '.$salesid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
                             ?>
 
