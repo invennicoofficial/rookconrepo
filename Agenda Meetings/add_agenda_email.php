@@ -1,9 +1,26 @@
+<script type="text/javascript">
+function addOpt(type) {
+	var clone = $('.'+type).last().clone();
+
+	clone.find('.icon_link').html('<button class="btn brand-btn">Choose Icon</button>');
+	$('.'+type).last().after(clone);
+    clone.find('.select2,.chosen-container').remove();
+    clone.find('select').chosen();
+}
+function removeOpt(a, type) {
+	if($('.'+type).length <= 1) {
+		addOpt(type);
+	}
+	$(a).closest('.'+type).remove();
+	saveTypes();
+}
+</script>
 This Agenda will be emailed to the selected contacts when you Save or Approve the Agenda.
 <?php if (strpos($value_config, ','."Email to all Contact Attendees".',') !== FALSE) { ?>
-<div class="form-group clearfix completion_date">
+<div class="form-group clearfix completion_date business_contact">
     <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($value_config, ','."Business".',') === FALSE ? 'Contacts' : BUSINESS_CAT.' Contacts'); ?>:</label>
-    <div class="col-sm-8">
-        <select name="agenda_email_business[]" multiple data-placeholder="Select Contacts" class="chosen-select-deselect form-control" width="380">
+    <div class="col-sm-6">
+        <select name="agenda_email_business[]" data-placeholder="Select Contacts" class="chosen-select-deselect form-control" width="380">
             <option value=''></option>
             <?php
             $cat = '';
@@ -35,14 +52,18 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
 			} ?>
         </select>
     </div>
+    <div class="col-sm-1">
+        <img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addOpt('business_contact');">
+        <img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeOpt(this, 'business_contact');">
+    </div>
 </div>
 <?php } ?>
 
 <?php if (strpos($value_config, ','."Email to all Company Attendees".',') !== FALSE) { ?>
-<div class="form-group clearfix completion_date">
+<div class="form-group clearfix completion_date company_contact">
     <label for="first_name" class="col-sm-4 control-label text-right">Company Contact:</label>
-    <div class="col-sm-8">
-        <select name="agenda_email_company[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control" width="380">
+    <div class="col-sm-6">
+        <select name="agenda_email_company[]" data-placeholder="Select Staff" class="chosen-select-deselect form-control" width="380">
             <option value=''></option>
             <?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
@@ -54,6 +75,10 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
                 }
 			} ?>
         </select>
+    </div>
+    <div class="col-sm-1">
+        <img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addOpt('company_contact');">
+        <img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeOpt(this, 'company_contact');">
     </div>
 </div>
 

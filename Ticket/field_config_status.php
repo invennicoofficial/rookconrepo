@@ -44,6 +44,7 @@ function saveTypes() {
 	});
 }
 function addOpt(type) {
+	
 	var clone = $('.'+type).last().clone();
 	clone.find('input').val('').removeAttr('checked');
 	clone.find('.icon_link').html('<button class="btn brand-btn">Choose Icon</button>');
